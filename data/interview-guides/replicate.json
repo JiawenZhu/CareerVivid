@@ -1,0 +1,93 @@
+{
+  "company": "Replicate",
+  "slug": "replicate",
+  "url": "https://www.techinterview.org/companies/replicate",
+  "scrapedAt": "2026-07-02T07:14:21.256Z",
+  "interviewStages": [
+    "System design (1 round): model-serving prompts. \"Design the GPU allocator that handles bursty image-generation requests across diverse models.\" \"Design the cold-start optimization pipeline for 10K+ community models.\" \"Design the billing / metering system for per-prediction usage tracking.\"",
+    "Behavioral / hiring manager: past projects, small-team comfort, open-source orientation."
+  ],
+  "codingTopics": [
+    "GPU queue management: implement a scheduler matching incoming requests to available GPU capacity with fairness",
+    "Cold-start optimization: implement a warm-pool manager for frequently-accessed models",
+    "Streaming response handler: process a model's streaming output, format for API consumers, handle cancellation",
+    "API rate limiter with per-tenant quotas and burst allowance",
+    "Classic algorithm problems (trees, graphs, DP) with infrastructure-applied twists"
+  ],
+  "systemDesignTopics": [
+    "\"Design the GPU allocator supporting 10K+ diverse models with minimal cold-start latency.\"",
+    "\"Design the prediction-queue system routing requests across heterogeneous GPU types and model types.\"",
+    "\"Design the Cog container distribution system ensuring fast image pulls for newly-requested community models.\"",
+    "\"Design the billing / metering system tracking per-prediction GPU usage with audit-grade correctness.\"",
+    "Walk through what happens from API call to model execution on GPU.",
+    "Discuss approaches for cold-start mitigation in serverless-GPU contexts.",
+    "Reason about warm-pool vs on-demand GPU allocation trade-offs.",
+    "Describe your approach to billing correctness across long-running predictions.",
+    "Explain how you'd handle a newly-uploaded model with unusual dependencies."
+  ],
+  "behavioralTopics": [
+    "Small-team comfort: \"How do you operate in an environment where you own broad scope with limited infrastructure?\"",
+    "Open-source orientation: \"Have you contributed to open-source projects? What's your take on open vs closed development?\"",
+    "Customer empathy: \"Describe a time you engaged with a developer user's problem.\"",
+    "Remote effectiveness: \"How do you work well in a fully-distributed team?\""
+  ],
+  "sampleQuestions": {
+    "coding": [
+      "Implement a scheduler matching incoming requests to available GPU capacity with fairness. Talk through your approach, complexity, and edge cases.",
+      "Implement a warm-pool manager for frequently-accessed models. Talk through your approach, complexity, and edge cases.",
+      "Process a model's streaming output, format for API consumers, handle cancellation. Talk through your approach, complexity, and edge cases.",
+      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph.",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases."
+    ],
+    "behavioral": [
+      "How do you operate in an environment where you own broad scope with limited infrastructure?",
+      "Have you contributed to open-source projects? What's your take on open vs closed development?",
+      "Describe a time you engaged with a developer user's problem.",
+      "How do you work well in a fully-distributed team?",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
+    "systemDesign": [
+      "Design the GPU allocator supporting 10K+ diverse models with minimal cold-start latency. Cover the API, data model, and how it scales.",
+      "Design the prediction-queue system routing requests across heterogeneous GPU types and model types.",
+      "Design the Cog container distribution system ensuring fast image pulls for newly-requested community models.",
+      "Design the billing / metering system tracking per-prediction GPU usage with audit-grade correctness.",
+      "Walk through what happens from API call to model execution on GPU."
+    ],
+    "values": [],
+    "other": [
+      "How does Replicate compare to Modal on interviews?",
+      "Do I need ML background to get hired?",
+      "Is Cog important for interviews?",
+      "What about the growing competitive landscape?",
+      "Is remote work genuinely supported?"
+    ]
+  },
+  "difficulty": 7.5,
+  "tips": [
+    "Use Replicate actively. Run several different models via API. Form opinions about the developer experience.",
+    "Read Cog docs and source. Understanding the model-packaging philosophy signals preparation.",
+    "Know the AI-infrastructure competitive landscape. Replicate vs Modal vs Baseten vs Together AI vs HuggingFace Inference Endpoints.",
+    "Engage with open-source orientation. Have an authentic view on open vs closed model hosting.",
+    "Demonstrate small-team comfort. Be honest if you prefer large-company structure.",
+    "Replicate engineering blog and product-update posts",
+    "Cog GitHub repository and documentation",
+    "Ben Firshman's public writing on developer tooling and open-source",
+    "Nvidia CUDA and MIG documentation for GPU context",
+    "vLLM and Triton Inference Server docs for model-serving patterns",
+    "Replicate itself &mdash; run predictions across diverse models before interviewing"
+  ],
+  "compensation": [
+    "Software Engineer (US): $175k&ndash;$220k base, $150k&ndash;$270k equity (4 years), modest bonus. Total: ~$270k&ndash;$420k / year.",
+    "Senior Software Engineer: $225k&ndash;$285k base, $280k&ndash;$520k equity. Total: ~$380k&ndash;$590k / year.",
+    "Staff Engineer: $290k&ndash;$350k base, $550k&ndash;$1M equity. Total: ~$530k&ndash;$820k / year.",
+    "The team is small but the product ships meaningful volume. ~80 people operating infrastructure supporting many millions of predictions.",
+    "Cog is a real open-source project with broader adoption beyond Replicate itself.",
+    "The open-source / community orientation is genuine, not marketing.",
+    "Hiring bar is higher than the company size suggests.",
+    "Not having used Replicate. Authentic familiarity matters.",
+    "Weak GPU / container fundamentals for infrastructure roles.",
+    "Dismissing the open-source orientation.",
+    "Expecting large-company process and structure."
+  ],
+  "rawSummary": "Replicate Interview Guide 2026: AI Model-Serving Platform, Cog Container Format, and Community Models\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 24, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\tUpdated April 24, 2026 · techinterview.org\n\n⏱ 8 min read\n\nReplicate\nreplicate.com ↗\n\nReplicate Interview Process: Complete 2026 Guide\n\nOverview\n\nReplicate is the cloud platform for running AI models &mdash; primarily open-weight image, video, audio, and language models served through a simple API. Founded 2019 by Ben Firshman and Andreas Jansson (both ex-Docker), private with a Series B in 2024 and continued growth through the AI boom. ~80 employees in 2026, deliberately small relative to product scope. Remote-first with no single HQ &mdash; team distributed primarily across North America and Europe. The product wraps open-source models (Stable Diffusion family, Flux, Llama, Whisper, Bark, numerous community models) into deployable API endpoints, with a custom container format (Cog) that simplifies model packaging, and handles GPU allocation, cold starts, autoscaling, and billing. Engineering is Python-heavy on the SDK / product side, Go on infrastructure, and some Rust for performance-critical components. Interviews reflect the reality of running AI-model infrastructure with heavy open-source / community orientation &mdash; expect practical engineering depth, GPU / container fluency, and genuine appreciation for developer experience.\n\nInterview Structure\n\nRecruiter screen (30 min): background, why Replicate, team interest. The engineering surface is compact: model-serving infrastructure, Cog (the open-source model-packaging tool), product / API, developer experience, data / ML (safety, moderation, recommendations), and business / billing. The small size means each hire has broad scope.\n\nTechnical phone screen (60 min): one coding problem, medium-hard. Python for SDK / product; Go for infrastructure; Rust for some performance code. Problems tilt applied &mdash; process a streaming response, implement a rate limiter with GPU-aware allocation, build a small image-processing pipeline.\n\nTake-home (most senior / staff roles): 4&ndash;8 hours on a realistic engineering problem. Historically involves building a small model-serving component or extending Cog. Write-up quality is weighted heavily.\n\nOnsite / virtual onsite (3&ndash;4 rounds, compact):\n\n- Coding (1&ndash;2 rounds): one algorithms round, one applied round often involving model-serving primitives &mdash; queue-based task scheduling, streaming output handling, prediction-result caching.\n\n- System design (1 round): model-serving prompts. \"Design the GPU allocator that handles bursty image-generation requests across diverse models.\" \"Design the cold-start optimization pipeline for 10K+ community models.\" \"Design the billing / metering system for per-prediction usage tracking.\"\n\n- Domain / infrastructure deep-dive (1 round): container runtime internals, GPU workload orchestration, ML inference optimization (batching, quantization, warm-pool management). For product-engineering roles, more focus on API design and developer experience.\n\n- Behavioral / hiring manager: past projects, small-team comfort, open-source orientation.\n\nTechnical Focus Areas\n\nCoding: Python fluency (modern idioms, type hints, async / await where useful), Go for infrastructure-heavy roles. Clean code and clear error handling for developer-facing APIs.\n\nCog (model packaging): Cog is Replicate's open-source tool for packaging models into containers with standardized input / output schemas. Understanding Cog's design philosophy, Dockerfile internals, CUDA / driver compatibility management, and model-weight distribution matters for infrastructure roles.\n\nGPU infrastructure: GPU scheduling for heterogeneous workloads (image gen, LLM, audio), cold-start optimization for large models, warm-pool management for common models, multi-tenancy on shared GPUs (MIG partitioning on H100 / Blackwell), VRAM budget planning.\n\nModel-serving patterns: continuous batching (where applicable for LLMs), async prediction APIs with polling or webhooks, streaming output for text / progressive image generation, caching common inputs, prediction-queue fairness across tenants.\n\nDeveloper experience: Replicate's API and SDK are the product surface for most users. Clean API design (simple, typed, discoverable), SDK ergonomics (Python, TypeScript), documentation quality, error-message design, and webhook reliability all matter.\n\nOpen-source / community: Replicate hosts thousands of community-uploaded models. Platform scalability to support many models with diverse dependencies, model-discovery features, creator monetization, and content-safety at scale.\n\nBilling / observability: metering per-prediction usage with sub-second granularity, cost attribution across models and customers, fraud detection for abusive usage patterns.\n\nCoding Interview Details\n\nTwo coding rounds, 60 minutes each. Difficulty is medium-hard. Comparable to Modal o"
+}

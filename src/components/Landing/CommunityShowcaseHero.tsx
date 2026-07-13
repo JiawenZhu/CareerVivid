@@ -444,7 +444,7 @@ export function CommunityShowcaseHero() {
                                 {t('landing.community_showcase.hero.start_free')} <ArrowRight size={19} />
                             </a>
                             <a
-                                href="/job-tracker"
+                                href="/learning"
                                 className="inline-flex min-h-[52px] items-center justify-center gap-3 rounded-xl border border-[#d8c6ad] bg-[#fffaf1] px-6 py-4 text-base font-semibold text-[#211b16] shadow-sm transition hover:-translate-y-0.5 hover:border-[#bfa782]"
                             >
                                 {t('landing.community_showcase.hero.view_tracker')}

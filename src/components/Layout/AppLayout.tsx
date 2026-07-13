@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useEffect } from 'react';
 import { useNavigation } from '../../contexts/NavigationContext';
 import Sidebar from '../Navigation/Sidebar';
 // LICENSE REQUIREMENT: This attribution badge must remain intact and visible per the repository license.
@@ -12,15 +12,31 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
     const { sidebarMode, sidebarWidth } = useNavigation();
     const activeSidebarWidth = sidebarMode === 'collapsed' ? 72 : sidebarWidth;
 
+    useEffect(() => {
+        document.documentElement.classList.add('cv-product-density-root');
+        document.body.classList.add('cv-product-density-body');
+
+        if (window.scrollX !== 0) {
+            window.scrollTo({ left: 0, top: window.scrollY });
+        }
+
+        return () => {
+            document.documentElement.classList.remove('cv-product-density-root');
+            document.body.classList.remove('cv-product-density-body');
+        };
+    }, []);
+
     return (
         <div
-            className="flex min-h-screen bg-gray-50 dark:bg-gray-950"
+            className="cv-product-density cv-design-page cv-design-grid flex min-h-screen"
             style={{ '--sidebar-width': `${activeSidebarWidth}px` } as React.CSSProperties}
         >
             <Sidebar />
-            <main className="flex-1 overflow-x-hidden md:pl-[var(--sidebar-width)] flex flex-col min-w-0 bg-gray-50 transition-[padding-left] duration-200 ease-in-out dark:bg-gray-950">
-                <div className="flex-1">{children}</div>
-                <OpenSourceAttribution />
+            <main className="cv-product-density-main cv-design-page cv-design-grid flex min-w-0 flex-1 flex-col overflow-x-hidden transition-[padding-left] duration-200 ease-in-out md:pl-[var(--sidebar-width)]">
+                <div className="cv-product-density-viewport flex min-h-0 flex-1 flex-col">{children}</div>
+                <div className="cv-product-density-footer mt-auto">
+                    <OpenSourceAttribution />
+                </div>
             </main>
         </div>
     );

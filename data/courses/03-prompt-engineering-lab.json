@@ -1,0 +1,188 @@
+{
+  "schemaVersion": 1,
+  "id": "prompt-engineering-lab",
+  "order": 3,
+  "title": "03. Prompt engineering",
+  "language": "javascript",
+  "category": "AI",
+  "difficulty": "Beginner",
+  "tagline": "Assemble prompts block by block, train a model with examples, and ship structured output.",
+  "description": "From \"ask and hope\" to reliable, structured prompting: prompt anatomy, few-shot examples (and when they hurt), chain-of-thought, and JSON output.",
+  "status": "published",
+  "tags": ["prompting", "few-shot", "structured-output"],
+  "estimatedMinutes": 55,
+  "sourceIds": ["dair-prompt-engineering-guide", "openai-cookbook", "anthropic-claude-cookbooks", "microsoft-generative-ai-for-beginners"],
+  "chapters": [
+    {
+      "id": "ch1-prompt-anatomy",
+      "title": "Anatomy of a prompt",
+      "exercises": [
+        {
+          "id": "reading-prompt-anatomy",
+          "title": "The five blocks of a reliable prompt",
+          "kind": "reading",
+          "xp": 15,
+          "content": "# The five blocks of a reliable prompt\n\n\"Prompt engineering\" sounds like magic words. It isn't. It's the same discipline as writing a good ticket for a coworker: enough structure that the result doesn't depend on luck.\n\nA reliable prompt has up to five blocks:\n\n### 1. Role\n*\"You are a senior career coach who reviews resumes for tech roles.\"*\nSets expertise, tone, and perspective. The model has seen every kind of writing; the role tells it which distribution to sample from.\n\n### 2. Task\n*\"Review the resume bullet below and improve it.\"*\nOne clear instruction. Vague verbs (\"help me with\", \"look at\") produce vague answers. Multi-task prompts produce half-done everything — split them.\n\n### 3. Context\n*\"The candidate is applying for a backend engineer role at a fintech startup. Bullet: …\"*\nThe facts the model can't know. Missing context is the #1 cause of generic answers — the model fills gaps with averages.\n\n### 4. Examples (few-shot)\n*\"Example rewrite: 'Built APIs' → 'Designed 12 REST APIs serving 40k req/min'.\"*\nShow, don't tell. One good example beats three paragraphs of description. (Chapter 2 is all about this.)\n\n### 5. Output format\n*\"Respond as JSON: {\\\"score\\\": 1-10, \\\"issue\\\": \\\"…\\\", \\\"rewrite\\\": \\\"…\\\"}\"*\nThe difference between a chat answer and a **component you can build on**. Code can't parse \"Sure! Here are some thoughts…\". Every agent pipeline you'll build in courses 05+ depends on this block.\n\n### Delimiters: the seatbelt\nWrap user-provided content in clear markers (```, XML tags, \"---\"). It prevents instructions and data from blurring — which is also your first defense against prompt injection (course 08).\n\nNow build one yourself: the next lesson lets you toggle each block and watch the response sharpen.",
+          "attribution": "Adapted from the DAIR.AI Prompt Engineering Guide (MIT) and \"Generative AI for Beginners\" by Microsoft (MIT)",
+          "check": { "type": "read" }
+        },
+        {
+          "id": "interactive-prompt-builder",
+          "title": "Playground: Build a prompt block by block",
+          "kind": "interactive",
+          "xp": 25,
+          "widgetId": "prompt-builder",
+          "content": "# Build a prompt block by block\n\nBelow is a real task — improving a weak resume bullet — and the five prompt blocks from the reading. Toggle blocks on and off and watch two things:\n\n1. The **assembled prompt** on the left.\n2. The **simulated response** on the right — from useless chit-chat to parseable JSON.\n\nPay attention to which block causes the biggest jump. (Spoiler: it's usually context or format, not the fancy role.)\n\n*To complete this lesson: enable all five blocks.*",
+          "check": { "type": "widget" }
+        },
+        {
+          "id": "video-prompt-fundamentals",
+          "title": "Video: Prompt engineering fundamentals",
+          "kind": "video",
+          "xp": 10,
+          "videoUrl": "https://youtu.be/GElCu2kUlRs",
+          "content": "### Watch: Prompt engineering fundamentals\n\nMicrosoft's lesson-4 video. Watch for:\n\n- Their definition of a prompt as **model programming**, not conversation.\n- How small wording changes flip the output (their tokenizer demos).\n- The fabrication example — why prompts alone can't guarantee truth (that's what RAG and evals are for).",
+          "attribution": "Video © Microsoft, \"Generative AI for Beginners\" — MIT license — github.com/microsoft/generative-ai-for-beginners",
+          "check": { "type": "read" }
+        },
+        {
+          "id": "quiz-prompt-anatomy",
+          "title": "Knowledge check: prompt anatomy",
+          "kind": "quiz",
+          "xp": 20,
+          "content": "# Knowledge check\n\nThree questions on prompt structure. All three to pass.",
+          "quiz": [
+            {
+              "id": "q1-generic-answers",
+              "prompt": "Your prompt keeps producing generic, could-apply-to-anyone answers. Which block is most likely missing?",
+              "options": [
+                "Role — the model needs a personality",
+                "Context — without your specific facts, the model fills gaps with averages",
+                "A politeness marker like 'please'"
+              ],
+              "correctIndex": 1,
+              "explanation": "Generic output is the signature of missing context. The model doesn't know your situation unless you put it in the prompt."
+            },
+            {
+              "id": "q2-format-why",
+              "prompt": "Why does the output-format block matter so much for agents and pipelines?",
+              "options": [
+                "JSON responses use fewer tokens",
+                "Code needs to parse the answer — structured output turns a chat reply into a usable component",
+                "Models think harder when asked for JSON"
+              ],
+              "correctIndex": 1,
+              "explanation": "Downstream code can't reliably parse prose. A schema makes the model's output a contract that functions, tools, and agents can consume."
+            },
+            {
+              "id": "q3-delimiters",
+              "prompt": "What do delimiters (``` or XML tags) around user content protect against?",
+              "options": [
+                "Token-count overcharges",
+                "The model confusing user-provided data with instructions — including malicious ones",
+                "Markdown rendering glitches in the UI"
+              ],
+              "correctIndex": 1,
+              "explanation": "Delimiters keep 'stuff to process' separate from 'things to do'. That separation is also your first line of defense against prompt injection."
+            }
+          ],
+          "check": { "type": "quiz", "minCorrect": 3 }
+        }
+      ]
+    },
+    {
+      "id": "ch2-techniques",
+      "title": "Techniques that actually work",
+      "exercises": [
+        {
+          "id": "reading-prompt-techniques",
+          "title": "Few-shot, chain-of-thought, and ReAct",
+          "kind": "reading",
+          "xp": 15,
+          "content": "# Few-shot, chain-of-thought, and ReAct\n\nFour techniques cover 95% of practical prompting. Learn when each helps — and when it hurts.\n\n### Few-shot examples\nAdd 1–5 solved examples of your exact task. Best for **format and style transfer**: classifications, rewrites, extractions.\n\n- ✅ Helps: consistent output shape, domain-specific labels, tone matching.\n- ⚠️ Hurts: a *wrong or ambiguous* example poisons everything after it — models copy examples more faithfully than instructions. Also: examples eat tokens on every call.\n- Rule: **curate examples like test data.** You'll feel this in the next lesson.\n\n### Chain-of-thought (CoT)\nAsk the model to reason step by step before answering (\"think through this before giving the final answer\").\n\n- ✅ Helps: math, logic, multi-constraint decisions.\n- ⚠️ Hurts: simple lookups (slower, pricier), and user-facing output where you only want the conclusion — ask for reasoning *then* a clean final answer, or hide the reasoning from the UI.\n\n### ReAct (reason + act)\nInterleave reasoning with **tool calls**: *Thought → Action → Observation → repeat*. The model thinks about what it needs, calls a tool (search, calculator), reads the result, and continues. This is the seed of every agent you'll build in course 05.\n\n### Structured output\nNot just \"respond as JSON\" — give the **exact schema**, use delimiters, and validate the response in code. If parsing fails, re-ask with the error message included. That retry loop is standard production practice.\n\n### Iteration is the real technique\nNobody writes the perfect prompt first try. Change **one thing at a time**, keep a small test set of inputs, and compare outputs — you're doing informal evals, which become formal in course 07.",
+          "attribution": "Adapted from the DAIR.AI Prompt Engineering Guide (MIT), OpenAI Cookbook (MIT), and Anthropic's Claude Cookbooks (MIT)",
+          "check": { "type": "read" }
+        },
+        {
+          "id": "interactive-few-shot",
+          "title": "Playground: Train with examples",
+          "kind": "interactive",
+          "xp": 25,
+          "widgetId": "few-shot-trainer",
+          "content": "# Train the model with examples\n\nYou're building a support-email classifier: **refund**, **bug**, or **sales**. Zero-shot, it gets the easy ones. Your job: add examples to the prompt until the live test set hits 6/6.\n\nOne of the example cards is **mislabeled**. Add it anyway at some point — watching accuracy drop teaches you more than any paragraph could.\n\n*To complete this lesson: reach 6/6 accuracy.*",
+          "check": { "type": "widget" }
+        },
+        {
+          "id": "quiz-techniques",
+          "title": "Knowledge check: choosing techniques",
+          "kind": "quiz",
+          "xp": 20,
+          "content": "# Knowledge check\n\nThree scenario questions. All three to pass.",
+          "quiz": [
+            {
+              "id": "q1-when-fewshot",
+              "prompt": "Which task benefits most from few-shot examples?",
+              "options": [
+                "Asking for today's weather",
+                "Extracting fields from invoices into your company's exact JSON schema",
+                "Generating a completely original poem"
+              ],
+              "correctIndex": 1,
+              "explanation": "Few-shot shines at format transfer — showing the model your exact schema and labeling conventions beats describing them."
+            },
+            {
+              "id": "q2-cot-cost",
+              "prompt": "You added chain-of-thought to every prompt in your app and costs jumped 3× with no quality gain. Why?",
+              "options": [
+                "CoT generates many extra reasoning tokens, which only pay off on genuinely hard problems",
+                "CoT requires a more expensive model tier",
+                "The API charges a reasoning fee"
+              ],
+              "correctIndex": 0,
+              "explanation": "Reasoning tokens are output tokens — the most expensive kind. Use CoT selectively where multi-step reasoning actually changes the answer."
+            },
+            {
+              "id": "q3-react",
+              "prompt": "What does ReAct prompting add over plain chain-of-thought?",
+              "options": [
+                "Faster generation",
+                "Actions — the model interleaves reasoning with tool calls and reads their results",
+                "It removes the need for examples"
+              ],
+              "correctIndex": 1,
+              "explanation": "ReAct = Reason + Act. Thought → Action → Observation → repeat is the loop that turns a language model into an agent."
+            }
+          ],
+          "check": { "type": "quiz", "minCorrect": 3 }
+        }
+      ]
+    },
+    {
+      "id": "ch3-the-lab",
+      "title": "The lab",
+      "exercises": [
+        {
+          "id": "build-structured-prompt",
+          "title": "Code lab: Build a structured prompt",
+          "kind": "code",
+          "xp": 35,
+          "language": "javascript",
+          "content": "# Build a structured prompt\n\nGood prompts are not just instructions. They include role, task, context, constraints, and a machine-readable output format — and now you get to generate them programmatically, the way a real app template does.\n\n### Your task\nImplement `buildPrompt(role, task, format)` so the returned prompt includes all three inputs and asks for JSON output.\n\n### Source bench\n- DAIR Prompt Engineering Guide\n- OpenAI Cookbook\n- Claude Cookbooks",
+          "starterCode": "function buildPrompt(role, task, format) {\n  return \"\";\n}",
+          "check": {
+            "type": "tests",
+            "functionName": "buildPrompt",
+            "tests": [
+              {
+                "input": ["career coach", "review this resume bullet", "score, issue, rewrite"],
+                "expected": "Role: career coach\nTask: review this resume bullet\nOutput: JSON with score, issue, rewrite"
+              }
+            ]
+          },
+          "hint": "Return exactly the three-line string used in the expected output. Include \"JSON with\".",
+          "solutionCode": "function buildPrompt(role, task, format) {\n  return `Role: ${role}\\nTask: ${task}\\nOutput: JSON with ${format}`;\n}"
+        }
+      ]
+    }
+  ]
+}

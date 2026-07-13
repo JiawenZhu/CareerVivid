@@ -1,0 +1,35 @@
+{
+  "company": "Etsy",
+  "slug": "etsy-interview-guide",
+  "url": "https://www.techinterview.org/companies/etsy-interview-guide",
+  "scrapedAt": "2026-07-02T07:22:24.215Z",
+  "interviewStages": [
+    "Behavioral: collaboration, ownership, navigating mission-driven culture"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Etsy remote-friendly?",
+      "How does Etsy compensation compare to Shopify or Amazon?",
+      "What is the engineering culture?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Etsy Interview Guide (2026): Marketplace Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nEtsy\netsy.com ↗\n\nEtsy is the leading marketplace for handmade and vintage goods — 90M+ active buyers, 7M+ active sellers. The engineering organization is mature, with strong contributions to open source (Phabricator forks, statsd, deployinator). The interview is system-design-heavy with focus on marketplace dynamics, search, and the realities of running a product where every listing is unique.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral, 1 hiring manager. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design a search ranking system for highly variable inventory\n\n- Design a recommendation engine for unique items (cold-start problem)\n\n- Design a payment + escrow flow that handles disputes and chargebacks\n\n- Coding: medium DSA, occasionally with graph or string flavor\n\n- Behavioral: collaboration, ownership, navigating mission-driven culture\n\nLevels and comp (2026)\n\n- SE II: $150K–$190K total\n\n- Senior SE: $220K–$300K\n\n- Staff: $320K–$430K\n\n- Principal: $450K–$580K\n\nPrep priorities\n\n- Be fluent in PHP (legacy) or Java/Scala (newer services); Python for ML\n\n- Understand search and recommendation systems\n\n- Read Etsy engineering blog — they have decade+ of detailed posts\n\nFrequently Asked Questions\n\nIs Etsy remote-friendly?\n\nHybrid in Brooklyn (HQ), San Francisco, Dublin, others. Many engineering roles remote within US/EU.\n\nHow does Etsy compensation compare to Shopify or Amazon?\n\nBelow Amazon and current Shopify. Etsy comp is mid-tier — competitive at junior-mid; senior+ lags FAANG by 25–35%.\n\nWhat is the engineering culture?\n\nMature, mission-driven, strong testing and deployment culture. Famously calm — Etsy values craft and sustainability over hustle.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Etsy? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextInterviewing for AI Wrapper Series A Companies in 2026⏱ 4 min readZscaler Interview Guide 2026: Zero Trust, SSE/SASE, ZIA, ZPA, Cloud-Delivered Security⏱ 6 min readCoinbase Interview Guide 2026: Crypto Exchange Engineering, Matching Engine, Base L2, and Custody⏱ 9 min read"
+}

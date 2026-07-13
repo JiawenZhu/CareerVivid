@@ -1,0 +1,62 @@
+{
+  "company": "Okta",
+  "slug": "okta-interview-guide",
+  "url": "https://www.techinterview.org/companies/okta-interview-guide",
+  "scrapedAt": "2026-07-02T07:24:41.238Z",
+  "interviewStages": [
+    "System design at Okta",
+    "Recruiter screen (30 min). Background, role fit, security domain familiarity.",
+    "Hiring manager screen (45 min). Technical conversation about past projects, why Okta, expectations for the role.",
+    "Technical phone screen (60 min). One LeetCode-medium coding problem plus brief design discussion.",
+    "Onsite (4–5 rounds).",
+    "1 system design round, often security-flavored (design SSO, design a secrets vault, design a session manager)",
+    "1 architecture / depth round on identity-related topics for senior+",
+    "1 behavioral round",
+    "Bar raiser equivalent (panel review).",
+    "Standard LeetCode mediums: arrays, strings, hash maps, trees, graphs",
+    "Cryptography fundamentals: TLS handshake, JWT structure and validation, OAuth 2.0 / OIDC flows, SAML assertions",
+    "Identity-specific design: implement a session token store, design a multi-factor authentication system, design a rate-limited login flow with bot detection",
+    "For senior+: zero-trust architecture, certificate-based authentication, federated identity, SCIM provisioning"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Do I need a security background to interview at Okta?",
+      "Is Auth0 (acquired) interviewed differently?",
+      "How important is the bar-raiser equivalent?",
+      "What is the work-life balance at Okta?",
+      "How does Okta compare to other security firms?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [
+    "Technical: 6–8 weeks of LeetCode plus system design",
+    "Security domain: read OWASP Top 10, the OAuth 2.0 RFCs (especially RFC 6749 and RFC 7519 for JWT), and a high-level overview of SAML",
+    "Behavioral: prepare 3–4 stories about handling security-sensitive work, customer-impacting incidents, and cross-team collaboration",
+    "CrowdStrike &mdash; endpoint protection",
+    "Palo Alto Networks &mdash; network and cloud security",
+    "Zscaler &mdash; zero-trust cloud security",
+    "SentinelOne &mdash; autonomous endpoint security"
+  ],
+  "compensation": [
+    "L3 (mid): $140–180K base + $80–120K equity/year + bonus → $250–350K total",
+    "L4 (senior): $180–230K base + $150–250K equity/year → $400–550K total",
+    "L5 (staff): $230–300K base + $250–450K equity/year → $550–800K total",
+    "L6 (principal): $300–400K base + $400K+ equity/year → $750K–1.1M total"
+  ],
+  "rawSummary": "Okta Interview Guide (2026): Process, Questions, Compensation\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 2, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Interview process\n\n- Common technical questions\n\n- System design at Okta\n\n- The security-depth round\n\n- Compensation (2026 estimates, San Francisco)\n\n- Preparation\n\n- Frequently Asked Questions\n\n- Adjacent Security Companies\n\nUpdated May 2, 2026 · techinterview.org\n\n⏱ 3 min read\n\nOkta\nokta.com ↗\n\nOkta Interview Guide\n\nCompany overview: Okta is the leading identity and access management (IAM) platform, with over 18,000 enterprise customers in 2026. Headquartered in San Francisco with engineering centers in San Francisco, Bellevue, Toronto, and Bangalore. Major engineering domains include the core identity platform, the developer-focused Auth0 product (acquired in 2021), the workforce identity cloud, and the customer identity cloud.\n\nInterview process\n\nTimeline: 4–6 weeks.\n\n- Recruiter screen (30 min). Background, role fit, security domain familiarity.\n\n- Hiring manager screen (45 min). Technical conversation about past projects, why Okta, expectations for the role.\n\n- Technical phone screen (60 min). One LeetCode-medium coding problem plus brief design discussion.\n\n- Onsite (4–5 rounds).\n\n2 coding rounds (medium-to-hard)\n\n- 1 system design round, often security-flavored (design SSO, design a secrets vault, design a session manager)\n\n- 1 architecture / depth round on identity-related topics for senior+\n\n- 1 behavioral round\n\n- Bar raiser equivalent (panel review).\n\nCommon technical questions\n\n- Standard LeetCode mediums: arrays, strings, hash maps, trees, graphs\n\n- Cryptography fundamentals: TLS handshake, JWT structure and validation, OAuth 2.0 / OIDC flows, SAML assertions\n\n- Identity-specific design: implement a session token store, design a multi-factor authentication system, design a rate-limited login flow with bot detection\n\n- For senior+: zero-trust architecture, certificate-based authentication, federated identity, SCIM provisioning\n\nSystem design at Okta\n\nIdentity-and-security-flavored system design is central. Common prompts: design Okta itself (multi-tenant SSO platform), design a secret rotation system, design a federated identity service for B2B SaaS, design an audit-log pipeline that handles 100,000+ events per second from enterprise customers. The interviewer expects deep familiarity with the OAuth 2.0 / OIDC specification, SAML, and key cryptographic primitives. Hand-waving on security details lowers the score significantly.\n\nThe security-depth round\n\nSenior+ candidates face a security-depth round that probes specific knowledge: how does TLS 1.3 differ from 1.2 in handshake performance? What is forward secrecy and why does it matter? How do you securely store a secret in a multi-tenant database? How do you handle key rotation for signing tokens? Candidates without security background often struggle here even if their general engineering is strong.\n\nCompensation (2026 estimates, San Francisco)\n\n- L3 (mid): $140–180K base + $80–120K equity/year + bonus → $250–350K total\n\n- L4 (senior): $180–230K base + $150–250K equity/year → $400–550K total\n\n- L5 (staff): $230–300K base + $250–450K equity/year → $550–800K total\n\n- L6 (principal): $300–400K base + $400K+ equity/year → $750K–1.1M total\n\nNote: Okta's stock has been volatile through the 2020s; equity-heavy packages have varied considerably in realized value.\n\nPreparation\n\n- Technical: 6–8 weeks of LeetCode plus system design\n\n- Security domain: read OWASP Top 10, the OAuth 2.0 RFCs (especially RFC 6749 and RFC 7519 for JWT), and a high-level overview of SAML\n\n- Behavioral: prepare 3–4 stories about handling security-sensitive work, customer-impacting incidents, and cross-team collaboration\n\nFrequently Asked Questions\n\nDo I need a security background to interview at Okta?\n\nFor most engineering roles, no — strong general engineers with security curiosity are hired regularly. For senior+ roles specifically working on the core identity platform, yes — substantial security familiarity is expected.\n\nIs Auth0 (acquired) interviewed differently?\n\nSlightly. Auth0 teams are more developer-product focused and the interviews tend to include more API design and developer-experience questions. The cryptographic depth is similar.\n\nHow important is the bar-raiser equivalent?\n\nSignificant. A weak signal in the panel review can sink a borderline offer. Treat the panel review as essentially a final hiring committee evaluation.\n\nWhat is the work-life balance at Okta?\n\nGenerally moderate — better than typical FAANG, slightly more demanding than typical SaaS. Security-sensitive work occasionally requires off-hours response, particularly in incident-response teams.\n\nHow does Okta compare to other security firms?\n\nOkta sits in the IAM segment, distinct from endpoint protection (CrowdStrike), network security (Palo Alto Networks), or cloud security (Zscaler). Compensation is competitive with the IAM segment lead"
+}

@@ -1,0 +1,35 @@
+{
+  "company": "Pendo",
+  "slug": "pendo-interview-guide",
+  "url": "https://www.techinterview.org/companies/pendo-interview-guide",
+  "scrapedAt": "2026-07-02T07:25:13.921Z",
+  "interviewStages": [
+    "Behavioral: customer focus, navigating ambiguity, working with PMs and design"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Pendo remote-friendly?",
+      "How does Pendo compare to Amplitude or Mixpanel?",
+      "What is the engineering culture?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Pendo Interview Guide (2026): Product Analytics and In-App Guides\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nPendo\npendo.io ↗\n\nPendo combines product analytics with in-app guidance — the unique pitch is \"see what users do AND nudge them via tooltips and walkthroughs without code.\" Used by 8000+ companies. The interview is data-engineering and frontend-instrumentation heavy, with focus on the unique constraints of running a JavaScript SDK inside customer apps.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design an event ingestion pipeline that handles 1B events/day\n\n- Design a JavaScript SDK that stays under 60KB gzipped and does not slow customer apps\n\n- Design an in-app guide editor that picks DOM elements without breaking on customer DOM changes\n\n- Coding: medium DSA with browser/DOM flavor for frontend roles\n\n- Behavioral: customer focus, navigating ambiguity, working with PMs and design\n\nLevels and comp (2026)\n\n- SE II: $145K–$180K total\n\n- Senior SE: $210K–$280K\n\n- Staff: $300K–$400K\n\n- Principal: $420K–$550K\n\nPrep priorities\n\n- Be fluent in TypeScript/JavaScript for SDK; Java for backend\n\n- Understand columnar storage and analytical query optimization\n\n- Know browser internals (DOM, MutationObserver, performance)\n\nFrequently Asked Questions\n\nIs Pendo remote-friendly?\n\nHybrid in Raleigh (HQ), San Francisco, Tel Aviv, and others. Many engineering roles are remote within US.\n\nHow does Pendo compare to Amplitude or Mixpanel?\n\nPendo combines analytics with guidance, a unique combo. Smaller than Amplitude on pure analytics; bigger than competing in-app guidance vendors. Comp lags Amplitude by ~10–15%.\n\nWhat is the engineering culture?\n\nMid-stage SaaS — pragmatic, customer-driven, decent work-life balance. Not a tech-darling brand but solid product engineering work.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Pendo? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextIntel Interview Guide 2026: Foundry Pivot, Gaudi AI, x86 Reset, Engineering Reset⏱ 7 min readLow Level Design: Centralized Logging System⏱ 7 min readHightouch Interview Guide (2026): Reverse ETL Engineering⏱ 1 min read"
+}

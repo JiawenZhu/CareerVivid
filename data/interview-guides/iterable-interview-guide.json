@@ -1,0 +1,35 @@
+{
+  "company": "Iterable",
+  "slug": "iterable-interview-guide",
+  "url": "https://www.techinterview.org/companies/iterable-interview-guide",
+  "scrapedAt": "2026-07-02T07:23:35.947Z",
+  "interviewStages": [
+    "Behavioral: customer focus, ownership, working with marketing domain"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Iterable remote-friendly?",
+      "How does Iterable compare to Braze or Customer.io?",
+      "What is the engineering culture?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Iterable Interview Guide (2026): Marketing Automation Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nIterable\niterable.com ↗\n\nIterable is the AI-powered customer communication platform competing with Braze and Klaviyo. Used by Disney, Box, and many B2C brands. The interview emphasizes high-throughput messaging, AI-personalization, and the engineering of modern marketing platforms.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design a multi-channel send pipeline (email, push, SMS, in-app)\n\n- Design AI-driven channel selection and timing optimization\n\n- Design segmentation queries against billions of events\n\n- Coding: medium DSA, often with stream processing framing\n\n- Behavioral: customer focus, ownership, working with marketing domain\n\nLevels and comp (2026)\n\n- SE II: $150K–$190K total\n\n- Senior SE: $215K–$285K\n\n- Staff: $315K–$420K\n\n- Principal: $450K–$600K\n\nPrep priorities\n\n- Be fluent in Scala or Java (the bulk of the codebase)\n\n- Understand high-throughput pipelines and stream processing\n\n- Brush up on ML for marketing personalization\n\nFrequently Asked Questions\n\nIs Iterable remote-friendly?\n\nDistributed across San Francisco (HQ), Denver, NYC. Many engineering roles fully remote within US.\n\nHow does Iterable compare to Braze or Customer.io?\n\nBraze is largest. Iterable is closer competitor with strong AI focus. Customer.io is developer-friendly mid-market. Comp is comparable.\n\nWhat is the engineering culture?\n\nMature SaaS, customer-driven, calm pace.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Iterable? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextSystem Design Interview: Design an Ad Click Aggregation System (Google/Meta Ads)⏱ 5 min readHashiCorp Interview Guide 2026: Terraform, Vault, Consul, Nomad, and Post-IBM Engineering⏱ 9 min readLow Level Design: SSH Key Rotation Service⏱ 6 min read"
+}

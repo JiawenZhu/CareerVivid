@@ -1,0 +1,35 @@
+{
+  "company": "Goldman Sachs",
+  "slug": "goldman-sachs-strats-engineering-interview-guide",
+  "url": "https://www.techinterview.org/companies/goldman-sachs-strats-engineering-interview-guide",
+  "scrapedAt": "2026-07-02T07:17:34.840Z",
+  "interviewStages": [],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "What's the difference between Strats and Engineering at Goldman?",
+      "How does Goldman pay compare to top prop shops and tech?",
+      "Is the Strats career path still attractive in 2026?",
+      "What's \"Slang\" and do I need to know it?",
+      "Where does Goldman hire and how location-flexible are roles?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Goldman Sachs Strats and Engineering Interview Guide: Quant Modeling, Markets Tech, Slang\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 25, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Goldman Sachs Strats and Engineering Interview Guide: Securities Strats, Quant Modeling, and Tech\n\n- What Goldman Sachs Strats Does\n\n- What Goldman Engineering Does Beyond Strats\n\n- Goldman Interview Process\n\n- What Goldman Tests For\n\n- Preparation Strategy\n\n- Goldman vs Other Firms\n\n- Compensation\n\n- Frequently Asked Questions\n\nUpdated April 25, 2026 · techinterview.org\n\n⏱ 6 min read\n\nGoldman Sachs Strats and Engineering\ngoldmansachs.com ↗\n\nGoldman Sachs Strats and Engineering Interview Guide: Securities Strats, Quant Modeling, and Tech\n\nGoldman Sachs runs one of the largest and most prestigious quant-and-engineering organizations on Wall Street. The Strats team (Strategists) is a long-tenured Goldman fixture &mdash; quantitative analysts embedded across the firm's businesses, building pricing models, risk infrastructure, automated trading, and analytics. Engineering at Goldman covers a broader scope: trading systems, market infrastructure, data platforms, the consumer business, and internal tooling. For candidates with strong quantitative or technical backgrounds, Goldman is one of the most accessible top-tier entry points to Wall Street, and it's a common alternative to (or complement to) prop-shop and hedge-fund recruiting.\n\nWhat Goldman Sachs Strats Does\n\nStrats is Goldman's term for quantitative strategists embedded across the firm. Strats teams sit within specific businesses (Equities, FICC, IBD, Asset Management, Investment Research) and build the quantitative tools those businesses need. Examples:\n\n- Securities Strats: derivatives pricing, risk models, hedging strategies, structured product modeling.\n\n- Markets Strats: automated execution algorithms, market-making support, transaction cost analysis.\n\n- Asset Management Strats: portfolio construction, factor research, risk attribution.\n\n- Risk Strats: firm-wide risk modeling, stress testing, capital allocation.\n\n- Strategic Strats: firmwide strategic projects, often cross-functional.\n\nStrats is technically Goldman's Engineering Division, but Strats roles are distinct from pure SWE roles. Strats are quantitative, often modeling-heavy; SWE roles are more software-engineering-focused. Career paths overlap but differ.\n\nWhat Goldman Engineering Does Beyond Strats\n\nEngineering is Goldman's largest division by headcount (10,000+). Beyond Strats:\n\n- Trading Systems: low-latency platforms, exchange connectivity, order management.\n\n- Market Data and Risk Platforms: ingestion, processing, monitoring at firm scale.\n\n- Marquee: Goldman's client-facing developer platform; Python and JavaScript-heavy.\n\n- Consumer (Marcus): Goldman's consumer banking technology stack (now winding down post-strategic-changes).\n\n- Internal Productivity / Office of Applied Innovation: internal tooling, AI experimentation, productivity infrastructure.\n\nThe breadth means engineers at Goldman can find roles ranging from low-latency C++ to Python data platforms to React front-ends to mobile development.\n\nGoldman Interview Process\n\nRound 1: Online assessment\n\nFor Strats and Engineering: HackerRank-style coding challenge, sometimes plus quantitative reasoning for Strats roles. The bar is reasonable for a top-tier firm; not extreme.\n\nRound 2: First-round interviews\n\nTwo or three back-to-back 30&ndash;45 minute interviews. For Strats: mix of probability, statistics, basic options theory, and coding. For Engineering: data structures and algorithms in your language of choice (commonly Java, Python, C++).\n\nRound 3: Superday\n\nMultiple back-to-back interviews at Goldman's office (NYC, London, or other major hub) or virtual on-site. For Strats: 4&ndash;6 interviews covering quantitative reasoning, modeling problems, project deep-dive, behavioral, and sometimes a brief options-pricing or derivatives discussion. For Engineering: 4&ndash;6 covering coding, systems design, behavioral, and sometimes a domain-specific technical (specific to the team).\n\nRound 4: Final / decision\n\nSenior managing director (MD) review. Decision typically within 2&ndash;3 weeks. Goldman's hiring process is more structured and slower than prop-shop processes.\n\nWhat Goldman Tests For\n\nQuantitative reasoning (Strats)\n\nProbability, basic statistics, expected value, conditional probability. Less brainteaser-heavy than Jane Street or Optiver but still solid quantitative aptitude expected. For derivatives-focused Strats teams, basic options theory: put-call parity, Greeks, intuitive understanding of Black-Scholes.\n\nCoding (Engineering and Strats)\n\nStandard data structures and algorithms. Goldman's bar is solid but not at the IOI/ACM level of HRT or Jump. Real-world systems concerns matter: scalability, fault tolerance, debugging.\n\nSystems design (senior Engineering)\n\nFor senior Engineering candidates, expect realistic systems-design conversa"
+}

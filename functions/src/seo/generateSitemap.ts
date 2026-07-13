@@ -32,6 +32,10 @@ const hitToUrl = (hit: any): string | null => {
 
 const STATIC_ROUTES = [
     { loc: BASE_URL, changefreq: "daily", priority: "1.0" },
+    { loc: `${BASE_URL}/learning`, changefreq: "weekly", priority: "0.9" },
+    { loc: `${BASE_URL}/learning/ai-agent-curriculum`, changefreq: "weekly", priority: "0.9" },
+    { loc: `${BASE_URL}/learning/coding-interview-patterns`, changefreq: "weekly", priority: "0.9" },
+    { loc: `${BASE_URL}/interview-studio`, changefreq: "weekly", priority: "0.9" },
     { loc: `${BASE_URL}/community`, changefreq: "hourly", priority: "0.9" },
     { loc: `${BASE_URL}/pricing`, changefreq: "weekly", priority: "0.8" },
     { loc: `${BASE_URL}/blog`, changefreq: "daily", priority: "0.8" },
@@ -40,6 +44,17 @@ const STATIC_ROUTES = [
     { loc: `${BASE_URL}/product`, changefreq: "monthly", priority: "0.6" },
     { loc: `${BASE_URL}/community/guidelines`, changefreq: "monthly", priority: "0.5" },
 ];
+
+// Guest-browsable company interview quest pages (/quest/{slug}) — regenerated
+// by scripts/generate-sitemap.mjs whenever interview guides change.
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+import { QUEST_ROUTE_SLUGS } from "./questRoutes.generated";
+
+const QUEST_ROUTES = QUEST_ROUTE_SLUGS.map((slug) => ({
+    loc: `${BASE_URL}/quest/${slug}`,
+    changefreq: "weekly",
+    priority: "0.6",
+}));
 
 // Add localized versions for each static route (excluding root which handles 'en' by default)
 const SUPPORTED_LANGUAGE_CODES = ["es", "fr", "de", "zh", "ja", "ko"];
@@ -57,7 +72,7 @@ const LOCALIZED_STATIC_ROUTES = SUPPORTED_LANGUAGE_CODES.flatMap(code => {
     });
 });
 
-const ALL_STATIC_ROUTES = [...STATIC_ROUTES, ...LOCALIZED_STATIC_ROUTES];
+const ALL_STATIC_ROUTES = [...STATIC_ROUTES, ...LOCALIZED_STATIC_ROUTES, ...QUEST_ROUTES];
 
 export const generateSitemap = onRequest(
     {

@@ -1,0 +1,35 @@
+{
+  "company": "Peloton",
+  "slug": "peloton-interview-guide",
+  "url": "https://www.techinterview.org/companies/peloton-interview-guide",
+  "scrapedAt": "2026-07-02T07:25:11.212Z",
+  "interviewStages": [
+    "Behavioral: customer focus, hardware-software integration"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Peloton remote-friendly?",
+      "How does Peloton compare to Apple Fitness+ or Hydrow?",
+      "What is the engineering culture?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Peloton Interview Guide (2026): Connected Fitness Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nPeloton\nonepeloton.com ↗\n\nPeloton is the leading connected fitness company — bikes, treadmills, app subscriptions. The interview emphasizes hardware-software integration, live streaming, and the subscription mechanics of fitness content.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design a live-streaming class platform with real-time leaderboards\n\n- Design content delivery for the bike/tread tablets\n\n- Design subscription billing with hardware-financing tier\n\n- Coding: medium DSA, often with streaming or scheduling framing\n\n- Behavioral: customer focus, hardware-software integration\n\nLevels and comp (2026)\n\n- SE II: $145K–$180K total\n\n- Senior SE: $215K–$285K\n\n- Staff: $310K–$410K\n\n- Principal: $430K–$570K\n\nPrep priorities\n\n- Be fluent in Python (backend) and Swift / Kotlin (mobile/tablet)\n\n- Understand video streaming (HLS, DASH) and CDN architecture\n\n- Brush up on real-time leaderboard systems\n\nFrequently Asked Questions\n\nIs Peloton remote-friendly?\n\nHybrid in NYC (HQ), with engineering offices in San Francisco and Toronto. Some engineering roles remote within US.\n\nHow does Peloton compare to Apple Fitness+ or Hydrow?\n\nPeloton has the largest brand. Apple Fitness+ is part of the Apple ecosystem. Hydrow is rowing-specific. Peloton pays mid-tier; comp stabilized post-2022 challenges.\n\nWhat is the engineering culture?\n\nMature, customer-focused, calmer pace post-COVID-bubble. Strong work-life balance.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Peloton? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextSystem Design Interview: Design a Maps and Navigation System (Google Maps)⏱ 6 min readLow-Level Design: Cinema Ticket Booking System — Seat Selection, Concurrent Reservations, and Pricing⏱ 5 min readKeyword Matching for Engineering Resumes: Tailoring Without Stuffing⏱ 6 min read"
+}

@@ -1,0 +1,121 @@
+{
+  "schemaVersion": 1,
+  "id": "agent-architecture-loop",
+  "order": 5,
+  "title": "05. Agent architecture",
+  "language": "javascript",
+  "category": "AI",
+  "difficulty": "Intermediate",
+  "tagline": "Be the agent's brain for a day: route tools, watch iterations burn, and trip the loop guard.",
+  "description": "What separates an agent from a chatbot: the plan-act-observe loop, tool routing, stop conditions, and the guardrails that keep agents from running forever.",
+  "status": "published",
+  "tags": ["agents", "tool-use", "react-loop"],
+  "estimatedMinutes": 55,
+  "sourceIds": ["microsoft-ai-agents-for-beginners", "huggingface-agents-course", "anthropic-claude-cookbooks"],
+  "chapters": [
+    {
+      "id": "ch1-the-loop",
+      "title": "The agent loop",
+      "exercises": [
+        {
+          "id": "reading-agent-loop",
+          "title": "From chatbot to agent",
+          "kind": "reading",
+          "xp": 15,
+          "content": "# From chatbot to agent\n\nA chatbot answers. An **agent** *acts*: it pursues a goal across multiple steps, using tools, until the goal is met — or a guard stops it.\n\nStrip away the hype and every agent is the ReAct loop from course 03, running on repeat:\n\n```\nwhile goal not met (and iterations < cap):\n  THINK   — what do I need next?\n  ACT     — call a tool with arguments\n  OBSERVE — read the result, update my picture\n```\n\n### The four organs of an agent\n\n**1. The model** — the reasoning engine that decides what to do next. It only ever sees text; everything else is plumbing you build around it.\n\n**2. Tools** — functions the model may call: `web_search`, `read_file`, `send_email`. Each has a name, a description, and a schema (structured output from course 03 is what makes calls parseable). The tool *descriptions* are prompt engineering — a vague description means wrong tool picks.\n\n**3. Memory** — the conversation so far, plus anything persisted across sessions. It all lives in the context window, so course 02's truncation rules apply: long-running agents must summarize or forget.\n\n**4. Guardrails** — the unglamorous parts that make agents shippable:\n- **Iteration cap** — no cap means a confused agent loops forever, burning tokens at output-token prices.\n- **Stop condition** — how the agent knows it's done. \"Declare victory\" without verification ships half-done work.\n- **Tool permissions** — which calls need approval (course 08 is all about this).\n- **Traces** — log every thought/action/observation. When an agent misbehaves, the trace is your only debugger.\n\n### Why wrong tool picks matter\nEvery wasted iteration is real money and real latency. An agent that takes 12 steps to do a 4-step job is a bug, even when it eventually succeeds. In the next lesson *you* are the router — feel how each decision spends the budget.",
+          "attribution": "Adapted from \"AI Agents for Beginners\" by Microsoft (MIT) and the Hugging Face Agents Course (Apache-2.0)",
+          "check": { "type": "read" }
+        },
+        {
+          "id": "video-intro-agents",
+          "title": "Video: Intro to AI agents",
+          "kind": "video",
+          "xp": 10,
+          "videoUrl": "https://youtu.be/3zgm60bXmQk",
+          "content": "### Watch: Introduction to AI agents\n\nFrom Microsoft's *AI Agents for Beginners*. Watch for:\n\n- Their definition of agent = **model + tools + loop**.\n- The role of **tool descriptions** in whether the model picks correctly.\n- Where humans stay in the loop for risky actions.",
+          "attribution": "Video © Microsoft, \"AI Agents for Beginners\" — MIT license — github.com/microsoft/ai-agents-for-beginners",
+          "check": { "type": "read" }
+        },
+        {
+          "id": "interactive-agent-loop",
+          "title": "Playground: You are the agent",
+          "kind": "interactive",
+          "xp": 30,
+          "widgetId": "agent-loop-simulator",
+          "content": "# You are the agent\n\nGoal: **find the cheapest SFO→NYC flight under $300 and email the itinerary.**\n\nEach turn shows the agent's thought. You pick the tool. Right picks advance the mission; wrong picks burn an iteration and return a useless observation — and at 6 iterations the **loop guard** kills the run.\n\nTry finishing early once, too. The agent will happily declare victory with nothing done — which is exactly why stop conditions must *verify*, not trust.\n\n*To complete this lesson: complete the mission before the loop guard trips.*",
+          "check": { "type": "widget" }
+        },
+        {
+          "id": "quiz-agent-architecture",
+          "title": "Knowledge check: agent anatomy",
+          "kind": "quiz",
+          "xp": 20,
+          "content": "# Knowledge check\n\nThree questions. All three to pass.",
+          "quiz": [
+            {
+              "id": "q1-agent-vs-chatbot",
+              "prompt": "What fundamentally separates an agent from a chatbot?",
+              "options": [
+                "Agents use bigger models",
+                "Agents pursue a goal across multiple steps, acting through tools and reading the results",
+                "Agents don't need prompts"
+              ],
+              "correctIndex": 1,
+              "explanation": "The loop is the difference: think → act → observe → repeat until a verified stop condition. The model can be identical."
+            },
+            {
+              "id": "q2-loop-guard",
+              "prompt": "Why does every production agent need an iteration cap?",
+              "options": [
+                "To make the code shorter",
+                "A confused agent with no cap loops forever — at output-token prices, that's an unbounded bill",
+                "APIs refuse more than 10 calls"
+              ],
+              "correctIndex": 1,
+              "explanation": "Runaway loops are the classic agent failure. The cap converts 'infinite bill' into 'failed run you can inspect via the trace'."
+            },
+            {
+              "id": "q3-tool-descriptions",
+              "prompt": "Your agent keeps calling the wrong tool. What's the highest-leverage fix?",
+              "options": [
+                "Rewrite the tool descriptions — they're the prompt the model routes by",
+                "Add more tools so it has options",
+                "Raise the temperature so it explores more"
+              ],
+              "correctIndex": 0,
+              "explanation": "The model picks tools by reading their descriptions. Vague descriptions produce vague routing — it's prompt engineering all the way down."
+            }
+          ],
+          "check": { "type": "quiz", "minCorrect": 3 }
+        }
+      ]
+    },
+    {
+      "id": "ch2-the-lab",
+      "title": "The lab",
+      "exercises": [
+        {
+          "id": "route-agent-tool",
+          "title": "Code lab: Route the right tool",
+          "kind": "code",
+          "xp": 40,
+          "language": "javascript",
+          "content": "# Route the right tool\n\nYou just played router by hand — now write the routing logic. Real frameworks do exactly this, just with a model instead of `includes()`.\n\n### Your task\nImplement `selectTool(goal)` and return `search`, `calculator`, `memory`, or `final`.\n\n### Source bench\n- Microsoft AI Agents for Beginners\n- Hugging Face Agents Course\n- Claude Cookbooks",
+          "starterCode": "function selectTool(goal) {\n  const normalized = goal.toLowerCase();\n  return \"final\";\n}",
+          "check": {
+            "type": "tests",
+            "functionName": "selectTool",
+            "tests": [
+              { "input": ["find latest Gemini docs"], "expected": "search" },
+              { "input": ["calculate monthly token cost"], "expected": "calculator" },
+              { "input": ["remember user preferred language"], "expected": "memory" },
+              { "input": ["answer with current summary"], "expected": "final" }
+            ]
+          },
+          "hint": "Look for verbs: find/latest -> search, calculate/cost -> calculator, remember/preferred -> memory.",
+          "solutionCode": "function selectTool(goal) {\n  const normalized = goal.toLowerCase();\n  if (normalized.includes(\"find\") || normalized.includes(\"latest\") || normalized.includes(\"search\")) return \"search\";\n  if (normalized.includes(\"calculate\") || normalized.includes(\"cost\")) return \"calculator\";\n  if (normalized.includes(\"remember\") || normalized.includes(\"preferred\")) return \"memory\";\n  return \"final\";\n}"
+        }
+      ]
+    }
+  ]
+}

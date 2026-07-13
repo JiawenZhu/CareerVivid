@@ -1,0 +1,35 @@
+{
+  "company": "Mistral AI",
+  "slug": "mistral-ai-interview-guide",
+  "url": "https://www.techinterview.org/companies/mistral-ai-interview-guide",
+  "scrapedAt": "2026-07-02T07:13:57.590Z",
+  "interviewStages": [
+    "Behavioral: ownership, taste, working in research-engineering hybrid"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Mistral remote-friendly?",
+      "How does Mistral compare to OpenAI or Anthropic?",
+      "What is the engineering culture?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Mistral AI Interview Guide (2026): European LLM Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 6, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 6, 2026 · techinterview.org\n\n⏱ 1 min read\n\nMistral AI\nmistral.ai ↗\n\nMistral AI is the leading European LLM company — known for open-weight models (Mistral 7B, Mixtral, Codestral) plus proprietary frontier models (Large 2). Founded by ex-Meta and ex-DeepMind researchers in Paris. Series B in 2024. The interview emphasizes both research-grade ML and the systems engineering of training/serving frontier models.\n\nProcess\n\nRecruiter screen → 60-minute coding (DSA medium-hard, sometimes ML-flavored) → onsite virtual: 2 coding/ML, 1 system design, 1 research or craft deep-dive, 1 behavioral. Research candidates get a paper-discussion round. Cycle: 4–6 weeks.\n\nWhat they actually ask\n\n- Design a distributed training stack (FSDP, pipeline parallelism, MoE routing)\n\n- Design a high-throughput inference server with KV-cache management\n\n- Design data pipelines for multilingual pretraining\n\n- Coding: medium-hard DSA; ML candidates also reproduce papers/algorithms\n\n- Behavioral: ownership, taste, working in research-engineering hybrid\n\nLevels and comp (2026)\n\n- SE: €120K–€180K total in Paris (cash + meaningful equity)\n\n- Senior SE: €180K–€270K total in Paris\n\n- Staff / Research: €260K–€450K+ total in Paris\n\n- US offers track higher (closer to OpenAI/Anthropic mid-tier bands)\n\nPrep priorities\n\n- Be fluent in Python and PyTorch (training/research) and Rust/C++ (serving)\n\n- Understand transformer internals deeply (attention variants, MoE, sparsity)\n\n- Brush up on distributed training (FSDP, ZeRO, pipeline) and inference optimization\n\nFrequently Asked Questions\n\nIs Mistral remote-friendly?\n\nHubs in Paris (HQ), London, and a US presence growing. Many roles hybrid; some senior roles remote within EU.\n\nHow does Mistral compare to OpenAI or Anthropic?\n\nMistral is leaner, more open-weights-friendly, European. Comp is competitive in EU but below OpenAI/Anthropic at top of band. Strong technical brand and clear research mission.\n\nWhat is the engineering culture?\n\nSmall, technically dense, research-engineering blended. High autonomy and high bar.\n\nSimilar company guides\n\nReka AIinterview guideSakana AIinterview guideBlack Forest Labsinterview guideHippocratic AIinterview guideRunwayinterview guidePika Labsinterview guide\n\nPrepping for Mistral AI? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextHashiCorp Interview Guide 2026: Terraform, Vault, Consul, Nomad, and Post-IBM Engineering⏱ 9 min readContinuous Profiler Low-Level Design: Sampling Profiler, Flame Graph Generation, and Production Safety⏱ 6 min readRide Matching Service Low-Level Design: Driver-Rider Matching, ETA Calculation, and Surge Pricing⏱ 6 min read"
+}

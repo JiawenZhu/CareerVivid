@@ -14,6 +14,7 @@ import {
     Gift,
     LayoutDashboard,
     Sparkles,
+    GraduationCap,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
@@ -31,6 +32,7 @@ import {
     stripLanguagePrefix,
 } from '../../utils/languagePreference';
 import AIUsageProgressBar from '../AIUsageProgressBar';
+import XpStatusCard from '../Gamification/XpStatusCard';
 import { getPlanDisplayName } from '../../config/subscriptionCatalog';
 import { useSidebarStore } from '../../store/useSidebarStore';
 import { SidebarNode } from '../../types';
@@ -115,6 +117,34 @@ const Sidebar: React.FC = () => {
     // UI Local States
     const [editingNodeId, setEditingNodeId] = useState<string | null>(null);
     const [editValue, setEditValue] = useState('');
+    
+    // Visited tags tracking for navigation items
+    const [visitedTags, setVisitedTags] = useState<Record<string, boolean>>(() => {
+        const initial: Record<string, boolean> = {};
+        ['/interview-studio', '/learning', '/jobs/recommend'].forEach(path => {
+            initial[path] = localStorage.getItem(`visited_tag_${path}`) === 'true';
+        });
+        return initial;
+    });
+
+    useEffect(() => {
+        const path = currentPath;
+        if (['/interview-studio', '/learning', '/jobs/recommend'].includes(path)) {
+            localStorage.setItem(`visited_tag_${path}`, 'true');
+            setVisitedTags(prev => {
+                if (prev[path]) return prev;
+                return { ...prev, [path]: true };
+            });
+        }
+    }, [currentPath]);
+
+    const handleLinkClick = (path: string) => {
+        if (['/interview-studio', '/learning', '/jobs/recommend'].includes(path)) {
+            localStorage.setItem(`visited_tag_${path}`, 'true');
+            setVisitedTags(prev => ({ ...prev, [path]: true }));
+        }
+        navigate(path);
+    };
     
     // Context Menu State
     const [contextMenu, setContextMenu] = useState<{ x: number, y: number, nodeId: string, text: string, type: string } | null>(null);
@@ -340,10 +370,11 @@ const Sidebar: React.FC = () => {
     const quickLinks = [
         { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
         { label: 'Quick Start', path: '/onboarding', icon: Sparkles },
-        { label: 'Jobs', path: '/jobs/recommend', icon: Briefcase },
+        { label: 'Jobs', path: '/jobs/recommend', icon: Briefcase, tag: 'New' },
         { label: 'Community', path: '/community', icon: Users },
-        { label: 'Interview', path: '/interview-studio', icon: Mic },
+        { label: 'Interview', path: '/interview-studio', icon: Mic, tag: 'New' },
         { label: 'Job Tracker', path: '/job-tracker', icon: Briefcase },
+        { label: 'Course', path: '/learning', icon: GraduationCap, tag: 'New' },
     ];
 
     const accountLinks = [
@@ -364,10 +395,10 @@ const Sidebar: React.FC = () => {
         <aside 
             style={{ width: `${activeSidebarWidth}px` }}
             data-sidebar-mode={sidebarMode}
-            className="fixed inset-y-0 left-0 z-30 hidden flex-col overflow-hidden border-r border-stone-200/70 bg-[#fbfaf7]/90 shadow-[4px_0_24px_rgba(15,23,42,0.04)] backdrop-blur-2xl transition-[width] duration-200 ease-in-out dark:border-slate-800/70 dark:bg-slate-950/70 dark:shadow-[4px_0_24px_rgba(0,0,0,0.22)] md:flex"
+            className="fixed inset-y-0 left-0 z-30 hidden flex-col overflow-hidden border-r border-[var(--cv-border-subtle)] bg-[var(--cv-surface-warm-card)] text-[var(--cv-text-heading)] shadow-[4px_0_24px_rgba(55,38,18,0.06)] backdrop-blur-2xl transition-[width] duration-200 ease-in-out md:flex"
         >
             {/* Header / Logo */}
-            <div className={`relative flex h-16 shrink-0 items-center border-b border-stone-200/70 dark:border-slate-800/70 sm:h-20 ${isCollapsed ? 'justify-center px-2' : 'justify-between px-4'}`}>
+            <div className={`relative flex h-16 shrink-0 items-center border-b border-[var(--cv-border-subtle)] sm:h-20 ${isCollapsed ? 'justify-center px-2' : 'justify-between px-4'}`}>
                 <a
                     href="/dashboard"
                     onClick={(e) => { e.preventDefault(); navigate('/dashboard'); }}
@@ -375,11 +406,11 @@ const Sidebar: React.FC = () => {
                     aria-label="CareerVivid Dashboard"
                 >
                     <Logo className="h-8 w-auto shrink-0" />
-                    <span className="truncate text-sm font-extrabold tracking-tight text-slate-950 dark:text-white">CareerVivid</span>
+                    <span className="truncate font-heading text-sm font-extrabold tracking-tight text-[var(--cv-text-heading)]">CareerVivid</span>
                 </a>
                 <button
                     onClick={toggleSidebarMode}
-                    className="rounded-xl border border-stone-200 bg-white p-1.5 text-slate-500 shadow-sm transition-colors hover:border-stone-300 hover:text-slate-950 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400 dark:hover:border-slate-700 dark:hover:text-slate-100"
+                    className="rounded-xl border border-[var(--cv-border-subtle)] bg-[var(--cv-surface-warm-card-strong)] p-1.5 text-[var(--cv-text-muted)] shadow-sm transition-colors hover:border-[var(--cv-action-border)] hover:text-[var(--cv-action-primary)]"
                     title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
                     aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
                 >
@@ -390,50 +421,91 @@ const Sidebar: React.FC = () => {
             {/* Navigation main section */}
             <nav className={`min-h-0 flex-1 select-none ${isCollapsed ? 'flex flex-col items-center gap-2 px-2 py-4' : 'px-3 py-3'}`}>
                 {isCollapsed ? (
-                    quickLinks.map(({ label, path, icon: Icon }) => {
+                    quickLinks.map(({ label, path, icon: Icon, tag }) => {
                         const isActive = isActivePath(path);
+                        const isVisited = visitedTags[path] || isActive;
                         return (
                             <button
                                 key={path}
                                 type="button"
-                                onClick={() => navigate(path)}
+                                onClick={() => handleLinkClick(path)}
                                 title={label}
                                 aria-label={label}
-                                className={`flex h-11 w-11 items-center justify-center rounded-2xl border text-slate-500 transition-all ${isActive ? 'border-indigo-200 bg-indigo-50 text-indigo-700 shadow-sm dark:border-indigo-900/50 dark:bg-indigo-950/40 dark:text-indigo-200' : 'border-transparent hover:border-stone-200 hover:bg-white/75 hover:text-slate-950 dark:text-slate-400 dark:hover:border-slate-800 dark:hover:bg-slate-900/80 dark:hover:text-slate-100'}`}
+                                className={`relative flex h-11 w-11 items-center justify-center rounded-2xl border transition-all ${isActive ? 'border-[var(--cv-action-border)] bg-[var(--cv-action-soft-bg)] text-[var(--cv-action-primary)] shadow-sm' : 'border-transparent text-[var(--cv-text-muted)] hover:border-[var(--cv-border-subtle)] hover:bg-[var(--cv-surface-warm-card-strong)] hover:text-[var(--cv-text-heading)]'}`}
                             >
                                 <Icon size={18} />
+                                {tag && (
+                                    <span className="absolute right-1.5 top-1.5 flex h-2 w-2">
+                                        {!isVisited && (
+                                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--cv-action-primary)] opacity-75"></span>
+                                        )}
+                                        <span className="relative inline-flex h-2 w-2 rounded-full bg-[var(--cv-action-primary)]"></span>
+                                    </span>
+                                )}
                             </button>
                         );
                     })
                 ) : (
-                    <SidebarDocumentList
-                        activeDocuments={activeDocuments}
-                        activeNodeId={activeNodeId}
-                        editingNodeId={editingNodeId}
-                        editValue={editValue}
-                        filterType={filterType}
-                        sortBy={sortBy}
-                        isFilterDropdownOpen={isFilterDropdownOpen}
-                        filterDropdownRef={filterDropdownRef}
-                        setActiveNode={setActiveNode}
-                        setEditValue={setEditValue}
-                        setEditingNodeId={setEditingNodeId}
-                        setContextMenu={setContextMenu}
-                        setFilterType={setFilterType}
-                        setSortBy={setSortBy}
-                        setIsFilterDropdownOpen={setIsFilterDropdownOpen}
-                        savePreference={savePreference}
-                        saveRename={saveRename}
-                    />
+                    <div className="flex h-full min-h-0 flex-col">
+                        {/* Primary navigation — first thing under the logo, one item per row */}
+                        <div className="shrink-0 pb-3">
+                            <span className="cv-design-eyebrow mb-1.5 block px-1 text-[10px]">Navigate</span>
+                            <div className="space-y-0.5">
+                                {quickLinks.map(({ label, path, icon: Icon, tag }) => {
+                                    const isActive = isActivePath(path);
+                                    const isVisited = visitedTags[path] || isActive;
+                                    return (
+                                        <button
+                                            key={path}
+                                            onClick={() => handleLinkClick(path)}
+                                            className={`flex w-full items-center gap-2.5 rounded-xl border px-2.5 py-2 text-left text-xs font-bold transition-all ${isActive ? 'border-[var(--cv-action-border)] bg-[var(--cv-action-soft-bg)] text-[var(--cv-action-primary)] shadow-sm' : 'border-transparent text-[var(--cv-text-muted)] hover:border-[var(--cv-border-subtle)] hover:bg-[var(--cv-surface-warm-card-strong)] hover:text-[var(--cv-text-heading)]'}`}
+                                        >
+                                            <Icon size={15} className="shrink-0" />
+                                            <span className="min-w-0 truncate">{label}</span>
+                                            {tag && (
+                                                <span className={`ml-auto inline-flex items-center rounded-md bg-[var(--cv-action-soft-bg)] px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-[var(--cv-action-primary)] border border-[var(--cv-action-border)]/20 shadow-sm ${!isVisited ? 'animate-pulse' : ''}`}>
+                                                    {tag}
+                                                </span>
+                                            )}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+
+                        {/* Files — below navigation; the list scrolls internally */}
+                        <div className="min-h-0 flex-1 border-t border-[var(--cv-border-subtle)] pt-2">
+                            <SidebarDocumentList
+                                activeDocuments={activeDocuments}
+                                activeNodeId={activeNodeId}
+                                editingNodeId={editingNodeId}
+                                editValue={editValue}
+                                filterType={filterType}
+                                sortBy={sortBy}
+                                isFilterDropdownOpen={isFilterDropdownOpen}
+                                filterDropdownRef={filterDropdownRef}
+                                setActiveNode={setActiveNode}
+                                setEditValue={setEditValue}
+                                setEditingNodeId={setEditingNodeId}
+                                setContextMenu={setContextMenu}
+                                setFilterType={setFilterType}
+                                setSortBy={setSortBy}
+                                setIsFilterDropdownOpen={setIsFilterDropdownOpen}
+                                savePreference={savePreference}
+                                saveRename={saveRename}
+                            />
+                        </div>
+                    </div>
                 )}
             </nav>
 
             {/* Utility Section */}
-            <div className={`relative mt-auto shrink-0 border-t border-stone-200/70 dark:border-slate-800/70 ${isCollapsed ? 'px-2 py-3' : 'px-3 py-2.5'}`}>
+            <div className={`relative mt-auto shrink-0 border-t border-[var(--cv-border-subtle)] ${isCollapsed ? 'px-2 py-3' : 'px-3 py-2.5'}`}>
                 {isCollapsed ? (
                     <div className="flex flex-col items-center gap-2">
+                        <XpStatusCard variant="collapsed" onClick={() => navigate('/interview-studio')} />
                         <div className="group relative h-11 w-11 shrink-0">
-                            <span className="pointer-events-none flex h-11 w-11 items-center justify-center rounded-2xl border border-stone-200 bg-white/75 text-[10px] font-extrabold uppercase text-slate-500 shadow-sm transition group-hover:border-stone-300 group-hover:bg-white group-hover:text-slate-950 group-focus-within:ring-2 group-focus-within:ring-indigo-200 dark:border-slate-800 dark:bg-slate-900/70 dark:text-slate-300 dark:group-hover:border-slate-700 dark:group-hover:text-slate-100 dark:group-focus-within:ring-indigo-900/60">
+                            <span className="pointer-events-none flex h-11 w-11 items-center justify-center rounded-2xl border border-[var(--cv-border-subtle)] bg-[var(--cv-surface-warm-card-strong)] text-[10px] font-extrabold uppercase text-[var(--cv-text-muted)] shadow-sm transition group-hover:border-[var(--cv-action-border)] group-hover:text-[var(--cv-action-primary)] group-focus-within:ring-2 group-focus-within:ring-[var(--cv-action-border)]">
                                 {currentLanguageCode.toUpperCase()}
                             </span>
                             <select
@@ -455,7 +527,7 @@ const Sidebar: React.FC = () => {
                             onClick={() => navigate('/profile')}
                             title="Profile"
                             aria-label="Profile"
-                            className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-2xl border border-stone-200 bg-white/75 shadow-sm transition hover:border-stone-300 hover:bg-white dark:border-slate-800 dark:bg-slate-900/70 dark:hover:border-slate-700"
+                            className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-2xl border border-[var(--cv-border-subtle)] bg-[var(--cv-surface-warm-card-strong)] shadow-sm transition hover:border-[var(--cv-action-border)]"
                         >
                             <img src={currentUserAvatar} alt="" className="h-8 w-8 rounded-full object-cover" />
                         </button>
@@ -471,111 +543,97 @@ const Sidebar: React.FC = () => {
                     </div>
                 ) : (
                 <>
-                <div className="mb-2">
-                    <div className="mb-1.5 flex items-center justify-between px-1">
-                        <span className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-stone-500 dark:text-slate-400">Quick Access</span>
-                    </div>
-                    <div className="grid grid-cols-2 gap-1.5">
-                        {quickLinks.map(({ label, path, icon: Icon }) => {
-                            const isActive = isActivePath(path);
-                            return (
-                                <button
-                                    key={path}
-                                    onClick={() => navigate(path)}
-                                    className={`flex min-h-[34px] items-center gap-2 rounded-xl border px-2 py-1.5 text-left text-[10px] font-bold transition-all ${isActive ? 'border-indigo-200 bg-indigo-50 text-indigo-700 shadow-sm dark:border-indigo-900/50 dark:bg-indigo-950/40 dark:text-indigo-200' : 'border-transparent text-slate-500 hover:border-stone-200 hover:bg-white/75 hover:text-slate-950 dark:text-slate-400 dark:hover:border-slate-800 dark:hover:bg-slate-900/80 dark:hover:text-slate-100'}`}
-                                >
-                                    <Icon size={14} />
-                                    <span className="min-w-0 truncate">{label}</span>
-                                </button>
-                            );
-                        })}
-                    </div>
-                </div>
+                {/* Progress at a glance */}
+                <XpStatusCard onClick={() => navigate('/interview-studio')} />
 
                 {aiUsage && (
-                    <div className="mb-2 cursor-pointer rounded-2xl border border-stone-200/80 bg-white/65 px-3 py-2 shadow-sm transition hover:border-stone-300 hover:bg-white dark:border-slate-800 dark:bg-slate-900/60 dark:hover:border-slate-700" onClick={() => navigate('/subscription')}>
+                    <div className="cv-design-card mb-2 cursor-pointer px-3 py-2 transition hover:border-[var(--cv-action-border)]" onClick={() => navigate('/subscription')}>
                         <AIUsageProgressBar used={aiUsage.count || 0} limit={aiUsage.limit || 10} isPremium={isPremium} variant="minimal" planLabel={getPlanDisplayName(userProfile?.plan)} />
                     </div>
                 )}
 
-                <div className="mb-2 rounded-2xl border border-stone-200/70 bg-white/45 p-1 dark:border-slate-800/80 dark:bg-slate-950/30">
+                {/* One settings group: account links, language, theme, sign out */}
+                <div className="rounded-2xl border border-[var(--cv-border-subtle)] bg-[var(--cv-surface-warm-muted)] p-1">
                     {accountLinks.map(({ label, path, icon: Icon }) => {
                         const isActive = isActivePath(path);
                         return (
                             <button
                                 key={path}
                                 onClick={() => navigate(path)}
-                                className={`flex w-full items-center gap-2 rounded-xl px-2.5 py-1.5 text-left text-[11px] font-semibold transition-colors ${isActive ? 'bg-white text-slate-950 shadow-sm dark:bg-slate-900 dark:text-white' : 'text-slate-500 hover:bg-white/80 hover:text-slate-950 dark:text-slate-400 dark:hover:bg-slate-900/80 dark:hover:text-slate-100'}`}
+                                className={`flex w-full items-center gap-2 rounded-xl px-2.5 py-1.5 text-left text-[11px] font-semibold transition-colors ${isActive ? 'bg-[var(--cv-surface-warm-card-strong)] text-[var(--cv-text-heading)] shadow-sm' : 'text-[var(--cv-text-muted)] hover:bg-[var(--cv-surface-warm-card-strong)] hover:text-[var(--cv-text-heading)]'}`}
                             >
                                 <Icon size={14} />
                                 <span className="truncate">{label}</span>
                             </button>
                         );
                     })}
-                </div>
 
-                <div className="mb-1.5 flex items-center justify-between gap-3 rounded-2xl border border-stone-200/70 bg-white/45 px-2.5 py-1.5 text-xs dark:border-slate-800/80 dark:bg-slate-950/30">
-                    <label htmlFor="sidebar-language-select" className="shrink-0 text-[10px] font-extrabold uppercase tracking-[0.18em] text-stone-500 dark:text-slate-400">
-                        {t('resume_form.language', 'Language')}
-                    </label>
-                    <div className="group relative h-7 w-[88px] shrink-0">
-                        <span className="pointer-events-none flex h-full w-full items-center justify-end rounded-lg border border-transparent bg-transparent px-2 text-right text-[11px] font-extrabold text-slate-700 outline-none transition group-hover:border-stone-200 group-hover:bg-white/70 group-focus-within:border-indigo-300 group-focus-within:bg-white group-focus-within:ring-2 group-focus-within:ring-indigo-100 dark:text-slate-200 dark:group-hover:border-slate-700 dark:group-hover:bg-slate-900/70 dark:group-focus-within:border-indigo-700 dark:group-focus-within:bg-slate-900 dark:group-focus-within:ring-indigo-950">
-                            <span className="truncate">{currentLanguageLabel}</span>
-                        </span>
-                        <select
-                            id="sidebar-language-select"
-                            aria-label={t('resume_form.language', 'Language')}
-                            value={currentLanguageCode}
-                            onChange={(event) => handleLanguageChange(event.target.value)}
-                            className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
-                        >
-                            {SUPPORTED_LANGUAGES.map((language) => (
-                                <option key={language.code} value={language.code}>
-                                    {language.nativeName}
-                                </option>
+                    <div className="mx-1.5 my-1 border-t border-[var(--cv-border-subtle)]" />
+
+                    <div className="flex items-center justify-between gap-3 px-2.5 py-1">
+                        <label htmlFor="sidebar-language-select" className="cv-design-eyebrow shrink-0 text-[10px]">
+                            {t('resume_form.language', 'Language')}
+                        </label>
+                        <div className="group relative h-7 w-[88px] shrink-0">
+                            <span className="pointer-events-none flex h-full w-full items-center justify-end rounded-lg border border-transparent bg-transparent px-2 text-right text-[11px] font-extrabold text-[var(--cv-text-heading)] outline-none transition group-hover:border-[var(--cv-border-subtle)] group-hover:bg-[var(--cv-surface-warm-card-strong)] group-focus-within:border-[var(--cv-action-border)] group-focus-within:bg-[var(--cv-surface-warm-card-strong)] group-focus-within:ring-2 group-focus-within:ring-[var(--cv-action-border)]">
+                                <span className="truncate">{currentLanguageLabel}</span>
+                            </span>
+                            <select
+                                id="sidebar-language-select"
+                                aria-label={t('resume_form.language', 'Language')}
+                                value={currentLanguageCode}
+                                onChange={(event) => handleLanguageChange(event.target.value)}
+                                className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                            >
+                                {SUPPORTED_LANGUAGES.map((language) => (
+                                    <option key={language.code} value={language.code}>
+                                        {language.nativeName}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center justify-between px-2.5 py-1">
+                        <span className="cv-design-eyebrow text-[10px]">Theme</span>
+                        <div className="flex items-center gap-0.5 rounded-xl border border-[var(--cv-border-subtle)] bg-[var(--cv-surface-warm-card)] p-0.5">
+                            {themeOptions.map(opt => (
+                                <button key={opt.value} onClick={() => setTheme(opt.value)} title={opt.label}
+                                    className={`rounded-lg p-1 transition-all ${theme === opt.value ? 'border border-[var(--cv-action-border)] bg-[var(--cv-surface-warm-card-strong)] text-[var(--cv-action-primary)] shadow-sm' : 'text-[var(--cv-text-muted)] hover:text-[var(--cv-text-heading)]'}`}>
+                                    {opt.icon}
+                                </button>
                             ))}
-                        </select>
+                        </div>
                     </div>
-                </div>
 
-                {/* Theme Toggle */}
-                <div className="mb-1.5 flex items-center justify-between rounded-2xl border border-stone-200/70 bg-white/45 px-2.5 py-1.5 text-xs dark:border-slate-800/80 dark:bg-slate-950/30">
-                    <span className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-stone-500 dark:text-slate-400">Theme</span>
-                    <div className="flex items-center gap-0.5 rounded-xl border border-stone-200 bg-stone-50 p-0.5 dark:border-slate-800 dark:bg-slate-900">
-                        {themeOptions.map(opt => (
-                            <button key={opt.value} onClick={() => setTheme(opt.value)} title={opt.label}
-                                className={`rounded-lg p-1 transition-all ${theme === opt.value ? 'border border-stone-200 bg-white text-indigo-600 shadow-sm dark:border-slate-700 dark:bg-slate-950 dark:text-indigo-300' : 'text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}>
-                                {opt.icon}
-                            </button>
-                        ))}
-                    </div>
-                </div>
+                    <div className="mx-1.5 my-1 border-t border-[var(--cv-border-subtle)]" />
 
-                {currentUser ? (
-                    <button onClick={logOut} className="flex w-full items-center gap-2 rounded-xl px-2.5 py-1.5 text-[11px] font-semibold text-slate-500 transition-colors hover:bg-red-50/70 hover:text-red-600 dark:text-slate-400 dark:hover:bg-red-950/20 dark:hover:text-red-300">
-                        <LogOut size={14} /><span>Sign out</span>
-                    </button>
-                ) : (
-                    <button onClick={() => navigate('/signin')} className="flex w-full items-center gap-2 rounded-xl px-2.5 py-1.5 text-[11px] font-bold text-indigo-700 transition-colors hover:bg-indigo-50/70 dark:text-indigo-300 dark:hover:bg-indigo-950/30">
-                        <LogIn size={14} /><span>Sign in / Sign up</span>
-                    </button>
-                )}
+                    {currentUser ? (
+                        <button onClick={logOut} className="flex w-full items-center gap-2 rounded-xl px-2.5 py-1.5 text-[11px] font-semibold text-[var(--cv-text-muted)] transition-colors hover:bg-[var(--cv-danger-soft)] hover:text-[var(--cv-danger-text)]">
+                            <LogOut size={14} /><span>Sign out</span>
+                        </button>
+                    ) : (
+                        <button onClick={() => navigate('/signin')} className="flex w-full items-center gap-2 rounded-xl px-2.5 py-1.5 text-[11px] font-bold text-[var(--cv-action-primary)] transition-colors hover:bg-[var(--cv-action-soft-bg)]">
+                            <LogIn size={14} /><span>Sign in / Sign up</span>
+                        </button>
+                    )}
+                </div>
                 </>
                 )}
             </div>
 
             {/* User Profile Card */}
             {!isCollapsed && (
-            <div className="relative shrink-0 border-t border-stone-200/70 p-2.5 dark:border-slate-800/70">
-                <div onClick={() => navigate('/profile')} className="group flex cursor-pointer items-center gap-3 rounded-2xl border border-stone-200/70 bg-white/70 px-3 py-2 shadow-sm transition-all duration-300 hover:border-stone-300 hover:bg-white dark:border-slate-800 dark:bg-slate-900/60 dark:hover:border-slate-700">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-indigo-100">
+            <div className="relative shrink-0 border-t border-[var(--cv-border-subtle)] p-2.5">
+                <div onClick={() => navigate('/profile')} className="cv-design-card group flex cursor-pointer items-center gap-3 px-3 py-2 transition-all duration-300 hover:border-[var(--cv-action-border)]">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[var(--cv-action-soft-bg)]">
                         <img src={currentUserAvatar} alt="User avatar" className="w-full h-full object-cover" />
                     </div>
                     <div className="flex-1 min-w-0">
-                        <p className="truncate text-sm font-bold text-slate-900 dark:text-white">
+                        <p className="truncate text-sm font-bold text-[var(--cv-text-heading)]">
                             {currentUser.displayName || 'My Profile'}
                         </p>
-                        <p className="truncate text-[11px] font-medium text-slate-500 dark:text-slate-400">
+                        <p className="truncate text-[11px] font-medium text-[var(--cv-text-muted)]">
                             {currentUser.email}
                         </p>
                     </div>
@@ -616,9 +674,9 @@ const Sidebar: React.FC = () => {
             {/* Drag handle for resizing */}
             <div
                 onMouseDown={startResizing}
-                className={`absolute top-0 right-0 bottom-0 w-1.5 transition-colors z-50 group ${isCollapsed ? 'pointer-events-none opacity-0' : 'cursor-col-resize hover:bg-indigo-500/20 active:bg-indigo-500/40'}`}
+                className={`group absolute bottom-0 right-0 top-0 z-50 w-1.5 transition-colors ${isCollapsed ? 'pointer-events-none opacity-0' : 'cursor-col-resize hover:bg-[var(--cv-action-soft-bg)] active:bg-[var(--cv-action-border)]'}`}
             >
-                <div className="absolute top-1/2 -translate-y-1/2 right-0 w-0.5 h-10 bg-gray-200 dark:bg-gray-800 group-hover:bg-indigo-500 dark:group-hover:bg-indigo-400 rounded-full transition-colors opacity-0 group-hover:opacity-100 group-active:opacity-100" />
+                <div className="absolute right-0 top-1/2 h-10 w-0.5 -translate-y-1/2 rounded-full bg-[var(--cv-border-subtle)] opacity-0 transition-colors group-active:opacity-100 group-hover:bg-[var(--cv-action-primary)] group-hover:opacity-100" />
             </div>
 
         </aside>

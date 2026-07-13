@@ -1,0 +1,35 @@
+{
+  "company": "Wise",
+  "slug": "wise-interview-guide",
+  "url": "https://www.techinterview.org/companies/wise-interview-guide",
+  "scrapedAt": "2026-07-02T07:19:05.909Z",
+  "interviewStages": [
+    "Behavioral: customer focus, regulatory mindset, working with cross-border complexity"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Wise remote-friendly?",
+      "How does Wise compare to Revolut or Remitly?",
+      "What is the engineering culture?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Wise Interview Guide (2026): International Money Transfer Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nWise\nwise.com ↗\n\nWise (formerly TransferWise) is the largest non-bank international money transfer platform — moves billions of dollars across borders monthly. The interview emphasizes payments, multi-currency, regulatory complexity, and the unique challenge of operating across dozens of country-specific banking systems.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 4–6 weeks.\n\nWhat they actually ask\n\n- Design a multi-currency wallet with real-time exchange rates\n\n- Design a cross-border money transfer flow that integrates with diverse local banking systems\n\n- Design KYC/AML screening at scale\n\n- Coding: medium DSA, often with financial framing\n\n- Behavioral: customer focus, regulatory mindset, working with cross-border complexity\n\nLevels and comp (2026)\n\n- SE II: £75K–£100K total (London); EUR 70K–95K (Tallinn)\n\n- Senior SE: £110K–£150K / EUR 100K–135K\n\n- Staff: £160K–£220K\n\n- Principal: £220K–£300K\n\nWise comp is European-tier; below US peers but with strong work-life balance and equity.\n\nPrep priorities\n\n- Be fluent in Java (the bulk of the codebase) or Go (newer services)\n\n- Understand banking protocols: SWIFT, SEPA, ACH, Faster Payments\n\n- Brush up on KYC, AML, and PSD2 regulations\n\nFrequently Asked Questions\n\nIs Wise remote-friendly?\n\nDistributed across Tallinn (HQ), London, Singapore, NYC. Some engineering roles fully remote within EU.\n\nHow does Wise compare to Revolut or Remitly?\n\nWise is the most cost-transparent on FX. Revolut is a broader fintech bank. Remitly is the remittance specialist. Wise comp is comparable to other London fintech.\n\nWhat is the engineering culture?\n\nEuropean tech culture: collaborative, mission-driven, transparent. Strong written-communication culture.\n\nSimilar company guides\n\nAmerican Expressinterview guideCapital Oneinterview guideMarqetainterview guideKlarnainterview guideCartainterview guideAdyeninterview guide\n\nPrepping for Wise? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextUser Profile Service Low-Level Design: Storage, Privacy Controls, and Partial Updates⏱ 5 min readDesign a Mobile Food Delivery App: DoorDash and Uber Eats⏱ 3 min readSystem Design Interview: API Gateway and Service Mesh⏱ 6 min read"
+}

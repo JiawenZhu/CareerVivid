@@ -1,0 +1,56 @@
+{
+  "company": "XTX Markets",
+  "slug": "xtx-markets-interview-guide",
+  "url": "https://www.techinterview.org/companies/xtx-markets-interview-guide",
+  "scrapedAt": "2026-07-02T07:19:08.623Z",
+  "interviewStages": [
+    "Coding (1–2 rounds) — algorithms with practical engineering flavor; C++ depth tested for systems roles",
+    "Research / ML deep dive (1 round for research roles) — discuss your work, defend methodology, engage with critique",
+    "Probability / statistics (1 round) — fundamental probability, statistical inference, ML theory",
+    "System design (1 round for engineering roles) — distributed systems, low-latency architectures",
+    "Behavioral / cultural fit (1 round) — collaboration, intellectual humility, firm-fit"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "A function intermittently fails in production. Walk me through how you would reproduce, isolate, and fix the bug.",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [
+      "Design XTX Markets's distributed systems platform — cover low-latency architectures. Walk through the architecture, trade-offs, and failure modes.",
+      "Design a service at XTX Markets scale that shortens URLs. Cover the API, storage, and hot-key handling.",
+      "Design a rate limiter for a public API. Discuss algorithms, distributed coordination, and failure modes."
+    ],
+    "values": [],
+    "other": [
+      "How does XTX's ML investment compare to AI labs?",
+      "Should I work at XTX or a US HFT firm?",
+      "How real is XTX's research engagement?",
+      "What's the relationship with Alex Gerko like for engineers?",
+      "Is XTX a good place for early-career engineers?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": [
+    "New-grad QR / SWE: £100k–£200k total comp first year (London market)",
+    "Mid-level (4–7 years): £200k–£500k",
+    "Senior (8+ years): £500k–£2M+",
+    "Senior researcher / Principal: £1.5M–£10M+ for top performers",
+    "The ML infrastructure investment is more substantial than candidates expect; the GPU footprint is in the same league as some AI labs.",
+    "The research culture is closer to academic AI labs than typical HFT firms — published papers, conference engagement, exploratory research time.",
+    "The London-NYC tax differential is real; engineers calibrating offers should compute net comp carefully.",
+    "The privately-held / no-investor-pressure structure means longer-horizon thinking than at most peers.",
+    "The philanthropic commitment is genuine — Alex Gerko's public stance influences firm culture, though most engineers aren't directly involved in firm philanthropy."
+  ],
+  "rawSummary": "XTX Markets Interview Guide 2026: ML-Driven HFT, FX Dominance, London-Headquartered Quant Powerhouse\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 30, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- XTX Markets Interview Guide 2026: ML-Driven HFT, FX Dominance, London-Headquartered Quant Powerhouse\n\n- What XTX Does\n\n- Roles XTX Hires For\n\n- XTX Interview Process\n\n- What XTX Tests For\n\n- Compensation\n\n- Working at XTX\n\n- XTX vs Alternatives\n\n- Things That Surprise Candidates\n\n- Frequently Asked Questions\n\nUpdated April 30, 2026 · techinterview.org\n\n⏱ 8 min read\n\nXTX Markets\nxtxmarkets.com ↗\n\nXTX Markets Interview Guide 2026: ML-Driven HFT, FX Dominance, London-Headquartered Quant Powerhouse\n\nXTX Markets is one of the most distinctive HFT firms globally — founded in 2015 by Alex Gerko (former Deutsche Bank statistical arbitrage trader), the firm rapidly rose to dominate FX market making and has expanded into equities, fixed income, and commodities. Unlike most US-headquartered HFT firms, XTX is London-based with a distinctive ML-first approach (the firm reportedly runs the largest ML training infrastructure of any non-tech-giant in finance). XTX has been one of the biggest hedge fund / HFT philanthropic donors globally, with Alex Gerko publicly committing to donate the majority of his wealth. The hiring process is rigorous and reflects the firm's research-driven culture. This guide covers what XTX does, the engineering tracks, the interview process, and what makes XTX hiring distinctive in 2026.\n\nWhat XTX Does\n\nXTX operates as a quantitative trading firm:\n\n- FX market making: the firm's flagship business. XTX is among the top three FX market makers globally by volume, alongside Citadel Securities and Jump Trading. Substantial market share in EBS and Refinitiv liquidity pools.\n\n- Equities market making: US equities, European equities. Growing post-2020.\n\n- Fixed income: rates, credit market making at growing scale.\n\n- Commodities: energy and metals trading.\n\n- Crypto: XTX has reportedly entered crypto market making in some capacities; less transparent than the FX / equities business.\n\n- Research and ML infrastructure: XTX runs the largest publicly-known ML training infrastructure in finance (reported to have 25,000+ NVIDIA H100/H200 GPUs as of 2024). The firm's research uses ML models for signal generation across asset classes.\n\nDistinctive features:\n\n- ML-first approach: XTX's competitive edge is reportedly ML-driven signal extraction and execution. Substantial GPU infrastructure investment differentiates XTX from peer HFT firms that use simpler statistical models.\n\n- London headquarters: distinct from US-headquartered HFT peers. UK-based engineering culture, regulated by FCA. Singapore and Mumbai offices for research and engineering.\n\n- Privately held: Alex Gerko owns a substantial stake; never raised external capital. Public profitability disclosures from UK reporting requirements show XTX as one of the most profitable financial firms globally.\n\n- Philanthropic commitment: Alex Gerko has signed The Giving Pledge and is one of the largest finance-industry philanthropists globally. The firm's culture reflects this somewhat — less aggressive than typical HFT firms in commercial messaging.\n\n- Research-paper publication: XTX has published academic papers (especially in ML and signal processing) and supports academic conferences. Less common among HFT firms historically.\n\nRoles XTX Hires For\n\nQuantitative researcher\n\nDevelops trading strategies, ML signal models, execution algorithms. Deep ML / statistical learning expertise. PhD-friendly but exceptional MS candidates considered. Substantial recent hiring growth as XTX expands into new asset classes.\n\nSoftware engineer (low-latency / trading systems)\n\nBuilds the core trading infrastructure — order management, execution, risk systems, latency-critical code paths. C++ heavy; some Rust adoption. Performance engineering deep.\n\nSoftware engineer (ML infrastructure)\n\nBuilds and maintains XTX's substantial ML training infrastructure — GPU clusters, distributed training systems, data pipelines for ML feature generation. Distinctive at HFT firms; XTX's ML infra team is reportedly larger than most peer HFT firms' entire engineering departments.\n\nData engineer\n\nPipeline engineering for the substantial market data and alternative data XTX consumes. Tick data, order book data, alternative data ingestion at scale.\n\nNetwork / systems engineer\n\nLatency-critical network engineering — co-location strategies, hardware optimization, fiber routing decisions. Specialized work.\n\nResearch engineer (bridge between research and production)\n\nProductionizes research models — taking strategies from research environments to production trading systems. Hybrid of ML engineering and trading systems.\n\nRisk / portfolio engineer\n\nReal-time risk monitoring, portfolio analytics, stress testing across asset classes. Substantial work given XTX's multi-asset trading footprint.\n\nXTX Interview Proce"
+}

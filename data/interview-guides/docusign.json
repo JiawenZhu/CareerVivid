@@ -1,0 +1,90 @@
+{
+  "company": "DocuSign",
+  "slug": "docusign",
+  "url": "https://www.techinterview.org/companies/docusign",
+  "scrapedAt": "2026-07-02T07:21:59.195Z",
+  "interviewStages": [
+    "System design (1 round): e-signature-flavored prompts. \"Design the e-signature service with non-repudiation guarantees and legal-audit compliance.\" \"Design an envelope-routing system with conditional logic (signer A before signer B, parallel branches, reminders).\" \"Design the document storage layer with per-customer retention policies and data residency.\"",
+    "Behavioral / hiring manager: past projects, customer focus, working under compliance constraints."
+  ],
+  "codingTopics": [
+    "Signature workflow state machine: model envelope state with signers, routing rules, reminders, expirations, and all failure paths",
+    "Audit event processor: given a stream of actions, generate cryptographically-verifiable audit entries",
+    "Document diff: given two versions of an agreement, compute meaningful changes (ignoring whitespace-only changes)",
+    "OO design: model an agreement with versioning, signature fields, recipients, routing, and retention policies",
+    "Classic algorithm problems (trees, graphs, tries) with practical twists from the document / agreement domain"
+  ],
+  "systemDesignTopics": [
+    "\"Design the core e-signature service processing 10M envelopes per day with legal-audit compliance.\"",
+    "\"Design an envelope-routing engine supporting parallel and sequential signers, conditional routing, and scheduled reminders.\"",
+    "\"Design the audit trail: append-only, tamper-evident, and queryable for compliance investigations.\"",
+    "\"Design the document storage layer with per-customer retention policies and cross-region DR.\"",
+    "Walk through how a digital signature differs from an electronic signature in the legal sense.",
+    "Explain the PAdES profiles and which one would apply to a long-term-validated contract."
+  ],
+  "behavioralTopics": [
+    "Customer focus: \"Tell me about a time you engaged directly with a customer problem. How did it change what you built?\"",
+    "Compliance awareness: \"Describe a time you worked within regulatory constraints. How did they affect your design?\"",
+    "Post-rightsizing realism: \"How do you think about shipping in a mature public SaaS company?\"",
+    "Ownership: \"Tell me about a production incident affecting customer agreements. How did you handle it?\""
+  ],
+  "sampleQuestions": {
+    "coding": [
+      "Implement a streaming feature aggregator: given a stream of events, maintain rolling counts and averages per key with bounded memory. Discuss complexity and eviction.",
+      "Given a stream of actions, generate cryptographically-verifiable audit entries. Talk through your approach, complexity, and edge cases.",
+      "Given two versions of an agreement, compute meaningful changes (ignoring whitespace-only changes). Talk through your approach, complexity, and edge cases.",
+      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph.",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases."
+    ],
+    "behavioral": [
+      "Tell me about a time you engaged directly with a customer problem. How did it change what you built?",
+      "Describe a time you worked within regulatory constraints. How did they affect your design?",
+      "How do you think about shipping in a mature public SaaS company?",
+      "Tell me about a production incident affecting customer agreements. How did you handle it?",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
+    "systemDesign": [
+      "How would you design audit-trail retention to meet both GDPR's right-to-erasure and eIDAS's long-term-evidence requirements?",
+      "What's the difference between a signature under eIDAS QES, AES, and SES? When is each legally sufficient?",
+      "Design the core e-signature service processing 10M envelopes per day with legal-audit compliance.",
+      "Design an envelope-routing engine supporting parallel and sequential signers, conditional routing, and scheduled reminders.",
+      "Design the audit trail: append-only, tamper-evident, and queryable for compliance investigations."
+    ],
+    "values": [],
+    "other": [
+      "Do I need background in digital signatures or PKI?",
+      "How important is the compliance round?",
+      "What's IAM AI and how does it change hiring?",
+      "How does DocuSign compare to HelloSign (Dropbox Sign) or Adobe Sign on interviews?",
+      "Is remote work really supported?"
+    ]
+  },
+  "difficulty": 6.5,
+  "tips": [
+    "Use the product. Send yourself a test agreement. Understand envelope states, recipient routing, audit certificate download.",
+    "Read eIDAS basics. 30 minutes on QES / AES / SES signature levels signals preparation.",
+    "Understand PDF signatures conceptually. PAdES profiles, timestamping, LTV &mdash; you don't need to implement them, just reason about them.",
+    "Prepare customer-focused behavioral stories. DocuSign cares about the real-world impact of the product.",
+    "Ask about IAM AI direction. Signals you're aware of the strategy.",
+    "DocuSign developer documentation (envelopes, recipients, connectors)",
+    "DocuSign engineering blog (recent posts on AI, platform architecture)",
+    "Effective Java (3rd edition) by Joshua Bloch",
+    "Adobe's PDF 1.7 specification (skim Section 12.8 on digital signatures)",
+    "eIDAS regulation summary (the EU Commission publishes accessible explainers)",
+    "Designing Data-Intensive Applications for multi-tenant and audit-log architecture"
+  ],
+  "compensation": [
+    "Software Engineer III: $150k&ndash;$185k base, $60k&ndash;$110k equity/yr, 10% bonus. Total: ~$225k&ndash;$330k / year.",
+    "Senior Software Engineer: $195k&ndash;$240k base, $110k&ndash;$200k equity/yr. Total: ~$315k&ndash;$465k / year.",
+    "Principal Engineer: $255k&ndash;$310k base, $200k&ndash;$350k equity/yr. Total: ~$455k&ndash;$660k / year.",
+    "The domain depth required is real &mdash; signature law, PDF internals, and compliance frameworks are daily concerns.",
+    "The customer-facing reliability bar is unusually high; downtime means customers can't close contracts.",
+    "IAM AI is a significant strategic investment with dedicated engineering and AI leadership.",
+    "Compensation is competitive but not top-of-market; DocuSign competes on domain interest and scale, not raw cash.",
+    "Treating audit trails as an afterthought. \"We'd log things\" isn't an answer; append-only immutable logs with integrity verification is the expected framing.",
+    "Ignoring compliance constraints in system design.",
+    "No awareness of signature law / cryptography basics when asked.",
+    "Dismissing \"e-signatures\" as a simple problem. The reality at scale involves real engineering complexity."
+  ],
+  "rawSummary": "DocuSign Interview Guide 2026: E-Signature Platform, PDF Internals, eIDAS Compliance, and IAM AI\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 23, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\tUpdated April 23, 2026 · techinterview.org\n\n⏱ 8 min read\n\nDocuSign\ndocusign.com ↗\n\nDocuSign Interview Process: Complete 2026 Guide\n\nOverview\n\nDocuSign is the electronic-signature and Intelligent Agreement Management (IAM) platform that processes billions of agreements per year for over 1.5 million paying customers. Founded 2003, public since 2018, ~6,500 employees in 2026 after post-pandemic rightsizing. The product evolved from \"put a signature on a PDF\" to a full agreement-lifecycle platform with contract analytics, clause extraction, workflow automation, and agreement AI. Headquartered in San Francisco with engineering hubs in Seattle, Dublin, and San Jose, plus remote roles across the US and select EU locations. Engineering is Java / Go dominant for backend, with Python for data and ML. Interviews reflect the reality of running mission-critical e-signature infrastructure &mdash; customers depend on DocuSign for legally binding transactions, so correctness, audit trails, compliance, and uptime dominate architectural decisions.\n\nInterview Structure\n\nRecruiter screen (30 min): background, why DocuSign, team interest among core e-sign platform, CLM (Contract Lifecycle Management), IAM AI (formerly DocuSign Insight), infrastructure, and SRE. Screens also probe comfort with regulated-industry engineering &mdash; DocuSign operates under eIDAS, 21 CFR Part 11, and numerous jurisdiction-specific signature laws.\n\nTechnical phone screen (60 min): one coding problem, medium difficulty. Java dominates core backend; Go for some newer services; TypeScript for frontend; Python for AI / ML. Problems tilt applied &mdash; parse this PDF structure, model this signature workflow, implement this audit event handler.\n\nTake-home (some senior / staff roles): 4&ndash;6 hours on a realistic engineering problem. Historically involves document processing, workflow state machines, or a small backend service with strict correctness requirements.\n\nOnsite / virtual onsite (4&ndash;5 rounds):\n\n- Coding (1&ndash;2 rounds): one algorithms round, one applied round. The applied round often covers signature-workflow state machines, audit-log event handlers, or document-diff problems.\n\n- System design (1 round): e-signature-flavored prompts. \"Design the e-signature service with non-repudiation guarantees and legal-audit compliance.\" \"Design an envelope-routing system with conditional logic (signer A before signer B, parallel branches, reminders).\" \"Design the document storage layer with per-customer retention policies and data residency.\"\n\n- Domain / compliance round (1 round): engagement with regulatory concepts, signature cryptography (PKI, long-term validation), audit-trail requirements, PII handling.\n\n- Behavioral / hiring manager: past projects, customer focus, working under compliance constraints.\n\n- Values / culture round: DocuSign's \"CADRE\" values (Customer, Accountability, Diversity, Results, Engagement) may come up in specific questions.\n\nTechnical Focus Areas\n\nCoding: Java fluency (modern features, Spring Boot, JUnit), state machines for signature workflows, idempotency patterns, audit-event generation, document-processing primitives (PDF parsing at a conceptual level).\n\nPDF and document processing: PDF structure (cross-reference tables, object streams, AcroForms vs widget annotations), digital signature embedding (PAdES profiles, CMS envelopes), tagged PDF for accessibility, text extraction pitfalls (CMap tables, ligatures). For IAM AI roles: OCR, layout analysis, clause extraction, entity resolution.\n\nSignature cryptography: PKI fundamentals (certificate chains, revocation, OCSP, CRLs), long-term signature validation (LTV), trust service providers, timestamping authorities, eIDAS qualified signatures.\n\nSystem design: audit-trail guarantees (append-only, cryptographically verifiable, tamper-evident), envelope state machines at enterprise scale, per-customer data residency, multi-region DR for SLA compliance, workflow engines with conditional routing.\n\nData & ML (IAM AI): contract clause extraction, risk identification in contract language, RAG over a customer's agreement corpus, evaluation of extraction accuracy on domain-specific contracts, multi-language contract analysis.\n\nSecurity & compliance: 21 CFR Part 11 (life sciences), FDA, SOC 2 Type II, ISO 27001, FedRAMP moderate, per-industry frameworks (HIPAA for healthcare signatures, PCI for payment-adjacent flows).\n\nCoding Interview Details\n\nTwo coding rounds, 60 minutes each. Difficulty is medium. Comparable to ServiceNow or Workday &mdash; below Google L5 on pure algorithms, higher on OO modeling and correctness under constraints. Java is preferred; Go acceptable for specific roles.\n\nTypical problem shapes:\n\n- Signature workflow state machine: model envelope state with signers, routing rules, rem"
+}

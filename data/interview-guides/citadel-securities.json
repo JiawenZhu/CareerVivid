@@ -1,0 +1,88 @@
+{
+  "company": "Citadel Securities",
+  "slug": "citadel-securities",
+  "url": "https://www.techinterview.org/companies/citadel-securities",
+  "scrapedAt": "2026-07-02T07:17:06.181Z",
+  "interviewStages": [
+    "Coding round (1&ndash;2 for SWE-track): applied programming, often involving market data, order book operations, or simulation. Python or C++ depending on role.",
+    "System design (for senior SWE / quant dev): low-latency systems, market data ingestion, order routing, risk aggregation.",
+    "Behavioral / fit (1 round): conversation about background, why Citadel Securities specifically, ambition, ability to operate in intense environment.",
+    "Hiring manager / director-level conversation (1 round): typically near the end, focuses on team-specific fit and long-term trajectory."
+  ],
+  "codingTopics": [
+    "Implement a simple matching engine or order book primitive",
+    "Process a market data feed and compute statistics (VWAP, time-weighted price, rolling volatility)",
+    "Detect arbitrage opportunities given prices on multiple venues",
+    "Optimize a slow function for low-latency execution",
+    "Classic algorithms (graphs, dynamic programming, intervals) with market-data twists"
+  ],
+  "systemDesignTopics": [
+    "\"Design the market-data ingestion system for 50 exchanges with sub-microsecond latency requirements.\"",
+    "\"Design a risk-aggregation system that updates per-symbol exposure in real time across thousands of strategies.\"",
+    "\"Design the order-routing system that decides which venue gets each order based on liquidity, latency, and economics.\""
+  ],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Implement a simple matching engine or order book primitive. Talk through your approach, complexity, and edge cases.",
+      "Implement VWAP, time-weighted price, rolling volatility. Talk through your approach, complexity, and edge cases.",
+      "Detect arbitrage opportunities given prices on multiple venues. Talk through your approach, complexity, and edge cases.",
+      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph.",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [
+      "Design the market-data ingestion system for 50 exchanges with sub-microsecond latency requirements.",
+      "Design a risk-aggregation system that updates per-symbol exposure in real time across thousands of strategies.",
+      "Design the order-routing system that decides which venue gets each order based on liquidity, latency, and economics.",
+      "Design a service at Citadel Securities scale that shortens URLs. Cover the API, storage, and hot-key handling.",
+      "Design a rate limiter for a public API. Discuss algorithms, distributed coordination, and failure modes."
+    ],
+    "values": [],
+    "other": [
+      "How is Citadel Securities different from Citadel (hedge fund)?",
+      "How does Citadel Securities compare to Jane Street and HRT for new grads?",
+      "How important is the Miami relocation?",
+      "What's the work-life balance reality?",
+      "Is Citadel Securities likely to IPO?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [
+    "Treat the trading game as a real exercise. Mock practice, not just reading about it.",
+    "Be direct in conversations. Citadel Securities values clarity over diplomatic hedging.",
+    "Know the market-microstructure basics. Even superficial knowledge signals interest beyond generic \"I want to do quant.\"",
+    "Ask sharp questions. \"How does the team measure success?\" beats \"Tell me about the culture.\"",
+    "Prepare directly for ambition / intensity questions. Don't soften &mdash; honest answers about wanting high stakes and high compensation are appropriate here.",
+    "Heard on the Street by Crack and A Practical Guide to Quantitative Finance Interviews by Zhou",
+    "Zetamac for mental math (even though it's less central than at Jane Street)",
+    "Trading and Exchanges: Market Microstructure for Practitioners by Larry Harris",
+    "Citadel Securities engineering blog and public technical writing",
+    "Reg NMS overview from SEC documentation (one hour of reading)",
+    "Mock trading-game practice with a peer or interview coach"
+  ],
+  "compensation": [
+    "New-grad SWE / Trader / Quant: $175K&ndash;$225K base, $100K&ndash;$200K signing bonus, $100K&ndash;$300K performance bonus year 1. Total Year 1: $400K&ndash;$700K.",
+    "Experienced (3&ndash;5 years): $250K&ndash;$350K base, performance bonuses $300K&ndash;$1M+. Total $700K&ndash;$1.5M.",
+    "Senior (5&ndash;10 years): $350K&ndash;$500K base, performance bonuses $1M&ndash;$3M+. Total $1.5M&ndash;$5M+.",
+    "Established traders / leads: $5M&ndash;$15M+ in strong years. Citadel Securities is known for paying top performers exceptionally well.",
+    "Performance-driven: compensation, advancement, and visibility scale with measurable contribution. Less politically driven than at banks.",
+    "Hour expectations: high during market hours and around major releases / events. Trading desks more intense than software-engineering seats. Off-hours expectations exist but are seat-dependent.",
+    "Office-first: in-person presence at hub offices is the norm. Remote work is uncommon.",
+    "Communication style: direct, concise, unhedged. Candidates who waffle in interviews don't fit; candidates who answer crisply and acknowledge uncertainty when appropriate do.",
+    "Distinct from Citadel hedge fund: the market-making business and the multi-strategy hedge fund are organizationally separate (different talent recruiting, separate cultures, separate compensation pools). Many candidates conflate them.",
+    "The Miami relocation is real; major engineering and trading teams are now Miami-based, with NYC-based satellite offices.",
+    "The technology investment is enormous &mdash; some of the most sophisticated low-latency infrastructure in the industry, FPGA-accelerated paths, custom networking.",
+    "Compensation is genuinely top-of-industry; the headline bonus numbers reflect real outcomes for top performers, not theoretical maxes.",
+    "The firm is highly competitive about talent; interview pace is fast and offers come quickly when interest is mutual.",
+    "Conflating Citadel Securities with Citadel hedge fund. They're separate organizations with different cultures and recruiting.",
+    "Underestimating the trading game. It's a critical signal even for SWE-track candidates.",
+    "Generic FAANG-style behavioral answers. Citadel Securities wants directness, ambition, and intellectual rigor &mdash; not \"here's a 5-paragraph STAR story.\"",
+    "Not engaging with market structure. Even SWE candidates benefit from understanding how US equity / option markets actually work."
+  ],
+  "rawSummary": "Citadel Securities Interview Guide 2026: Market Making, Trading Games, Low-Latency Systems, and Miami HQ\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 25, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\tUpdated April 25, 2026 · techinterview.org\n\n⏱ 9 min read\n\nCitadel Securities\ncitadelsecurities.com ↗\n\nCitadel Securities Interview Process: Complete 2026 Guide\n\nOverview\n\nCitadel Securities is the market-making arm of the Citadel empire founded by Ken Griffin, distinct from Citadel's hedge-fund arm. Founded 2002, headquartered in Miami (relocated from Chicago in 2022), with major offices in New York, London, Hong Kong, Sydney, and Dublin. ~2,000 employees in 2026. Citadel Securities is one of the most dominant market makers in US equities, options, and increasingly Treasuries and FX, executing roughly 25% of US equity volume on most trading days. The firm makes its money from bid-ask spread and order-flow optimization at extraordinary scale, supported by deep technology investment. Compensation for new graduates is among the highest in finance &mdash; total packages of $400K&ndash;$700K are common &mdash; and senior compensation can exceed $5M for proven contributors. Interviews emphasize quantitative reasoning, market-making intuition, and engineering depth depending on role; the brand is intense, demanding, and well-respected within the industry.\n\nInterview Structure\n\nRecruiter screen + assessment (45 min): Citadel Securities uses HackerRank or similar for an initial coding / quantitative assessment, particularly for new-grad applicants. The assessment combines coding problems and quantitative / probability questions. Pass bar varies but is competitive (top quartile of submissions).\n\nPhone interview (60 min): probability problems with thinking-out-loud, often combined with light coding. Expect 2&ndash;3 problems mixing brainteasers, expected-value, and applied trading scenarios.\n\nOnsite (\"superday\", 5&ndash;7 rounds in one day or split):\n\n- Quantitative / probability rounds (1&ndash;2): brainteaser problems, expected-value reasoning, multi-stage decision problems. Difficulty escalates round-to-round.\n\n- Trading game / market-making round: similar to Jane Street's setup &mdash; interviewer plays a market, candidate makes prices, manages P&L through new information. Tests calibrated risk-taking, edge identification, and dynamic price updates.\n\n- Coding round (1&ndash;2 for SWE-track): applied programming, often involving market data, order book operations, or simulation. Python or C++ depending on role.\n\n- System design (for senior SWE / quant dev): low-latency systems, market data ingestion, order routing, risk aggregation.\n\n- Behavioral / fit (1 round): conversation about background, why Citadel Securities specifically, ambition, ability to operate in intense environment.\n\n- Hiring manager / director-level conversation (1 round): typically near the end, focuses on team-specific fit and long-term trajectory.\n\nTechnical Focus Areas\n\nQuantitative reasoning: probability, expected value, conditional probability, random walks, multi-stage games, market-making frameworks. Heavy overlap with Jane Street prep but with somewhat more emphasis on scale-of-impact reasoning (Citadel Securities makes markets at a massive scale, and interview problems sometimes reflect this).\n\nCoding: Python and C++ are dominant. Different teams favor each. Equity / options market making and HFT-adjacent roles often C++; quant research, analytics, and applied roles often Python. Strong typing, performance awareness, and clean code matter more than algorithmic flourishes.\n\nMarket structure: US equity market microstructure (NMS, SIP, dark pools, payment for order flow), options market structure (option exchanges, complex orders, underlying-options pricing relationships), order types (market, limit, immediate-or-cancel, intermarket sweep). For market-making roles, this domain knowledge is increasingly expected post-hire and signals-from-candidates pre-hire.\n\nLow-latency systems: for HFT-adjacent SWE roles, kernel bypass networking (DPDK, Solarflare), CPU pinning, lock-free data structures, hardware acceleration with FPGAs. Citadel Securities operates one of the world's largest low-latency trading infrastructures.\n\nStatistics and ML: for quant research and signals work, regression, time-series modeling, factor analysis, deep-learning approaches to market signal generation. Strong stats background helps for these specific seats but isn't required for SWE-track.\n\nTrading Game Details\n\nSimilar in structure to Jane Street's market-making round but with subtle stylistic differences. The interviewer typically:\n\n- Reveals partial information about an unknown quantity\n\n- Asks the candidate to make a market (bid X, offer Y)\n\n- Trades against the candidate's prices\n\n- Reveals additional information periodically\n\n- Tracks running P&L and inventory position\n\nWhat works: anchor initial price reasonably (Fermi estimation, base rates), tight enough spreads that you do"
+}

@@ -1,0 +1,49 @@
+{
+  "company": "Weaviate",
+  "slug": "weaviate-interview-guide",
+  "url": "https://www.techinterview.org/companies/weaviate-interview-guide",
+  "scrapedAt": "2026-07-02T07:16:18.074Z",
+  "interviewStages": [
+    "Technical depth",
+    "Recruiter screen.",
+    "Hiring manager.",
+    "Technical phone screen.",
+    "Loop (4-5 rounds).",
+    "Final review.",
+    "Modular design — Weaviate's vectorization happens via pluggable modules. Engineers should understand the module architecture.",
+    "GraphQL API — Weaviate's primary API is GraphQL. Familiarity is helpful.",
+    "Hybrid search (BM25 + vector) is a Weaviate strength; senior interviews probe the implementation.",
+    "Multi-tenancy at scale — Weaviate Cloud supports many small tenants efficiently."
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "How does Weaviate differ from Pinecone?",
+      "Do I need Go background?",
+      "Is Amsterdam required?",
+      "What's the open-source contribution expectation?",
+      "Is the bar lower than Pinecone?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": [
+    "Senior (Amsterdam): €120-180K base + equity → €170-280K total",
+    "Senior (US): $190-260K base + equity → $370-600K total"
+  ],
+  "rawSummary": "Weaviate Interview Guide (2026): Open-Source Vector DB\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Interview process\n\n- Technical depth\n\n- Open-source culture\n\n- Compensation (2026 estimates)\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 2 min read\n\nWeaviate\nweaviate.io ↗\n\nWeaviate Interview Guide\n\nCompany overview: Weaviate is the leading open-source vector database. Amsterdam headquartered with significant remote engineering across Europe and the US. Customer base spans enterprises that prefer open-source-first infrastructure. The company offers both a managed cloud product (Weaviate Cloud) and self-hostable open-source. Distinct from Pinecone in being open-source by default and from cloud-provider integrations in being purpose-built for vector workloads.\n\nInterview process\n\nTimeline: 4-7 weeks. European pace for the Amsterdam-based hires; US pace for remote US.\n\n- Recruiter screen.\n\n- Hiring manager.\n\n- Technical phone screen.\n\n- Loop (4-5 rounds).\n\n- Final review.\n\nTechnical depth\n\nSimilar to Pinecone — ANN algorithms, distributed indexing, embedding integration. Weaviate-specific:\n\n- Modular design — Weaviate's vectorization happens via pluggable modules. Engineers should understand the module architecture.\n\n- GraphQL API — Weaviate's primary API is GraphQL. Familiarity is helpful.\n\n- Hybrid search (BM25 + vector) is a Weaviate strength; senior interviews probe the implementation.\n\n- Multi-tenancy at scale — Weaviate Cloud supports many small tenants efficiently.\n\nOpen-source culture\n\nWeaviate's engineering culture is open-source-first. Engineers should be conversant with how to engage with an open-source community: triaging issues, mentoring contributors, balancing community priorities with company roadmap.\n\nCompensation (2026 estimates)\n\n- Senior (Amsterdam): €120-180K base + equity → €170-280K total\n\n- Senior (US): $190-260K base + equity → $370-600K total\n\nEuropean packages are smaller in absolute terms but with European tax structure and lower cost of living. US remote roles are at par with similar tier-2 AI infrastructure companies.\n\nFrequently Asked Questions\n\nHow does Weaviate differ from Pinecone?\n\nWeaviate is open-source-first; Pinecone is managed-cloud-first. Both have strong engineering. Weaviate's brand is European-tech and open-source ecosystem; Pinecone's is US enterprise.\n\nDo I need Go background?\n\nWeaviate's core is Go-heavy. Familiarity helps. Some teams use other languages for tooling.\n\nIs Amsterdam required?\n\nMany roles are remote-friendly. The Amsterdam office is the cultural center but not a hard location requirement for most engineering positions.\n\nWhat's the open-source contribution expectation?\n\nEngineers contribute to the open-source codebase as part of normal work. Pre-existing open-source contribution history is a positive signal but not required.\n\nIs the bar lower than Pinecone?\n\nComparable. Both companies have high engineering bars; the cultures differ but the technical rigor is similar.\n\nSimilar company guides\n\nReka AIinterview guideSakana AIinterview guideBlack Forest Labsinterview guideHippocratic AIinterview guideRunwayinterview guidePika Labsinterview guide\n\nPrepping for Weaviate? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextMatchmaking Service Low-Level Design: Skill-Based Matching, Queue Management, and Lobby System⏱ 5 min readFigma Interview Guide 2026: Collaborative Editing, Graphics, and Real-Time Systems⏱ 4 min readLow Level Design: Design Patterns for Distributed Systems⏱ 7 min read"
+}

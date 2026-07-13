@@ -1,0 +1,564 @@
+{
+  "schemaVersion": 1,
+  "id": "coding-interview-patterns",
+  "track": "coding-patterns",
+  "order": 1,
+  "title": "Coding Interview Patterns",
+  "language": "javascript",
+  "category": "Computer Science",
+  "difficulty": "Intermediate",
+  "tagline": "Every algorithm gets its own animation — see the pattern move, then code it yourself.",
+  "description": "The visual way to master coding interviews. Each of 20 pattern chapters pairs a step-through animation you control with a hands-on code lab, covering arrays, trees, graphs, dynamic programming, divide and conquer, quickselect, string matching, Union Find, range trees, minimum spanning trees, shortest paths, and network flow.",
+  "status": "published",
+  "tags": ["algorithms", "coding-interview", "data-structures", "patterns"],
+  "estimatedMinutes": 240,
+  "chapters": [
+    {
+      "id": "ch-two-pointers",
+      "title": "Two Pointers",
+      "exercises": [
+        {
+          "id": "tp-reading",
+          "title": "Pattern: Two Pointers",
+          "kind": "reading",
+          "xp": 10,
+          "content": "# Two Pointers\n\nTwo indexes walking through a **sorted** array (or a string) from both ends, converging toward each other. Instead of testing all O(n²) pairs, each comparison eliminates one pointer position — a single O(n) pass.\n\n### How to recognize it\n- Input is sorted (or sortable) and you need a **pair / triplet** with some property\n- \"Find two numbers that sum to…\", \"is it a palindrome?\", \"container with most water\"\n- Brute force would compare every pair\n\n### The template\n```javascript\nlet l = 0, r = nums.length - 1;\nwhile (l < r) {\n  const sum = nums[l] + nums[r];\n  if (sum === target) return [l, r];\n  if (sum < target) l++;   // need a bigger value\n  else r--;                // need a smaller value\n}\n```\n\n### Why moving the pointer is safe\nWhen `sum < target`, no pair using `nums[l]` can work — `nums[r]` is already the biggest partner available. So skipping `l` forward throws away nothing.\n\n**Complexity:** O(n) time, O(1) space.\n\n**Classic problems:** Two Sum II · 3Sum · Container With Most Water · Valid Palindrome · Trapping Rain Water",
+          "check": { "type": "read" }
+        },
+        {
+          "id": "tp-viz",
+          "title": "Animation: converging pointers",
+          "kind": "interactive",
+          "xp": 25,
+          "widgetId": "two-pointers-viz",
+          "content": "# Watch the pointers converge\n\nFind a pair summing to **15** in `[1, 3, 4, 6, 8, 11, 13]`.\n\nAt every step, ask yourself **which pointer moves and why** — that reasoning is exactly what you'll say out loud in a real interview. Step through until the pair lights up orange.",
+          "check": { "type": "widget" }
+        },
+        {
+          "id": "tp-code",
+          "title": "Code lab: pairSum",
+          "kind": "code",
+          "xp": 25,
+          "language": "javascript",
+          "content": "# Code lab: pair with target sum\n\nImplement `pairSum(nums, target)` for a **sorted** array. Return the two **indexes** `[i, j]` of the pair that sums to `target`, or `null` if no pair exists.\n\nUse converging pointers — no nested loops!\n\n### Examples\n- `pairSum([1,3,4,6,8,11,13], 15)` → `[2, 5]` (4 + 11)\n- `pairSum([2,7,11,15], 9)` → `[0, 1]`\n- `pairSum([1,2,3], 7)` → `null`",
+          "starterCode": "function pairSum(nums, target) {\n  let l = 0;\n  let r = nums.length - 1;\n  // While l < r: compare nums[l] + nums[r] with target.\n  // Equal → return [l, r]. Too small → l++. Too big → r--.\n\n  return null;\n}\n",
+          "check": {
+            "type": "tests",
+            "functionName": "pairSum",
+            "tests": [
+              { "input": [[1, 3, 4, 6, 8, 11, 13], 15], "expected": [2, 5] },
+              { "input": [[2, 7, 11, 15], 9], "expected": [0, 1] },
+              { "input": [[1, 2, 3], 7], "expected": null }
+            ]
+          },
+          "hint": "Move exactly one pointer per iteration. sum < target means the LEFT value is too small to ever work with any remaining partner.",
+          "solutionCode": "function pairSum(nums, target) {\n  let l = 0;\n  let r = nums.length - 1;\n  while (l < r) {\n    const sum = nums[l] + nums[r];\n    if (sum === target) return [l, r];\n    if (sum < target) l++;\n    else r--;\n  }\n  return null;\n}\n"
+        }
+      ]
+    },
+    {
+      "id": "ch-sliding-window",
+      "title": "Sliding Window",
+      "exercises": [
+        {
+          "id": "sw-reading",
+          "title": "Pattern: Sliding Window",
+          "kind": "reading",
+          "xp": 10,
+          "content": "# Sliding Window\n\nA window `[left, right]` slides across an array or string. The insight: when the window moves one step, **only one element enters and one leaves** — so you update the answer incrementally instead of recomputing the whole window.\n\n### How to recognize it\n- \"Longest / shortest / maximum **substring or subarray** that …\"\n- A **contiguous** range is involved\n- Brute force recomputes overlapping work: O(n·k) or O(n²)\n\n### Two flavors\n**Fixed size k** (like the animation):\n```javascript\nlet sum = 0, best = -Infinity;\nfor (let i = 0; i < nums.length; i++) {\n  sum += nums[i];              // element enters\n  if (i >= k) sum -= nums[i - k]; // element leaves\n  if (i >= k - 1) best = Math.max(best, sum);\n}\n```\n**Variable size** — grow `right` every step, shrink `left` only while the window is invalid.\n\n**Complexity:** O(n) — each element enters once and leaves once.\n\n**Classic problems:** Maximum Average Subarray · Longest Substring Without Repeating Characters · Minimum Window Substring · Sliding Window Maximum",
+          "check": { "type": "read" }
+        },
+        {
+          "id": "sw-viz",
+          "title": "Animation: the window slides",
+          "kind": "interactive",
+          "xp": 25,
+          "widgetId": "sliding-window-viz",
+          "content": "# Watch the window slide\n\nTrack the **max of every window of size 3** across `[1, 3, -1, -3, 5, 3, 6, 7]`.\n\nAs you step, notice that only the entering and leaving elements matter — the middle of the window never gets re-examined. Slide all the way to the right to complete the lesson.",
+          "check": { "type": "widget" }
+        },
+        {
+          "id": "sw-code",
+          "title": "Code lab: maxSumSubarray",
+          "kind": "code",
+          "xp": 25,
+          "language": "javascript",
+          "content": "# Code lab: max sum of a window of size k\n\nImplement `maxSumSubarray(nums, k)` returning the **largest sum of any contiguous subarray of length k**.\n\nDo it in ONE pass: add the entering element, subtract the leaving one. No inner loop.\n\n### Examples\n- `maxSumSubarray([1,3,-1,-3,5,3,6,7], 3)` → `16` (3+6+7)\n- `maxSumSubarray([2,1,5,1,3,2], 3)` → `9` (5+1+3)\n- `maxSumSubarray([5], 1)` → `5`",
+          "starterCode": "function maxSumSubarray(nums, k) {\n  let sum = 0;\n  let best = -Infinity;\n  for (let i = 0; i < nums.length; i++) {\n    // 1. add nums[i] (enters the window)\n    // 2. if i >= k, subtract nums[i - k] (leaves the window)\n    // 3. once the window is full (i >= k - 1), update best\n  }\n  return best;\n}\n",
+          "check": {
+            "type": "tests",
+            "functionName": "maxSumSubarray",
+            "tests": [
+              { "input": [[1, 3, -1, -3, 5, 3, 6, 7], 3], "expected": 16 },
+              { "input": [[2, 1, 5, 1, 3, 2], 3], "expected": 9 },
+              { "input": [[5], 1], "expected": 5 }
+            ]
+          },
+          "hint": "The window is full for the first time at i = k - 1. From then on, every step is: +entering, -leaving, compare.",
+          "solutionCode": "function maxSumSubarray(nums, k) {\n  let sum = 0;\n  let best = -Infinity;\n  for (let i = 0; i < nums.length; i++) {\n    sum += nums[i];\n    if (i >= k) sum -= nums[i - k];\n    if (i >= k - 1) best = Math.max(best, sum);\n  }\n  return best;\n}\n"
+        }
+      ]
+    },
+    {
+      "id": "ch-binary-search",
+      "title": "Binary Search",
+      "exercises": [
+        {
+          "id": "bs-reading",
+          "title": "Pattern: Binary Search",
+          "kind": "reading",
+          "xp": 10,
+          "content": "# Binary Search\n\nOn **sorted** data, one comparison against the middle element eliminates half the search space. n → n/2 → n/4 → … → 1 takes only **log₂(n)** steps: a million elements need just 20 comparisons.\n\n### How to recognize it\n- Sorted array, or a **monotonic** yes/no condition (\"first version that fails\", \"smallest capacity that works\")\n- Interviewer hints at better than O(n)\n\n### The template (memorize the boundaries!)\n```javascript\nlet lo = 0, hi = nums.length - 1;\nwhile (lo <= hi) {\n  const mid = Math.floor((lo + hi) / 2);\n  if (nums[mid] === target) return mid;\n  if (nums[mid] < target) lo = mid + 1; // discard left half\n  else hi = mid - 1;                    // discard right half\n}\nreturn -1;\n```\n\n### The three classic bugs\n1. `while (lo < hi)` vs `lo <= hi` mismatch with the update rule\n2. Forgetting `+1` / `-1` → infinite loop\n3. Applying it to unsorted data\n\n**Complexity:** O(log n) time, O(1) space.\n\n**Classic problems:** Search Insert Position · First/Last Position · Search in Rotated Sorted Array · Koko Eating Bananas (search on the answer)",
+          "check": { "type": "read" }
+        },
+        {
+          "id": "bs-viz",
+          "title": "Animation: halving the space",
+          "kind": "interactive",
+          "xp": 25,
+          "widgetId": "binary-search-viz",
+          "content": "# Watch the search space halve\n\nFind **25** in an 11-element sorted array.\n\nEach step, predict: will `mid` be too big or too small, and which half gets discarded? Watch how fast the gray (discarded) region grows.",
+          "check": { "type": "widget" }
+        },
+        {
+          "id": "bs-code",
+          "title": "Code lab: binarySearch",
+          "kind": "code",
+          "xp": 25,
+          "language": "javascript",
+          "content": "# Code lab: classic binary search\n\nImplement `binarySearch(nums, target)` on a sorted array. Return the **index** of `target`, or `-1` if absent.\n\nGet the boundaries right — this exact function is asked verbatim in phone screens.\n\n### Examples\n- `binarySearch([3,7,12,19,25,31,42,58,66,74,88], 25)` → `4`\n- `binarySearch([1,3,5], 5)` → `2`\n- `binarySearch([1,3,5], 2)` → `-1`",
+          "starterCode": "function binarySearch(nums, target) {\n  let lo = 0;\n  let hi = nums.length - 1;\n  // while lo <= hi: compute mid, compare, discard half.\n\n  return -1;\n}\n",
+          "check": {
+            "type": "tests",
+            "functionName": "binarySearch",
+            "tests": [
+              { "input": [[3, 7, 12, 19, 25, 31, 42, 58, 66, 74, 88], 25], "expected": 4 },
+              { "input": [[1, 3, 5], 5], "expected": 2 },
+              { "input": [[1, 3, 5], 2], "expected": -1 },
+              { "input": [[], 1], "expected": -1 }
+            ]
+          },
+          "hint": "Use lo <= hi with lo = mid + 1 and hi = mid - 1. If you use lo < hi you need a different update rule — don't mix the two.",
+          "solutionCode": "function binarySearch(nums, target) {\n  let lo = 0;\n  let hi = nums.length - 1;\n  while (lo <= hi) {\n    const mid = Math.floor((lo + hi) / 2);\n    if (nums[mid] === target) return mid;\n    if (nums[mid] < target) lo = mid + 1;\n    else hi = mid - 1;\n  }\n  return -1;\n}\n"
+        }
+      ]
+    },
+    {
+      "id": "ch-fast-slow",
+      "title": "Fast & Slow Pointers",
+      "exercises": [
+        {
+          "id": "fs-reading",
+          "title": "Pattern: Fast & Slow Pointers",
+          "kind": "reading",
+          "xp": 10,
+          "content": "# Fast & Slow Pointers (Floyd's Algorithm)\n\nTwo pointers traverse the same structure at **different speeds** — slow moves 1 step, fast moves 2. Their relative motion reveals structure without any extra memory.\n\n### The two superpowers\n**1. Cycle detection.** If there's a loop, the fast pointer eventually laps the slow one. Inside the cycle the gap shrinks by exactly 1 per step, so they MUST meet. No cycle → fast hits `null`.\n\n**2. Finding the middle.** When fast reaches the end, slow is exactly halfway.\n\n### The template\n```javascript\nlet slow = head, fast = head;\nwhile (fast && fast.next) {\n  slow = slow.next;\n  fast = fast.next.next;\n  if (slow === fast) return true; // cycle!\n}\nreturn false;\n```\n\n### Why interviewers love it\nThe obvious solution (a visited `Set`) costs O(n) memory. Fast & slow does it in **O(1) space** — mentioning both and explaining the trade-off is an instant signal.\n\n**Classic problems:** Linked List Cycle I & II · Middle of the Linked List · Happy Number · Find the Duplicate Number · Palindrome Linked List",
+          "check": { "type": "read" }
+        },
+        {
+          "id": "fs-viz",
+          "title": "Animation: tortoise vs hare",
+          "kind": "interactive",
+          "xp": 25,
+          "widgetId": "fast-slow-viz",
+          "content": "# Watch the hare catch the tortoise\n\nA linked list `0 → 1 → 2 → 3 → 4 → 5 → 6 → 7` where node 7 loops back to node 3 (red dashed edge).\n\nAdvance both pointers and watch the gap close inside the cycle — the meeting is mathematically inevitable.",
+          "check": { "type": "widget" }
+        },
+        {
+          "id": "fs-quiz",
+          "title": "Quiz: cycle logic",
+          "kind": "quiz",
+          "xp": 15,
+          "content": "# Check your understanding\n\nThree quick questions on why Floyd's algorithm works and where to reach for it.",
+          "quiz": [
+            {
+              "id": "fs-q1",
+              "prompt": "Inside a cycle, how fast does the fast pointer close the gap on the slow pointer?",
+              "options": ["2 nodes per step", "1 node per step", "It depends on the cycle length", "The gap never closes"],
+              "correctIndex": 1,
+              "explanation": "Slow moves +1 and fast moves +2, so the relative speed is exactly 1 node per step — the gap shrinks by 1 every step, guaranteeing a meeting."
+            },
+            {
+              "id": "fs-q2",
+              "prompt": "The list has NO cycle. What happens with fast & slow pointers?",
+              "options": ["They meet at the last node", "Infinite loop", "fast (or fast.next) becomes null and we return false", "slow overtakes fast"],
+              "correctIndex": 2,
+              "explanation": "Without a cycle the fast pointer runs off the end — that's the termination condition `while (fast && fast.next)`."
+            },
+            {
+              "id": "fs-q3",
+              "prompt": "What's the key advantage of fast & slow over storing visited nodes in a Set?",
+              "options": ["It's faster: O(log n) vs O(n)", "It uses O(1) extra space instead of O(n)", "It also works on unsorted arrays", "It finds the longest cycle"],
+              "correctIndex": 1,
+              "explanation": "Both are O(n) time. The win is space: two pointers instead of a Set holding up to n nodes."
+            }
+          ],
+          "check": { "type": "quiz" }
+        }
+      ]
+    },
+    {
+      "id": "ch-monotonic-stack",
+      "title": "Monotonic Stack",
+      "exercises": [
+        {
+          "id": "ms-reading",
+          "title": "Pattern: Monotonic Stack",
+          "kind": "reading",
+          "xp": 10,
+          "content": "# Monotonic Stack\n\nA stack that stays **sorted** (say, increasing bottom→top) by popping every element that would break the order before pushing. The moment an element gets popped, you've learned something: the incoming element is its **next greater element**.\n\n### How to recognize it\n- \"**Next greater** / next smaller element…\"\n- \"How many days until a warmer temperature?\"\n- \"Largest rectangle…\" — anything about the nearest element that dominates\n\n### The template\n```javascript\nconst stack = []; // indexes\nfor (let i = 0; i < nums.length; i++) {\n  while (stack.length && nums[stack.at(-1)] < nums[i]) {\n    const j = stack.pop();\n    answer[j] = nums[i]; // nums[i] is j's next greater!\n  }\n  stack.push(i);\n}\n```\n\n### The complexity magic\nIt looks like O(n²) — a loop in a loop. But each element is pushed **once** and popped **at most once**, so the total work is O(n). Say this in the interview; it's the point of the question.\n\n**Classic problems:** Next Greater Element I/II · Daily Temperatures · Largest Rectangle in Histogram · Remove K Digits",
+          "check": { "type": "read" }
+        },
+        {
+          "id": "ms-viz",
+          "title": "Animation: pop then push",
+          "kind": "interactive",
+          "xp": 25,
+          "widgetId": "monotonic-stack-viz",
+          "content": "# Watch the stack stay sorted\n\nProcess `[2, 1, 5, 3, 6, 2, 3]` while keeping the stack increasing bottom→top.\n\nBefore each click, predict: **which elements get popped?** Every pop means the current element is that value's next-greater answer.",
+          "check": { "type": "widget" }
+        },
+        {
+          "id": "ms-code",
+          "title": "Code lab: nextGreater",
+          "kind": "code",
+          "xp": 25,
+          "language": "javascript",
+          "content": "# Code lab: next greater element\n\nImplement `nextGreater(nums)` returning an array where position `i` holds the **first element to the right of `nums[i]` that is strictly greater**, or `-1` if none exists.\n\nUse a monotonic stack of indexes — one pass, O(n).\n\n### Examples\n- `nextGreater([2,1,5,3,6,2,3])` → `[5,5,6,6,-1,3,-1]`\n- `nextGreater([1,2,3])` → `[2,3,-1]`\n- `nextGreater([3,2,1])` → `[-1,-1,-1]`",
+          "starterCode": "function nextGreater(nums) {\n  const answer = new Array(nums.length).fill(-1);\n  const stack = []; // store INDEXES waiting for their next greater\n  for (let i = 0; i < nums.length; i++) {\n    // While the top of the stack holds an index whose value < nums[i],\n    // pop it — nums[i] is its next greater element.\n    // Then push i.\n  }\n  return answer;\n}\n",
+          "check": {
+            "type": "tests",
+            "functionName": "nextGreater",
+            "tests": [
+              { "input": [[2, 1, 5, 3, 6, 2, 3]], "expected": [5, 5, 6, 6, -1, 3, -1] },
+              { "input": [[1, 2, 3]], "expected": [2, 3, -1] },
+              { "input": [[3, 2, 1]], "expected": [-1, -1, -1] }
+            ]
+          },
+          "hint": "Store indexes, not values — you need the index to write into `answer` when a pop happens. Whatever is left on the stack at the end keeps its -1.",
+          "solutionCode": "function nextGreater(nums) {\n  const answer = new Array(nums.length).fill(-1);\n  const stack = [];\n  for (let i = 0; i < nums.length; i++) {\n    while (stack.length && nums[stack[stack.length - 1]] < nums[i]) {\n      answer[stack.pop()] = nums[i];\n    }\n    stack.push(i);\n  }\n  return answer;\n}\n"
+        }
+      ]
+    },
+    {
+      "id": "ch-merge-intervals",
+      "title": "Merge Intervals",
+      "exercises": [
+        {
+          "id": "mi-reading",
+          "title": "Pattern: Merge Intervals",
+          "kind": "reading",
+          "xp": 10,
+          "content": "# Merge Intervals\n\nProblems about **ranges on a line** — meetings, bookings, IP blocks. The universal first move: **sort by start**. After sorting, overlap detection needs only ONE comparison per interval.\n\n### The key insight\nAfter sorting, interval `b` overlaps the current merged block iff `b.start <= block.end`. Nothing earlier can surprise you — that's what sorting bought.\n\n### The template\n```javascript\nintervals.sort((a, b) => a[0] - b[0]);\nconst merged = [];\nfor (const [s, e] of intervals) {\n  const last = merged[merged.length - 1];\n  if (last && s <= last[1]) {\n    last[1] = Math.max(last[1], e); // overlap → extend\n  } else {\n    merged.push([s, e]);            // gap → new block\n  }\n}\n```\n\n### Watch out\n- `last[1] = Math.max(last[1], e)` — NOT just `e`. `[1,10]` followed by `[2,3]` must stay `[1,10]`.\n- Decide whether touching intervals (`[1,3]`,`[3,5]`) count as overlapping — ask the interviewer!\n\n**Complexity:** O(n log n) for the sort, O(n) for the sweep.\n\n**Classic problems:** Merge Intervals · Insert Interval · Meeting Rooms I & II · Non-overlapping Intervals",
+          "check": { "type": "read" }
+        },
+        {
+          "id": "mi-viz",
+          "title": "Animation: bars collapsing",
+          "kind": "interactive",
+          "xp": 25,
+          "widgetId": "merge-intervals-viz",
+          "content": "# Watch intervals collapse\n\nSweep through `[[1,3],[2,6],[8,10],[9,12],[15,18]]` left to right.\n\nAt each step the question is binary: does the next bar **touch the current block** (extend it) or **leave a gap** (start a new one)? Five inputs collapse into three blocks.",
+          "check": { "type": "widget" }
+        },
+        {
+          "id": "mi-code",
+          "title": "Code lab: mergeIntervals",
+          "kind": "code",
+          "xp": 25,
+          "language": "javascript",
+          "content": "# Code lab: merge overlapping intervals\n\nImplement `mergeIntervals(intervals)` — merge all overlapping intervals and return the result sorted by start.\n\n### Examples\n- `mergeIntervals([[1,3],[2,6],[8,10],[9,12],[15,18]])` → `[[1,6],[8,12],[15,18]]`\n- `mergeIntervals([[1,4],[4,5]])` → `[[1,5]]` (touching counts as overlap here)\n- `mergeIntervals([[5,6],[1,2]])` → `[[1,2],[5,6]]` (don't forget to sort!)",
+          "starterCode": "function mergeIntervals(intervals) {\n  // 1. Sort by start.\n  // 2. Sweep: overlap (s <= last end) → extend with Math.max; gap → push new.\n  const merged = [];\n\n  return merged;\n}\n",
+          "check": {
+            "type": "tests",
+            "functionName": "mergeIntervals",
+            "tests": [
+              { "input": [[[1, 3], [2, 6], [8, 10], [9, 12], [15, 18]]], "expected": [[1, 6], [8, 12], [15, 18]] },
+              { "input": [[[1, 4], [4, 5]]], "expected": [[1, 5]] },
+              { "input": [[[5, 6], [1, 2]]], "expected": [[1, 2], [5, 6]] }
+            ]
+          },
+          "hint": "Sort first: intervals.sort((a, b) => a[0] - b[0]). Then compare each interval's start with the END of the last merged block.",
+          "solutionCode": "function mergeIntervals(intervals) {\n  const sorted = [...intervals].sort((a, b) => a[0] - b[0]);\n  const merged = [];\n  for (const [s, e] of sorted) {\n    const last = merged[merged.length - 1];\n    if (last && s <= last[1]) {\n      last[1] = Math.max(last[1], e);\n    } else {\n      merged.push([s, e]);\n    }\n  }\n  return merged;\n}\n"
+        }
+      ]
+    },
+    {
+      "id": "ch-bfs",
+      "title": "BFS: Breadth-First Search",
+      "exercises": [
+        {
+          "id": "bfs-reading",
+          "title": "Pattern: BFS",
+          "kind": "reading",
+          "xp": 10,
+          "content": "# Breadth-First Search\n\nExplore a graph or grid **level by level** using a queue: everything at distance 1, then distance 2, and so on — like a wave. Because you visit nodes in distance order, **the first time BFS reaches a node is via a shortest path**.\n\n### How to recognize it\n- \"**Shortest** path / **minimum** number of steps\" in an **unweighted** graph, grid, or state space\n- \"How many islands / connected regions?\"\n- Word transformations, lock combinations — anything where states connect by single moves\n\n### The template (grid version)\n```javascript\nconst queue = [[startR, startC]];\nconst seen = new Set([`${startR},${startC}`]);\nlet dist = 0;\nwhile (queue.length) {\n  const levelSize = queue.length;       // process one ring\n  for (let i = 0; i < levelSize; i++) {\n    const [r, c] = queue.shift();\n    if (isTarget(r, c)) return dist;\n    for (const [nr, nc] of neighbors(r, c)) {\n      if (valid(nr, nc) && !seen.has(`${nr},${nc}`)) {\n        seen.add(`${nr},${nc}`);\n        queue.push([nr, nc]);\n      }\n    }\n  }\n  dist++;\n}\n```\n\n### The #1 bug\nMarking nodes visited **when popped** instead of **when pushed** — the queue fills with duplicates. Mark on push.\n\n**Complexity:** O(V + E) — every cell/node once.\n\n**Classic problems:** Number of Islands · Rotting Oranges · Word Ladder · Shortest Path in Binary Matrix · 01 Matrix",
+          "check": { "type": "read" }
+        },
+        {
+          "id": "bfs-viz",
+          "title": "Animation: the expanding wave",
+          "kind": "interactive",
+          "xp": 25,
+          "widgetId": "bfs-grid-viz",
+          "content": "# Watch the wave expand\n\nBFS from **S** to **E** through a maze. Each click expands the frontier by exactly one ring — the number in each cell is its distance from S.\n\nNotice: the wave hits E exactly once, and that first touch **is** the shortest path.",
+          "check": { "type": "widget" }
+        },
+        {
+          "id": "bfs-quiz",
+          "title": "Quiz: BFS vs DFS",
+          "kind": "quiz",
+          "xp": 15,
+          "content": "# Check your understanding\n\nWhen the interviewer says \"shortest\", which traversal do you reach for — and why?",
+          "quiz": [
+            {
+              "id": "bfs-q1",
+              "prompt": "Why does BFS find the shortest path in an UNWEIGHTED graph?",
+              "options": ["It tries all paths and keeps the best", "It visits nodes in order of distance, so the first arrival is via a shortest route", "The queue sorts nodes by distance", "It doesn't — you need Dijkstra"],
+              "correctIndex": 1,
+              "explanation": "BFS processes all distance-k nodes before any distance-(k+1) node, so the first time it touches a node, no shorter route can exist. Dijkstra is only needed when edges have different weights."
+            },
+            {
+              "id": "bfs-q2",
+              "prompt": "When should a cell be marked as visited?",
+              "options": ["When it's popped off the queue", "When it's pushed onto the queue", "After the whole level is processed", "Only if it's on the shortest path"],
+              "correctIndex": 1,
+              "explanation": "Mark on push. If you mark on pop, the same cell can be queued many times by different neighbors, bloating the queue and breaking level counting."
+            },
+            {
+              "id": "bfs-q3",
+              "prompt": "\"Count how many islands of 1s exist in a grid.\" Which approach works?",
+              "options": ["Only BFS", "Only DFS", "Either — you just need to visit every cell of each component", "Neither — this needs dynamic programming"],
+              "correctIndex": 2,
+              "explanation": "Counting connected components doesn't involve shortest distance, so BFS and DFS both work. Reach specifically for BFS when the question says SHORTEST or MINIMUM steps."
+            }
+          ],
+          "check": { "type": "quiz" }
+        }
+      ]
+    },
+    {
+      "id": "ch-backtracking",
+      "title": "Backtracking",
+      "exercises": [
+        {
+          "id": "bt-reading",
+          "title": "Pattern: Backtracking",
+          "kind": "reading",
+          "xp": 10,
+          "content": "# Backtracking\n\nSystematically explore a **decision tree**: make a choice, recurse deeper, then **UNDO the choice** and try the next option. Three moves, always the same: **choose → explore → un-choose**.\n\n### How to recognize it\n- \"Generate **all** subsets / permutations / combinations…\"\n- \"Place N queens…\", \"solve the Sudoku…\" — constraint satisfaction\n- The answer is a **set of solutions**, not a single number\n\n### The template\n```javascript\nfunction backtrack(path, choices) {\n  record(path);                 // or: if (isComplete(path)) record\n  for (const choice of choices) {\n    path.push(choice);          // choose\n    backtrack(path, next(choices, choice)); // explore\n    path.pop();                 // un-choose ← the \"backtrack\"\n  }\n}\n```\n\n### The two rules\n1. **Undo exactly what you did** — push/pop must mirror perfectly.\n2. **Copy the path when recording** (`[...path]`) — otherwise every recorded answer mutates later.\n\n**Complexity:** output-bound — subsets are O(2ⁿ), permutations O(n!). Pruning (skip branches that can't work) is where interviews get interesting.\n\n**Classic problems:** Subsets · Permutations · Combination Sum · N-Queens · Word Search · Sudoku Solver",
+          "check": { "type": "read" }
+        },
+        {
+          "id": "bt-viz",
+          "title": "Animation: explore & backtrack",
+          "kind": "interactive",
+          "xp": 25,
+          "widgetId": "backtracking-viz",
+          "content": "# Watch the search explore and retreat\n\nA decision tree with three branches. Green = exploring deeper, blue dashed = backtracking after a dead end, orange = solution found.\n\nStep through the full search and watch how every dead end triggers the same move: undo, go back up, try the next branch.",
+          "check": { "type": "widget" }
+        },
+        {
+          "id": "bt-code",
+          "title": "Code lab: subsets",
+          "kind": "code",
+          "xp": 25,
+          "language": "javascript",
+          "content": "# Code lab: generate all subsets\n\nImplement `subsets(nums)` returning **every subset** of `nums`, in the standard DFS order: record the current path at every node, then extend with each remaining element (by index, left to right).\n\nFor `[1,2,3]` that order is:\n\n```\n[] → [1] → [1,2] → [1,2,3] → [1,3] → [2] → [2,3] → [3]\n```\n\n### Examples\n- `subsets([1,2,3])` → `[[],[1],[1,2],[1,2,3],[1,3],[2],[2,3],[3]]`\n- `subsets([7])` → `[[],[7]]`",
+          "starterCode": "function subsets(nums) {\n  const result = [];\n  const path = [];\n  function backtrack(start) {\n    result.push([...path]); // record a COPY of the current path\n    for (let i = start; i < nums.length; i++) {\n      // choose nums[i], explore from i + 1, then un-choose\n    }\n  }\n  backtrack(0);\n  return result;\n}\n",
+          "check": {
+            "type": "tests",
+            "functionName": "subsets",
+            "tests": [
+              { "input": [[1, 2, 3]], "expected": [[], [1], [1, 2], [1, 2, 3], [1, 3], [2], [2, 3], [3]] },
+              { "input": [[7]], "expected": [[], [7]] },
+              { "input": [[]], "expected": [[]] }
+            ]
+          },
+          "hint": "Inside the loop: path.push(nums[i]); backtrack(i + 1); path.pop(); — the pop IS the backtrack from the animation.",
+          "solutionCode": "function subsets(nums) {\n  const result = [];\n  const path = [];\n  function backtrack(start) {\n    result.push([...path]);\n    for (let i = start; i < nums.length; i++) {\n      path.push(nums[i]);\n      backtrack(i + 1);\n      path.pop();\n    }\n  }\n  backtrack(0);\n  return result;\n}\n"
+        }
+      ]
+    },
+    {
+      "id": "ch-dp",
+      "title": "Dynamic Programming",
+      "exercises": [
+        {
+          "id": "dp-reading",
+          "title": "Pattern: Dynamic Programming",
+          "kind": "reading",
+          "xp": 10,
+          "content": "# Dynamic Programming\n\nDP is just **filling a table**: break the problem into subproblems, solve each once, reuse the answers. No magic — three moves every time:\n\n1. **Define the state** — what does `dp[i]` (or `dp[i][j]`) mean in plain English?\n2. **Find the transition** — how does a state combine earlier states? (`dp[i] = dp[i-1] + dp[i-2]`)\n3. **Seed base cases and fill in dependency order.**\n\n### How to recognize it\n- \"**How many ways**…\", \"**minimum/maximum** cost to reach…\"\n- Choices at each step + **overlapping subproblems** (naive recursion recomputes the same calls)\n- Yes/no: \"can you make amount X from these coins?\"\n\n### Example: Climbing Stairs\nYou climb 1 or 2 steps at a time. Ways to reach step n?\n```javascript\n// dp[i] = ways to reach step i\n// You arrived from i-1 (one step) or i-2 (two steps):\n// dp[i] = dp[i-1] + dp[i-2]; dp[1] = 1, dp[2] = 2\n```\n\n### Top-down vs bottom-up\nMemoized recursion (top-down) and table filling (bottom-up) are the same algorithm; interviews usually want you to at least sketch bottom-up.\n\n**Classic problems:** Climbing Stairs · House Robber · Coin Change · Unique Paths · Longest Common Subsequence · Edit Distance",
+          "check": { "type": "read" }
+        },
+        {
+          "id": "dp-viz",
+          "title": "Animation: fill the table",
+          "kind": "interactive",
+          "xp": 25,
+          "widgetId": "dp-grid-viz",
+          "content": "# Watch the DP table fill\n\n**Unique Paths**: a robot walks from the top-left of a 4×4 grid to the bottom-right, moving only → and ↓.\n\nEvery cell's value is just *(ways from above)* + *(ways from the left)*. Fill the table and watch 20 paths get counted without exploring a single one.",
+          "check": { "type": "widget" }
+        },
+        {
+          "id": "dp-code",
+          "title": "Code lab: climbStairs",
+          "kind": "code",
+          "xp": 25,
+          "language": "javascript",
+          "content": "# Code lab: climbing stairs\n\nImplement `climbStairs(n)` — you can climb **1 or 2 steps** at a time; return how many distinct ways there are to reach step `n`.\n\nState: `dp[i]` = ways to reach step `i`. Transition: `dp[i] = dp[i-1] + dp[i-2]`.\n\n### Examples\n- `climbStairs(2)` → `2` (1+1, 2)\n- `climbStairs(5)` → `8`\n- `climbStairs(10)` → `89`",
+          "starterCode": "function climbStairs(n) {\n  if (n <= 2) return n;\n  // Bottom-up: seed dp[1] = 1, dp[2] = 2, then fill up to n.\n  // Bonus: you only ever need the last TWO values — two variables suffice.\n\n  return 0;\n}\n",
+          "check": {
+            "type": "tests",
+            "functionName": "climbStairs",
+            "tests": [
+              { "input": [2], "expected": 2 },
+              { "input": [5], "expected": 8 },
+              { "input": [10], "expected": 89 },
+              { "input": [1], "expected": 1 }
+            ]
+          },
+          "hint": "It's Fibonacci with different seeds: 1, 2, 3, 5, 8, 13… Keep prev1/prev2 variables and roll them forward.",
+          "solutionCode": "function climbStairs(n) {\n  if (n <= 2) return n;\n  let prev2 = 1;\n  let prev1 = 2;\n  for (let i = 3; i <= n; i++) {\n    const current = prev1 + prev2;\n    prev2 = prev1;\n    prev1 = current;\n  }\n  return prev1;\n}\n"
+        }
+      ]
+    },
+    {
+      "id": "ch-dfs",
+      "title": "DFS & Tree Traversal",
+      "exercises": [
+        {
+          "id": "dfs-reading",
+          "title": "Pattern: DFS & tree traversal",
+          "kind": "reading",
+          "xp": 10,
+          "content": "# DFS & Tree Traversal\n\n**Depth-first search (DFS)** follows one path as far as it can before returning to try a sibling. In a tree, recursion gives you the stack for free: visit a node, recursively solve its children, then return.\n\n### How to recognize it\n- The input is a **tree, graph, grid, or nested structure**\n- You need to explore a complete branch, find a path, count components, or validate a subtree\n- The question asks for **preorder, inorder, postorder**, root-to-leaf paths, or connected components\n\n### Preorder template\n```javascript\nfunction preorder(root, result = []) {\n  if (!root) return result;\n  result.push(root.value);       // visit node\n  preorder(root.left, result);   // finish left branch\n  preorder(root.right, result);  // then right branch\n  return result;\n}\n```\n\n### Traversal order matters\n- **Preorder:** node -> left -> right. Useful for copying or serializing a tree.\n- **Inorder:** left -> node -> right. On a BST, this produces sorted values.\n- **Postorder:** left -> right -> node. Useful when children must be processed before a parent.\n\n### The invariant\nAt any moment, the recursive call stack is exactly the path from the root to the node being explored. Mark a node as visited before recursing in a graph, otherwise cycles can recurse forever.\n\n**Complexity:** O(V + E) for a graph, O(n) for a tree. Recursion or an explicit stack uses O(h) tree space, up to O(V) in the worst case.\n\n**Classic problems:** Maximum Depth of Binary Tree · Path Sum · Validate BST · Number of Islands · Clone Graph · Course Schedule (with cycle detection)",
+          "check": { "type": "read" }
+        },
+        {
+          "id": "dfs-viz",
+          "title": "Animation: follow one branch",
+          "kind": "interactive",
+          "xp": 25,
+          "widgetId": "dfs-tree-viz",
+          "content": "# Watch preorder DFS\n\nTraverse the tree starting at **A** with preorder DFS: visit the node, complete its left subtree, then complete its right subtree.\n\nWatch the **call stack** alongside the **preorder output**. Before each click, predict whether DFS goes deeper or returns to a sibling branch.",
+          "check": { "type": "widget" }
+        },
+        {
+          "id": "dfs-code",
+          "title": "Code lab: preorderValues",
+          "kind": "code",
+          "xp": 25,
+          "language": "javascript",
+          "content": "# Code lab: preorder traversal\n\nImplement `preorderValues(root)` for a binary tree node shaped like `{ value, left, right }`. Return the values in **preorder**: node, then left subtree, then right subtree.\n\nUse recursion and return an empty array for an empty tree.\n\n### Example\n\n```text\n      1\n     / \\\n    2   3\n   / \\   \\\n  4   5   6\n```\n\n`preorderValues(root)` -> `[1, 2, 4, 5, 3, 6]`",
+          "starterCode": "function preorderValues(root) {\n  const values = [];\n\n  function dfs(node) {\n    if (!node) return;\n    // Visit node.value first, then recurse left, then recurse right.\n  }\n\n  dfs(root);\n  return values;\n}\n",
+          "check": {
+            "type": "tests",
+            "functionName": "preorderValues",
+            "tests": [
+              {
+                "input": [{ "value": 1, "left": { "value": 2, "left": { "value": 4 }, "right": { "value": 5 } }, "right": { "value": 3, "right": { "value": 6 } } }],
+                "expected": [1, 2, 4, 5, 3, 6]
+              },
+              { "input": [{ "value": 7 }], "expected": [7] },
+              { "input": [null], "expected": [] }
+            ]
+          },
+          "hint": "The first line inside dfs after the null guard is `values.push(node.value)`. Then call dfs on left and right in that order.",
+          "solutionCode": "function preorderValues(root) {\n  const values = [];\n\n  function dfs(node) {\n    if (!node) return;\n    values.push(node.value);\n    dfs(node.left);\n    dfs(node.right);\n  }\n\n  dfs(root);\n  return values;\n}\n"
+        }
+      ]
+    },
+    {
+      "id": "ch-merge-sort",
+      "title": "Divide & Conquer: Merge Sort",
+      "exercises": [
+        { "id": "merge-sort-reading", "title": "Pattern: divide and conquer", "kind": "reading", "xp": 10, "content": "# Divide & Conquer: Merge Sort\n\nSplit a problem into smaller independent problems, solve them, then combine the answers. Merge sort is the canonical example: split until one value remains, then merge sorted runs.\n\n### Recognize it\n- A problem can be divided into similar smaller subproblems\n- Combining solved halves is cheaper than brute force\n- You need predictable O(n log n) sorting or inversion counting\n\n### Invariant\nEvery recursive call returns a sorted array. The merge step only compares the front of two already-sorted runs.\n\n**Complexity:** O(n log n) time, O(n) extra space.\n\n**Classic problems:** Sort an Array · Count Inversions · Merge K Sorted Lists · Reverse Pairs", "check": { "type": "read" } },
+        { "id": "merge-sort-viz", "title": "Animation: split and merge", "kind": "interactive", "xp": 25, "widgetId": "merge-sort-viz", "content": "# Watch merge sort\n\nSplit `[8,3,5,1]` into runs of one, then merge them back in sorted order. Each merge compares only the two run fronts.", "check": { "type": "widget" } },
+        { "id": "merge-sort-code", "title": "Code lab: mergeSort", "kind": "code", "xp": 25, "language": "javascript", "content": "# Code lab: merge sort\n\nImplement `mergeSort(nums)` and return a new sorted array. Split recursively and merge two sorted halves.", "starterCode": "function mergeSort(nums) {\n  if (nums.length <= 1) return nums;\n  // Split nums, sort both halves, then merge them.\n  return [];\n}\n", "check": { "type": "tests", "functionName": "mergeSort", "tests": [{ "input": [[8,3,5,1]], "expected": [1,3,5,8] }, { "input": [[2,1]], "expected": [1,2] }, { "input": [[]], "expected": [] }] }, "hint": "Return a new array from merge. Compare the front values of the two sorted halves.", "solutionCode": "function mergeSort(nums) {\n  if (nums.length <= 1) return nums;\n  const mid = Math.floor(nums.length / 2);\n  const left = mergeSort(nums.slice(0, mid));\n  const right = mergeSort(nums.slice(mid));\n  const out = []; let i = 0; let j = 0;\n  while (i < left.length && j < right.length) out.push(left[i] <= right[j] ? left[i++] : right[j++]);\n  return out.concat(left.slice(i), right.slice(j));\n}\n" }
+      ]
+    },
+    {
+      "id": "ch-quickselect",
+      "title": "Quickselect",
+      "exercises": [
+        { "id": "quickselect-reading", "title": "Pattern: select without sorting", "kind": "reading", "xp": 10, "content": "# Quickselect\n\nQuickselect partitions around a pivot like quicksort, but only recurses into the side containing the target rank.\n\n### Recognize it\n- You need the kth smallest/largest element\n- Sorting every element is unnecessary\n- A partition can tell you where the answer lives\n\n**Complexity:** expected O(n), worst-case O(n²).\n\n**Classic problems:** Kth Largest Element · Top K Frequent Elements · Median of an Unsorted Array", "check": { "type": "read" } },
+        { "id": "quickselect-viz", "title": "Animation: partition for k", "kind": "interactive", "xp": 25, "widgetId": "quickselect-viz", "content": "# Watch quickselect\n\nFind the third-smallest value without sorting every candidate. The pivot's rank decides which partition survives.", "check": { "type": "widget" } },
+        { "id": "quickselect-code", "title": "Code lab: kthSmallest", "kind": "code", "xp": 25, "language": "javascript", "content": "# Code lab: kth smallest\n\nImplement `kthSmallest(nums, k)` where `k` is 1-indexed. Return the kth smallest value.", "starterCode": "function kthSmallest(nums, k) {\n  // Partition around a pivot until its rank is k - 1.\n  return undefined;\n}\n", "check": { "type": "tests", "functionName": "kthSmallest", "tests": [{ "input": [[9,2,7,4,5],3], "expected": 5 }, { "input": [[3,1,2],1], "expected": 1 }, { "input": [[6],1], "expected": 6 }] }, "hint": "After partitioning, compare the pivot index with k - 1.", "solutionCode": "function kthSmallest(nums, k) {\n  const a = [...nums]; let lo = 0; let hi = a.length - 1; const target = k - 1;\n  while (lo <= hi) {\n    const pivot = a[hi]; let p = lo;\n    for (let i = lo; i < hi; i++) if (a[i] <= pivot) [a[i], a[p]] = [a[p], a[i]], p++;\n    [a[p], a[hi]] = [a[hi], a[p]];\n    if (p === target) return a[p];\n    if (p < target) lo = p + 1; else hi = p - 1;\n  }\n}\n" }
+      ]
+    },
+    {
+      "id": "ch-sweep-line",
+      "title": "Sweep Line",
+      "exercises": [
+        { "id": "sweep-line-reading", "title": "Pattern: ordered events", "kind": "reading", "xp": 10, "content": "# Sweep Line\n\nTurn starts, ends, points, or boundaries into ordered events. Sweep left to right while maintaining exactly the active state needed for the answer.\n\n### Recognize it\n- Intervals overlap on a timeline or coordinate axis\n- You need maximum concurrency, total coverage, or collision counts\n- Sorting event boundaries makes the active state simple\n\n**Complexity:** typically O(n log n) for sorting plus O(n) for the sweep.\n\n**Classic problems:** Meeting Rooms II · Car Pooling · Skyline Problem · Rectangle Overlap", "check": { "type": "read" } },
+        { "id": "sweep-line-viz", "title": "Animation: sweep events", "kind": "interactive", "xp": 25, "widgetId": "sweep-line-viz", "content": "# Watch a sweep line\n\nProcess meeting start and end events in time order. The active count reveals how many rooms are needed.", "check": { "type": "widget" } },
+        { "id": "sweep-line-code", "title": "Code lab: maxConcurrent", "kind": "code", "xp": 25, "language": "javascript", "content": "# Code lab: maximum concurrent intervals\n\nImplement `maxConcurrent(intervals)` for half-open intervals `[start, end]`. Return the peak number of simultaneous intervals.", "starterCode": "function maxConcurrent(intervals) {\n  // Sort start/end events. End events at the same time run first.\n  return 0;\n}\n", "check": { "type": "tests", "functionName": "maxConcurrent", "tests": [{ "input": [[[1,4],[2,5],[5,7]]], "expected": 2 }, { "input": [[[1,2],[2,3]]], "expected": 1 }, { "input": [[]], "expected": 0 }] }, "hint": "Use +1 for a start and -1 for an end. Sort equal times with -1 first.", "solutionCode": "function maxConcurrent(intervals) {\n  const events = intervals.flatMap(([s,e]) => [[s,1],[e,-1]]).sort((a,b) => a[0]-b[0] || a[1]-b[1]);\n  let active = 0, best = 0;\n  for (const [, delta] of events) { active += delta; best = Math.max(best, active); }\n  return best;\n}\n" }
+      ]
+    },
+    {
+      "id": "ch-monotonic-queue",
+      "title": "Monotonic Queue",
+      "exercises": [
+        { "id": "monotonic-queue-reading", "title": "Pattern: deque of candidates", "kind": "reading", "xp": 10, "content": "# Monotonic Queue\n\nA deque keeps candidates in decreasing or increasing order. When a stronger new value arrives, weaker tail values can never become the answer and are removed.\n\n### Recognize it\n- You need a maximum/minimum for every sliding window\n- A normal queue cannot remove dominated candidates\n- The window moves one position at a time\n\n**Complexity:** O(n): every index enters and leaves the deque once.\n\n**Classic problems:** Sliding Window Maximum · Shortest Subarray with Sum at Least K · Constrained Subsequence Sum", "check": { "type": "read" } },
+        { "id": "monotonic-queue-viz", "title": "Animation: keep only maxima", "kind": "interactive", "xp": 25, "widgetId": "monotonic-queue-viz", "content": "# Watch a monotonic deque\n\nSlide a size-3 window while discarding older, smaller values that can never become a future maximum.", "check": { "type": "widget" } },
+        { "id": "monotonic-queue-code", "title": "Code lab: slidingWindowMax", "kind": "code", "xp": 25, "language": "javascript", "content": "# Code lab: sliding window maximum\n\nImplement `slidingWindowMax(nums, k)` using a deque of indexes.", "starterCode": "function slidingWindowMax(nums, k) {\n  const out = []; const deque = [];\n  // Keep values at deque indexes decreasing.\n  return out;\n}\n", "check": { "type": "tests", "functionName": "slidingWindowMax", "tests": [{ "input": [[1,3,-1,-3,5,3,6,7],3], "expected": [3,3,5,5,6,7] }, { "input": [[1],1], "expected": [1] }, { "input": [[9,8],2], "expected": [9] }] }, "hint": "Remove expired indexes from the front and smaller values from the back.", "solutionCode": "function slidingWindowMax(nums, k) {\n  const out = [], deque = [];\n  for (let i = 0; i < nums.length; i++) {\n    while (deque.length && deque[0] <= i-k) deque.shift();\n    while (deque.length && nums[deque[deque.length-1]] <= nums[i]) deque.pop();\n    deque.push(i);\n    if (i >= k-1) out.push(nums[deque[0]]);\n  }\n  return out;\n}\n" }
+      ]
+    },
+    {
+      "id": "ch-string-matching",
+      "title": "String Matching: KMP & Rabin-Karp",
+      "exercises": [
+        { "id": "string-matching-reading", "title": "Pattern: reuse prefix knowledge", "kind": "reading", "xp": 10, "content": "# String Matching: KMP & Rabin-Karp\n\nKMP builds a longest-prefix-suffix table so a mismatch reuses known work. Rabin-Karp compares rolling hashes and verifies collisions when necessary.\n\n### Recognize it\n- Find a pattern inside a long text\n- Many repeated prefix comparisons cause quadratic brute force\n- You need repeated or multi-pattern matching\n\n**Complexity:** KMP is O(n+m). Rabin-Karp is expected O(n+m) for one pattern.\n\n**Classic problems:** Implement strStr · Repeated Substring Pattern · Shortest Palindrome", "check": { "type": "read" } },
+        { "id": "string-matching-viz", "title": "Animation: reuse a prefix", "kind": "interactive", "xp": 25, "widgetId": "string-matching-viz", "content": "# Watch KMP recover from a mismatch\n\nUse a prefix table to continue after a mismatch instead of restarting the text scan.", "check": { "type": "widget" } },
+        { "id": "string-matching-code", "title": "Code lab: kmpIndexOf", "kind": "code", "xp": 25, "language": "javascript", "content": "# Code lab: KMP search\n\nImplement `kmpIndexOf(text, pattern)` and return the first match index or `-1`.", "starterCode": "function kmpIndexOf(text, pattern) {\n  // Build LPS, then scan text without moving i backward.\n  return -1;\n}\n", "check": { "type": "tests", "functionName": "kmpIndexOf", "tests": [{ "input": ["ababcabc","abc"], "expected": 2 }, { "input": ["aaaaa","bba"], "expected": -1 }, { "input": ["abc",""], "expected": 0 }] }, "hint": "On mismatch with j > 0, set j = lps[j - 1] rather than advancing text.", "solutionCode": "function kmpIndexOf(text, pattern) {\n  if (!pattern) return 0;\n  const lps = Array(pattern.length).fill(0);\n  for (let i=1,j=0; i<pattern.length;) { if (pattern[i]===pattern[j]) lps[i++]=++j; else if (j) j=lps[j-1]; else i++; }\n  for (let i=0,j=0; i<text.length;) { if (text[i]===pattern[j]) { i++; j++; if (j===pattern.length) return i-j; } else if (j) j=lps[j-1]; else i++; }\n  return -1;\n}\n" }
+      ]
+    },
+    {
+      "id": "ch-union-find",
+      "title": "Disjoint Set Union (Union Find)",
+      "exercises": [
+        { "id": "union-find-reading", "title": "Pattern: dynamic components", "kind": "reading", "xp": 10, "content": "# Disjoint Set Union\n\nUnion Find maintains groups that merge over time. `find` returns a component root; `union` joins roots. Path compression and union by size make repeated queries extremely fast.\n\n### Recognize it\n- Edges arrive and you need connectivity after each merge\n- You need to detect a cycle while building a graph\n- The question asks for connected components or redundant connections\n\n**Complexity:** O(alpha(n)) amortized per operation, effectively constant.\n\n**Classic problems:** Number of Provinces · Redundant Connection · Accounts Merge · Kruskal MST", "check": { "type": "read" } },
+        { "id": "union-find-viz", "title": "Animation: merge components", "kind": "interactive", "xp": 25, "widgetId": "union-find-viz", "content": "# Watch Union Find\n\nMerge edges one at a time, then watch path compression shorten future root lookups.", "check": { "type": "widget" } },
+        { "id": "union-find-code", "title": "Code lab: countComponents", "kind": "code", "xp": 25, "language": "javascript", "content": "# Code lab: count components\n\nImplement `countComponents(n, edges)` for nodes `0..n-1` using Union Find.", "starterCode": "function countComponents(n, edges) {\n  // Union every edge; decrement count only for a real merge.\n  return 0;\n}\n", "check": { "type": "tests", "functionName": "countComponents", "tests": [{ "input": [5,[[0,1],[1,2],[3,4]]], "expected": 2 }, { "input": [3,[[0,1],[1,2],[0,2]]], "expected": 1 }, { "input": [2,[]], "expected": 2 }] }, "hint": "If two nodes already have the same root, do not decrement the component count.", "solutionCode": "function countComponents(n, edges) {\n  const parent = Array.from({length:n}, (_,i)=>i); let count=n;\n  const find = x => parent[x]===x ? x : parent[x]=find(parent[x]);\n  for (const [a,b] of edges) { const ra=find(a), rb=find(b); if (ra!==rb) { parent[ra]=rb; count--; } }\n  return count;\n}\n" }
+      ]
+    },
+    {
+      "id": "ch-range-tree",
+      "title": "Segment Tree & Fenwick Tree",
+      "exercises": [
+        { "id": "range-tree-reading", "title": "Pattern: range queries with updates", "kind": "reading", "xp": 10, "content": "# Segment Tree & Fenwick Tree\n\nThese structures precompute partial aggregates so range sums, minimums, or counts can be queried and updated faster than scanning.\n\n### Recognize it\n- Many range queries plus updates\n- Prefix sums alone are too slow after mutations\n- You need sum/min/max/count over intervals\n\n**Complexity:** O(log n) query and update. Fenwick trees are compact for invertible prefix aggregates; segment trees support richer combines.\n\n**Classic problems:** Range Sum Query Mutable · Count Smaller After Self · My Calendar III", "check": { "type": "read" } },
+        { "id": "range-tree-viz", "title": "Animation: combine range aggregates", "kind": "interactive", "xp": 25, "widgetId": "range-tree-viz", "content": "# Watch a range query\n\nQuery an interval by combining only the tree nodes that exactly cover it, leaving unrelated values untouched.", "check": { "type": "widget" } },
+        { "id": "range-tree-code", "title": "Code lab: rangeSum", "kind": "code", "xp": 25, "language": "javascript", "content": "# Code lab: Fenwick prefix sums\n\nImplement `rangeSum(nums, left, right)` using a Fenwick tree built inside the function. Return the inclusive range sum.", "starterCode": "function rangeSum(nums, left, right) {\n  // Build prefix aggregates, then compute prefix(right) - prefix(left - 1).\n  return 0;\n}\n", "check": { "type": "tests", "functionName": "rangeSum", "tests": [{ "input": [[2,1,3,4],1,2], "expected": 4 }, { "input": [[5],0,0], "expected": 5 }, { "input": [[1,2,3],0,2], "expected": 6 }] }, "hint": "A Fenwick tree is 1-indexed. Update with i += i & -i and query with i -= i & -i.", "solutionCode": "function rangeSum(nums, left, right) {\n  const bit = Array(nums.length+1).fill(0);\n  const add=(i,v)=>{ for(i++;i<bit.length;i+=i&-i) bit[i]+=v; };\n  const sum=i=>{ let out=0; for(i++;i>0;i-=i&-i) out+=bit[i]; return out; };\n  nums.forEach((v,i)=>add(i,v));\n  return sum(right)-(left ? sum(left-1) : 0);\n}\n" }
+      ]
+    },
+    {
+      "id": "ch-mst",
+      "title": "Minimum Spanning Tree: Kruskal & Prim",
+      "exercises": [
+        { "id": "mst-reading", "title": "Pattern: connect everything cheaply", "kind": "reading", "xp": 10, "content": "# Minimum Spanning Tree\n\nAn MST connects every vertex with minimum total edge weight and no cycles. Kruskal sorts edges and uses Union Find; Prim grows one connected frontier with a priority queue.\n\n### Recognize it\n- Connect all locations with minimum total cost\n- Cycles are wasteful\n- You are choosing edges, not one source-to-destination path\n\n**Complexity:** Kruskal O(E log E); Prim O(E log V) with a heap.\n\n**Classic problems:** Min Cost to Connect All Points · Connecting Cities With Minimum Cost · Optimize Water Distribution", "check": { "type": "read" } },
+        { "id": "mst-viz", "title": "Animation: accept safe edges", "kind": "interactive", "xp": 25, "widgetId": "mst-viz", "content": "# Watch Kruskal's algorithm\n\nConsider edges from lightest to heaviest. Add only an edge that joins two separate components.", "check": { "type": "widget" } },
+        { "id": "mst-code", "title": "Code lab: kruskalWeight", "kind": "code", "xp": 25, "language": "javascript", "content": "# Code lab: Kruskal total weight\n\nImplement `kruskalWeight(n, edges)` where each edge is `[u, v, weight]`. Return the MST weight.", "starterCode": "function kruskalWeight(n, edges) {\n  // Sort by weight and use Union Find to reject cycles.\n  return 0;\n}\n", "check": { "type": "tests", "functionName": "kruskalWeight", "tests": [{ "input": [4,[[0,1,1],[1,2,2],[0,2,3],[2,3,4]]], "expected": 7 }, { "input": [2,[[0,1,5]]], "expected": 5 }, { "input": [1,[]], "expected": 0 }] }, "hint": "Only add an edge's weight when its endpoints have different roots.", "solutionCode": "function kruskalWeight(n, edges) {\n  const p=Array.from({length:n},(_,i)=>i); const find=x=>p[x]===x?x:p[x]=find(p[x]); let total=0;\n  for (const [u,v,w] of [...edges].sort((a,b)=>a[2]-b[2])) { const a=find(u), b=find(v); if(a!==b){p[a]=b; total+=w;} }\n  return total;\n}\n" }
+      ]
+    },
+    {
+      "id": "ch-shortest-paths",
+      "title": "Bellman-Ford & Floyd-Warshall",
+      "exercises": [
+        { "id": "shortest-paths-reading", "title": "Pattern: repeated relaxation", "kind": "reading", "xp": 10, "content": "# Bellman-Ford & Floyd-Warshall\n\nRelaxation asks whether an edge gives a cheaper route to its destination. Bellman-Ford repeats this from one source and supports negative edges; Floyd-Warshall tries every vertex as an intermediate for all-pairs distances.\n\n### Recognize it\n- Edge weights can be negative\n- You need all-pairs distances or negative-cycle detection\n- Dijkstra's nonnegative-weight assumption does not hold\n\n**Complexity:** Bellman-Ford O(VE); Floyd-Warshall O(V³).\n\n**Classic problems:** Cheapest Flights with K Stops · Network Delay variants · Arbitrage detection", "check": { "type": "read" } },
+        { "id": "shortest-paths-viz", "title": "Animation: relax weighted edges", "kind": "interactive", "xp": 25, "widgetId": "shortest-paths-viz", "content": "# Watch Bellman-Ford relaxations\n\nUpdate a distance only when an edge proves a cheaper path. Negative edges are safe; a negative cycle is detected by one extra pass.", "check": { "type": "widget" } },
+        { "id": "shortest-paths-code", "title": "Code lab: bellmanFord", "kind": "code", "xp": 25, "language": "javascript", "content": "# Code lab: Bellman-Ford distances\n\nImplement `bellmanFord(n, edges, source)`. Edges are `[from, to, weight]`; return the distance array.", "starterCode": "function bellmanFord(n, edges, source) {\n  // Relax every edge up to n - 1 times.\n  return [];\n}\n", "check": { "type": "tests", "functionName": "bellmanFord", "tests": [{ "input": [4,[[0,1,4],[0,2,5],[1,2,-2],[2,3,3]],0], "expected": [0,4,2,5] }, { "input": [2,[[0,1,7]],0], "expected": [0,7] }, { "input": [3,[[0,1,1]],0], "expected": [0,1,null] }] }, "hint": "Represent unreachable distances as null before returning so tests stay JSON-safe.", "solutionCode": "function bellmanFord(n, edges, source) {\n  const d=Array(n).fill(Infinity); d[source]=0;\n  for(let pass=1;pass<n;pass++){ let changed=false; for(const [u,v,w] of edges) if(d[u]!==Infinity && d[u]+w<d[v]){d[v]=d[u]+w;changed=true;} if(!changed)break; }\n  return d.map(v=>v===Infinity?null:v);\n}\n" }
+      ]
+    },
+    {
+      "id": "ch-network-flow",
+      "title": "Network Flow",
+      "exercises": [
+        { "id": "network-flow-reading", "title": "Pattern: residual capacity", "kind": "reading", "xp": 10, "content": "# Network Flow\n\nMax flow repeatedly finds an augmenting path from source to sink, sends the bottleneck capacity, and updates residual edges. Reverse residual capacity lets later paths reroute earlier flow.\n\n### Recognize it\n- Allocate limited capacity through a network\n- Match workers to jobs, route packets, or maximize throughput\n- The question has a source, sink, capacities, and conservation constraints\n\n**Complexity:** Edmonds-Karp runs in O(VE²).\n\n**Classic problems:** Maximum Bipartite Matching · Course Scheduling with Capacities · Minimum Cut", "check": { "type": "read" } },
+        { "id": "network-flow-viz", "title": "Animation: augment residual paths", "kind": "interactive", "xp": 25, "widgetId": "network-flow-viz", "content": "# Watch max flow\n\nFind a source-to-sink residual path, push its bottleneck flow, then repeat until no path remains.", "check": { "type": "widget" } },
+        { "id": "network-flow-code", "title": "Code lab: maxFlow", "kind": "code", "xp": 25, "language": "javascript", "content": "# Code lab: Edmonds-Karp max flow\n\nImplement `maxFlow(capacity, source, sink)` for an adjacency matrix using BFS over the residual graph.", "starterCode": "function maxFlow(capacity, source, sink) {\n  // Find augmenting paths in the residual graph until BFS cannot reach sink.\n  return 0;\n}\n", "check": { "type": "tests", "functionName": "maxFlow", "tests": [{ "input": [[[0,3,2,0],[0,0,0,2],[0,0,0,3],[0,0,0,0]],0,3], "expected": 4 }, { "input": [[[0,5],[0,0]],0,1], "expected": 5 }, { "input": [[[0,0],[0,0]],0,1], "expected": 0 }] }, "hint": "BFS records parents. The path flow is the minimum residual edge on that parent chain.", "solutionCode": "function maxFlow(capacity, source, sink) {\n  const r=capacity.map(row=>[...row]); let flow=0;\n  while(true){ const parent=Array(r.length).fill(-1); parent[source]=source; const q=[source]; for(let h=0;h<q.length&&parent[sink]===-1;h++){ const u=q[h]; for(let v=0;v<r.length;v++) if(parent[v]===-1&&r[u][v]>0){parent[v]=u;q.push(v);} }\n    if(parent[sink]===-1) return flow; let add=Infinity; for(let v=sink;v!==source;v=parent[v]) add=Math.min(add,r[parent[v]][v]);\n    for(let v=sink;v!==source;v=parent[v]){r[parent[v]][v]-=add;r[v][parent[v]]+=add;} flow+=add;\n  }\n}\n" }
+      ]
+    }
+  ]
+}

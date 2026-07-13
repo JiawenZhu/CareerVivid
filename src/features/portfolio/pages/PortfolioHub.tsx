@@ -376,7 +376,7 @@ const PortfolioHub: React.FC = () => {
 
     return (
         <AppLayout>
-            <div className="min-h-screen bg-gray-50 dark:bg-[#0f1117] flex flex-col items-center p-0 relative selection:bg-indigo-500/30">
+            <div className="cv-design-page cv-design-grid relative flex min-h-screen flex-col items-center p-0 selection:bg-[var(--cv-action-soft-bg)]">
                 <CreditLimitModal />
                 <ConfirmationModal
                     isOpen={isUpgradeModalOpen}
@@ -407,11 +407,11 @@ const PortfolioHub: React.FC = () => {
                 )}
 
                 {/* Top Section: My Portfolios */}
-                <div className="w-full bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 pt-8 pb-12 mb-12">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="cv-design-header mb-12 w-full pb-12 pt-8">
+                    <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="flex justify-between items-center mb-8">
-                            <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
-                                <Briefcase className="text-indigo-600" size={32} />
+                            <h1 className="cv-design-title flex items-center gap-3 text-3xl">
+                                <Briefcase className="text-[var(--cv-action-primary)]" size={32} />
                                 My Portfolios
                             </h1>
                             <div className="flex items-center gap-3">
@@ -419,7 +419,7 @@ const PortfolioHub: React.FC = () => {
                                     <div className={navPosition === 'side' ? 'md:hidden' : ''}>
                                         <button
                                             onClick={() => navigate('/dashboard')}
-                                            className="flex items-center gap-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-semibold py-2 px-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                                            className="cv-design-button-secondary px-4 py-2 text-sm"
                                         >
                                             <LayoutDashboard size={18} />
                                             <span className="hidden sm:inline">Dashboard</span>
@@ -428,7 +428,7 @@ const PortfolioHub: React.FC = () => {
                                 )}
                                 <button
                                     onClick={() => document.getElementById('create-portfolio')?.scrollIntoView({ behavior: 'smooth' })}
-                                    className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors flex items-center gap-2 font-medium"
+                                    className="cv-design-button-primary px-4 py-2 text-sm"
                                 >
                                     <Plus size={20} /> New Portfolio
                                 </button>
@@ -473,13 +473,13 @@ const PortfolioHub: React.FC = () => {
                         <p className="text-gray-500 dark:text-gray-400"> Analyzing your inputs and designing the perfect layout.</p>
                     </div>
                 ) : (
-                    <div id="create-portfolio" className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
+                    <div id="create-portfolio" className="w-full max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
                         {/* Header */}
                         <div className="text-center mb-12 animate-in slide-in-from-bottom-4 duration-500">
                             <div className="inline-flex items-center justify-center p-3 mb-6 bg-indigo-600 rounded-xl shadow-lg shadow-indigo-500/30">
                                 <Sparkles className="w-8 h-8 text-white" />
                             </div>
-                            <h1 className="text-4xl sm:text-6xl font-extrabold text-gray-900 dark:text-white mb-6 tracking-tight">
+                            <h1 className="cv-design-title mb-6 text-4xl sm:text-6xl">
                                 Build your dream portfolio <br className="hidden sm:block" />
                                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-500">in minutes.</span>
                             </h1>
@@ -490,7 +490,7 @@ const PortfolioHub: React.FC = () => {
                         </div>
 
                         {/* Main Input Card */}
-                        <div className="bg-white dark:bg-[#1a1d24] p-6 sm:p-2 rounded-2xl shadow-xl shadow-indigo-500/5 border border-gray-200 dark:border-white/5 mb-16 animate-in slide-in-from-bottom-8 duration-700 delay-100 ring-1 ring-gray-900/5 dark:ring-white/10 max-w-5xl mx-auto">
+                        <div className="cv-design-card mx-auto mb-16 max-w-5xl rounded-2xl p-6 animate-in slide-in-from-bottom-8 duration-700 delay-100 sm:p-2">
                             <div className="max-w-3xl mx-auto py-8 px-4 sm:px-0">
                                 <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-6 flex items-center gap-2">
                                     <Code2 className="text-indigo-500" size={24} />

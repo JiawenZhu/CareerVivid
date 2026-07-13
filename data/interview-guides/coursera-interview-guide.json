@@ -1,0 +1,35 @@
+{
+  "company": "Coursera",
+  "slug": "coursera-interview-guide",
+  "url": "https://www.techinterview.org/companies/coursera-interview-guide",
+  "scrapedAt": "2026-07-02T07:21:36.146Z",
+  "interviewStages": [
+    "Behavioral: mission-driven (education access), customer focus"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Coursera remote-friendly?",
+      "How does Coursera compare to Udemy or edX?",
+      "What is the engineering culture?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Coursera Interview Guide (2026): Online Learning Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nCoursera\ncoursera.org ↗\n\nCoursera is the largest online learning platform partnered with universities — 100M+ learners. Public since 2021. The interview emphasizes content delivery at scale, video streaming, and learning-engagement ML systems.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design a video streaming system for educational content\n\n- Design a recommendation engine for course discovery\n\n- Design quiz/assessment grading at scale\n\n- Coding: medium DSA, often with content or graph framing\n\n- Behavioral: mission-driven (education access), customer focus\n\nLevels and comp (2026)\n\n- SE II: $145K–$180K total\n\n- Senior SE: $215K–$285K\n\n- Staff: $310K–$410K\n\n- Principal: $430K–$570K\n\nPrep priorities\n\n- Be fluent in Python (legacy) and TypeScript/Node (newer services)\n\n- Understand video streaming and CDN architecture\n\n- Brush up on ML for recommendations and assessment\n\nFrequently Asked Questions\n\nIs Coursera remote-friendly?\n\nDistributed-first since 2020. Hubs in Mountain View, NYC, Bengaluru, Toronto.\n\nHow does Coursera compare to Udemy or edX?\n\nCoursera focuses on university partnerships and degree programs. Udemy is creator-driven. edX is non-profit. Coursera pays mid-tier; below FAANG.\n\nWhat is the engineering culture?\n\nMission-driven, distributed-first, calm pace. Strong work-life balance.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Coursera? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextLog Aggregation System Low-Level Design⏱ 6 min readInterval Problem Patterns: Merge, Insert, Meeting Rooms & Scheduling⏱ 4 min readSystem Design: Key-Value Store (DynamoDB) — LSM Tree, SSTable, Memtable, Compaction, Bloom Filter, WAL⏱ 8 min read"
+}

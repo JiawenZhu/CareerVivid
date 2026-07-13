@@ -1,0 +1,55 @@
+{
+  "company": "Booking.com",
+  "slug": "booking-com-interview-guide",
+  "url": "https://www.techinterview.org/companies/booking-com-interview-guide",
+  "scrapedAt": "2026-07-02T07:20:37.421Z",
+  "interviewStages": [
+    "Coding (1–2 rounds) — practical engineering, often with travel / search / ranking flavor",
+    "System design (1 round) — large-scale travel marketplace systems (search, availability, pricing, multi-region, currency)",
+    "Domain depth or experimentation (1 round) — A/B testing methodology, statistical reasoning, search ranking, ML systems depending on role",
+    "Behavioral / cross-functional (1 round) — collaboration, ambiguity, customer mindset, experimentation discipline"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "A function intermittently fails in production. Walk me through how you would reproduce, isolate, and fix the bug.",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [
+      "Design one of Booking.com's core large-scale travel marketplace systems — address search, availability, pricing, multi-region, currency. Walk through the architecture, trade-offs, and failure modes.",
+      "Design a service at Booking.com scale that shortens URLs. Cover the API, storage, and hot-key handling.",
+      "Design a rate limiter for a public API. Discuss algorithms, distributed coordination, and failure modes."
+    ],
+    "values": [],
+    "other": [
+      "Do I need to relocate to Amsterdam to work at Booking?",
+      "How real is the Perl legacy in 2026?",
+      "What's the experimentation culture actually like?",
+      "How does the 30% tax ruling work?",
+      "Is Booking good for early-career engineers?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": [
+    "New-grad SWE (Amsterdam, EUR-denominated): €60k–€90k base + bonus + RSUs (~€80k–€140k total)",
+    "Mid-level (4–7 years): €90k–€140k base + RSUs (~€130k–€220k total)",
+    "Senior (8+ years): €140k–€200k base + RSUs (~€220k–€350k total)",
+    "Staff / Principal: €200k+ base + substantial RSUs (~€350k–€600k+ total)",
+    "The Perl legacy is more substantial than candidates expect; engineers from modern-stack backgrounds need to ramp.",
+    "The experimentation culture is real and rigorous; engineers who don't engage with statistical thinking underperform.",
+    "The Amsterdam office is genuinely the cultural center of the company; remote engineers describe a less integrated experience.",
+    "Compensation is below US FAANG; the 30% tax ruling helps but doesn't close the gap entirely.",
+    "The European work-life balance is real; engineers used to US tech intensity find Booking more sustainable."
+  ],
+  "rawSummary": "Booking.com Interview Guide 2026: Travel Tech, Experimentation Culture, Amsterdam Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 29, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Booking.com Interview Guide 2026: Travel Tech at Scale, Experimentation Culture, Amsterdam Engineering, and Rigorous A/B Testing\n\n- What Booking.com Does\n\n- Roles Booking Hires For\n\n- Booking Interview Process\n\n- What Booking Tests For\n\n- Compensation\n\n- Working at Booking\n\n- Booking vs Alternatives\n\n- Things That Surprise Candidates\n\n- Frequently Asked Questions\n\nUpdated April 29, 2026 · techinterview.org\n\n⏱ 7 min read\n\nBooking.com\nbooking.com ↗\n\nBooking.com Interview Guide 2026: Travel Tech at Scale, Experimentation Culture, Amsterdam Engineering, and Rigorous A/B Testing\n\nBooking.com is the largest online travel agency by revenue and one of the most engineering-heavy companies in Europe. Owned by Booking Holdings (NASDAQ: BKNG, also owns Priceline, Agoda, Kayak, OpenTable), Booking.com itself is headquartered in Amsterdam and runs a substantial in-house engineering organization. The company is famous in tech engineering circles for its experimentation culture (one of the highest A/B-test-per-engineer ratios in the industry), Perl-heavy legacy stack, and recent transition to more modern technologies. The hiring process is rigorous and reflects the company's data-driven ethos. This guide covers what Booking does, the engineering tracks, the interview process, and what makes Booking hiring distinctive in 2026.\n\nWhat Booking.com Does\n\nBooking.com operates an online travel marketplace:\n\n- Accommodations: the core product — hotels, apartments, vacation rentals, hostels. Inventory of 30M+ properties.\n\n- Flights: flight booking platform; integrated with the broader Booking Holdings ecosystem.\n\n- Car rentals: car rental marketplace.\n\n- Attractions / experiences: tours, tickets, activities.\n\n- Booking.com app: native mobile apps for iOS and Android with substantial engineering investment.\n\n- Connected Trip: the company's flagship product strategy — bundling accommodation, transport, and activities into integrated trips.\n\n- Genius loyalty program: tier-based loyalty with member-only deals.\n\n- Partner platform: tools for hotels and other accommodations to manage inventory, pricing, photos, etc.\n\nDistinctive features:\n\n- Experimentation culture: Booking is widely cited as running the most A/B tests of any consumer-product company. Engineers run experiments routinely; product changes ship through experiment-driven decisions.\n\n- Perl legacy + modernization: the original codebase is Perl-heavy. Migration to Java / Kotlin / Python / Go is ongoing and substantial. Engineers work on both modern and legacy stacks.\n\n- European HQ with global reach: Amsterdam-based; engineering distributed but Amsterdam carries cultural weight.\n\n- Public company: via parent Booking Holdings (NASDAQ: BKNG); substantial scrutiny.\n\nRoles Booking Hires For\n\nSoftware engineer (backend)\n\nBuilds core booking systems — search, ranking, availability, pricing, payments, post-booking. Java and Python dominant for new work; Perl for legacy systems. Distributed systems at large scale.\n\nSoftware engineer (frontend / web)\n\nBuilds the Booking.com web experience. JavaScript / TypeScript with substantial focus on performance (loading times directly affect conversion).\n\nMobile engineer\n\niOS (Swift) and Android (Kotlin) apps. Booking app is heavily used; engineering investment substantial.\n\nML / data scientist\n\nSearch ranking, recommendation, pricing, fraud, ad targeting. Substantial ML investment; the experimentation culture extends to ML model deployment.\n\nData engineer\n\nPipeline engineering, experimentation infrastructure, A/B test data plumbing. The internal experimentation platform is substantial; data engineering supports it.\n\nExperimentation / A/B platform engineer\n\nSpecialized track building the internal experimentation tooling — assignment, exposure, analysis, statistical methodology. One of Booking's most distinctive engineering specialties.\n\nSearch / ranking engineer\n\nSearch and ranking is central to the product; engineers work on relevance, personalization, query understanding, multi-objective ranking.\n\nPayment / fraud engineer\n\nPayment processing across global currencies, fraud detection, compliance. Substantial scale and complexity.\n\nBooking Interview Process\n\nRound 1: Recruiter screen\n\n30 minutes. Background, motivation, role fit. Recruiters often discuss the experimentation culture; cultural fit screening starts here.\n\nRound 2: Technical phone screen\n\n60 minutes. Coding (medium difficulty), some technical depth on relevant systems. Practical engineering flavor; less algorithmic gymnastics than FAANG.\n\nRound 3: On-site / virtual on-site\n\n4–5 rounds, each 60–90 minutes:\n\n- Coding (1–2 rounds) — practical engineering, often with travel / search / ranking flavor\n\n- System design (1 round) — large-scale travel marketplace systems (search, availability, pric"
+}

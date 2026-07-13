@@ -1,5 +1,5 @@
 import React from 'react';
-import { Download, FileText, BarChart, Bot, User, Loader2, Star, TrendingUp, CheckCircle2, Target, FileType } from 'lucide-react';
+import { Code2, Download, FileText, BarChart, Bot, User, Loader2, Star, TrendingUp, CheckCircle2, Target, FileType } from 'lucide-react';
 import { InterviewAnalysis, TranscriptEntry } from '../../types';
 import {
     DashboardMetric,
@@ -253,13 +253,23 @@ export const ReportActions: React.FC<{
     onExportGoogleDocs: () => void;
     onDownloadDocx: () => void;
     onRateReport: () => void;
-}> = ({ isGuestMode, isDownloading, isExportingDocument, onDownloadTxt, onDownloadPdf, onExportGoogleDocs, onDownloadDocx, onRateReport }) => (
+    /** If provided, shows an "Improve my solution" button (coding challenges only). */
+    onImprove?: () => void;
+}> = ({ isGuestMode, isDownloading, isExportingDocument, onDownloadTxt, onDownloadPdf, onExportGoogleDocs, onDownloadDocx, onRateReport, onImprove }) => (
     <footer className="flex flex-shrink-0 flex-col gap-3 border-t p-4 dark:border-gray-700 sm:flex-row sm:items-center sm:justify-between">
-        <div>
+        <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
+            {onImprove && (
+                <button
+                    onClick={onImprove}
+                    className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg border border-[#625bd5] bg-[#f3f2ff] px-4 py-2 text-sm font-semibold text-[#625bd5] shadow-sm transition-colors hover:bg-[#e8e6ff] dark:border-[#7069dc] dark:bg-[#312d6b]/50 dark:text-[#c8c5ff] dark:hover:bg-[#312d6b]"
+                >
+                    <Code2 size={16} /> Improve my solution
+                </button>
+            )}
             {!isGuestMode && (
                 <button
                     onClick={onRateReport}
-                    className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm transition-colors hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+                    className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm transition-colors hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
                 >
                     <Star size={17} /> Rate this report
                 </button>
@@ -267,11 +277,11 @@ export const ReportActions: React.FC<{
         </div>
 
         {isGuestMode ? (
-            <a href="/signin" className="inline-flex items-center justify-center rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-primary-700">
+            <a href="/signin" className="inline-flex w-full sm:w-auto items-center justify-center rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-primary-700">
                 Sign Up to Save & Download Report
             </a>
         ) : (
-            <div className="flex flex-col gap-2 sm:flex-row">
+            <div className="grid grid-cols-2 gap-2 w-full sm:w-auto sm:flex sm:flex-row">
                 <button
                     onClick={onDownloadTxt}
                     disabled={isDownloading || isExportingDocument}

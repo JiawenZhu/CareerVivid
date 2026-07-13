@@ -1,0 +1,51 @@
+{
+  "company": "Salesforce",
+  "slug": "salesforce",
+  "url": "https://www.techinterview.org/companies/salesforce",
+  "scrapedAt": "2026-07-02T07:13:06.181Z",
+  "interviewStages": [
+    "Coding Round 1 (45 min): Arrays, strings, hash maps. Medium LeetCode level. I got a rate limiter design question.",
+    "Coding Round 2 (45 min): More algorithm work. Mine was graph-based (find connected components).",
+    "System Design (1 hour): Design something at scale. I got \"Design a notification system.\" They care about reliability and customer impact.",
+    "Behavioral (45 min): Heavy focus on their values: Trust, Customer Success, Innovation, Equality. Prepare STAR stories for each.",
+    "Hiring Manager (30 min): More casual. Questions about team fit and long-term goals."
+  ],
+  "codingTopics": [
+    "API Design: REST, rate limiting, versioning",
+    "Scalability: Handling millions of users, multi-tenancy",
+    "Reliability: Error handling, monitoring, alerting",
+    "Data Structures: Hash maps, trees, graphs (nothing exotic)",
+    "Real-World Systems: CRM features, notification systems, data sync"
+  ],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph.",
+      "Implement a streaming feature aggregator: given a stream of events, maintain rolling counts and averages per key with bounded memory. Discuss complexity and eviction.",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "They're less interested in algorithm wizardry and more interested in: Can you build reliable systems? Do you care about customers? Will you fit the culture?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [
+    "Use Their Products: Sign up for a free Salesforce account. Click around. Understand CRM basics. They'll notice if you haven't.",
+    "Focus on Medium Problems: 100-120 LeetCode mediums is plenty. They rarely ask hard problems.",
+    "Study Multi-Tenancy: Salesforce's architecture is multi-tenant. Know what that means and the trade-offs.",
+    "Prepare Values Stories: Have 2-3 examples for each of their core values. This isn't optional.",
+    "Think Customer-First: In every answer, tie it back to customer impact. \"This approach gives customers faster response times&#8230;\""
+  ],
+  "compensation": null,
+  "rawSummary": "Salesforce\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  February 1, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\tUpdated February 1, 2026 · techinterview.org\n\n⏱ 2 min read\n\nSalesforce\nsalesforce.com ↗\n\nWhat Actually Happens at Salesforce\n\nI interviewed at Salesforce twice – once for a backend role in 2023, and again for a platform team in 2024. Both times, they emphasized their \"customer success\" culture more than any other company I've interviewed with.\n\nThe Recruiter Screen (30 minutes)\n\nThey'll ask about your interest in their products (be ready to discuss Salesforce CRM or their platform). My recruiter spent 10 minutes explaining the \"Ohana\" culture – family values, giving back, equality. It's not lip service; they really care about cultural fit here.\n\nTechnical Phone Screen (1 hour)\n\nExpect one coding problem and some system design discussion. My first interview was: \"Design a meeting scheduler.\" Not rocket science, but they want to see how you think about user experience and edge cases.\n\nThe interviewer was friendly and gave hints when I got stuck. Salesforce interviews feel less combative than FAANG – more collaborative.\n\nVirtual Onsite (4-5 rounds)\n\n- Coding Round 1 (45 min): Arrays, strings, hash maps. Medium LeetCode level. I got a rate limiter design question.\n\n- Coding Round 2 (45 min): More algorithm work. Mine was graph-based (find connected components).\n\n- System Design (1 hour): Design something at scale. I got \"Design a notification system.\" They care about reliability and customer impact.\n\n- Behavioral (45 min): Heavy focus on their values: Trust, Customer Success, Innovation, Equality. Prepare STAR stories for each.\n\n- Hiring Manager (30 min): More casual. Questions about team fit and long-term goals.\n\nWhat's Different About Salesforce\n\nThey're less interested in algorithm wizardry and more interested in: Can you build reliable systems? Do you care about customers? Will you fit the culture?\n\nIn my system design round, the interviewer kept asking \"How does this help the customer?\" That's not a question I got at Google or Meta.\n\nCommon Question Topics\n\n- API Design: REST, rate limiting, versioning\n\n- Scalability: Handling millions of users, multi-tenancy\n\n- Reliability: Error handling, monitoring, alerting\n\n- Data Structures: Hash maps, trees, graphs (nothing exotic)\n\n- Real-World Systems: CRM features, notification systems, data sync\n\nPreparation Tips\n\n- Use Their Products: Sign up for a free Salesforce account. Click around. Understand CRM basics. They'll notice if you haven't.\n\n- Focus on Medium Problems: 100-120 LeetCode mediums is plenty. They rarely ask hard problems.\n\n- Study Multi-Tenancy: Salesforce's architecture is multi-tenant. Know what that means and the trade-offs.\n\n- Prepare Values Stories: Have 2-3 examples for each of their core values. This isn't optional.\n\n- Think Customer-First: In every answer, tie it back to customer impact. \"This approach gives customers faster response times&#8230;\"\n\nMy Honest Take\n\nSalesforce is easier to get into than FAANG but harder than you'd expect. The bar is solid – you need real skills. But if you're decent at coding and genuinely interested in building products that help businesses, you'll do well here.\n\nThe culture is real. My team had \"Ohana time\" every Friday for team bonding. Some people love it, some find it too corporate-feel-good. Know yourself.\n\nComp: Base is competitive (mid-tier for big tech), but RSUs vest over 4 years and the stock has been&#8230; volatile. Total comp is 10-20% below FAANG.\n\nLast Updated: February 2026\n\nSimilar company guides\n\nServiceNowinterview guideSAPinterview guideCiscointerview guideOracleinterview guideAdobeinterview guideMicrosoftinterview guide\n\nPrepping for Salesforce? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextSpotify Interview Guide 2026: Audio Streaming, Backstage, ML-Driven Discovery⏱ 7 min readIntel Interview Guide 2026: Foundry Pivot, Gaudi AI, x86 Reset, Engineering Reset⏱ 7 min readMeta Interview Guide 2026: Facebook, Instagram, WhatsApp Engineering⏱ 36 min read"
+}

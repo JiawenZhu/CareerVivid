@@ -91,8 +91,8 @@ const FolderView: React.FC = () => {
         <AppLayout>
             <div
                 ref={drop}
-                className={`flex-1 flex flex-col h-full min-h-screen p-8 transition-colors duration-200
-                    ${isOver && canDrop ? 'bg-indigo-50/50 dark:bg-indigo-500/5' : 'bg-gray-50/30 dark:bg-gray-900/30'}
+                className={`cv-design-page cv-design-grid mx-auto flex h-full min-h-screen max-w-screen-2xl flex-1 flex-col p-8 transition-colors duration-200
+                    ${isOver && canDrop ? 'bg-[var(--cv-action-soft-bg)]' : ''}
                 `}
             >
                 {/* Breadcrumbs / Header */}
@@ -107,7 +107,7 @@ const FolderView: React.FC = () => {
                 <div className="flex items-center justify-between mb-8">
                     <div>
                         <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
-                            <Folder className="text-indigo-500" />
+                            <Folder className="text-[var(--cv-action-primary)]" />
                             {currentFolder?.text || (folderId === 'create-hub' ? 'Create & Build Hub' : 'Folder View')}
                         </h1>
                         <p className="text-gray-500 dark:text-gray-400 mt-1">
@@ -182,7 +182,7 @@ const FolderView: React.FC = () => {
 
                             <button
                                 onClick={handleCreateSubfolder}
-                                className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-indigo-500 text-gray-700 dark:text-gray-300 rounded-xl transition-all font-semibold shadow-sm hover:shadow-md cursor-pointer select-none text-sm"
+                                className="cv-design-button-secondary rounded-xl px-4 py-2 text-sm"
                             >
                                 <Plus size={16} />
                                 <span>New Folder</span>

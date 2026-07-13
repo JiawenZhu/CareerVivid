@@ -1,0 +1,35 @@
+{
+  "company": "Mixpanel",
+  "slug": "mixpanel-interview-guide",
+  "url": "https://www.techinterview.org/companies/mixpanel-interview-guide",
+  "scrapedAt": "2026-07-02T07:24:14.571Z",
+  "interviewStages": [
+    "Behavioral: customer focus, navigating ambiguity, working with growth/PM teams"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Mixpanel remote-friendly?",
+      "How does Mixpanel compare to Amplitude?",
+      "What is the engineering culture like?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Mixpanel Interview Guide (2026): Product Analytics Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nMixpanel\nmixpanel.com ↗\n\nMixpanel is the original product-analytics platform — funnels, retention, and behavioral cohorts at scale. Used by 8,000+ companies including Yelp, Uber, and Pinterest. The interview is data-pipeline-heavy, with strong emphasis on real-time event ingestion and ad-hoc query performance over billions of rows.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding (one DSA, one practical), 1 system design (always analytics-flavored), 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design a real-time funnel analysis engine over billions of events\n\n- Design a cohort builder with arbitrary filter combinations\n\n- Design event ingestion at 500K events/sec with bursty traffic\n\n- Coding: graph/tree problems with data-engineering flavor\n\n- Behavioral: customer focus, navigating ambiguity, working with growth/PM teams\n\nLevels and comp (2026)\n\n- SE II: $160K–$200K total\n\n- Senior SE: $230K–$300K\n\n- Staff: $320K–$420K\n\n- Principal: $450K–$580K\n\nPrep priorities\n\n- Be fluent in Python or Go for backend roles; some Erlang in legacy systems\n\n- Understand columnar storage formats and time-series compression\n\n- Read about Arb (Mixpanel's in-house storage engine) — engineering blog has details\n\nFrequently Asked Questions\n\nIs Mixpanel remote-friendly?\n\nHybrid in San Francisco, NYC, Seattle, London, Singapore. Most engineering roles have remote flexibility within supported countries.\n\nHow does Mixpanel compare to Amplitude?\n\nMixpanel is older with stronger growth/marketing integration; Amplitude has broader enterprise traction. Comp is comparable.\n\nWhat is the engineering culture like?\n\nPragmatic, data-driven, willing to challenge consensus. Strong emphasis on writing and async communication.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Mixpanel? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextOpenAI Interview Guide 2026: ChatGPT, GPT-4, Research Engineering, and PPU Compensation⏱ 9 min readInterval DP and Advanced Dynamic Programming: Burst Balloons, State Machine, Tree DP⏱ 6 min readLock-Free Queue Low-Level Design: CAS Operations, ABA Problem, and Memory Ordering⏱ 9 min read"
+}

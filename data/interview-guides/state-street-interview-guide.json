@@ -1,0 +1,56 @@
+{
+  "company": "State Street",
+  "slug": "state-street-interview-guide",
+  "url": "https://www.techinterview.org/companies/state-street-interview-guide",
+  "scrapedAt": "2026-07-02T07:18:39.297Z",
+  "interviewStages": [
+    "Coding (1–2 rounds) — practical engineering with banking / custody flavor",
+    "System design (1 round) — financial systems with scale (millions of transactions, regulatory complexity)",
+    "Domain depth (1 round) — depends on role: distributed systems, risk analytics, ML, blockchain",
+    "Behavioral / cultural fit (1 round) — collaboration, detail-orientation, customer focus"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Implement a double-entry ledger that processes a stream of transactions and detects imbalances. How do you guarantee idempotency when a transaction is delivered twice?",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [
+      "Design one of State Street's core financial systems with scale — address millions of transactions, regulatory complexity. Walk through the architecture, trade-offs, and failure modes.",
+      "Design a service at State Street scale that shortens URLs. Cover the API, storage, and hot-key handling.",
+      "Design a rate limiter for a public API. Discuss algorithms, distributed coordination, and failure modes."
+    ],
+    "values": [],
+    "other": [
+      "What's working on State Street Alpha actually like?",
+      "How is the Charles River integration going?",
+      "Is the State Street Digital business meaningful?",
+      "How does State Street compare to BNY for engineers?",
+      "Is State Street a good place for early-career engineers?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": [
+    "New-grad SWE: $100k–$150k total comp first year",
+    "Mid-level (4–7 years): $150k–$250k",
+    "Senior (8+ years, AVP / VP): $230k–$400k",
+    "Director / Senior VP: $400k–$700k",
+    "Managing Director: $700k–$1.5M+",
+    "The custody scale ($44T+ AUC/A) is more substantial than candidates expect; few firms operate at this asset level.",
+    "The Charles River acquisition is genuinely strategic; engineers in the Alpha platform work feel like they're at a tech company within a bank.",
+    "The legacy mainframe / COBOL footprint is real; some engineers ramp into systems written in COBOL with active modernization underway.",
+    "Compensation is below top hedge funds and FAANG; engineers optimizing purely for total comp end up elsewhere.",
+    "The Boston culture is meaningfully different from NYC; sustainable hours, family-friendly, less aggressive than NYC banks."
+  ],
+  "rawSummary": "State Street Interview Guide 2026: Custody, Alpha Platform, Charles River, Boston Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 30, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- State Street Interview Guide 2026: Custody, Alpha Platform, Charles River, Boston-NYC Engineering, and the Largest Custodian&#039;s Tech Modernization\n\n- What State Street Does\n\n- Roles State Street Hires For\n\n- State Street Interview Process\n\n- What State Street Tests For\n\n- Compensation\n\n- Working at State Street\n\n- State Street vs Alternatives\n\n- Things That Surprise Candidates\n\n- Frequently Asked Questions\n\nUpdated April 30, 2026 · techinterview.org\n\n⏱ 7 min read\n\nState Street\nstatestreet.com ↗\n\nState Street Interview Guide 2026: Custody, Alpha Platform, Charles River, Boston-NYC Engineering, and the Largest Custodian's Tech Modernization\n\nState Street (NYSE: STT) is the second-largest custody bank globally (~$44 trillion in assets under custody and administration in 2026), the parent of one of the largest ETF franchises (SSGA / SPDR), and the operator of Charles River Investment Management Solutions (the front-and-middle-office platform widely used across the buy side). The hiring process reflects State Street's hybrid identity — partially a legacy custody bank still modernizing, partially a tech platform company via Charles River, partially an asset manager via SSGA. This guide covers what State Street does, the engineering tracks, the interview process, and what makes State Street hiring distinctive in 2026.\n\nWhat State Street Does\n\nState Street operates across three primary business lines:\n\n- Investment Servicing: the core custody business — safekeeping assets, fund accounting, transfer agency, regulatory reporting for institutional clients (pension funds, mutual funds, hedge funds, insurance companies). Largest revenue contributor.\n\n- State Street Global Advisors (SSGA): the asset management arm. SPDR ETFs (SPY, the original ETF launched 1993; sector SPDRs; international equity SPDRs). ~$4.4T AUM. Third-largest ETF issuer globally after BlackRock and Vanguard.\n\n- Charles River Development: investment management software platform. Order management system (OMS), portfolio management, compliance monitoring used by buy-side firms globally. Acquired by State Street in 2018; integrated into the Alpha platform.\n\nKey technology platforms:\n\n- State Street Alpha: the integrated front-to-back platform combining Charles River OMS, accounting, custody, data, and analytics. The strategic bet — front-to-back for institutional clients on a single platform. Major engineering investment area.\n\n- State Street Digital: tokenization, digital asset custody, blockchain settlement infrastructure. Smaller team but strategically important.\n\n- Truview / risk analytics: portfolio risk analytics services for institutional clients.\n\nDistinctive features:\n\n- Custody scale: $44T+ AUC/A is among the largest in the world. The operations engineering — corporate actions, settlements, reconciliation — is genuinely complex and at scale few firms can match.\n\n- Charles River acquisition (2018): brought modern OMS technology in-house. The integration into Alpha has been a multi-year effort and is a core part of State Street's tech narrative.\n\n- SPDR ETF heritage: SPY (launched 1993) was the first US-listed ETF. State Street's ETF business carries this heritage but has lost share to BlackRock / Vanguard over the years.\n\n- Boston-headquartered: distinct from NYC peers. Engineering culture has Boston-area sensibilities — measured, less theatrical than NYC banks.\n\n- Public company: NYSE: STT; substantial scrutiny.\n\nRoles State Street Hires For\n\nSoftware engineer (Alpha / Charles River)\n\nBuilds the Alpha platform — front-to-back integration of OMS, accounting, custody, data. Java heavy; some C# in Charles River legacy code; Python in newer services. Substantial engineering organization across Boston, Princeton NJ, Burlington MA, Bangalore.\n\nSoftware engineer (custody / fund servicing)\n\nBuilds the core custody and fund accounting systems. Substantial legacy mainframe + COBOL footprint with active modernization. Java-heavy modern stack; engineers work across modern and legacy systems.\n\nSoftware engineer (SSGA / SPDR ETFs)\n\nETF operations, index calculation, capital markets workflows. Smaller team; specialized fintech engineering.\n\nQuantitative analyst\n\nRisk analytics, portfolio analytics, regulatory analytics. Hybrid quant / engineering work.\n\nML / data engineer\n\nPipeline engineering for client data, ML for fraud / AML, alternative data for risk. Substantial growth area.\n\nCloud / infrastructure engineer\n\nState Street has been migrating substantial workloads to AWS and Azure over 2020–2026. Cloud engineering investment growing; multi-cloud architecture under development.\n\nSoftware engineer (State Street Digital)\n\nDigital asset custody, blockchain settlement, tokenization infrastructure. Smaller team; growing area.\n\nOperations / business analyst\n\nCustod"
+}

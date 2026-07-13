@@ -357,13 +357,13 @@ const GenerationHub: React.FC = () => {
 
     return (
         <AppLayout>
-            <div className="min-h-screen bg-gray-50 dark:bg-gray-950 pb-20 relative text-left">
+            <div className="cv-design-page cv-design-grid relative min-h-screen pb-20 text-left">
                 {/* Top Section: My Resumes */}
-                <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 pt-8 pb-12 mb-12">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="cv-design-header mb-12 pb-12 pt-8">
+                    <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="flex justify-between items-center mb-8">
-                            <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
-                                <FileText className="text-primary-600" size={32} />
+                            <h1 className="cv-design-title flex items-center gap-3 text-3xl">
+                                <FileText className="text-[var(--cv-action-primary)]" size={32} />
                                 My Resumes
                             </h1>
                             <div className="flex items-center gap-3">
@@ -371,7 +371,7 @@ const GenerationHub: React.FC = () => {
                                     <div className={navPosition === 'side' ? 'md:hidden' : ''}>
                                         <button
                                             onClick={() => navigate('/dashboard')}
-                                            className="flex items-center gap-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-semibold py-2 px-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                                            className="cv-design-button-secondary px-4 py-2 text-sm"
                                         >
                                             <LayoutDashboard size={18} />
                                             <span className="hidden sm:inline">Dashboard</span>
@@ -380,7 +380,7 @@ const GenerationHub: React.FC = () => {
                                 )}
                                 <button
                                     onClick={() => document.getElementById('create-section')?.scrollIntoView({ behavior: 'smooth' })}
-                                    className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors flex items-center gap-2 font-medium"
+                                    className="cv-design-button-primary px-4 py-2 text-sm"
                                 >
                                     <Plus size={20} /> New Resume
                                 </button>
@@ -452,12 +452,12 @@ const GenerationHub: React.FC = () => {
                 <div id="create-section" className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-10">
                         <Logo className="h-12 w-12 mx-auto" />
-                        <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 dark:text-gray-100 mt-4">Create Your Next Resume</h1>
-                        <p className="text-lg text-gray-500 dark:text-gray-400 mt-2 max-w-2xl mx-auto">Start with an AI-powered prompt or choose a guided path to generate a professional resume in seconds.</p>
+                        <h1 className="cv-design-title mt-4 text-4xl sm:text-5xl">Create Your Next Resume</h1>
+                        <p className="cv-design-body mx-auto mt-2 max-w-2xl text-lg">Start with an AI-powered prompt or choose a guided path to generate a professional resume in seconds.</p>
                     </div>
 
-                    <div className="bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 mb-10">
-                        <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4">Generate or Import Your Resume</h2>
+                    <div className="cv-design-card mb-10 rounded-xl p-6 sm:p-8">
+                        <h2 className="cv-design-title mb-4 text-2xl">Generate or Import Your Resume</h2>
                         <div className="flex flex-col gap-4">
                             <ResumeImport
                                 value={prompt}
@@ -469,7 +469,7 @@ const GenerationHub: React.FC = () => {
                             >
                                 <button
                                     onClick={() => handlePromptSubmit()}
-                                    className="bg-primary-600 text-white p-3 rounded-lg shadow-soft hover:bg-primary-700 transition-colors flex items-center justify-center disabled:bg-primary-300 disabled:cursor-not-allowed"
+                                    className="cv-design-button-primary rounded-lg p-3 disabled:cursor-not-allowed disabled:opacity-55"
                                     disabled={!prompt.trim()}
                                     title={isFileImport ? "Import & Parse" : "Generate Resume"}
                                 >

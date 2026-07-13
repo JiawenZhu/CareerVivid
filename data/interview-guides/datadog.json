@@ -1,0 +1,96 @@
+{
+  "company": "Datadog",
+  "slug": "datadog",
+  "url": "https://www.techinterview.org/companies/datadog",
+  "scrapedAt": "2026-07-02T07:21:48.891Z",
+  "interviewStages": [
+    "System design (1 round): observability-flavored prompts (\"design a metrics ingestion pipeline for 10M points/sec,\" \"design a log search system with bounded latency,\" \"design distributed tracing with 1% sampling\"), OR classic distributed systems (pub/sub, sharded KV, rate limiter). The interviewer pushes on operational realism &mdash; backpressure, spikes, cardinality explosion, customer-tenant isolation.",
+    "Hiring manager (1 round): fit with team, past projects, handling of ambiguity and on-call pressure.",
+    "Behavioral / values (optional for some loops): standard STAR-format questions with a tilt toward ownership and reliability."
+  ],
+  "codingTopics": [
+    "Streaming aggregation (compute top-K over a bounded memory budget)",
+    "Log or structured-event parser with state (build a multi-line event aggregator, correlate events by ID)",
+    "Windowing (find all events within a sliding N-minute window that match a predicate)",
+    "Cardinality-aware problems (implement an approximate distinct counter, a bloom filter with specific false-positive rate)",
+    "Tree-based problems (segment tree for range queries, interval tree for overlap detection)"
+  ],
+  "systemDesignTopics": [
+    "\"Design a metrics ingestion pipeline handling 10M points/sec with 1-minute latency.\"",
+    "\"Design log search for 100B events/day with bounded p99 latency.\"",
+    "\"Design a distributed tracing system with adaptive sampling that preserves interesting traces.\"",
+    "\"Design rate limiting across a multi-tenant API surface with fairness guarantees.\"",
+    "\"Tell me about the logging pipeline you built.\" (2 minutes)",
+    "\"Why Kafka instead of Kinesis?\" (5 minutes on the alternatives)",
+    "\"How did you size partitions?\" (10 minutes on throughput math)",
+    "\"What happened the first time it fell over?\" (10 minutes on failure modes)",
+    "\"If you were building it now, what would you change?\" (10 minutes on second-system thinking)"
+  ],
+  "behavioralTopics": [
+    "Ownership under pressure: a production incident you owned from detection through postmortem.",
+    "Scaling decisions: a time you had to change an architecture because it couldn't scale &mdash; what broke, what you did.",
+    "Cross-team work: Datadog is NYC-heavy but distributed; you'll work across time zones constantly.",
+    "Customer empathy: a situation where you directly engaged with a customer problem &mdash; observability is a customer-facing product even from infra roles."
+  ],
+  "sampleQuestions": {
+    "coding": [
+      "Implement compute top-K over a bounded memory budget. Talk through your approach, complexity, and edge cases.",
+      "Implement build a multi-line event aggregator, correlate events by ID. Talk through your approach, complexity, and edge cases.",
+      "Implement find all events within a sliding N-minute window that match a predicate. Talk through your approach, complexity, and edge cases.",
+      "Implement implement an approximate distinct counter, a bloom filter with specific false-positive rate. Talk through your approach, complexity, and edge cases.",
+      "Implement segment tree for range queries, interval tree for overlap detection. Talk through your approach, complexity, and edge cases."
+    ],
+    "behavioral": [
+      "Describe a production incident or project you owned end-to-end. What did you do, and what was the outcome?",
+      "Tell me about a time you worked across teams to deliver something. How did you handle competing priorities?",
+      "Tell me about a time you engaged deeply with a customer or user problem. How did it change what you built?",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?"
+    ],
+    "systemDesign": [
+      "Design a metrics ingestion pipeline handling 10M points/sec with 1-minute latency. Cover the API, data model, and how it scales.",
+      "Design log search for 100B events/day with bounded p99 latency. Cover the API, data model, and how it scales.",
+      "Design a distributed tracing system with adaptive sampling that preserves interesting traces.",
+      "Design rate limiting across a multi-tenant API surface with fairness guarantees. Cover the API, data model, and how it scales.",
+      "Design a service at Datadog scale that shortens URLs. Cover the API, storage, and hot-key handling."
+    ],
+    "values": [],
+    "other": [
+      "Do I need observability background to get hired?",
+      "How important is the deep-dive round?",
+      "What language should I use in coding rounds?",
+      "Is the NYC office really the center of gravity?",
+      "How does Datadog compare to competitors like New Relic or Splunk in interviews?"
+    ]
+  },
+  "difficulty": 8,
+  "tips": [
+    "Prepare deep-dive projects with numbers. Throughput, latency, cardinality, cost, error rates &mdash; know them for your top 3 projects.",
+    "Read the Gorilla paper. Datadog's time-series compression is conceptually similar. Shows authentic interest.",
+    "Use Datadog before the interview. The free trial gives you enough to form opinions about the product.",
+    "Own your failures. Incidents you didn't handle perfectly are more interesting than clean wins.",
+    "Ask about the on-call culture. \"What's a typical incident response look like on this team?\" signals you take reliability seriously.",
+    "Datadog engineering blog (observability, scaling, incident stories)",
+    "Gorilla: A Fast, Scalable, In-Memory Time Series Database (Pelkonen et al., Facebook)",
+    "Prometheus TSDB documentation and blog posts by Ganesh Vernekar",
+    "Designing Data-Intensive Applications (Kleppmann)",
+    "The OpenTelemetry specification for tracing context",
+    "LeetCode medium / hard set with focus on streaming and trees",
+    "Splunk &mdash; log analytics and SIEM",
+    "Elastic &mdash; search and observability"
+  ],
+  "compensation": [
+    "L3 / Software Engineer: $175k&ndash;$215k base, $150k&ndash;$250k equity (4 years), 10% bonus. Total: ~$260k&ndash;$400k / year.",
+    "L4 / Senior Software Engineer: $225k&ndash;$285k base, $300k&ndash;$550k equity, similar bonus. Total: ~$400k&ndash;$600k / year.",
+    "L5 / Staff Engineer: $290k&ndash;$360k base, $700k&ndash;$1.3M equity. Total: ~$600k&ndash;$1M / year.",
+    "The deep-dive round is unusually rigorous. Candidates who are used to surface-level STAR stories often stumble.",
+    "Specific numbers matter enormously. Come with typical throughput, latency, and cardinality numbers from your past projects.",
+    "Observability domain knowledge is valued but not required &mdash; strong generalists get offers.",
+    "The product surface is enormous (metrics, logs, APM, RUM, security, CI visibility, Cloud SIEM, AI observability). Know at least the one closest to your role.",
+    "Vague answers on the deep-dive. \"We used Kafka because it was the industry standard\" signals you didn't really choose.",
+    "Hand-waving on numbers in system design. \"It would be fast\" isn't an answer; \"p99 under 50ms given typical tenant cardinality of 50K series\" is.",
+    "Treating cardinality as someone else's problem. At Datadog, cardinality IS the problem.",
+    "Missing basics of on-call discipline. If your behavioral answers don't mention runbooks, postmortems, or monitoring, interviewers notice."
+  ],
+  "rawSummary": "Datadog Interview Guide 2026: Observability Engineering, Streaming Data, and the Deep-Dive Round\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 22, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Datadog Interview Process: Complete 2026 Guide\n\n- Frequently Asked Questions\n\n- Adjacent Observability and Search\n\nUpdated May 2, 2026 · techinterview.org\n\n⏱ 8 min read\n\nDatadog\ndatadoghq.com ↗\n\nDatadog Interview Process: Complete 2026 Guide\n\nOverview\n\nDatadog is the observability platform for cloud-era applications &mdash; metrics, logs, traces, security, RUM, and increasingly AI observability. Founded 2010, public since 2019, ~6,000 employees in 2026. Engineering is concentrated in NYC (HQ), Paris, Dublin, and Boston, with active remote hiring in North America and EMEA. The product deals with high-cardinality time-series data at enormous volume &mdash; trillions of data points per day &mdash; so interviews over-index on systems depth, streaming data engineering, and the unglamorous realities of running infrastructure reliably. The bar is consistently high across all teams; there's no \"easy\" product area.\n\nInterview Structure\n\nRecruiter screen (30 min): background, why Datadog, and team interests (agent, backend, data, frontend, SRE, security). The screening is more directive than at many companies &mdash; they will route you to a specific team's loop, and the bars differ slightly by org.\n\nTechnical phone screen (60 min): one coding problem, medium-hard. Languages: Python, Go, Java dominant; TypeScript for frontend; C++ and Rust for some infra roles. Problems tend to have a data-processing flavor &mdash; aggregation, stream processing, parsing structured data.\n\nTake-home (some senior and infra roles): a focused engineering exercise, typically a data-processing or streaming problem. Expect 4&ndash;6 hours of real work. The grading rubric weights correctness first, then code quality, then extensibility.\n\nOnsite / virtual onsite (4&ndash;5 rounds):\n\n- Coding (2 rounds): one classic algorithms round, one applied data-processing round. The applied round often involves implementing a small streaming aggregator, parsing a structured log format, or solving a cardinality-bounded top-K problem.\n\n- System design (1 round): observability-flavored prompts (\"design a metrics ingestion pipeline for 10M points/sec,\" \"design a log search system with bounded latency,\" \"design distributed tracing with 1% sampling\"), OR classic distributed systems (pub/sub, sharded KV, rate limiter). The interviewer pushes on operational realism &mdash; backpressure, spikes, cardinality explosion, customer-tenant isolation.\n\n- Deep-dive (1 round): a technical rabbit hole into your past project. Expect 45 minutes of increasingly specific questions about one thing you've built. \"Why did you choose Redis here?\" &rarr; \"What alternatives did you consider?\" &rarr; \"At 100x the traffic, what breaks?\"\n\n- Hiring manager (1 round): fit with team, past projects, handling of ambiguity and on-call pressure.\n\n- Behavioral / values (optional for some loops): standard STAR-format questions with a tilt toward ownership and reliability.\n\nTechnical Focus Areas\n\nCoding: streaming aggregations, top-K problems, LRU variants, bloom filters, count-min sketches, interval and segment trees. Parsing structured data (JSON, protobuf, custom wire formats). Hash-based and tree-based data structures with tight complexity budgets.\n\nSystem design: metrics ingestion at scale (write amplification, compaction, columnar storage), log search (Elasticsearch-style inverted indexes, tiering hot/warm/cold), distributed tracing (span collection, sampling strategies, trace reassembly), rate limiting and multi-tenant isolation, backpressure handling.\n\nStreaming / data engineering: Kafka / Pulsar semantics, exactly-once vs at-least-once, windowing, watermarks, checkpointing, state stores, connector reliability.\n\nStorage: columnar formats (Parquet, ORC), time-series storage (Gorilla compression, Prometheus TSDB, Druid), compaction strategies, tiering, cardinality bounds.\n\nCloud / infrastructure (for SRE and platform roles): Kubernetes at scale, multi-region architecture, blast-radius reduction, cost-vs-availability tradeoffs, tenant isolation patterns.\n\nCoding Interview Details\n\nTwo coding rounds, 60 minutes each, medium-hard difficulty on the LeetCode scale. Comparable to Google L4&ndash;L5. Interviewers push back actively &mdash; expect to refactor, handle additional edge cases, and explain memory / CPU tradeoffs on the fly. Silence hurts you.\n\nTypical problem shapes:\n\n- Streaming aggregation (compute top-K over a bounded memory budget)\n\n- Log or structured-event parser with state (build a multi-line event aggregator, correlate events by ID)\n\n- Windowing (find all events within a sliding N-minute window that match a predicate)\n\n- Cardinality-aware problems (implement an approximate distinct counter, a bloom filter with specific false-positive rate)\n\n- Tree-based problems (segment tree for "
+}

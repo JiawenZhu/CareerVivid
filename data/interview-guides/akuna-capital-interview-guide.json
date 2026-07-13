@@ -1,0 +1,35 @@
+{
+  "company": "Akuna Capital",
+  "slug": "akuna-capital-interview-guide",
+  "url": "https://www.techinterview.org/companies/akuna-capital-interview-guide",
+  "scrapedAt": "2026-07-02T07:16:28.754Z",
+  "interviewStages": [],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Akuna's Python-first stack a positive or negative for my career?",
+      "How is Akuna different from Optiver, given the founder lineage?",
+      "What's the trader training program like?",
+      "Where does Akuna hire and how location-flexible are roles?",
+      "Should I apply to Akuna and Optiver simultaneously?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Akuna Capital Interview Guide: Chicago Options Market Making, Python Stack, Trader Training\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 25, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Akuna Capital Interview Guide: Chicago Options Market Making, Python Stack, and Trader Training\n\n- What Akuna Does\n\n- Roles Akuna Hires For\n\n- Akuna Interview Process\n\n- What Akuna Tests For\n\n- Preparation Strategy\n\n- Akuna vs Other Firms\n\n- Compensation\n\n- Frequently Asked Questions\n\nUpdated April 25, 2026 · techinterview.org\n\n⏱ 6 min read\n\nAkuna Capital\nakunacapital.com ↗\n\nAkuna Capital Interview Guide: Chicago Options Market Making, Python Stack, and Trader Training\n\nAkuna Capital is a Chicago-based proprietary trading firm specializing in options market making. Founded in 2011 by veterans of Australia's Optiver office, Akuna has grown into a multi-hundred-person trading and technology operation across Chicago, Sydney, Shanghai, and Boston. For quant-trading candidates, Akuna is a serious contender alongside Optiver, SIG, and IMC: high pay, intellectually rigorous interview process, and a distinctive Python-heavy engineering culture that sets it apart from C++-dominant rivals.\n\nWhat Akuna Does\n\nAkuna is a proprietary trading firm trading its own capital, primarily as a market maker in listed options across global exchanges (CBOE, ICE, Eurex, ASX). The firm provides liquidity by continuously quoting bid and offer prices on options contracts and profits from spread capture and disciplined risk management.\n\nDistinctive features:\n\n- Python-first engineering: Akuna's trading systems are built primarily in Python (with C/C++ for performance-critical paths). This contrasts with most competitors (Optiver, IMC, Jump, HRT) where C++ dominates. Python expertise is meaningfully valuable for SWE candidates targeting Akuna.\n\n- Australian roots: founders from Optiver Sydney brought a similar trading philosophy and culture, and Akuna's Sydney office remains a meaningful hub.\n\n- Smaller and more nimble than the giants: ~300&ndash;500 employees, vs Optiver's several thousand. Closer-knit culture, faster iteration on new products and strategies.\n\nRoles Akuna Hires For\n\nTrader\n\nQuotes markets, manages risk on a desk. New-graduate traders enter through a structured training program in Chicago or Sydney; they spend months learning options theory, market microstructure, and Akuna's systems before joining a live desk. Hiring is highly selective.\n\nQuantitative Researcher\n\nBuilds models, signals, and analytics for trading desks. Math, stats, and ML-heavy. PhD candidates often start here.\n\nSoftware Engineer\n\nBuilds and maintains Akuna's Python-based trading systems, exchange connectivity, internal tooling, market data infrastructure. Strong Python is essential; C/C++ is a plus for low-latency-path work. Akuna's SWE culture is more research-friendly and less rigid than larger competitors.\n\nInternships\n\nAkuna runs trader, quant researcher, and SWE internship programs in Chicago and Sydney. Conversion rates are reasonably high for strong performers.\n\nAkuna Interview Process\n\nRound 1: Online assessment\n\nFor traders: probability and math questions, sometimes mental-math drills (lighter than Optiver's 80-in-8 but similar in spirit). For SWE / quant: a coding challenge in Python, plus quantitative reasoning.\n\nRound 2: First-round interview\n\nPhone or video, 30&ndash;45 minutes. For traders: probability brainteasers, expected-value problems, possibly a small market-making mock. For SWE: a coding question, often in Python, plus discussion of past projects.\n\nRound 3: Technical interview\n\nFor traders: deeper market-making round, more brainteasers, maybe a live trading game. For SWE: harder coding (algorithms or system design), Python-specific questions (decorators, context managers, GIL implications, async patterns), and discussion of low-latency considerations even in a Python context.\n\nRound 4: Superday\n\nOn-site (or virtual on-site) at Akuna's Chicago office (or Sydney for Australia hires). Multiple back-to-back interviews, a trading game / market-making simulation for traders, more coding for SWE. Lunch with current employees, behavioral conversations, sometimes a presentation.\n\nRound 5: Final / decision\n\nSenior partner review. Decision typically within 1&ndash;2 weeks.\n\nWhat Akuna Tests For\n\nProbability and EV reasoning (traders + quants)\n\nStandard quant-finance probability stack. Expect 4&ndash;6 problems across the process.\n\nMarket-making intuition (traders)\n\nQuote a two-sided market, manage inventory, update on information. See Market-Making Interview Questions.\n\nPython depth (SWE)\n\nAkuna's Python-first stack means SWE candidates face deeper Python questions than at C++-dominant firms. Expect: Python data model (dunder methods), GIL implications, async / asyncio, NumPy / pandas idioms, decorators, generators, context managers, performance profiling. You should be able to discuss when you'd reach for Cython, NumPy vectorization, multiprocessing"
+}

@@ -1,0 +1,121 @@
+{
+  "schemaVersion": 1,
+  "id": "multi-agent-supervisor",
+  "order": 6,
+  "title": "06. Multi-agent systems",
+  "language": "javascript",
+  "category": "AI",
+  "difficulty": "Intermediate",
+  "tagline": "Play supervisor: route subtasks to specialist agents and ship a feature as a team.",
+  "description": "The supervisor pattern — why routed teams of narrow agents beat one do-everything agent, how to decompose goals, and when multi-agent is overkill.",
+  "status": "published",
+  "tags": ["multi-agent", "supervisor", "orchestration"],
+  "estimatedMinutes": 50,
+  "sourceIds": ["huggingface-agents-course", "microsoft-ai-agents-for-beginners"],
+  "chapters": [
+    {
+      "id": "ch1-supervisor-pattern",
+      "title": "The supervisor pattern",
+      "exercises": [
+        {
+          "id": "reading-supervisor",
+          "title": "Why teams beat heroes",
+          "kind": "reading",
+          "xp": 15,
+          "content": "# Why teams beat heroes\n\nGive one agent twelve tools and a vague goal, and you get the AI version of the employee with twelve jobs: mediocre at all of them, impossible to debug.\n\nMulti-agent systems fix this the way organizations do — **specialization plus coordination**.\n\n### The supervisor pattern\n\nThe simplest reliable architecture:\n\n```\n            SUPERVISOR\n     (decomposes, routes, verifies)\n       /         |          \\\n  RESEARCHER   BUILDER    REVIEWER\n  (few tools) (few tools) (few tools)\n```\n\n- The **supervisor** owns the goal. It splits work into subtasks, routes each to a specialist, and checks results. Crucially, *it does no work itself* — a supervisor that also codes is just the twelve-tool hero again.\n- Each **specialist** has a narrow prompt, a short tool list, and one job. Narrow agents route tools better (course 05!), hallucinate less, and their traces are readable.\n\n### Why the separation matters\n\n**Focused context.** Each specialist's context window carries only its own task — no cross-contamination from twelve unrelated tools and histories.\n\n**Independent review.** A builder reviewing its own work inherits its own blind spots. A separate reviewer with fresh context catches what the author can't — same reason code review exists.\n\n**Debuggability.** When the output is wrong, you can see *which* agent failed. One mega-agent gives you a 400-step trace and a headache.\n\n### The honest trade-offs\n- **More model calls** — every hop costs tokens and latency.\n- **Handoff loss** — information can get mangled between agents; handoffs need structured formats (course 03's schemas again).\n- **Overkill for simple tasks** — one agent with three tools beats a five-agent committee for a lookup. Reach for multi-agent when tasks genuinely need different specialties or independent verification.\n\nNext: you take the supervisor chair. Route three subtasks to the right specialists and ship a feature.",
+          "attribution": "Adapted from the Hugging Face Agents Course (Apache-2.0) and \"AI Agents for Beginners\" by Microsoft (MIT)",
+          "check": { "type": "read" }
+        },
+        {
+          "id": "video-multi-agent",
+          "title": "Video: Multi-agent design patterns",
+          "kind": "video",
+          "xp": 10,
+          "videoUrl": "https://youtu.be/V6HpE9hZEx0",
+          "content": "### Watch: Multi-agent design patterns\n\nFrom Microsoft's *AI Agents for Beginners*. Watch for:\n\n- When they recommend multi-agent over single-agent (and when they don't).\n- How **handoffs** carry state between agents.\n- The supervisor/orchestrator's job description.",
+          "attribution": "Video © Microsoft, \"AI Agents for Beginners\" — MIT license — github.com/microsoft/ai-agents-for-beginners",
+          "check": { "type": "read" }
+        },
+        {
+          "id": "interactive-multi-agent",
+          "title": "Playground: Mission control",
+          "kind": "interactive",
+          "xp": 30,
+          "widgetId": "multi-agent-mission",
+          "content": "# Mission control\n\nYour team is shipping a **salary-comparison feature**: a Researcher, a Builder, and a Reviewer await orders. Three subtasks arrive in sequence — route each to the right specialist.\n\nMisroute freely: the agents will politely refuse and tell you why the task isn't theirs. (Note the Builder declining to review its own code — that instinct is the whole reason the Reviewer exists.)\n\n*To complete this lesson: ship the feature.*",
+          "check": { "type": "widget" }
+        },
+        {
+          "id": "quiz-multi-agent",
+          "title": "Knowledge check: orchestration",
+          "kind": "quiz",
+          "xp": 20,
+          "content": "# Knowledge check\n\nThree questions. All three to pass.",
+          "quiz": [
+            {
+              "id": "q1-supervisor-job",
+              "prompt": "In the supervisor pattern, what should the supervisor NOT do?",
+              "options": [
+                "Decompose the goal into subtasks",
+                "Verify the specialists' results",
+                "Perform the subtasks itself when the specialists seem slow"
+              ],
+              "correctIndex": 2,
+              "explanation": "The moment the supervisor starts doing the work, you're back to one overloaded agent — with extra steps. Routing and verification are the whole job."
+            },
+            {
+              "id": "q2-review-separation",
+              "prompt": "Why give review to a separate agent instead of asking the builder to check its own work?",
+              "options": [
+                "The builder's context is too full",
+                "An author re-reading its own output inherits its own blind spots; fresh context catches different errors",
+                "Reviewer models are a special type of LLM"
+              ],
+              "correctIndex": 1,
+              "explanation": "Same model, fresh context, adversarial framing — that separation is what makes review meaningful. It's code review for agents."
+            },
+            {
+              "id": "q3-when-not",
+              "prompt": "A user wants to look up one fact from your docs. Multi-agent or single agent?",
+              "options": [
+                "Multi-agent — more agents means more reliability",
+                "Single agent (or plain RAG) — multi-agent adds calls, latency, and handoff risk for zero benefit here",
+                "Neither; facts require fine-tuning"
+              ],
+              "correctIndex": 1,
+              "explanation": "Architecture should match task complexity. Simple lookup = simple pipeline. Save the team for work that needs distinct specialties or verification."
+            }
+          ],
+          "check": { "type": "quiz", "minCorrect": 3 }
+        }
+      ]
+    },
+    {
+      "id": "ch2-the-lab",
+      "title": "The lab",
+      "exercises": [
+        {
+          "id": "assign-specialist-agent",
+          "title": "Code lab: Assign the specialist",
+          "kind": "code",
+          "xp": 40,
+          "language": "javascript",
+          "content": "# Assign the specialist\n\nYou routed by instinct in mission control — now encode the routing rules, exactly what a supervisor prompt does under the hood.\n\n### Your task\nImplement `assignAgent(task)` and return `researcher`, `builder`, `reviewer`, or `supervisor`.\n\n### Source bench\n- Hugging Face Agents Course\n- Microsoft AI Agents for Beginners",
+          "starterCode": "function assignAgent(task) {\n  return \"supervisor\";\n}",
+          "check": {
+            "type": "tests",
+            "functionName": "assignAgent",
+            "tests": [
+              { "input": ["collect sources for RAG lesson"], "expected": "researcher" },
+              { "input": ["implement the lesson page"], "expected": "builder" },
+              { "input": ["audit the answer quality"], "expected": "reviewer" },
+              { "input": ["split this into subtasks"], "expected": "supervisor" }
+            ]
+          },
+          "hint": "collect/sources means researcher; implement/build means builder; audit/review means reviewer.",
+          "solutionCode": "function assignAgent(task) {\n  const normalized = task.toLowerCase();\n  if (normalized.includes(\"collect\") || normalized.includes(\"source\")) return \"researcher\";\n  if (normalized.includes(\"implement\") || normalized.includes(\"build\")) return \"builder\";\n  if (normalized.includes(\"audit\") || normalized.includes(\"review\")) return \"reviewer\";\n  return \"supervisor\";\n}"
+        }
+      ]
+    }
+  ]
+}

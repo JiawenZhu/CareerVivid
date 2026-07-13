@@ -1,0 +1,35 @@
+{
+  "company": "Codecademy",
+  "slug": "codecademy-interview-guide",
+  "url": "https://www.techinterview.org/companies/codecademy-interview-guide",
+  "scrapedAt": "2026-07-02T07:21:23.373Z",
+  "interviewStages": [
+    "Behavioral: mission-driven (teaching code), customer focus"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Codecademy remote-friendly?",
+      "How does Codecademy compare to freeCodeCamp or Pluralsight?",
+      "What is the engineering culture?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Codecademy Interview Guide (2026): Coding Education Platform\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nCodecademy\ncodecademy.com ↗\n\nCodecademy is the leading coding-education platform — millions of learners. Acquired by Skillsoft in 2022. The interview emphasizes interactive coding environments (browser-based IDEs), automated assessment, and the engineering challenges of teaching code in the browser.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design a browser-based coding environment with sandboxed execution\n\n- Design an automated grading system for coding exercises\n\n- Design a learning path recommendation system\n\n- Coding: medium DSA, often with parsing or evaluation framing\n\n- Behavioral: mission-driven (teaching code), customer focus\n\nLevels and comp (2026)\n\n- SE II: $135K–$170K total\n\n- Senior SE: $200K–$260K\n\n- Staff: $290K–$380K\n\n- Principal: $400K–$520K\n\nSkillsoft comp bands apply post-acquisition; below FAANG.\n\nPrep priorities\n\n- Be fluent in TypeScript/Node.js (the bulk of the codebase)\n\n- Understand browser-based code execution (WebAssembly, Pyodide, Docker)\n\n- Brush up on automated assessment and code analysis\n\nFrequently Asked Questions\n\nIs Codecademy remote-friendly?\n\nDistributed across NYC and remote within US. Some engineering roles fully remote.\n\nHow does Codecademy compare to freeCodeCamp or Pluralsight?\n\nCodecademy is freemium; freeCodeCamp is non-profit free; Pluralsight is enterprise tech learning. Different segments.\n\nWhat is the engineering culture?\n\nMission-driven, calm pace. Less expansive post-acquisition. Strong work-life balance.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Codecademy? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextAsana Interview Guide 2026: Work Graph, Reactive Data, Luna Framework, and AI Studio⏱ 9 min readLow Level Design: Airline Reservation System⏱ 7 min readLow-Level Design: Hotel Reservation System (Availability, Pricing, Concurrency)⏱ 7 min read"
+}

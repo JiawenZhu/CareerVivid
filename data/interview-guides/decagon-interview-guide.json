@@ -1,0 +1,33 @@
+{
+  "company": "Decagon",
+  "slug": "decagon-interview-guide",
+  "url": "https://www.techinterview.org/companies/decagon-interview-guide",
+  "scrapedAt": "2026-07-02T07:13:29.410Z",
+  "interviewStages": [],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Decagon remote-friendly?",
+      "How does Decagon compare to Sierra, Ada, or Forethought?",
+      "What is the engineering bar?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Decagon Interview Guide (2026): AI-Powered Customer Support\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\n- Compensation and How to Think About the Equity\n\nUpdated June 30, 2026 · techinterview.org\n\n⏱ 3 min read\n\nDecagon\ndecagon.ai ↗\n\nTL;DR &mdash; Decagon interviews focus on whether you can build and ship AI agents for customer support, testing practical engineering and product judgment over textbook algorithm puzzles. Expect a recruiter screen, one or more technical or role-specific rounds, and a final onsite, with engineers facing coding plus LLM-oriented system design and other roles assessed on customer empathy and execution speed. Preparation pays off most when you can show real problem-solving, familiarity with conversational AI products, and that you do well in a fast-moving startup.\n\nDecagon is one of the leading AI-native customer support platforms — autonomous agents that resolve tickets end-to-end at companies like Notion, Eventbrite, and Bilt. Founded by ex-OpenAI engineers. The interview is selective and reflects the high engineering bar of frontier AI startups.\n\nProcess\n\nRecruiter screen → 60-minute coding pair → 60-minute system design → 60-minute past-project deep dive → behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design an AI agent system that resolves customer support tickets autonomously\n\n- Design knowledge ingestion and retrieval for company-specific support documents\n\n- Design evaluation framework that measures autonomous resolution quality\n\n- Coding: practical TypeScript/Python, often with concurrency or LLM-tooling flavor\n\n- Past-project deep dive: must demonstrate genuine engineering depth\n\nLevels and comp (2026)\n\n- SE: $200K–$260K total\n\n- Senior SE: $290K–$390K\n\n- Staff: $420K–$560K\n\n- Principal: $580K–$770K\n\nEquity has high upside given Series B/C valuation and category leadership.\n\nPrep priorities\n\n- Be fluent in TypeScript/Python and at least one LLM API\n\n- Understand RAG, agent loops, and eval frameworks\n\n- Read papers and engineering posts on agent design (Anthropic, OpenAI cookbooks)\n\nFrequently Asked Questions\n\nIs Decagon remote-friendly?\n\nHybrid in San Francisco; some remote within US for senior roles.\n\nHow does Decagon compare to Sierra, Ada, or Forethought?\n\nSierra is the most prominent rival; Ada is the older incumbent; Forethought has been pivoting. Decagon and Sierra are the highest-comp; Decagon's technical bar is famously demanding.\n\nWhat is the engineering bar?\n\nVery high. The team is small and the standards reflect frontier AI lab norms. Strong technical writing, demonstrable craft, and AI-native fluency are essential.\n\nCompensation and How to Think About the Equity\n\nAn offer here comes as cash plus equity, and the two work very differently. At an early-stage company the base salary often sits below what the largest tech firms pay, with the difference meant to be covered by the equity grant. Pay ranges move quickly, so confirm current numbers against a recent offer or a source like levels.fyi rather than trusting any figure you read in a guide. Treat the base as the part you can count on and the equity as a separate, much less certain bet.\n\nMost grants at this stage are stock options, not RSUs. An option gives you the right to buy shares at a fixed strike price set on the day of the grant, so you only make money if the company is later worth more than that strike; RSUs, common at public companies, are shares handed to you outright as they vest. Options typically vest over four years with a one-year cliff, meaning you walk away with nothing if you leave in the first twelve months. Two facts get glossed over in offer conversations. Your ownership percentage shrinks as later funding rounds issue new shares, which is dilution, and the shares are illiquid: you usually cannot sell until an acquisition or IPO, which may be years out or may never happen. The downside is real, the equity can go to zero, and so is the upside, a grant that becomes worth several times your cash if the company does well.\n\nBig-tech\nEarly-stage like Decagon\n\nBase salary\nHigher, predictable\nOften lower\n\nEquity type\nRSUs, liquid as they vest\nOptions with a strike price\n\nLiquidity\nSell on a set schedule\nLocked until a liquidity event\n\nRange of outcomes\nLow variance\nWide, can be zero or large\n\nWhen you negotiate, separate the things you can actually move. Trading cash for more equity, or the reverse, depends on whether you need income now or believe in the long-term outcome, so decide that before you sit down. The initial grant loses value as it vests and as new rounds dilute you, which makes the size and cadence of refresh grants worth as much attention as the headline number. The cliff is sometimes negotiable for senior hires. Ask for the strike price, the most recent 409A valuation, the total shares outstanding so you can"
+}

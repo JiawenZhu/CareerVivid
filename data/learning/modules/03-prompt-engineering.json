@@ -1,0 +1,16 @@
+{
+  "id": "03-prompt-engineering",
+  "order": 3,
+  "title": "Prompt Engineering",
+  "objective": "Move from \"ask and hope\" to reliable, structured prompting.",
+  "topics": [
+    "Prompt anatomy: system/instructions/context/examples",
+    "Few-shot examples and when they help vs. hurt",
+    "Chain-of-thought and when to show/hide reasoning",
+    "ReAct-style prompting (reason + act)",
+    "Structured output (JSON mode / schemas) and why it matters for agents"
+  ],
+  "exercise": "Take an unreliable prompt (provided) and rewrite it three ways — zero-shot, few-shot, structured-output — and compare outputs.",
+  "project": "Build a prompt template (with a schema) for one CareerVivid use case, e.g. \"extract structured job requirements from a job description.\"",
+  "sourceIds": ["dair-prompt-engineering-guide", "openai-cookbook", "anthropic-claude-cookbooks"]
+}

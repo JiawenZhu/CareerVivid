@@ -1,0 +1,92 @@
+{
+  "company": "Together AI",
+  "slug": "together-ai",
+  "url": "https://www.techinterview.org/companies/together-ai",
+  "scrapedAt": "2026-07-02T07:16:12.864Z",
+  "interviewStages": [
+    "System design (1 round): inference / training infrastructure prompts. \"Design the inference-serving system supporting 100+ open-source models with efficient GPU sharing.\" \"Design the fine-tuning service with multi-tenant LoRA adapter management.\" \"Design the speculative-decoding integration across diverse model families.\"",
+    "Behavioral / hiring manager: past projects, comfort with fast-paced AI-infrastructure environment, academic-engineering collaboration."
+  ],
+  "codingTopics": [
+    "Implement attention from scratch with appropriate batching considerations",
+    "Write a CUDA kernel for a specific operation (element-wise, reduction, softmax)",
+    "Design a batching scheduler matching incoming requests to available GPU capacity with fairness",
+    "Streaming token generation with cancellation handling",
+    "Classic algorithm problems (graphs, DP, priority queues) with ML-systems applied twists"
+  ],
+  "systemDesignTopics": [
+    "\"Design the inference-serving system supporting 100+ open-source models with shared GPU capacity.\"",
+    "\"Design the fine-tuning service with multi-tenant LoRA adapter management and per-customer isolation.\"",
+    "\"Design the speculative-decoding pipeline working across diverse model architectures.\"",
+    "\"Design the custom-deployment offering for enterprise customers with dedicated capacity.\"",
+    "Walk through a Together AI paper or publication you know well (the company has published serving and training papers).",
+    "Discuss the trade-offs between speculative-decoding approaches.",
+    "Reason about the trade-offs of different quantization schemes (INT8 vs FP8 vs mixed precision).",
+    "Design an experiment to evaluate a new inference-optimization technique."
+  ],
+  "behavioralTopics": [
+    "Shipping velocity: \"Tell me about the fastest meaningful improvement you've shipped to a production AI system.\"",
+    "Academic / engineering balance: \"How do you balance research-informed work with shipping production systems?\"",
+    "Technical ownership: \"Describe a production ML system you owned end-to-end.\"",
+    "Customer empathy: \"Tell me about a time you engaged with an enterprise customer's AI-infrastructure problem.\""
+  ],
+  "sampleQuestions": {
+    "coding": [
+      "Implement attention from scratch with appropriate batching considerations. Talk through your approach, complexity, and edge cases.",
+      "Write a CUDA kernel for a specific operation (element-wise, reduction, softmax). Talk through your approach, complexity, and edge cases.",
+      "Design a batching scheduler matching incoming requests to available GPU capacity with fairness. Talk through your approach, complexity, and edge cases.",
+      "Implement a streaming feature aggregator: given a stream of events, maintain rolling counts and averages per key with bounded memory. Discuss complexity and eviction.",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases."
+    ],
+    "behavioral": [
+      "Tell me about the fastest meaningful improvement you've shipped to a production AI system.",
+      "How do you balance research-informed work with shipping production systems?",
+      "Describe a production ML system you owned end-to-end.",
+      "Tell me about a time you engaged with an enterprise customer's AI-infrastructure problem.",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
+    "systemDesign": [
+      "Design the inference-serving system supporting 100+ open-source models with shared GPU capacity.",
+      "Design the fine-tuning service with multi-tenant LoRA adapter management and per-customer isolation.",
+      "Design the speculative-decoding pipeline working across diverse model architectures. Cover the API, data model, and how it scales.",
+      "Design the custom-deployment offering for enterprise customers with dedicated capacity. Cover the API, data model, and how it scales.",
+      "Design an experiment to evaluate a new inference-optimization technique. Cover the API, data model, and how it scales."
+    ],
+    "values": [],
+    "other": [
+      "Engage with open-source orientation. Why open over closed? What are the trade-offs?",
+      "Do I need CUDA experience to get hired?",
+      "How does Together AI compare to Modal / Replicate on interviews?",
+      "Is the research output real?",
+      "What's the competitive position given Modal, Replicate, Anyscale, etc.?",
+      "Is remote work supported?"
+    ]
+  },
+  "difficulty": 8,
+  "tips": [
+    "Know inference optimization. vLLM, FlashAttention, speculative decoding, quantization &mdash; vocabulary for system design.",
+    "Use Together AI. Run real inference workloads across several models. Form opinions about performance and API design.",
+    "Read the research papers. Together's publications plus canonical inference-optimization papers.",
+    "Prepare enterprise-customer stories if relevant. The enterprise-deployment business is substantial.",
+    "Together AI engineering blog and research publications",
+    "vLLM paper (PagedAttention) and documentation",
+    "FlashAttention papers (1, 2, 3) by Tri Dao",
+    "Speculative decoding papers (original and follow-ons)",
+    "Programming Massively Parallel Processors (Hwu, Kirk, Hajj)",
+    "Together AI's API &mdash; run real workloads before interviewing"
+  ],
+  "compensation": [
+    "Software Engineer: $185k&ndash;$230k base, $200k&ndash;$380k equity (4 years), modest bonus. Total: ~$310k&ndash;$500k / year.",
+    "Senior Software Engineer: $235k&ndash;$295k base, $400k&ndash;$750k equity. Total: ~$450k&ndash;$700k / year.",
+    "Staff Engineer: $300k&ndash;$370k base, $800k&ndash;$1.5M equity. Total: ~$660k&ndash;$1M+ / year.",
+    "The research output is genuine. Together AI publishes inference-optimization and training papers regularly.",
+    "The competitive dynamic (Modal, Replicate, Baseten, Anyscale, cloud-provider offerings) is fierce; speed and quality both matter.",
+    "Enterprise deployment is a real revenue driver, not just marketing. The self-hosted and dedicated-endpoint offerings represent substantial engineering investment.",
+    "The open-source orientation shapes priorities &mdash; Together focuses on serving open models well rather than building proprietary ones.",
+    "Weak CUDA / ML-systems knowledge for inference-engine roles.",
+    "No engagement with the research literature when applying for research-adjacent roles.",
+    "Treating this as a generic \"cloud GPU\" company. The optimization depth is differentiated.",
+    "Hand-waving on LLM-specific concerns in system design."
+  ],
+  "rawSummary": "Together AI Interview Guide 2026: Open-Model Inference, CUDA Kernels, Speculative Decoding, and Enterprise AI\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 24, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Together AI Interview Process: Complete 2026 Guide\n\n- Frequently Asked Questions\n\n- What the Role Pays and How to Weigh the Equity\n\nUpdated June 30, 2026 · techinterview.org\n\n⏱ 10 min read\n\nTogether AI\ntogether.ai ↗\n\nTL;DR &mdash; Together AI interviews focus on the engineering behind fast, cheap inference for open models, so expect deep questions on CUDA kernel optimization, speculative decoding, and serving large models efficiently on GPUs alongside standard coding and system design rounds. The bar shifts toward GPU performance, memory bandwidth, and distributed execution rather than generic web-scale systems, with role tracks across inference and kernel engineering, model training and fine-tuning, and the enterprise platform. Candidates who can reason about throughput-versus-latency tradeoffs and how quantization, batching, and KV-cache management change the cost of serving tend to stand out.\n\nTogether AI Interview Process: Complete 2026 Guide\n\nOverview\n\nTogether AI is the cloud platform for open and custom AI &mdash; fast inference for open-source models (Llama, Mixtral, DeepSeek, Qwen), fine-tuning infrastructure, and custom deployment for enterprises wanting to control their model stack. Founded 2022 by Vipul Ved Prakash and Ce Zhang (based on research work at Stanford), private with multiple rapid funding rounds through the AI boom (Series A 2023, B 2024, continued through 2025). ~200 employees in 2026, headquartered in San Francisco with engineering distributed across the US and remote hires globally. Together AI differentiates from competitors (Modal, Replicate, Anyscale) through a focus on inference-speed engineering (proprietary optimizations on top of vLLM-style serving), research output (FlashAttention-adjacent papers, serving papers), and enterprise-oriented deployment options including self-hosted and dedicated-endpoint offerings. Interviews reflect the reality of running cutting-edge inference infrastructure &mdash; expect serious ML-systems depth, GPU optimization knowledge, and an academic-adjacent engineering culture.\n\nInterview Structure\n\nRecruiter screen (30 min): background, why Together, team interest. The engineering surface is cutting-edge AI infrastructure: inference engine (CUDA kernels, attention kernels, batching), training infrastructure (distributed training, fine-tuning), platform (API, SDK, billing), data / ML research, and enterprise deployment (self-hosted, dedicated endpoints). Triage matters &mdash; inference-engine work requires different depth than platform-API work.\n\nTechnical phone screen (60 min): one coding problem, medium-hard. Python / C++ / CUDA depending on role. Problems tilt toward ML-systems applied &mdash; implement an attention primitive, handle streaming generation, batch requests efficiently.\n\nTake-home (many senior / research roles): 4&ndash;8 hours on a realistic engineering problem. For inference-engine roles, often involves implementing or optimizing a CUDA kernel; for platform, a focused systems problem.\n\nOnsite / virtual onsite (4&ndash;5 rounds):\n\n- Coding (2 rounds): one algorithms round, one applied ML-systems round. Difficulty is solidly hard &mdash; comparable to Nvidia or Anthropic inference teams.\n\n- System design (1 round): inference / training infrastructure prompts. \"Design the inference-serving system supporting 100+ open-source models with efficient GPU sharing.\" \"Design the fine-tuning service with multi-tenant LoRA adapter management.\" \"Design the speculative-decoding integration across diverse model families.\"\n\n- ML / research round (1&ndash;2 rounds for research-engineering): paper deep-dive, inference-optimization discussion, experiment design. Research roles face two of these.\n\n- Behavioral / hiring manager: past projects, comfort with fast-paced AI-infrastructure environment, academic-engineering collaboration.\n\nTechnical Focus Areas\n\nCoding: Python fluency for most roles, C++ / CUDA for inference-kernel and high-performance serving, Go / Rust for some infrastructure, TypeScript for product / API surfaces. Code quality and performance awareness both matter.\n\nInference optimization: continuous batching (vLLM PagedAttention style), KV-cache management with FlashAttention, speculative decoding (draft model, target model, verification), quantization (INT8, FP8, FP4), tensor parallelism for inference, model-specific kernel optimizations (Mixtral MoE routing, Llama RMSNorm, RoPE positional encoding).\n\nGPU / CUDA programming: for inference-engine roles, real CUDA fluency is required. Memory hierarchy (registers, shared memory, HBM), warp-level primitives, occupancy optimization, Tensor Core utilization, async memory copies.\n\nDistributed training / fine-tuning: LoRA and QLoRA for efficient fine-tuning, distributed-training fram"
+}

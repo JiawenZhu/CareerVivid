@@ -136,6 +136,26 @@
         "region": "us-west1"
       },
       {
+        "source": "/learning",
+        "function": "renderSeoContent",
+        "region": "us-west1"
+      },
+      {
+        "source": "/learning/**",
+        "function": "renderSeoContent",
+        "region": "us-west1"
+      },
+      {
+        "source": "/:locale/learning",
+        "function": "renderSeoContent",
+        "region": "us-west1"
+      },
+      {
+        "source": "/:locale/learning/**",
+        "function": "renderSeoContent",
+        "region": "us-west1"
+      },
+      {
         "source": "/community",
         "function": "renderSeoContent",
         "region": "us-west1"

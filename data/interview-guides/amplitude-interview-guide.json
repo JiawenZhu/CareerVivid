@@ -1,0 +1,35 @@
+{
+  "company": "Amplitude",
+  "slug": "amplitude-interview-guide",
+  "url": "https://www.techinterview.org/companies/amplitude-interview-guide",
+  "scrapedAt": "2026-07-02T07:20:09.823Z",
+  "interviewStages": [
+    "Behavioral: customer focus, taking ownership, working through ambiguity"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Amplitude remote-friendly?",
+      "How does Amplitude compare to Mixpanel?",
+      "Do I need product analytics experience?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Amplitude Interview Guide (2026): Product Analytics Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nAmplitude\namplitude.com ↗\n\nAmplitude is one of the leading product analytics platforms, used by 50,000+ companies to track user behavior. The interview is data-pipeline-heavy, with deep system design focus on event ingestion, real-time aggregation, and the brutal performance requirements of cohort/funnel/retention queries on billion-row datasets.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium-hard) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design an event ingestion pipeline handling 1M events/sec with deduplication\n\n- Design a funnel analysis query engine over 100B events\n\n- Design a real-time cohort builder with arbitrary filter combinations\n\n- Coding: graph/tree problems, occasionally with data-engineering flavor\n\n- Behavioral: customer focus, taking ownership, working through ambiguity\n\nLevels and comp (2026)\n\n- SE II: $160K–$200K total\n\n- Senior SE: $230K–$300K\n\n- Staff: $330K–$430K\n\n- Principal: $450K–$580K\n\nPrep priorities\n\n- Be fluent in Java or Scala for backend — the bulk of the analytics engine is JVM\n\n- Understand columnar storage, Parquet, ORC, and analytical query optimization\n\n- Read about Amplitude's Nova engine — the company has published detailed engineering posts\n\nFrequently Asked Questions\n\nIs Amplitude remote-friendly?\n\nHybrid in San Francisco, NYC, Vancouver, and remote within US/Canada. Eng team is largely distributed.\n\nHow does Amplitude compare to Mixpanel?\n\nAmplitude is the broader enterprise analytics platform with stronger product DNA; Mixpanel has tighter integration with growth/marketing teams. Comp is similar.\n\nDo I need product analytics experience?\n\nHelpful but not required. Curiosity about user behavior, growth, and product metrics goes a long way.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Amplitude? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextSystem Design: Design GitHub — Code Hosting, Git Internals, Pull Requests, CI/CD, Code Review, Repository Scaling⏱ 7 min readGitLab Interview Guide 2026: All-Remote DevOps Platform, Rails Monolith, and CREDIT Values⏱ 9 min readSpatial Index Low-Level Design: R-Tree, Geohash Grid, and Range Query Optimization⏱ 11 min read"
+}

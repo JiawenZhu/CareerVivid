@@ -1,0 +1,86 @@
+{
+  "company": "Jump Trading",
+  "slug": "jump-trading",
+  "url": "https://www.techinterview.org/companies/jump-trading",
+  "scrapedAt": "2026-07-02T07:17:50.559Z",
+  "interviewStages": [
+    "Coding rounds (2&ndash;3): algorithmic problems at competitive-programming-adjacent difficulty plus applied systems-flavored problems. C++ heavily preferred.",
+    "Behavioral / fit (1 round): conversation about background, why Jump specifically (rather than HRT or Citadel Securities), how you operate. The firm filters for genuine interest in the futures / HFT space."
+  ],
+  "codingTopics": [
+    "Implement a low-latency data structure (custom memory pool, lock-free queue, ring buffer with specific concurrency semantics)",
+    "Hard graph or dynamic-programming problems with tight performance budgets",
+    "Process market-data-like streams with strict latency / memory constraints",
+    "Algorithm problems with floating-point or integer-overflow edge-case attention",
+    "System-design-adjacent: implement a small order book, position tracker, or risk-aggregation component",
+    "Walk through what happens when a market-data packet arrives at the network card and propagates to your trading code in a kernel-bypass setup.",
+    "Reason about when an FPGA path beats a software path and when it doesn't.",
+    "Describe how you'd profile a slow market-data processor &mdash; what tools, what you'd measure, how you'd interpret results.",
+    "Explain cache coherence at the hardware level and what it means for cross-core communication design.",
+    "\"How does the CME ES futures contract differ from S&P 500 ETF in terms of trading dynamics?\"",
+    "\"Make a market on the value of CME crude oil futures front-month at this hypothetical scenario.\"",
+    "\"Describe how you'd hedge a position in CME 10-year Treasury futures using cash bonds.\"",
+    "\"What are the typical drivers of front-month vs back-month spread movements in oil futures?\""
+  ],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Discuss memory ordering in modern CPUs: what does memory_order_acquire actually guarantee on x86, ARM, RISC-V?",
+      "Implement custom memory pool, lock-free queue, ring buffer with specific concurrency semantics. Talk through your approach, complexity, and edge cases.",
+      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph.",
+      "Process market-data-like streams with strict latency / memory constraints. Talk through your approach, complexity, and edge cases.",
+      "Implement a small order book, position tracker, or risk-aggregation component. Talk through your approach, complexity, and edge cases."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "How does Jump Trading compare to HRT for new grads?",
+      "How important is the futures market structure focus?",
+      "What's Jump Crypto?",
+      "How does the secretive culture affect candidates?",
+      "Is Chicago a real consideration for candidates?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [
+    "Have a specific reason for Jump. Generic \"top prop firm\" answers don't fit the secretive, futures-focused identity.",
+    "Show genuine futures interest. Even basic CME contract awareness signals that you've done specific homework.",
+    "Demonstrate clean C++. RAII, move semantics, sensible ownership, no raw new/delete.",
+    "Engage with low-latency depth. Surface knowledge isn't enough; production-grade detail wins.",
+    "Ask about Jump Crypto if relevant. Signals awareness of the firm's full scope.",
+    "Codeforces, USACO archives for competitive-programming prep",
+    "Effective Modern C++ by Scott Meyers",
+    "What Every Programmer Should Know About Memory by Ulrich Drepper (free online)",
+    "CME Group documentation on contract specifications and market structure",
+    "Trading and Exchanges by Larry Harris for futures market structure",
+    "Heard on the Street by Crack for the probability round",
+    "Jump Crypto's GitHub presence (Firedancer, Solana validator client) &mdash; one of the few public technical surfaces of the firm"
+  ],
+  "compensation": [
+    "New-grad SWE / Trader / Quant: $200K&ndash;$250K base, $100K&ndash;$200K signing, $100K&ndash;$300K performance bonus year 1. Total Year 1: $400K&ndash;$700K.",
+    "Mid-career (3&ndash;5 years): $275K&ndash;$375K base, performance bonuses $300K&ndash;$1M. Total $700K&ndash;$1.5M.",
+    "Senior (5&ndash;10 years): $375K&ndash;$525K base, performance bonuses $1M&ndash;$3M+. Total $1.5M&ndash;$4M+.",
+    "Established traders / leads: $5M&ndash;$15M+ in strong years.",
+    "Famously private: Jump rarely speaks publicly, doesn't engage with conferences or technical writing the way Jane Street does. Even employees are typically discreet about specifics.",
+    "Engineering-driven: SWEs are first-class. Technology is the moat; engineers are treated accordingly.",
+    "Futures heritage: founders came from CME pits; futures-trading culture and depth distinguishes Jump from equity-focused peers.",
+    "Hour expectations: reasonable for engineering-track. Trader-adjacent seats more intense around market events. Crypto seats can be 24/7 due to crypto market hours.",
+    "Office-first: in-person at Chicago, NYC, London, Singapore. Limited remote work.",
+    "Crypto investment: Jump Crypto is a substantial subsidiary with its own engineering culture and recruiting; somewhat distinct from the core futures-trading firm.",
+    "The firm is the most secretive of the top-tier prop firms; finding information requires more effort than for HRT or Jane Street.",
+    "The futures-trading specialty is genuinely deep &mdash; not just \"we trade futures alongside everything else.\"",
+    "Jump Crypto is a substantial independent organization within the firm.",
+    "The Chicago HQ matters culturally; the Chicago HFT scene differs from NYC's.",
+    "Treating Jump as interchangeable with HRT or Citadel Securities. Specific reasons for Jump &mdash; futures depth, Chicago, crypto interest &mdash; resonate.",
+    "Underestimating the competitive-programming-level coding bar.",
+    "Weak C++ for production-track roles.",
+    "Generic FAANG behavioral answers; the firm wants directness and depth."
+  ],
+  "rawSummary": "Jump Trading Interview Guide 2026: Chicago HFT, Futures, Jump Crypto, and Low-Latency C++\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 25, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\tUpdated April 25, 2026 · techinterview.org\n\n⏱ 8 min read\n\nJump Trading\njumptrading.com ↗\n\nJump Trading Interview Process: Complete 2026 Guide\n\nOverview\n\nJump Trading is the Chicago-based proprietary trading firm specializing in algorithmic and high-frequency trading across global futures, options, equities, fixed income, FX, and cryptocurrencies. Founded 1999 by Bill DiSomma and Paul Gurinas (both former Chicago Mercantile Exchange floor traders), Jump remains employee-owned and famously private &mdash; one of the most secretive top-tier prop firms. ~1,500 employees in 2026, with offices in Chicago (HQ), New York, London, Singapore, Hong Kong, Amsterdam, and Sydney. The firm trades a substantial fraction of global futures volume and is among the most active market makers in cryptocurrency markets via its Jump Crypto subsidiary. Engineering-led culture, heavy in C++ and low-latency systems, with significant FPGA and custom-hardware investment. Jump is distinguished from Hudson River Trading (its closest peer in HFT) by Chicago heritage and futures-trading depth, and from Citadel Securities by the secrecy and futures-first focus.\n\nInterview Structure\n\nRecruiter screen + technical assessment (45 min): Jump uses HackerRank-style coding assessments with high difficulty. Pass rates are competitive.\n\nTechnical phone screen (60 min): coding problem with shared editor; sometimes paired with a probability question. Coding bar is high &mdash; comparable to top FAANG SWE rounds.\n\nOnsite (or virtual onsite, 5&ndash;7 rounds):\n\n- Coding rounds (2&ndash;3): algorithmic problems at competitive-programming-adjacent difficulty plus applied systems-flavored problems. C++ heavily preferred.\n\n- Low-latency systems round (1): kernel bypass, lock-free structures, CPU cache optimization, FPGA-adjacent thinking. The systems round at Jump goes deep.\n\n- Probability / quant round (1): brainteasers, expected-value problems, market-related quantitative reasoning. Less central than at Jane Street but still meaningful.\n\n- Trading-specific round (for trader-track): futures market microstructure, option pricing intuition, market-making framing for specific trading scenarios.\n\n- Behavioral / fit (1 round): conversation about background, why Jump specifically (rather than HRT or Citadel Securities), how you operate. The firm filters for genuine interest in the futures / HFT space.\n\n- Manager / director round: typically near the end, focuses on team-specific fit and career trajectory.\n\nTechnical Focus Areas\n\nCoding: C++ is the dominant production language. Strong, modern C++ &mdash; RAII, move semantics, template metaprogramming where relevant, performance awareness &mdash; is essential. Some Python for tooling and analytics; some Rust appearing in newer systems.\n\nLow-latency engineering: kernel bypass networking (DPDK, Solarflare / NVIDIA), CPU pinning and isolation, lock-free data structures, memory ordering at C++ atomics depth, NUMA-aware allocation, hugepages, real-time scheduler tuning, FPGA acceleration for hottest paths.\n\nHardware-aware programming: CPU cache hierarchies (L1/L2/L3), false sharing, branch prediction, SIMD vectorization, instruction-level parallelism, memory bandwidth limits, hardware counters.\n\nFutures market structure: Chicago Mercantile Exchange (CME) market microstructure, contract specifications, settlement mechanics, clearing, exchange-specific protocols (CME MDP3, FIX), order types specific to futures markets. Distinguishing Jump from equity-focused firms is depth on this domain.\n\nOptions pricing: for options-trading roles, Black-Scholes and the Greeks at trader depth, implied volatility surfaces, exotic option pricing concepts.\n\nCryptocurrency market structure (for Jump Crypto): on-chain mechanics, liquidation engines, DeFi protocol mechanics, MEV (maximal extractable value), bridge mechanics. Jump Crypto has been an active player in crypto markets and has its own engineering scope.\n\nCoding Round Details\n\n2&ndash;3 coding rounds, 60 minutes each. Difficulty is hard &mdash; comparable to HRT's bar, harder than typical FAANG. Expect competitive-programming-adjacent problems and systems-applied problems. C++ heavily preferred for production-track roles; Python acceptable for tooling / analytics.\n\nTypical problem shapes:\n\n- Implement a low-latency data structure (custom memory pool, lock-free queue, ring buffer with specific concurrency semantics)\n\n- Hard graph or dynamic-programming problems with tight performance budgets\n\n- Process market-data-like streams with strict latency / memory constraints\n\n- Algorithm problems with floating-point or integer-overflow edge-case attention\n\n- System-design-adjacent: implement a small order book, position tracker, or risk-aggregation component\n\nLow-Latency Systems Round\n\nSample topics:\n\n- Walk through wha"
+}

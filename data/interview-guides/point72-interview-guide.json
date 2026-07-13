@@ -1,0 +1,35 @@
+{
+  "company": "Point72",
+  "slug": "point72-interview-guide",
+  "url": "https://www.techinterview.org/companies/point72-interview-guide",
+  "scrapedAt": "2026-07-02T07:18:23.718Z",
+  "interviewStages": [],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "What's Cubist and how is it different from the rest of Point72?",
+      "What's the Academy program?",
+      "How does the pod-shop model affect career trajectory?",
+      "Where is Point72 based and how flexible are roles?",
+      "Does the Steve Cohen / SAC history affect Point72's culture today?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Point72 Interview Guide: Pod-Shop Hedge Fund, Cubist Quant Arm, and PM Track\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 25, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Point72 Interview Guide: Pod-Shop Hedge Fund, Cubist Quant Arm, and PM Track\n\n- What Point72 Does\n\n- Roles Point72 / Cubist Hire For\n\n- Point72 Interview Process\n\n- What Point72 / Cubist Test For\n\n- Preparation Strategy\n\n- Point72 vs Other Pod Shops\n\n- Compensation\n\n- Frequently Asked Questions\n\nUpdated April 25, 2026 · techinterview.org\n\n⏱ 6 min read\n\nPoint72\npoint72.com ↗\n\nPoint72 Interview Guide: Pod-Shop Hedge Fund, Cubist Quant Arm, and PM Track\n\nPoint72 Asset Management is a multi-strategy hedge fund founded by Steve Cohen, the famed equity trader behind SAC Capital. After SAC was wound down in 2014, Cohen restructured as Point72 in 2018 and rebuilt the firm into one of the largest pod-shop hedge funds globally, alongside Citadel and Millennium. Within Point72, the systematic / quant arm is branded Cubist Systematic Strategies and operates with a distinct culture and hiring process. For quant-trading and engineering candidates, Point72 (and Cubist specifically) is a serious target with high pay and strong technology.\n\nWhat Point72 Does\n\nPoint72 manages roughly $35 billion in assets across discretionary equity long/short strategies (the historical core of the firm) and systematic / quantitative strategies (Cubist). The firm operates a \"pod\" model: portfolio managers (PMs) run their own books with significant autonomy, sharing infrastructure and risk frameworks. Pods compete for capital allocation; successful pods grow, weaker pods are closed.\n\nTwo main organizational pieces:\n\n- Discretionary Long/Short: Equity-focused fundamental research, with sector-specialist analysts and PMs. The historical core; still the largest piece.\n\n- Cubist Systematic Strategies: Systematic and quantitative strategies, more aligned with what Two Sigma or D. E. Shaw do. Built up substantially over the past decade and now a major hiring target.\n\nPoint72 is also notable for its Academy program, a structured 10+ month investing-skills training that hires from non-traditional backgrounds (recent graduates, career switchers) and trains them to be analysts on long/short pods.\n\nRoles Point72 / Cubist Hire For\n\nQuantitative Researcher (Cubist)\n\nBuilds models, signals, and strategies for systematic trading. Strong stats, ML, time-series background expected. PhD candidates common. Cubist's QR roles are core to the systematic business and command top-tier compensation.\n\nQuantitative Developer / Software Engineer (Cubist)\n\nBuilds research infrastructure, signal evaluation pipelines, execution systems, risk monitoring. C++, Python, Java; substantial Python in research workflows.\n\nInvestment Analyst (Discretionary)\n\nEquity research analyst on a long/short pod. Fundamental research, financial modeling, industry analysis. Typically requires investment-banking-style background or finance domain knowledge.\n\nPortfolio Manager Track\n\nSenior analysts who develop investment skills and graduate to running their own pod. Competitive and selective; the Academy program is one entry path.\n\nEngineering / Technology (Firm-wide)\n\nBuilds Point72's broader technology stack: research data platforms, market data, risk infrastructure, internal applications. Distinct from Cubist's quant infrastructure.\n\nPoint72 Interview Process\n\nRound 1: Application screen\n\nResume review. For Cubist QR / quant SWE: technical screen; for analyst track: behavioral and motivation screen. The Academy has a specific application process with case-style assessments.\n\nRound 2: First-round interview\n\nFor Cubist QR: probability and statistics, sometimes a take-home modeling exercise. For Cubist SWE: data structures and algorithms, language-specific questions. For analyst track: case-style discussion of an investment idea, walkthrough of relevant projects.\n\nRound 3: Technical interview\n\nFor Cubist QR: deeper modeling and project discussion, statistical methodology, research workflow questions. For SWE: harder coding and systems design. For analyst track: longer investment case discussion, financial modeling.\n\nRound 4: Superday\n\nOn-site (or virtual on-site) at Point72's Stamford CT office (or NYC). 4&ndash;6 back-to-back interviews with team members, senior researchers, sometimes the PM. Behavioral conversations, cultural fit. For analyst track: a stock pitch presentation is common.\n\nRound 5: Final / decision\n\nSenior leadership review. Decision typically within 1&ndash;3 weeks.\n\nWhat Point72 / Cubist Test For\n\nQuantitative depth (Cubist QR)\n\nStatistics and probability fluency. Time-series analysis. Regression, regularization, factor models. ML for finance. Strong projects discussion: motivation, methodology, validation, what you'd do differently.\n\nCoding (Cubist SWE)\n\nStandard data structures and algorithms. Systems design with trading-system flavor. Python for research; C++ for low-latency or production paths."
+}

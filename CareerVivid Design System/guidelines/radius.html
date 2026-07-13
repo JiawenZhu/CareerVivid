@@ -1,0 +1,25 @@
+<!-- @dsCard group="Spacing" viewport="700x180" name="Corner radii" subtitle="6–8 controls · 12–16 cards · 16 inputs · 20 extension/modals · 999 pills" -->
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+body { margin: 0; padding: 18px 24px; background: #ffffff; font-family: var(--cv-font-body); }
+.row { display: flex; gap: 12px; align-items: flex-end; }
+.sq { background: var(--cv-purple-50); border: 1px solid var(--cv-purple-200); display: flex; align-items: flex-end; justify-content: center; padding-bottom: 6px; }
+.sq p { margin: 0; font-family: var(--cv-font-mono); font-size: 9px; font-weight: 700; color: var(--cv-purple-600); }
+</style>
+</head>
+<body>
+<div class="row">
+  <div class="sq" style="width: 84px; height: 84px; border-radius: 6px;"><p>6 control-sm</p></div>
+  <div class="sq" style="width: 84px; height: 84px; border-radius: 8px;"><p>8 control</p></div>
+  <div class="sq" style="width: 84px; height: 84px; border-radius: 12px;"><p>12 card</p></div>
+  <div class="sq" style="width: 84px; height: 84px; border-radius: 16px;"><p>16 lg card</p></div>
+  <div class="sq" style="width: 84px; height: 84px; border-radius: 20px;"><p>20 modal</p></div>
+  <div class="sq" style="width: 118px; height: 44px; border-radius: 999px;"><p>999 pill</p></div>
+</div>
+<p style="margin: 12px 0 0; font-size: 11px; font-weight: 600; color: var(--cv-text-muted);">Borders always 1px; 2px reserved for focus outlines.</p>
+</body>
+</html>

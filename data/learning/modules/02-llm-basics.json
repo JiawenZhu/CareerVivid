@@ -1,0 +1,16 @@
+{
+  "id": "02-llm-basics",
+  "order": 2,
+  "title": "LLM Basics",
+  "objective": "Understand what's actually happening inside a model call — tokens, context windows, sampling — well enough to reason about cost, latency, and failure modes.",
+  "topics": [
+    "Tokenization and why it affects cost/latency",
+    "Context windows and truncation",
+    "Temperature, top-p, and other sampling controls",
+    "Inference vs. training; what \"fine-tuning\" changes and what it doesn't",
+    "Picking a model for a task (cost/quality/latency triangle)"
+  ],
+  "exercise": "Take one prompt and run it at three different temperatures; explain the variance you see.",
+  "project": "A short model-selection memo: given a hypothetical feature (e.g. resume tailoring), justify a model choice on cost/quality/latency grounds.",
+  "sourceIds": ["mlabonne-llm-course", "microsoft-generative-ai-for-beginners"]
+}

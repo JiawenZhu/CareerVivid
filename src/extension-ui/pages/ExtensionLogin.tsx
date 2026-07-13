@@ -117,11 +117,11 @@ const ExtensionLogin: React.FC = () => {
         <div className="flex h-full min-h-[520px] w-full flex-col overflow-hidden bg-[#f8f8fb] px-4 py-4 text-slate-950 dark:bg-[#1f1f1d] dark:text-[#f4f1e9]">
             <header className="flex items-center justify-between gap-3">
                 <div className="flex min-w-0 items-center gap-3">
-                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl border border-[#ececf4] bg-white shadow-sm dark:border-[#3a3834] dark:bg-[#262522]">
+                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border border-[#ececf4] bg-white shadow-sm dark:border-[#3a3834] dark:bg-[#262522]">
                         <img
                             src={logoSrc}
                             alt="CareerVivid"
-                            className="h-7 w-7 object-contain"
+                            className="h-7 w-7 rounded-full object-cover"
                             onError={(e) => {
                                 e.currentTarget.style.display = 'none';
                             }}

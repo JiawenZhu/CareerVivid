@@ -1,0 +1,55 @@
+{
+  "company": "SoFi",
+  "slug": "sofi-interview-guide",
+  "url": "https://www.techinterview.org/companies/sofi-interview-guide",
+  "scrapedAt": "2026-07-02T07:18:36.745Z",
+  "interviewStages": [
+    "Coding (1–2 rounds) — algorithms with practical engineering flavor; financial-systems context for some roles",
+    "System design (1 round) — fintech systems (lending workflows, payment rails, multi-product integration)",
+    "Domain depth (1 round) — depends on role: ML, mobile, distributed systems, compliance, banking core",
+    "Behavioral / cross-functional (1 round) — collaboration, ambiguity, cross-product thinking"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Implement a double-entry ledger that processes a stream of transactions and detects imbalances. How do you guarantee idempotency when a transaction is delivered twice?",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [
+      "Design one of SoFi's core fintech systems — address lending workflows, payment rails, multi-product integration. Walk through the architecture, trade-offs, and failure modes.",
+      "Design a service at SoFi scale that shortens URLs. Cover the API, storage, and hot-key handling.",
+      "Design a rate limiter for a public API. Discuss algorithms, distributed coordination, and failure modes."
+    ],
+    "values": [],
+    "other": [
+      "How does the bank charter actually affect engineers?",
+      "What's the Galileo + Technisys integration like?",
+      "Is SoFi's multi-product strategy advantage real for engineers?",
+      "How does SoFi compare to traditional banks for engineers?",
+      "Is SoFi a good place for early-career engineers?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": [
+    "New-grad SWE: $140k–$220k total comp first year",
+    "Mid-level (4–7 years): $200k–$340k",
+    "Senior (8+ years): $320k–$520k",
+    "Staff / Principal: $500k–$900k+",
+    "The bank charter is more significant than candidates expect; it materially changed regulatory engineering, deposit infrastructure, and product economics.",
+    "The Galileo + Technisys integration is substantial engineering work; cross-platform engineers operate at the integration seam.",
+    "The multi-product breadth means engineers think across product lines more than at single-product fintechs.",
+    "Compensation is below top-tier US fintech (Stripe / Plaid) and FAANG in absolute terms.",
+    "The regulatory engineering work has grown substantially; compliance engineering is a real career track post-charter."
+  ],
+  "rawSummary": "SoFi Interview Guide 2026: Bank Charter, Galileo, Technisys, Multi-Product Fintech\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 29, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- SoFi Interview Guide 2026: Bank Charter Era, Galileo, Technisys, Lending Tech, and the Multi-Product Consumer Fintech\n\n- What SoFi Does\n\n- Roles SoFi Hires For\n\n- SoFi Interview Process\n\n- What SoFi Tests For\n\n- Compensation\n\n- Working at SoFi\n\n- SoFi vs Alternatives\n\n- Things That Surprise Candidates\n\n- Frequently Asked Questions\n\nUpdated April 29, 2026 · techinterview.org\n\n⏱ 7 min read\n\nSoFi\nsofi.com ↗\n\nSoFi Interview Guide 2026: Bank Charter Era, Galileo, Technisys, Lending Tech, and the Multi-Product Consumer Fintech\n\nSoFi (NASDAQ: SOFI) is one of the largest US-listed consumer fintech companies and one of the only fintechs to acquire a national bank charter (2022, via the Golden Pacific Bancorp acquisition). The company has grown substantially from its origin as a student-loan refinancer to a multi-product platform offering banking, lending, investing, credit cards, insurance, and B2B fintech infrastructure (Galileo, Technisys). The bank charter materially changed product economics and engineering priorities. The hiring process is rigorous and reflects the company's ambition to operate as a full-service consumer financial platform. This guide covers what SoFi does, the engineering tracks, the interview process, and what makes SoFi hiring distinctive in 2026.\n\nWhat SoFi Does\n\nSoFi operates several business segments:\n\n- SoFi Money / Banking: high-yield checking and savings accounts. Bank-charter-driven; allows SoFi to fund loans with deposits rather than warehouse credit.\n\n- SoFi Lending: personal loans, student loan refinancing (the original product), home loans. The lending business that SoFi was built on.\n\n- SoFi Invest: brokerage, robo-advisor, options, crypto (paused / restarted variably), retirement accounts.\n\n- SoFi Credit Card: consumer credit card with cashback rewards.\n\n- SoFi Insurance: auto, life, renters, homeowners insurance via partner relationships.\n\n- Galileo Financial Technologies: B2B fintech infrastructure — payments, card issuing, account management for fintech partners. Acquired 2020.\n\n- Technisys: core banking platform — cloud-native banking software for banks and fintechs. Acquired 2022.\n\n- SoFi Stadium / sponsorships: brand presence (NFL stadium naming rights). Not engineering but high-visibility.\n\nDistinctive features:\n\n- National bank charter: SoFi acquired Golden Pacific Bancorp in 2022 to obtain a national bank charter. This materially changed the company — deposits as funding source for loans, regulatory framework, product capabilities.\n\n- Galileo + Technisys = Cyberbank: SoFi consolidated Galileo and Technisys into a unified core banking and fintech infrastructure offering (\"Cyberbank\"). Substantial engineering integration work.\n\n- Multi-product consumer fintech: few competitors offer SoFi's product breadth in a single app. Engineering work spans many product lines.\n\n- Public company: NASDAQ: SOFI; substantial scrutiny.\n\n- Federally regulated: bank holding company subject to OCC, FDIC, Federal Reserve oversight. Engineering decisions consider regulatory implications.\n\nRoles SoFi Hires For\n\nSoftware engineer (consumer app)\n\nBuilds the SoFi consumer app and web experience — Money, Invest, Lending, Credit Card, Insurance entry points in unified UX. React + TypeScript for web; Swift / Kotlin for mobile. Substantial cross-product integration work.\n\nSoftware engineer (lending platform)\n\nBuilds origination, underwriting integration, servicing, payments, collections for personal loans, student loan refi, mortgages. Distributed systems with strict consistency requirements.\n\nSoftware engineer (banking platform)\n\nBanking core (post-charter), deposits, transfers, ACH, wire transfers, payment rails. Higher regulatory scrutiny than typical fintech; bank-grade engineering practices.\n\nSoftware engineer (Invest)\n\nBrokerage backend, market data, order routing, robo-advisor logic, retirement account compliance. Hybrid of fintech and traditional brokerage engineering.\n\nML engineer / data scientist\n\nUnderwriting models, fraud detection, marketing optimization, customer-LTV modeling. Substantial investment area.\n\nSoftware engineer (Galileo)\n\nB2B fintech infrastructure — card issuing, account management, payments. Customer-facing engineering for fintech partners.\n\nSoftware engineer (Technisys / Cyberbank)\n\nCore banking platform — built on cloud-native architecture; serves banks and fintechs. Strong distributed systems and regulated-financial-systems backgrounds.\n\nCompliance / regulatory engineer\n\nBank-charter-era regulatory engineering — BSA / AML, KYC, transaction monitoring, regulatory reporting. Substantial growth area post-charter.\n\nSecurity / fraud engineer\n\nAccount security, transaction fraud, identity fraud. Adversarial engineering.\n\nSoFi Interview Process\n\nRound 1: Recruiter screen\n\n30 minutes. Background"
+}

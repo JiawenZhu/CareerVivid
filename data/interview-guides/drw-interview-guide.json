@@ -1,0 +1,35 @@
+{
+  "company": "DRW",
+  "slug": "drw-interview-guide",
+  "url": "https://www.techinterview.org/companies/drw-interview-guide",
+  "scrapedAt": "2026-07-02T07:17:22.345Z",
+  "interviewStages": [],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "How does DRW compare to Citadel for a new graduate?",
+      "What's Cumberland and is it a different interview?",
+      "Is DRW heavily Chicago-located?",
+      "What background does DRW hire?",
+      "How does DRW's training program work?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "DRW Interview Guide: Multi-Strategy Trading, Cumberland Crypto, Chicago Trading\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 25, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- DRW Interview Guide: Multi-Strategy Trading, Cumberland Crypto, and Chicago Trading Culture\n\n- What DRW Does\n\n- Roles DRW Hires For\n\n- DRW Interview Process\n\n- What DRW Tests For\n\n- Preparation Strategy\n\n- DRW vs Other Firms\n\n- Compensation\n\n- Frequently Asked Questions\n\nUpdated April 25, 2026 · techinterview.org\n\n⏱ 6 min read\n\nDRW\ndrw.com ↗\n\nDRW Interview Guide: Multi-Strategy Trading, Cumberland Crypto, and Chicago Trading Culture\n\nDRW is one of Chicago's largest and most diverse proprietary trading firms. Founded in 1992 by Don Wilson, DRW (named after Wilson's initials) has expanded from its trading-floor origins into a multi-strategy operation covering futures, options, crypto (via Cumberland), real estate, and venture investing. For quant-trading candidates, DRW is a top-tier destination: pay is high, the Chicago trading-floor culture is distinctive, and the firm's breadth of strategies means roles vary substantially across desks.\n\nWhat DRW Does\n\nDRW is a proprietary trading firm trading its own capital across many asset classes and strategies. Unlike single-product firms (Optiver in options, Jump in futures), DRW runs a portfolio of trading approaches: market making in futures and options, statistical arbitrage in fixed income, OTC trading in crypto via Cumberland, fundamental investing via DRW's venture arm and real estate businesses, and various other strategies. This breadth makes DRW closer in structure to Citadel or Two Sigma than to a single-product market maker like Optiver, while retaining a Chicago trading-floor cultural feel.\n\nKey business lines:\n\n- DRW Trading: the core proprietary trading operation across futures, options, equities, fixed income.\n\n- Cumberland: DRW's crypto market-making and OTC desk, one of the largest crypto liquidity providers globally.\n\n- DRW Investments / Convexity Properties: real estate, venture, and longer-horizon investing.\n\nRoles DRW Hires For\n\nTrader\n\nQuotes markets, manages risk on a desk, develops trading strategies. New-graduate traders enter through a structured training program at DRW's Chicago HQ; they spend several months learning markets, options theory, and DRW's systems before joining a desk. Pay is competitive with Jane Street, Optiver, Citadel Securities for new graduates.\n\nQuantitative Researcher\n\nBuilds models, signals, and analytics for trading desks. PhD-track candidates often start here, especially those with strong stats / ML backgrounds. DRW's QR roles vary substantially by desk: some are very options-pricing-heavy, some are more statistical/ML.\n\nSoftware Engineer\n\nBuilds trading systems, exchange connectivity, risk infrastructure, market data, internal tooling. DRW's tech stack is heavy on C++, Python, and increasingly Rust. Latency matters but DRW is not as latency-extreme as HRT or Jump &mdash; the trade-off is breadth of products and richer business logic.\n\nCumberland (crypto)\n\nDRW's crypto desk runs as a semi-distinct unit. Hiring is for crypto-specific traders, quants, engineers, and OTC sales-trading. Background in DeFi, on-chain analytics, or crypto market microstructure is valued.\n\nDRW Interview Process\n\nRound 1: Online assessment\n\nProbability and brain-teaser-style questions plus some quantitative reasoning. Less mental-math-heavy than Optiver's 80-in-8 but still timed.\n\nRound 2: First-round interview\n\nPhone or video, 30&ndash;45 minutes. Probability brainteasers, expected-value problems, motivation discussion, sometimes a coding question for SWE-track candidates.\n\nRound 3: Technical interview\n\nDeeper probability, market-making round, or coding (depending on track). For traders, expect a market-making mock and several brainteasers. For SWE candidates, expect C++ coding (or Python) and systems-design discussion.\n\nRound 4: Superday\n\nMulti-hour event in DRW's Chicago HQ (or virtual equivalent). Includes 4&ndash;6 back-to-back interviews with traders, quants, and senior team members. For traders, includes a trading game / market-making simulation. For SWE / quant candidates, includes coding and systems design. Cultural conversations and lunch with current employees.\n\nRound 5: Final / decision\n\nSenior partner review. Decision typically within 1&ndash;2 weeks.\n\nWhat DRW Tests For\n\nProbability and EV reasoning\n\nStandard quant-finance probability stack: expected value, conditional probability, common brainteasers (Monty Hall, gambler's ruin, two-envelope problem). Expect 3&ndash;5 problems across the process.\n\nMarket-making intuition (for traders)\n\nQuote a two-sided market on an unknown. Set spread proportional to uncertainty. Manage inventory. Update on information. See Market-Making Interview Questions.\n\nCoding (for quants and SWE)\n\nFor SWE: standard data structures and algorithms in C++ or Python. DRW's bar is high but not at the IOI/ACM level of HRT or Jum"
+}

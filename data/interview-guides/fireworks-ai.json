@@ -1,0 +1,93 @@
+{
+  "company": "Fireworks AI",
+  "slug": "fireworks-ai",
+  "url": "https://www.techinterview.org/companies/fireworks-ai",
+  "scrapedAt": "2026-07-02T07:13:36.635Z",
+  "interviewStages": [
+    "System design (1 round): inference-serving prompts. \"Design the fastest-possible serving path for a 70B model with sub-200ms first-token latency.\" \"Design multi-tenant GPU allocation with strict cost-aware SLAs.\" \"Design the FireAttention kernel integration across different model architectures.\"",
+    "Behavioral / hiring manager: past projects, comfort with performance-obsessed culture, customer empathy for AI-application developers."
+  ],
+  "codingTopics": [
+    "Implement a CUDA kernel for a specific operation (reduction, softmax, matrix operation)",
+    "Optimize a naive kernel for memory throughput and Tensor Core utilization",
+    "Design a batching scheduler matching diverse requests to GPU capacity",
+    "Streaming token generator with cancellation and pacing",
+    "Classic algorithm problems (priority queues, graphs) with ML-systems applied twists"
+  ],
+  "systemDesignTopics": [
+    "\"Design the serving path for a 70B model optimized for sub-200ms first-token latency on H100.\"",
+    "\"Design multi-tenant GPU allocation with strict per-customer latency SLAs.\"",
+    "\"Design the FireAttention kernel integration working across Llama, Mixtral, DeepSeek architectures.\"",
+    "\"Design the speculative-decoding pipeline with draft-model selection per request.\"",
+    "Walk through FlashAttention's algorithm and discuss the trade-offs of each version (1, 2, 3).",
+    "Discuss speculative decoding approaches and the accuracy-speed-cost trade-offs.",
+    "Reason about quantization choice (FP8 vs INT8 vs INT4) for a specific model and workload.",
+    "Describe how you'd profile and optimize a slow kernel from measurement through fix.",
+    "Discuss tensor parallelism for inference &mdash; where it helps, where it hurts."
+  ],
+  "behavioralTopics": [
+    "Performance obsession: \"Tell me about a time you obsessed over performance optimization.\"",
+    "Research / engineering balance: \"How do you balance research-informed approaches with production shipping?\"",
+    "Customer empathy: \"Describe engaging with an AI-application developer's problem.\"",
+    "Fast-pace comfort: \"How do you navigate a fast-growing company with rapid priority shifts?\""
+  ],
+  "sampleQuestions": {
+    "coding": [
+      "Implement a CUDA kernel for a specific operation (reduction, softmax, matrix operation). Talk through your approach, complexity, and edge cases.",
+      "Implement an LRU cache with O(1) get and put. Then explain how you would make it thread-safe without serializing all access.",
+      "Design a batching scheduler matching diverse requests to GPU capacity. Talk through your approach, complexity, and edge cases.",
+      "Implement a streaming feature aggregator: given a stream of events, maintain rolling counts and averages per key with bounded memory. Discuss complexity and eviction.",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases."
+    ],
+    "behavioral": [
+      "Tell me about a time you obsessed over performance optimization.",
+      "How do you balance research-informed approaches with production shipping?",
+      "Describe engaging with an AI-application developer's problem.",
+      "How do you navigate a fast-growing company with rapid priority shifts?",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
+    "systemDesign": [
+      "Design the serving path for a 70B model optimized for sub-200ms first-token latency on H100.",
+      "Design multi-tenant GPU allocation with strict per-customer latency SLAs. Cover the API, data model, and how it scales.",
+      "Design the FireAttention kernel integration working across Llama, Mixtral, DeepSeek architectures.",
+      "Design the speculative-decoding pipeline with draft-model selection per request. Cover the API, data model, and how it scales.",
+      "Walk through FlashAttention's algorithm and discuss the trade-offs of each version (1, 2, 3)."
+    ],
+    "values": [],
+    "other": [
+      "Do I need CUDA experience?",
+      "How does Fireworks compare to Together AI and Modal?",
+      "What is FireAttention?",
+      "Is the growth sustainable?",
+      "Is remote work supported?"
+    ]
+  },
+  "difficulty": 8.5,
+  "tips": [
+    "Implement attention in CUDA. Even a weekend with FlashAttention pays off meaningfully.",
+    "Measure Fireworks performance. Compare to peers on your own workload. Have numbers.",
+    "Read the performance literature. FlashAttention, PagedAttention, speculative decoding, quantization papers.",
+    "Engage with trade-offs. Accuracy vs speed, cost vs latency, memory vs compute &mdash; the whole spectrum.",
+    "Prepare performance-obsession stories. Past projects where you obsessed over optimization.",
+    "Fireworks AI engineering blog (posts on FireAttention, speculative decoding, quantization)",
+    "FlashAttention papers (Tri Dao) &mdash; 1, 2, 3",
+    "vLLM PagedAttention paper",
+    "Speculative decoding papers (original Chen et al. 2022, Medusa, Lookahead, etc.)",
+    "Programming Massively Parallel Processors by Hwu, Kirk, Hajj",
+    "Fireworks' API &mdash; run real benchmarks before interviewing"
+  ],
+  "compensation": [
+    "Software Engineer: $190k&ndash;$235k base, $200k&ndash;$400k equity (4 years), modest bonus. Total: ~$330k&ndash;$520k / year.",
+    "Senior Software Engineer: $240k&ndash;$300k base, $420k&ndash;$800k equity. Total: ~$480k&ndash;$750k / year.",
+    "Staff Engineer: $305k&ndash;$380k base, $850k&ndash;$1.5M equity. Total: ~$680k&ndash;$1M+ / year.",
+    "The kernel-engineering depth is genuinely frontier-adjacent. Not a lightweight \"wrap vLLM\" operation.",
+    "FireAttention and other proprietary optimizations represent meaningful IP.",
+    "The competitive landscape (Together AI, Groq for different hardware, Anyscale, cloud-provider offerings) drives real urgency.",
+    "Compensation for kernel-specialist roles is competitive with frontier labs given the scarce skill pool.",
+    "Weak CUDA / kernel fundamentals for kernel roles. \"I've written Python CUDA wrappers\" is not kernel engineering.",
+    "Hand-waving on attention-algorithm details for performance rounds.",
+    "Ignoring the cost dimension in system design &mdash; Fireworks' customers are cost-sensitive.",
+    "Not having measured Fireworks vs competitors on real workloads."
+  ],
+  "rawSummary": "Fireworks AI Interview Guide 2026: Fastest Inference, CUDA Kernels, FireAttention, and Speculative Decoding\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 24, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Fireworks AI Interview Process: Complete 2026 Guide\n\n- Frequently Asked Questions\n\n- What This Role Pays and How to Weigh the Equity\n\nUpdated June 30, 2026 · techinterview.org\n\n⏱ 10 min read\n\nFireworks AI\nfireworks.ai ↗\n\nTL;DR &mdash; Fireworks AI interviews center on one thing: can you make large-model inference genuinely fast, so expect rounds that go deep on GPU performance engineering alongside standard coding and system design. Be ready to reason about custom CUDA kernels, the FireAttention attention implementation, speculative decoding, and the throughput-versus-latency tradeoffs of batching and KV-cache management. Strong candidates explain not just what these techniques do but where they break down under real serving constraints like memory bandwidth and tail latency.\n\nFireworks AI Interview Process: Complete 2026 Guide\n\nOverview\n\nFireworks AI is the inference-speed-focused AI platform serving open-source and custom models through the fastest API endpoints in the market. Founded 2022 by Lin Qiao (previously lead of Meta's PyTorch team), the company has distinguished itself from peers through extreme-low-latency inference achieved via custom CUDA kernels, FireAttention (their proprietary attention implementation), proprietary model compilation, and a serving stack engineered specifically for speed over general-purpose flexibility. Private with Series B (2024) and continued growth into 2025 as enterprise customers prioritized inference-performance for agentic workloads. ~120 employees in 2026, headquartered in Redwood City with global remote engineering. Fireworks serves many of the fastest-growing AI-product companies that need hosted inference without building their own kernel-optimization teams. Interviews reflect the reality of a kernel-engineering-heavy platform &mdash; expect genuine CUDA depth, low-level performance optimization skills, and research-engineering sensibility.\n\nInterview Structure\n\nRecruiter screen (30 min): background, why Fireworks, team interest. The engineering surface is compact but specialized: inference engine (CUDA / kernels), compilation and model optimization, serving stack (batching, scheduling, routing), platform (API, SDK, multi-tenant management), and enterprise deployment. Triage matters sharply.\n\nTechnical phone screen (60 min): one coding problem, medium-hard. Python for SDK / product; C++ / CUDA for kernel-engineering; Go / Rust for some infrastructure. Problems tilt toward ML-systems applied &mdash; implement an inference primitive, reason about GPU memory, build a batching scheduler.\n\nTake-home (many senior / staff roles): 4&ndash;8 hours on a realistic performance-engineering problem. For kernel roles, often involves CUDA implementation; for platform, systems problems.\n\nOnsite / virtual onsite (4&ndash;5 rounds):\n\n- Coding (2 rounds): one algorithms round, one applied ML-systems round. Difficulty is solidly hard for kernel roles &mdash; comparable to Nvidia core teams or frontier-lab inference teams.\n\n- System design (1 round): inference-serving prompts. \"Design the fastest-possible serving path for a 70B model with sub-200ms first-token latency.\" \"Design multi-tenant GPU allocation with strict cost-aware SLAs.\" \"Design the FireAttention kernel integration across different model architectures.\"\n\n- ML / performance deep-dive (1&ndash;2 rounds for kernel / research engineering): CUDA internals, attention optimization, quantization schemes, speculative decoding, kernel-level performance analysis.\n\n- Behavioral / hiring manager: past projects, comfort with performance-obsessed culture, customer empathy for AI-application developers.\n\nTechnical Focus Areas\n\nCoding: C++ / CUDA for kernel-engineering roles; Python for SDK and ML-platform work; Go / Rust for infrastructure. Real CUDA fluency is expected for kernel teams.\n\nCUDA and GPU kernels: memory hierarchy optimization (registers, shared memory, HBM utilization), Tensor Core programming, warp-level primitives, CUDA graph API, async copies, occupancy tuning, writing kernels that approach roofline performance.\n\nAttention optimization: FlashAttention-family algorithms (1, 2, 3), paged attention (vLLM-style KV-cache management), speculative attention, grouped-query attention (GQA), sliding-window attention, and Fireworks' proprietary FireAttention optimizations.\n\nQuantization: FP16 / BF16, FP8 (H100 / Blackwell), INT8 weight-only, INT4 weight-only, AWQ, GPTQ, QLoRA, mixed-precision strategies. Engineers on serving teams need to reason about accuracy-vs-throughput trade-offs.\n\nServing architecture: continuous batching with fairness, prefill / decode phase separation, KV-cache management, speculative decoding implementation, tensor parallelism for inference, multi-tenant GPU isolation.\n\nModel compilation: tracin"
+}

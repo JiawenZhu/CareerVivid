@@ -70,6 +70,44 @@ describe('recommendation profile keyword extraction', () => {
         expect(fit.missingKeywords).toEqual(['GraphQL', 'AI']);
     });
 
+    it('uses a nontechnical role title as a matching signal', () => {
+        const keywords = extractRecommendationProfileKeywords({
+            resumes: [{
+                title: 'Lifecycle Marketing Resume',
+                personalDetails: {
+                    jobTitle: 'Lifecycle Marketing Manager',
+                    firstName: '',
+                    lastName: '',
+                    email: '',
+                    phone: '',
+                    address: '',
+                    city: '',
+                    postalCode: '',
+                    country: '',
+                    photo: '',
+                },
+                skills: [{ id: 'crm', name: 'CRM', level: 'Advanced' }],
+                employmentHistory: [{
+                    id: 'role-1',
+                    jobTitle: 'Lifecycle Marketing Manager',
+                    employer: 'Acme',
+                    city: '',
+                    startDate: '',
+                    endDate: '',
+                    description: '',
+                }],
+            }],
+        });
+
+        const fit = getProfileKeywordFit(
+            'The Lifecycle Marketing Manager will own CRM campaigns and retention programs.',
+            keywords
+        );
+
+        expect(keywords).toEqual(expect.arrayContaining(['Lifecycle Marketing Resume', 'Lifecycle Marketing Manager', 'CRM']));
+        expect(fit.matchedKeywords).toEqual(expect.arrayContaining(['Lifecycle Marketing Manager', 'CRM']));
+    });
+
     it('does not invent profile terms when no resume or portfolio signals exist', () => {
         expect(extractRecommendationProfileKeywords({ resumes: [], portfolios: [] })).toEqual([]);
     });

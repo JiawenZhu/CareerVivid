@@ -1,0 +1,35 @@
+{
+  "company": "SoundCloud",
+  "slug": "soundcloud-interview-guide",
+  "url": "https://www.techinterview.org/companies/soundcloud-interview-guide",
+  "scrapedAt": "2026-07-02T07:26:34.343Z",
+  "interviewStages": [
+    "Behavioral: creator focus, ownership, mature platform"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is SoundCloud remote-friendly?",
+      "How does SoundCloud compare to Spotify or Apple Music?",
+      "What is the engineering culture?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "SoundCloud Interview Guide (2026): Audio Streaming Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nSoundCloud\nsoundcloud.com ↗\n\nSoundCloud is the largest creator-driven audio platform — millions of independent artists, podcasts, and creators. The interview emphasizes audio streaming, content moderation, and the unique challenge of running a creator-economy product.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design audio streaming with adaptive bitrate\n\n- Design copyright detection and content fingerprinting\n\n- Design recommendation algorithm for music discovery\n\n- Coding: medium DSA, often with audio or recommendation framing\n\n- Behavioral: creator focus, ownership, mature platform\n\nLevels and comp (2026)\n\n- SE II: EUR 65K–85K (Berlin); $135K–$170K (US)\n\n- Senior SE: EUR 90K–115K / $200K–$260K\n\n- Staff: EUR 130K–170K / $290K–$380K\n\n- Principal: EUR 180K+ / $400K–$520K\n\nEuropean-tier comp; below US peers but with strong work-life balance.\n\nPrep priorities\n\n- Be fluent in Scala / Go (newer services); some Ruby (legacy)\n\n- Understand audio formats, codecs, streaming protocols\n\n- Brush up on content fingerprinting and copyright detection\n\nFrequently Asked Questions\n\nIs SoundCloud remote-friendly?\n\nHybrid in Berlin (HQ), NYC. Many engineering roles fully remote within EU.\n\nHow does SoundCloud compare to Spotify or Apple Music?\n\nSpotify is the dominant streaming platform. Apple Music targets premium users. SoundCloud owns the creator-driven niche. Comp is below Spotify.\n\nWhat is the engineering culture?\n\nEuropean tech: collaborative, mission-driven (support creators), calm pace.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for SoundCloud? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextKnowledge Base System Low-Level Design: Article Versioning, Full-Text Search, and Feedback Loop⏱ 8 min readTwo Pointers Interview Patterns: Pair Sum, Triplets, Container With Most Water (2025)⏱ 6 min readSystem Design: Consensus Algorithms — Raft, Paxos, Leader Election, and Distributed Agreement⏱ 6 min read"
+}

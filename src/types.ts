@@ -228,7 +228,7 @@ export interface UserProfile {
   academicPartnerId?: string; // For students: ID of their professor
   referralStats?: {
     totalReferred: number;      // Count of successful referrals
-    maxReferrals: number;        // Maximum allowed (5 for premium users)
+    maxReferrals: number;        // Maximum allowed (15 for premium users)
     referredUsers: string[];     // UIDs of referred users
   };
 
@@ -282,6 +282,38 @@ export interface TranscriptEntry {
   timestamp?: number;
 }
 
+export interface QuestCodingArtifact {
+  type: 'coding';
+  challengeId: string;
+  language: 'javascript' | 'python' | 'cpp' | 'java' | 'csharp';
+  code: string;
+  codeByLanguage?: Partial<Record<'javascript' | 'python' | 'cpp' | 'java' | 'csharp', string>>;
+}
+
+export interface QuestCodingDraft {
+  challengeId: string;
+  language: 'javascript' | 'python' | 'cpp' | 'java' | 'csharp';
+  code: string;
+  codeByLanguage?: Partial<Record<'javascript' | 'python' | 'cpp' | 'java' | 'csharp', string>>;
+  updatedAt: number;
+}
+
+export interface QuestSystemDesignArtifact {
+  type: 'system_design';
+  challengeId: string;
+  /**
+   * Firestore cannot persist deeply nested arrays inside arrayUnion payloads.
+   * Store whiteboard scene data as JSON strings for new reports, while keeping
+   * the array fields optional so older local/report records can still reopen.
+   */
+  elementsJson?: string;
+  filesJson?: string;
+  elements?: any[];
+  files?: Record<string, any>;
+}
+
+export type QuestPracticeArtifact = QuestCodingArtifact | QuestSystemDesignArtifact;
+
 export interface InterviewAnalysis {
   id: string;
   timestamp: number;
@@ -292,6 +324,7 @@ export interface InterviewAnalysis {
   strengths: string;
   areasForImprovement: string;
   transcript: TranscriptEntry[];
+  questArtifact?: QuestPracticeArtifact;
 }
 
 export interface InterviewSessionDraft {
@@ -313,6 +346,8 @@ export interface PracticeHistoryEntry {
   section?: string;
   transcript?: TranscriptEntry[];
   activeInterviewDraft?: InterviewSessionDraft | null;
+  /** Coding work is keyed by challenge so changing problems never replaces another draft. */
+  activeCodingDrafts?: Record<string, QuestCodingDraft>;
 }
 
 // --- Job Tracker Types ---
@@ -406,9 +441,17 @@ export interface STARStory {
   updatedAt?: any;
 }
 
+/** Validation state of an external apply link (mirrors functions/src/scrapedJobs.ts). */
+export type JobLinkValidationStatus = 'valid' | 'stale' | 'expired' | 'blocked' | 'unknown';
+
 export interface JobApplicationData {
   id: string; // Firestore doc ID
   userId: string;
+
+  // External apply-link validation (set when the job came from the verified feed)
+  externalLinkValidationStatus?: JobLinkValidationStatus;
+  externalLinkValidationReason?: string;
+  externalLinkValidatedAt?: number | null;
 
   // Core Job Info
   jobTitle: string;
@@ -1052,4 +1095,84 @@ export interface SOPData {
   /** Freeform BlockNote content zones keyed by zone ID (e.g. "before-0", "after-last") */
   customBlocks?: Record<string, string>;
   layoutMode?: 'standard' | 'manual' | 'business';
+}
+
+// --- Gamification / Learner Progress Types ---
+
+export type XpEventType =
+  | 'interview_completed'
+  | 'daily_login'
+  | 'resume_created'
+  | 'lesson_completed'
+  | 'quest_stage_cleared'
+  | 'quest_completed';
+
+export interface XpEvent {
+  /** Deterministic dedupe key, doubles as the Firestore doc id (e.g. `interview_analysis_123`). */
+  id: string;
+  type: XpEventType;
+  xp: number;
+  createdAt: number;
+  meta?: Record<string, string | number | boolean>;
+}
+
+export interface BadgeAward {
+  id: string;
+  earnedAt: number;
+}
+
+export interface StreakState {
+  current: number;
+  longest: number;
+  /** Local calendar day of last qualifying activity, formatted YYYY-MM-DD. */
+  lastActiveDay: string;
+}
+
+export interface ProgressCounters {
+  interviewsCompleted: number;
+  interviewsPassed: number;
+  lessonsCompleted: number;
+  questStagesCleared: number;
+}
+
+export interface UserProgress {
+  xp: number;
+  level: number;
+  streak: StreakState;
+  badges: BadgeAward[];
+  counters: ProgressCounters;
+  updatedAt: number;
+}
+
+// --- Company Quest Types ---
+
+export interface QuestStageResult {
+  bestScore: number;
+  attempts: number;
+  clearedAt: number | null;
+  lastAnalysisId: string;
+  /**
+   * Coding and system-design stages: ids of the challenges the user has
+   * already solved for this company. Lets the quest hand out a fresh problem
+   * or prompt from the company's pool each time the user comes back.
+   */
+  clearedChallengeIds?: string[];
+}
+
+export interface CompanyQuestProgress {
+  slug: string;
+  company: string;
+  stageResults: Record<string, QuestStageResult>;
+  startedAt: number;
+  completedAt: number | null;
+  updatedAt: number;
+}
+
+// --- Learning Course Types ---
+
+export interface CourseProgress {
+  completedModuleIds: string[];
+  startedAt: number;
+  completedAt: number | null;
+  updatedAt: number;
 }

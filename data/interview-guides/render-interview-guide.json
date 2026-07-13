@@ -1,0 +1,35 @@
+{
+  "company": "Render",
+  "slug": "render-interview-guide",
+  "url": "https://www.techinterview.org/companies/render-interview-guide",
+  "scrapedAt": "2026-07-02T07:25:42.380Z",
+  "interviewStages": [
+    "Behavioral: ownership, customer empathy, working in small teams"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Render hiring aggressively?",
+      "How does Render compare to Vercel or Railway?",
+      "What stack does Render use?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Render Interview Guide (2026): Cloud Platform Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nRender\nrender.com ↗\n\nRender is the modern alternative to Heroku — git-push deploys, managed databases, simple pricing, and a developer experience tuned for indie hackers and growing startups. The interview is small-team practical and rewards generalists who can ship across the stack.\n\nProcess\n\nRecruiter screen → 60-minute technical phone (DSA + practical question) → onsite virtual: 1 coding pair, 1 system design, 1 past-project deep dive, 1 behavioral. Cycle: 2–4 weeks. Render hires deliberately — small team, high bar.\n\nWhat they actually ask\n\n- Design a managed Postgres service with point-in-time recovery and read replicas\n\n- Design a build pipeline that deploys from git push to running container\n\n- Design log streaming from thousands of customer applications to a queryable backend\n\n- Coding: practical refactors or feature additions, often in Go or TypeScript\n\n- Behavioral: ownership, customer empathy, working in small teams\n\nLevels and comp (2026)\n\n- SE: $180K–$240K total\n\n- Senior SE: $260K–$340K\n\n- Staff: $360K–$470K\n\n- Principal: $480K–$620K\n\nPrep priorities\n\n- Be fluent with Kubernetes, container orchestration, and PaaS architectural patterns\n\n- Know your way around Postgres, Redis, and managed-database operational concerns\n\n- Demonstrate startup hustle — Render values shippers\n\nFrequently Asked Questions\n\nIs Render hiring aggressively?\n\nSelective and growing. Engineering team is in the low hundreds. Most roles are SF-hybrid or remote within US.\n\nHow does Render compare to Vercel or Railway?\n\nRender is broader (full PaaS + databases) than Vercel (frontend-first). Comparable scope to Railway with a more mature operational track record.\n\nWhat stack does Render use?\n\nGo for the core platform, TypeScript for frontend/dashboard, Kubernetes for orchestration.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Render? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextSearch Autocomplete System Low-Level Design⏱ 9 min readShard Rebalancing Low-Level Design: Split/Merge Triggers, Data Migration, and Minimal Downtime⏱ 8 min readLow Level Design: Memory Allocator Design⏱ 3 min read"
+}

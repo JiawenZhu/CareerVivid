@@ -1,0 +1,92 @@
+{
+  "company": "Discord",
+  "slug": "discord",
+  "url": "https://www.techinterview.org/companies/discord",
+  "scrapedAt": "2026-07-02T07:21:56.736Z",
+  "interviewStages": [
+    "System design (1 round): real-time messaging / consumer-scale prompts. \"Design the message-fanout system delivering 1M messages/sec to users across millions of channels.\" \"Design the voice-routing system for 10K simultaneous multi-user voice calls per region.\" \"Design moderation workflows for user-reported content at 200M MAU scale.\"",
+    "Behavioral / hiring manager: past projects, real-time systems experience, consumer-product empathy."
+  ],
+  "codingTopics": [
+    "Implement a publish / subscribe primitive with fan-out semantics",
+    "Build a connection manager handling many concurrent WebSocket-like connections",
+    "Parse a streaming event log with backpressure and ordering guarantees",
+    "Implement a rate limiter or circuit breaker with per-user fairness",
+    "Classic algorithm problems (trees, graphs, heaps) with real-time-systems twists (message ordering across shards, priority-based routing)"
+  ],
+  "systemDesignTopics": [
+    "\"Design the message-fanout system delivering messages across millions of channels to 200M users.\"",
+    "\"Design the voice-routing system for 10K concurrent multi-user voice calls per region with optimal latency.\"",
+    "\"Design the safety-moderation pipeline handling user reports and automated detection at scale.\"",
+    "\"Design the Activities platform letting third-party apps run embedded in Discord channels.\"",
+    "\"What makes Discord great for communities? What's broken?\"",
+    "\"If you were improving Discord for server owners / moderators, what would you prioritize?\"",
+    "\"How do you think about the tension between safety enforcement and community autonomy?\"",
+    "\"What's your take on Discord's commerce / Activities platform direction?\""
+  ],
+  "behavioralTopics": [
+    "Real-time systems experience: \"Tell me about a high-scale real-time system you contributed to.\"",
+    "Consumer empathy: \"Describe a time you deeply understood a consumer user's problem.\"",
+    "Cross-functional work: \"Discord's work spans product, moderation, platform. Tell me about coordinating across multiple teams.\"",
+    "Ownership: \"Describe a production incident you owned end-to-end.\""
+  ],
+  "sampleQuestions": {
+    "coding": [
+      "Implement a publish / subscribe primitive with fan-out semantics. Talk through your approach, complexity, and edge cases.",
+      "Build a connection manager handling many concurrent WebSocket-like connections. Talk through your approach, complexity, and edge cases.",
+      "Parse a streaming event log with backpressure and ordering guarantees. Talk through your approach, complexity, and edge cases.",
+      "Implement a rate limiter or circuit breaker with per-user fairness. Talk through your approach, complexity, and edge cases.",
+      "Implement a fixed-size ring buffer for sensor readings with O(1) reads and writes and no dynamic allocation. Walk through the concurrency considerations."
+    ],
+    "behavioral": [
+      "Tell me about a high-scale real-time system you contributed to.",
+      "Describe a time you deeply understood a consumer user's problem.",
+      "Discord's work spans product, moderation, platform. Tell me about coordinating across multiple teams.",
+      "Describe a production incident you owned end-to-end.",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
+    "systemDesign": [
+      "Design the message-fanout system delivering messages across millions of channels to 200M users.",
+      "Design the voice-routing system for 10K concurrent multi-user voice calls per region with optimal latency.",
+      "Design the safety-moderation pipeline handling user reports and automated detection at scale.",
+      "Design the Activities platform letting third-party apps run embedded in Discord channels. Cover the API, data model, and how it scales.",
+      "Design a service at Discord scale that shortens URLs. Cover the API, storage, and hot-key handling."
+    ],
+    "values": [],
+    "other": [
+      "Do I need Rust / Elixir to get hired?",
+      "How does Discord compare to Slack on interviews?",
+      "What's the commerce / Activities platform direction?",
+      "How much does the 2023&ndash;2024 rightsizing affect culture?",
+      "Is remote work supported?"
+    ]
+  },
+  "difficulty": 7.5,
+  "tips": [
+    "Use Discord actively. Run a server, join communities, try voice channels. Concrete experience signals.",
+    "Read the engineering blog. Discord publishes depth that's directly applicable to interview prep.",
+    "Know Elixir / Rust fundamentals if targeting those teams. Surface familiarity isn't enough.",
+    "Engage with safety & moderation. Have an informed position.",
+    "Prepare consumer-empathy stories. Discord's users are real and varied &mdash; gamers, hobbyists, creators, educators, professionals.",
+    "Discord engineering blog (especially posts on ScyllaDB migration, Rust rewrites, Elixir messaging, voice infrastructure)",
+    "Programming Elixir by Dave Thomas",
+    "The Rust Programming Language (the official book)",
+    "Designing Data-Intensive Applications (Kleppmann)",
+    "Webrtc.org documentation for voice / video context",
+    "Discord itself &mdash; active usage across different community types for 2+ weeks"
+  ],
+  "compensation": [
+    "Software Engineer: $180k&ndash;$220k base, $130k&ndash;$250k equity (4 years), modest bonus. Total: ~$275k&ndash;$430k / year.",
+    "Senior Software Engineer: $230k&ndash;$290k base, $280k&ndash;$520k equity. Total: ~$380k&ndash;$580k / year.",
+    "Staff Engineer: $295k&ndash;$360k base, $550k&ndash;$1M equity. Total: ~$540k&ndash;$850k / year.",
+    "The engineering technical depth is genuinely distinctive. Real-time messaging and voice at Discord scale is novel engineering.",
+    "The Rust / Elixir stack is real, not fashion. Performance-critical services are in Rust; messaging runs on Elixir / Erlang OTP.",
+    "Trust & Safety is a substantial engineering investment, not an outsourced function.",
+    "Product / user round genuinely weights authentic usage. Infrequent users struggle.",
+    "Not using Discord. Interviewers will notice within minutes of the product round.",
+    "Hand-waving on real-time systems. \"We'd use WebSockets\" isn't enough; engage with scaling specifics.",
+    "Weak Rust or Elixir knowledge when targeting teams that use them.",
+    "Dismissing safety / moderation as boring. It's one of Discord's hardest engineering problems."
+  ],
+  "rawSummary": "Discord Interview Guide 2026: Real-Time Messaging, Elixir + Rust, Voice Infrastructure, and Trust & Safety\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 24, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\tUpdated April 24, 2026 · techinterview.org\n\n⏱ 9 min read\n\nDiscord\ndiscord.com ↗\n\nDiscord Interview Process: Complete 2026 Guide\n\nOverview\n\nDiscord is the communications platform originally built for gamers that has grown into a general-purpose community and communication tool with ~200M monthly active users across millions of servers in 2026. Founded 2015 by Jason Citron and Stanislav Vishnevskiy, private with a 2021 valuation of $15B and subsequent tender offers. ~1,200 employees in 2026 after 2023&ndash;2024 rightsizing cycles that narrowed focus back to core communication and community product. Headquartered in San Francisco with significant remote engineering presence. The platform handles real-time messaging, voice / video, community management, activities (in-channel games and applications), and increasingly creator and commerce features. Discord is famous in engineering circles for its Rust-backend rewrite of performance-critical services (from Go / Elixir originally), its aggressive use of Elixir for real-time messaging at scale, and publicly-written-about engineering work on message storage (moving from Cassandra to ScyllaDB) and real-time infrastructure. Interviews reflect the distinctive combination of real-time-systems depth, consumer-scale reality, and gaming-adjacent culture.\n\nInterview Structure\n\nRecruiter screen (30 min): background, why Discord, team preference. The engineering surface: messaging infrastructure (Elixir / Rust), voice / video (WebRTC, custom stack), client (React / TypeScript on web, Swift / Kotlin on mobile, Electron for desktop), data / ML (safety, moderation, recommendations), platform (activities, commerce), and infrastructure.\n\nTechnical phone screen (60 min): one coding problem, medium-hard. Python for infrastructure / tools; TypeScript for web client; Rust for performance-critical services; Elixir for messaging; Swift / Kotlin for mobile. Problems tilt applied &mdash; implement an event handler, build a pub/sub primitive, handle a streaming update.\n\nTake-home (some senior / staff roles): 4&ndash;6 hours on a realistic engineering problem.\n\nOnsite / virtual onsite (4&ndash;5 rounds):\n\n- Coding (1&ndash;2 rounds): one algorithms round, one applied systems round. The applied round often involves real-time primitives &mdash; implement a chat-message fan-out, build a connection pool for WebSocket clients, handle a streaming event with backpressure.\n\n- System design (1 round): real-time messaging / consumer-scale prompts. \"Design the message-fanout system delivering 1M messages/sec to users across millions of channels.\" \"Design the voice-routing system for 10K simultaneous multi-user voice calls per region.\" \"Design moderation workflows for user-reported content at 200M MAU scale.\"\n\n- Domain / real-time-systems deep-dive (1 round): WebSocket / gateway architecture, pub/sub at scale, eventual-consistency semantics for message history, voice-media routing, or Elixir / Rust idioms depending on role.\n\n- Product / user round (1 round): distinctive at Discord. Discussion of Discord as a product, community dynamics, creator / server-owner UX. Candidates who use Discord deeply have a clear edge.\n\n- Behavioral / hiring manager: past projects, real-time systems experience, consumer-product empathy.\n\nTechnical Focus Areas\n\nCoding: depending on target team, different language focus. Python for tools / data; TypeScript for web; Rust for high-performance services (Discord has actively rewritten performance bottlenecks in Rust); Elixir for messaging backend; Swift / Kotlin for mobile.\n\nReal-time messaging: WebSocket gateway at massive scale, connection management for millions of concurrent clients, pub/sub fan-out, delivery guarantees under at-least-once semantics, client-reconnection handling, presence and awareness.\n\nElixir / OTP: Discord runs substantial Elixir for real-time messaging. OTP fundamentals (GenServer, Supervisor, Registry), actor-model intuition, distributed-Erlang clustering, monitoring and observability for BEAM processes.\n\nRust: high-performance services in Rust where Elixir / Go don't meet latency / throughput needs. Discord's famous \"Why Discord is switching from Go to Rust\" blog post documents their read-states service rewrite; similar rewrites continued for other bottlenecks.\n\nStorage: Discord's move from Cassandra to ScyllaDB for message storage is widely discussed. For data / infrastructure roles, understanding this and the reasoning (tail latency, operational overhead) matters.\n\nVoice / video: custom SFU for voice, WebRTC for client connections, codec integration (Opus for voice), NAT traversal, regional routing for latency optimization.\n\nClient engineering: React / TypeScript for web and desktop (Electron), native iOS / Android, handling thousands of real-time events per "
+}

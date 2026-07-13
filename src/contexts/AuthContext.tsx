@@ -231,7 +231,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Legacy: Only use isPremium if there's NO expiresAt (true backward compat)
         const hasLegacyPremium = expiresAtMillis === null && userData.promotions?.isPremium === true;
 
-        const isPremiumNow = isPaidPlan || hasLegacyPremium;
+        const hasValidExpiry = expiresAtMillis === null || expiresAtMillis > now;
+        const isPremiumNow = hasValidExpiry && (isPaidPlan || hasLegacyPremium);
         setIsPremium(isPremiumNow);
 
         // Set AI Usage with plan-specific limits
@@ -270,7 +271,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         // AUTO-CLEANUP: Reset expired users to free plan
         // AUTO-CLEANUP: Reset expired users to free plan (if they still have legacy plan IDs)
-        if (!isPremiumNow && (userData.plan as any === 'pro_sprint' || userData.plan as any === 'pro_monthly')) {
+        if (!isPremiumNow && isPaidPlan && expiresAtMillis !== null) {
           if (expiresAtMillis !== null && expiresAtMillis < now) {
             // Plan expired, reset to free
             try {

@@ -29,7 +29,9 @@ export const Logo: React.FC<LogoProps> = ({ className = "h-8 w-8" }) => {
     <img
       src={src}
       alt="CareerVivid Logo"
-      className={defaultClass}
+      // Brand rule: the mark is always circular. The source PNG is a square
+      // tile, so clip it round everywhere it renders.
+      className={`aspect-square rounded-full object-cover ${defaultClass}`}
       // @ts-ignore - fetchpriority is a valid attribute for performance optimization
       fetchpriority="high"
     />

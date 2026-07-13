@@ -1,0 +1,65 @@
+{
+  "company": "Kraken",
+  "slug": "kraken-interview-guide",
+  "url": "https://www.techinterview.org/companies/kraken-interview-guide",
+  "scrapedAt": "2026-07-02T07:17:55.523Z",
+  "interviewStages": [
+    "Recruiter screen (30 min). Background, role fit, regulatory check (criminal background, financial history).",
+    "Technical phone screen (60–90 min). One coding problem plus discussion of relevant systems.",
+    "Hiring manager interview. Past projects, motivation for working in crypto.",
+    "Take-home assignment (some teams). A multi-hour project relevant to the team's work, often involving rate-limited APIs or financial data.",
+    "Virtual onsite (4–5 rounds)."
+  ],
+  "codingTopics": [
+    "1 system design (often financial-systems flavored)",
+    "1 domain knowledge round (for senior+ — crypto-specific or financial-systems-specific)",
+    "1 behavioral / values round",
+    "Final review with senior engineering or executive team.",
+    "Standard coding: arrays, strings, hash maps, graphs, dynamic programming",
+    "Order book and matching engine concepts: price-time priority, partial fills, limit-vs-market orders",
+    "Concurrency: producer-consumer, lock-free data structures, race conditions in financial systems",
+    "Cryptographic fundamentals: signing, hashing, hierarchical deterministic wallets, multi-signature schemes",
+    "For institutional services: settlement workflows, custody architecture, audit logs"
+  ],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Implement a double-entry ledger that processes a stream of transactions and detects imbalances. How do you guarantee idempotency when a transaction is delivered twice?",
+      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph.",
+      "Find the k most frequent elements in a stream. Which data structure do you use and why?",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Do I need to be a crypto enthusiast to work at Kraken?",
+      "Is Kraken really fully remote?",
+      "Will background checks block hiring?",
+      "How does Kraken compare to Coinbase?",
+      "Can I work in crypto without security background?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [
+    "Technical: 6–8 weeks of LeetCode plus financial-systems-flavored system design",
+    "Crypto domain: read the Bitcoin and Ethereum whitepapers, understand UTXO vs account models, hot vs cold wallets, common attack vectors",
+    "Concurrency: deep familiarity with thread-safety, lock-free programming concepts",
+    "Behavioral: stories about high-stakes work, regulatory awareness, security-conscious engineering",
+    "Coinbase &mdash; public US crypto exchange",
+    "Circle, Ripple, Chainalysis &mdash; stablecoin, payment network, blockchain analytics",
+    "Robinhood &mdash; consumer trading"
+  ],
+  "compensation": [
+    "Mid: $150–200K base + $50–120K equity/year + bonus → $250–380K total",
+    "Senior: $200–260K base + $130–250K equity/year → $400–600K total",
+    "Staff: $260–340K base + $250–500K equity/year → $600–900K total"
+  ],
+  "rawSummary": "Kraken Interview Guide (2026): Process, Questions, Compensation\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 2, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Interview process\n\n- Common technical questions\n\n- The crypto-domain round\n\n- Regulatory and security context\n\n- Compensation (2026 estimates)\n\n- Preparation\n\n- Frequently Asked Questions\n\n- Adjacent Crypto and Trading\n\nUpdated May 2, 2026 · techinterview.org\n\n⏱ 3 min read\n\nKraken\nkraken.com ↗\n\nKraken Interview Guide\n\nCompany overview: Kraken is one of the largest US-based digital asset exchanges, founded in 2011. Headquartered (legally) in Wilmington, Delaware, but with a fully-remote engineering organization across the US, Europe, and elsewhere. Engineering domains include the spot exchange, the futures exchange, the staking platform, the institutional services arm, and the wallet products. Kraken has a long-standing remote-first culture predating the pandemic.\n\nInterview process\n\nTimeline: 4–7 weeks. Sometimes longer due to extensive background checks (financial-services regulatory requirements).\n\n- Recruiter screen (30 min). Background, role fit, regulatory check (criminal background, financial history).\n\n- Technical phone screen (60–90 min). One coding problem plus discussion of relevant systems.\n\n- Hiring manager interview. Past projects, motivation for working in crypto.\n\n- Take-home assignment (some teams). A multi-hour project relevant to the team's work, often involving rate-limited APIs or financial data.\n\n- Virtual onsite (4–5 rounds).\n\n2 coding rounds\n\n- 1 system design (often financial-systems flavored)\n\n- 1 domain knowledge round (for senior+ — crypto-specific or financial-systems-specific)\n\n- 1 behavioral / values round\n\n- Final review with senior engineering or executive team.\n\nCommon technical questions\n\n- Standard coding: arrays, strings, hash maps, graphs, dynamic programming\n\n- Order book and matching engine concepts: price-time priority, partial fills, limit-vs-market orders\n\n- Concurrency: producer-consumer, lock-free data structures, race conditions in financial systems\n\n- Cryptographic fundamentals: signing, hashing, hierarchical deterministic wallets, multi-signature schemes\n\n- For institutional services: settlement workflows, custody architecture, audit logs\n\nThe crypto-domain round\n\nSenior+ candidates face a domain-specific round that tests crypto knowledge: how does Bitcoin's UTXO model differ from Ethereum's account model, what are the main consensus mechanisms (proof of work, proof of stake), how do Layer 2 systems work (Lightning, rollups), what are the security considerations of hot vs cold wallets. Candidates without crypto background often struggle here even with strong general engineering. Kraken's hiring philosophy values mission alignment — candidates who are clearly just chasing crypto-industry compensation without genuine interest are filtered out.\n\nRegulatory and security context\n\nKraken operates under significant regulatory scrutiny in the US (NYDFS BitLicense, various state money transmitter licenses) and internationally. The interview process includes background checks that are more extensive than typical tech companies. Financial-history concerns can disqualify candidates from some roles.\n\nCompensation (2026 estimates)\n\n- Mid: $150–200K base + $50–120K equity/year + bonus → $250–380K total\n\n- Senior: $200–260K base + $130–250K equity/year → $400–600K total\n\n- Staff: $260–340K base + $250–500K equity/year → $600–900K total\n\nKraken is private; equity is in the form of options or RSUs with periodic liquidity events. Some compensation can be paid in cryptocurrency at the employee's option. Compensation is generally competitive with tier-2 fintech and below tier-1 FAANG cash, with crypto-market-correlated upside on equity.\n\nPreparation\n\n- Technical: 6–8 weeks of LeetCode plus financial-systems-flavored system design\n\n- Crypto domain: read the Bitcoin and Ethereum whitepapers, understand UTXO vs account models, hot vs cold wallets, common attack vectors\n\n- Concurrency: deep familiarity with thread-safety, lock-free programming concepts\n\n- Behavioral: stories about high-stakes work, regulatory awareness, security-conscious engineering\n\nFrequently Asked Questions\n\nDo I need to be a crypto enthusiast to work at Kraken?\n\nMission alignment is valued. You do not need to hold significant crypto, but you should understand and have positive regard for the technology. Candidates who are openly skeptical of crypto are filtered out.\n\nIs Kraken really fully remote?\n\nYes, since long before the pandemic. The company has no physical headquarters in the conventional sense; engineering teams meet annually in person but work distributed otherwise.\n\nWill background checks block hiring?\n\nFor most roles, standard background checks apply. For roles handling customer funds or wallet keys, more extensive checks (financial history, residence verification) are standard. Past financial issues can be disqualifying for some positions.\n\n"
+}

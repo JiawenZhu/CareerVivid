@@ -28,6 +28,11 @@ const WhiteboardEditor = React.lazy(() => import('./pages/WhiteboardEditor'));
 const AgentPage = React.lazy(() => import('./pages/AgentPage'));
 const GenerationHub = React.lazy(() => import('./pages/GenerationHub')); // Protected
 const InterviewStudio = lazyWithPreload(() => import('./pages/InterviewStudio')); // Protected
+const CompanyQuestPage = React.lazy(() => import('./pages/CompanyQuestPage')); // Protected
+const SystemDesignCoursePracticePage = React.lazy(() => import('./pages/SystemDesignCoursePracticePage'));
+const CoursePage = React.lazy(() => import('./pages/CoursePage')); // Protected
+const InteractiveLessonPage = React.lazy(() => import('./pages/InteractiveLessonPage')); // Protected
+const CourseResumePage = React.lazy(() => import('./pages/CourseResumePage'));
 const ProfilePage = React.lazy(() => import('./pages/ProfilePage')); // Protected
 const ChatBot = React.lazy(() => import('./components/ChatBot'));
 const AuthPage = React.lazy(() => import('./pages/AuthPage'));
@@ -113,6 +118,7 @@ const DndWorkspaceProvider = React.lazy(() => import('./components/DndWorkspaceP
 
 // Navigation utility
 import { navigate, getPathFromUrl } from './utils/navigation';
+import { isCourseFreeForGuests } from './config/accessPolicy';
 
 
 const LoadingFallback = () => (
@@ -184,7 +190,10 @@ const AppContent: React.FC = () => {
       void JobTrackerPage.preload();
     };
 
-    if ('requestIdleCallback' in window) {
+    // `typeof` check (not `'x' in window`) so TS doesn't narrow `window` to
+    // `never` in the fallback branch — requestIdleCallback is always in the
+    // lib type, but not always implemented (e.g. Safari).
+    if (typeof window.requestIdleCallback === 'function') {
       const idleId = window.requestIdleCallback(preloadCoreWorkspaceRoutes, { timeout: 3500 });
       return () => window.cancelIdleCallback(idleId);
     }
@@ -195,6 +204,7 @@ const AppContent: React.FC = () => {
 
   // SEO Helper runs on every render to update canonical tags
   // Since App.tsx re-renders on path changes (due to setPath), this works perfectly.
+  const isLearningRoute = path === '/learning' || path.startsWith('/learning/');
 
   useEffect(() => {
     const onPathChange = () => {
@@ -322,7 +332,6 @@ const AppContent: React.FC = () => {
               <SEOHelper isRobotsAllowed />
               <RouteSuspense routeKey={path}>
                 <ExtensionWelcomePage />
-                {currentUser && !loading && <ChatBot />}
               </RouteSuspense>
             </div>
           </NavigationProvider>
@@ -398,7 +407,7 @@ const AppContent: React.FC = () => {
   let showChatbot = false;
 
   if (currentUser && !(!isEmailVerified && currentUser.providerData[0]?.providerId === 'password')) {
-    showChatbot = true;
+    showChatbot = path === '/dashboard';
   }
 
   // 1. Verify Email Handling via specific route or override
@@ -491,15 +500,54 @@ const AppContent: React.FC = () => {
       content = null; // Will trigger redirect
     }
 
-    // Interview Studio
+    // Interview Studio — the catalog is browsable by guests (SaaS storefront);
+    // deep links with a jobId still require an account.
     else if (path.startsWith('/interview-studio')) {
       const parts = path.split('/');
       const jobId = parts[2];
-      content = (
+      content = jobId ? (
         <ProtectedRoute>
           <InterviewStudio jobId={jobId} />
         </ProtectedRoute>
+      ) : (
+        <InterviewStudio jobId={jobId} />
       );
+    }
+
+    // Company Quest — every quest page is browsable by guests (the storefront);
+    // RUNNING a stage prompts the in-page auth gate, since attempts are scored
+    // and consume AI credits.
+    else if (path.startsWith('/quest/')) {
+      const slug = path.split('/')[2];
+      content = <CompanyQuestPage slug={slug} />;
+    }
+
+    // AI-agent learning curriculum / course catalog — browsable by guests.
+    else if (path === '/learning' || path.startsWith('/learning/')) {
+      content = <CoursePage />;
+    }
+
+    // Interactive code-along lesson: /learn/:courseId/:exerciseId
+    // The free course is open to everyone; the rest of the catalog needs an account.
+    else if (path.startsWith('/learn/')) {
+      const parts = path.split('/');
+      const courseId = parts[2];
+      const exerciseId = parts[3] || '';
+      if (!exerciseId) {
+        const resume = <CourseResumePage courseId={courseId} />;
+        content = isCourseFreeForGuests(courseId) ? resume : <ProtectedRoute>{resume}</ProtectedRoute>;
+      }
+      else if (parts[4] === 'mock') {
+        const practice = <SystemDesignCoursePracticePage courseId={courseId} exerciseId={exerciseId} />;
+        content = isCourseFreeForGuests(courseId) ? practice : <ProtectedRoute>{practice}</ProtectedRoute>;
+      } else {
+      const lesson = (
+        <InteractiveLessonPage key={`${courseId}/${exerciseId}`} courseId={courseId} exerciseId={exerciseId} />
+      );
+      content = isCourseFreeForGuests(courseId) ? lesson : (
+        <ProtectedRoute>{lesson}</ProtectedRoute>
+      );
+      }
     }
 
     // Portfolio Hub (Main Dashboard for Portfolios)
@@ -785,29 +833,31 @@ const AppContent: React.FC = () => {
               titleTemplate="%s | CareerVivid"
               defaultTitle="CareerVivid | The AI That Gets You Hired"
             />
-            <SEOHelper
-              isRobotsAllowed={![
-                '/dashboard',
-                '/onboarding',
-                '/quick-start',
-                '/profile',
-                '/billing',
-                '/subscription',
-                '/developer',
-                '/my-posts',
-                '/commerce',
-                '/checkout',
-                '/newresume',
-                '/job-tracker',
-                '/interview-studio',
-                '/portfolio',
-                '/whiteboard',
-                '/folder',
-                '/edit',
-                '/referrals',
-                '/extension-auth-complete',
-              ].some(p => path.startsWith(p))}
-            />
+            {!isLearningRoute && (
+              <SEOHelper
+                isRobotsAllowed={![
+                  '/dashboard',
+                  '/onboarding',
+                  '/quick-start',
+                  '/profile',
+                  '/billing',
+                  '/subscription',
+                  '/developer',
+                  '/my-posts',
+                  '/commerce',
+                  '/checkout',
+                  '/newresume',
+                  '/job-tracker',
+                  '/interview-studio',
+                  '/portfolio',
+                  '/whiteboard',
+                  '/folder',
+                  '/edit',
+                  '/referrals',
+                  '/extension-auth-complete',
+                ].some(p => path.startsWith(p))}
+              />
+            )}
             <RouteSuspense routeKey={path}>
               {content}
               {showChatbot && <ChatBot />}

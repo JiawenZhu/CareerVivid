@@ -10,6 +10,7 @@ export type ScrapedRecommendedJob = {
     workModel: WorkModel;
     salary: string;
     jobType: string;
+    jobFunction?: string;
     seniority: string;
     postedAt: string | number | null;
     source: 'scraped';
@@ -30,6 +31,12 @@ export type ScrapedRecommendedJob = {
     updatedAt?: number | null;
 };
 
+export type ScrapedJobLocationPreferences = {
+    country: string;
+    locations: string[];
+    workModelPreference: 'remote' | 'hybrid' | 'onsite' | 'flexible';
+};
+
 export type ValidatedJobOpenResult = {
     jobId: string;
     finalUrl: string;
@@ -47,14 +54,19 @@ export type ValidatedExternalJobLinkResult = {
 
 export const getRecommendedScrapedJobs = async (
     limit = 40,
-    profileKeywords: string[] = []
+    profileKeywords: string[] = [],
+    locationPreferences?: ScrapedJobLocationPreferences
 ): Promise<ScrapedRecommendedJob[]> => {
-    const callable = httpsCallable<{ limit: number; profileKeywords?: string[] }, { jobs: ScrapedRecommendedJob[] }>(
+    const callable = httpsCallable<{
+        limit: number;
+        profileKeywords?: string[];
+        locationPreferences?: ScrapedJobLocationPreferences;
+    }, { jobs: ScrapedRecommendedJob[] }>(
         functions,
         'getRecommendedScrapedJobs'
     );
 
-    const result = await callable({ limit, profileKeywords: profileKeywords.slice(0, 40) });
+    const result = await callable({ limit, profileKeywords: profileKeywords.slice(0, 40), locationPreferences });
     return result.data.jobs || [];
 };
 

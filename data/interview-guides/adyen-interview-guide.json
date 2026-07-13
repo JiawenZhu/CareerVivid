@@ -1,0 +1,35 @@
+{
+  "company": "Adyen",
+  "slug": "adyen-interview-guide",
+  "url": "https://www.techinterview.org/companies/adyen-interview-guide",
+  "scrapedAt": "2026-07-02T07:16:23.502Z",
+  "interviewStages": [
+    "Behavioral: long-form, looking for clarity of thinking and customer focus"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Adyen remote-friendly?",
+      "How does Adyen compare to Stripe?",
+      "What languages does Adyen use?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Adyen Interview Guide (2026): Global Payments Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nAdyen\nadyen.com ↗\n\nAdyen is one of the world's largest payment processors — Spotify, Uber, eBay, McDonald's, and Microsoft all run their payments through Adyen. The interview is unusually demanding for the payments space: heavy on Java internals, distributed transactions, and the realities of moving billions of dollars across hundreds of payment methods globally.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (medium DSA) → onsite virtual loop of 5–6 rounds: 2 coding (one DSA, one Java-flavored), 1 system design, 1 craft deep-dive, 1 behavioral, 1 hiring manager. Senior+ candidates get an additional architecture round. Cycle: 4–6 weeks (Adyen is famously slow).\n\nWhat they actually ask\n\n- Design a global payment routing system with fallbacks across multiple processors\n\n- Design idempotent payment processing — must never double-charge\n\n- Design a fraud detection pipeline that runs in <200ms on every transaction\n\n- Coding: Java DSA medium-hard, often with concurrency and nullability traps\n\n- Behavioral: long-form, looking for clarity of thinking and customer focus\n\nLevels and comp (2026)\n\n- SE: €70K–€95K total (Amsterdam)\n\n- Senior SE: €110K–€150K\n\n- Staff: €160K–€220K\n\n- Principal: €240K–€320K\n\nNote: Adyen pays in Euros and the comp is significantly below FAANG-level US comp. EU norms apply.\n\nPrep priorities\n\n- Be deeply fluent in Java — the entire core platform is Java with minimal alternative languages\n\n- Read about double-entry accounting, ledger systems, and PCI-DSS compliance\n\n- Brush up on consensus protocols, distributed transactions, and exactly-once delivery\n\nFrequently Asked Questions\n\nIs Adyen remote-friendly?\n\nHybrid in Amsterdam (HQ), San Francisco, Singapore, Sao Paulo, and Madrid. Some flexibility for senior+ roles. EU-style work-life balance is the norm.\n\nHow does Adyen compare to Stripe?\n\nStripe is developer-API-first and SMB-friendly. Adyen is enterprise-payments-first and processor-flexible. Stripe pays significantly more on cash and equity for US-based roles.\n\nWhat languages does Adyen use?\n\nJava dominates. Some Scala, Python for tooling. The core Adyen engineer is a Java specialist.\n\nSimilar company guides\n\nAmerican Expressinterview guideCapital Oneinterview guideMarqetainterview guideWiseinterview guideKlarnainterview guideCartainterview guide\n\nPrepping for Adyen? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextFog Creek Programmers⏱ 5 min readAI/ML Interview: Natural Language Processing — Text Classification, NER, Sentiment Analysis, QA, Summarization⏱ 6 min readSystem Design: Design Ticketmaster — Event Ticketing, Seat Selection, Virtual Queue, Flash Sale, Dynamic Pricing⏱ 6 min read"
+}

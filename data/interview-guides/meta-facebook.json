@@ -1,0 +1,47 @@
+{
+  "company": "Meta",
+  "slug": "meta-facebook",
+  "url": "https://www.techinterview.org/companies/meta-facebook",
+  "scrapedAt": "2026-07-02T07:12:55.775Z",
+  "interviewStages": [
+    "Coding Interviews (2 rounds): Two 45-minute sessions solving algorithmic problems. Expect questions on arrays, graphs, trees, dynamic programming. Meta emphasizes code quality and edge cases.",
+    "System Design (1 round): Design large-scale systems like News Feed, Instagram Stories, or WhatsApp. Focus on scalability, data modeling, and trade-offs.",
+    "Behavioral/Jedi (1-2 rounds): Meta's cultural interview focusing on \"Move Fast,\" \"Be Bold,\" and other company values. Prepare STAR-format stories showing impact."
+  ],
+  "codingTopics": [
+    "Graphs: BFS, DFS, shortest path, friend suggestions, network analysis",
+    "Trees: Binary tree traversals, BST operations, lowest common ancestor",
+    "Arrays/Strings: Subarray problems, string parsing, two-pointer techniques",
+    "Hash Maps: Frequency analysis, caching, deduplication",
+    "System Design: Social networks, messaging systems, news feeds, recommendation engines"
+  ],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph.",
+      "Serialize and deserialize a binary tree. Walk through your encoding choices, complexity, and edge cases.",
+      "Given an array of integers, find the longest contiguous subarray whose sum equals a target. Discuss complexity and edge cases.",
+      "Design a data structure supporting insert, delete, and get-random in O(1). Explain your reasoning.",
+      "Implement an LRU cache with O(1) get and put. Then explain how you would make it thread-safe without serializing all access."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [],
+    "values": [],
+    "other": []
+  },
+  "difficulty": null,
+  "tips": [
+    "Speed Matters: Meta interviews are time-pressured. Practice solving medium problems in 25-30 minutes.",
+    "Focus on Graph Problems: Given Meta's social network focus, graph algorithms appear frequently.",
+    "Write Clean Code: Use meaningful variable names, handle edge cases, and test your code thoroughly.",
+    "Product Thinking: For system design, think about user experience and product features, not just backend architecture.",
+    "Show Impact: In behavioral rounds, quantify your achievements with metrics and data."
+  ],
+  "compensation": null,
+  "rawSummary": "Meta (Facebook)\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  February 1, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\tUpdated February 1, 2026 · techinterview.org\n\n⏱ 1 min read\n\nMeta (Facebook)\nmeta.com ↗\n\nInterview Process Overview\n\nMeta (formerly Facebook) is known for fast-paced interviews that emphasize coding speed, product thinking, and cultural fit. The interview process moves quickly, and candidates are expected to write production-quality code efficiently.\n\nWhat to Expect\n\nRecruiter Screen: Initial conversation about your background, interest in Meta, and technical experience. This is also where salary expectations are discussed.\n\nTechnical Phone Screen (1-2 rounds): 45-minute coding interviews using CoderPad. Focus on algorithms and data structures with medium difficulty problems. You'll need to write compilable, working code.\n\nOnsite/Virtual Onsite (4-5 rounds):\n\n- Coding Interviews (2 rounds): Two 45-minute sessions solving algorithmic problems. Expect questions on arrays, graphs, trees, dynamic programming. Meta emphasizes code quality and edge cases.\n\n- System Design (1 round): Design large-scale systems like News Feed, Instagram Stories, or WhatsApp. Focus on scalability, data modeling, and trade-offs.\n\n- Behavioral/Jedi (1-2 rounds): Meta's cultural interview focusing on \"Move Fast,\" \"Be Bold,\" and other company values. Prepare STAR-format stories showing impact.\n\nCommon Question Topics\n\n- Graphs: BFS, DFS, shortest path, friend suggestions, network analysis\n\n- Trees: Binary tree traversals, BST operations, lowest common ancestor\n\n- Arrays/Strings: Subarray problems, string parsing, two-pointer techniques\n\n- Hash Maps: Frequency analysis, caching, deduplication\n\n- System Design: Social networks, messaging systems, news feeds, recommendation engines\n\nPreparation Tips\n\n- Speed Matters: Meta interviews are time-pressured. Practice solving medium problems in 25-30 minutes.\n\n- Focus on Graph Problems: Given Meta's social network focus, graph algorithms appear frequently.\n\n- Write Clean Code: Use meaningful variable names, handle edge cases, and test your code thoroughly.\n\n- Product Thinking: For system design, think about user experience and product features, not just backend architecture.\n\n- Show Impact: In behavioral rounds, quantify your achievements with metrics and data.\n\nInterview Culture\n\nMeta values builders who ship fast and iterate. Demonstrate bias for action, willingness to take risks, and ability to work in ambiguous situations. The company culture emphasizes moving quickly and making data-driven decisions.\n\nLast Updated: February 2026\n\nSimilar company guides\n\nServiceNowinterview guideSAPinterview guideCiscointerview guideOracleinterview guideAdobeinterview guideSalesforceinterview guide\n\nPrepping for Meta (Facebook)? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextUber⏱ 1 min readPerplexity Interview Guide 2026: AI Answer Engine, Retrieval and Ranking, Comet Browser, and Product-First AI⏱ 8 min readWells Fargo Interview Guide 2026: US-Domestic Bank Tech, Asset Cap Era, Modernization⏱ 7 min read"
+}

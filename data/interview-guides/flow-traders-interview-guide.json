@@ -1,0 +1,56 @@
+{
+  "company": "Flow Traders",
+  "slug": "flow-traders-interview-guide",
+  "url": "https://www.techinterview.org/companies/flow-traders-interview-guide",
+  "scrapedAt": "2026-07-02T07:17:29.690Z",
+  "interviewStages": [
+    "Coding (1–2 rounds, for engineering) — algorithms, often with practical engineering flavor",
+    "Mental math + probability (1–2 rounds, for trader) — under time pressure",
+    "Trading game / case study (1 round, for trader) — practical trading scenarios, sometimes simulator-based",
+    "System design (1 round, for engineering) — trading systems, latency, ETF-specific architecture",
+    "Behavioral / cultural fit (1 round) — collaboration, Dutch business culture fit"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "A function intermittently fails in production. Walk me through how you would reproduce, isolate, and fix the bug.",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [
+      "Design Flow Traders's trading systems platform — cover latency, ETF-specific architecture. Walk through the architecture, trade-offs, and failure modes.",
+      "Design a service at Flow Traders scale that shortens URLs. Cover the API, storage, and hot-key handling.",
+      "Design a rate limiter for a public API. Discuss algorithms, distributed coordination, and failure modes."
+    ],
+    "values": [],
+    "other": [
+      "Should I work at Flow Traders or Optiver?",
+      "What's the trader training program like?",
+      "How does the 30% Dutch tax ruling work for new hires?",
+      "How is the crypto ETF expansion going?",
+      "Is Flow Traders a good place for early-career engineers?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": [
+    "New-grad trader / SWE (Amsterdam): €70k–€150k base + bonus = €100k–€250k total in normal years; up to €500k+ in volatility-spike years",
+    "Mid-level (4–7 years): €150k–€500k normal; €500k–€1.5M+ in good years",
+    "Senior (8+ years): €400k–€1.5M normal; €1.5M–€5M+ in good years",
+    "Senior trader / partner: €1M–€10M+ in good years",
+    "The ETF specialization is more substantial than candidates expect — the team's depth in ETF microstructure is genuinely distinctive.",
+    "The Amsterdam culture is meaningfully different from US HFT firms — pragmatic, direct, lower-key. Some engineers find this refreshing; others find it under-stimulating.",
+    "The compensation volatility is real — record years (2020) pay exceptionally well; quiet years pay normally. Multi-year average is what matters.",
+    "The 30% Dutch tax ruling is materially valuable for international hires — verify eligibility.",
+    "The \"trader-led\" culture limits engineer career ceilings somewhat compared to Jane Street where engineers and traders blend roles. Engineers wanting to move toward trading might find more flexibility elsewhere."
+  ],
+  "rawSummary": "Flow Traders Interview Guide 2026: ETF Market Making Specialist, Amsterdam HQ\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 30, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Flow Traders Interview Guide 2026: ETF Market Making Specialist, Amsterdam HQ, European Quant Trading Pure Play\n\n- What Flow Traders Does\n\n- Roles Flow Traders Hires For\n\n- Flow Traders Interview Process\n\n- What Flow Traders Tests For\n\n- Compensation\n\n- Working at Flow Traders\n\n- Flow Traders vs Alternatives\n\n- Things That Surprise Candidates\n\n- Frequently Asked Questions\n\nUpdated April 30, 2026 · techinterview.org\n\n⏱ 8 min read\n\nFlow Traders\nflowtraders.com ↗\n\nFlow Traders Interview Guide 2026: ETF Market Making Specialist, Amsterdam HQ, European Quant Trading Pure Play\n\nFlow Traders (Euronext: FLOW) is the largest ETF market maker in Europe and one of the most distinctive specialty HFT firms globally. Founded in 2004 by Roger Hodenius and Jan van Kuijk, the firm built its position on ETF market making — providing liquidity in exchange-traded funds across European, US, and Asian markets. Unlike multi-asset HFT firms (Jane Street, Citadel Securities), Flow Traders is highly specialized: ~80%+ of revenue comes from ETF market making. The hiring process reflects the firm's distinctive Dutch culture — pragmatic, less aggressive than US peers, and explicitly anti-corporate. This guide covers what Flow Traders does, the engineering tracks, the interview process, and what makes Flow Traders hiring distinctive in 2026.\n\nWhat Flow Traders Does\n\nFlow Traders is the most ETF-focused major market maker globally:\n\n- ETF market making (primary business): providing liquidity in 14,000+ ETFs across European, US, and Asian markets. Quotes in primary markets (creation/redemption) and secondary markets (exchange order books).\n\n- Fixed income ETF market making: growing area; bond ETFs increasingly important as fixed income trading shifts to electronic platforms.\n\n- Crypto ETF market making: the firm extended into crypto ETF (Bitcoin / Ethereum) market making in 2023–2024 as spot crypto ETFs launched globally. Distinct from peer crypto firms (Wintermute, Galaxy) which trade underlying crypto rather than ETF wrappers.\n\n- Other liquidity provision: some equity, FX, options market making but smaller portion of revenue. The ETF specialization is the firm's identity.\n\n- Public company: Euronext: FLOW since 2015 IPO. Profitability has been highly volatile (correlated to ETF trading volume which spikes in volatility periods); 2020 was record year, 2022-2023 weaker, 2024-2025 recovering.\n\nDistinctive features:\n\n- ETF specialization: few firms are this focused on a single product category. The expertise gives Flow Traders information advantages in ETF microstructure that broader HFT firms lack.\n\n- Amsterdam headquartered: distinct from US-headquartered HFT peers and London-headquartered competitors (XTX). Dutch business culture: pragmatic, direct, less status-driven.\n\n- \"Trader-led\" culture: Flow Traders explicitly markets itself as trader-led rather than tech-led, distinguishing from peers like Jane Street where engineers and traders blend. Traders make trading decisions; engineers support.\n\n- Volatility-correlated revenue: ETF market making revenue spikes when markets are volatile (more trading, wider spreads). Compensation reflects this — boom years pay exceptionally well; quiet years pay normally.\n\n- Dutch tax treatment: 30% ruling for international hires in Netherlands provides material tax savings for new arrivals; affects net comp comparison with US / UK firms.\n\nRoles Flow Traders Hires For\n\nTrader / quant trader\n\nManages ETF market making books, quotes prices, manages risk. The most prestigious track at Flow Traders. Junior traders go through a structured 12-month training program before getting their own book.\n\nSoftware engineer (low-latency / trading systems)\n\nBuilds the trading infrastructure — exchange connectivity, order management, risk systems, ETF-specific creation/redemption integration. C++ heavy; some Java in older systems; Python for analytics / research. Performance engineering is real given ETF arbitrage's latency requirements.\n\nQuantitative researcher / analyst\n\nStatistical research on ETF microstructure, signal extraction, market regime analysis. Smaller team than traders; supports the trading desk.\n\nSoftware engineer (data / research platform)\n\nBuilds the research environments and data infrastructure used by traders and quants. Python primary.\n\nRisk engineer\n\nReal-time risk monitoring, exposure management across global ETF positions. ETF market making creates unique risk profiles given the underlying basket dynamics.\n\nNetwork / systems engineer\n\nLatency-critical network engineering — co-location strategies, hardware optimization, fiber routing decisions. Specialized work.\n\nOperations / settlements engineer\n\nETF creation/redemption settlement, custody integration, prime broker management. Real engineering complexity given ETF settlem"
+}

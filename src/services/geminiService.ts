@@ -3,6 +3,12 @@ import { generateSafeUUID } from '../constants';
 import { trackUsage } from './trackingService';
 import { reportError } from './errorService';
 import { AI_CREDIT_COSTS } from '../config/creditCosts';
+import {
+    createFallbackSystemDesignPlan,
+    normalizeSystemDesignPlan,
+    type SystemDesignDiagramPlan,
+    type SystemDesignDiagramStyle,
+} from '../lib/systemDesignDiagram';
 
 // --- Configuration ---
 const PROXY_URL = import.meta.env.VITE_GEMINI_PROXY_URL || 'https://us-west1-jastalk-firebase.cloudfunctions.net/geminiProxy';
@@ -670,9 +676,68 @@ export const generalChat = async (userId: string, history: { role: 'user' | 'mod
     }
 };
 
+/**
+ * "AI coding companion" for interactive lessons: answers questions about the
+ * current exercise and the learner's own code. Coaches toward the answer —
+ * explains concepts and points at the bug — rather than just handing over a
+ * finished solution.
+ */
+export const askCodingCompanion = async (
+    userId: string,
+    context: { exerciseTitle: string; exerciseContent: string; language: string; code: string },
+    history: { role: 'user' | 'model', parts: { text: string }[] }[],
+    question: string,
+): Promise<string> => {
+    const systemInstruction = `You are a friendly, encouraging coding tutor inside CareerVivid's interactive lessons.
+
+The learner is on this exercise: "${context.exerciseTitle}"
+
+Exercise instructions:
+---
+${context.exerciseContent}
+---
+
+Their current ${context.language} code:
+---
+${context.code || '(empty)'}
+---
+
+Answer their question. Explain the relevant concept and, if their code has a bug, point at what's wrong and why — but do NOT just hand them the complete corrected solution unless they explicitly ask for the answer. Keep responses short (2-5 sentences) and encouraging.`;
+
+    try {
+        const result = await callGeminiProxy({
+            modelName: DEFAULT_TEXT_MODEL,
+            contents: [...history, { role: 'user', parts: [{ text: question }] }],
+            systemInstruction,
+        });
+
+        const tokenUsage = result.response?.usageMetadata?.totalTokenCount || 0;
+        await trackUsage(userId, 'ai_assistant_query', { tokenUsage });
+
+        return result.text;
+    } catch (error) {
+        console.error('Error in coding companion chat:', error);
+        reportError(error as Error, { functionName: 'askCodingCompanion' });
+        return "Sorry, I couldn't answer that right now. Please try again.";
+    }
+};
+
 export const generateInterviewQuestions = async (userId: string, prompt: string): Promise<string[]> => {
     try {
-        const fullPrompt = `Based on the following description, generate a list of 5-7 insightful interview questions...`;
+        const fullPrompt = `You are a senior interviewer designing the question set for a real interview. Use the context below to write questions that a candidate would actually be asked in this specific interview.
+
+--- INTERVIEW CONTEXT ---
+${prompt.trim()}
+--- END CONTEXT ---
+
+Write 5 to 7 interview questions that:
+- Are specific to the role, seniority, company, and interview stage described in the context. If the context names a company or a stage (e.g. coding, system design, behavioral, values), tailor every question to it.
+- Match the stated difficulty. Entry-level gets fundamentals; senior gets depth, trade-offs, and scale.
+- Are a realistic mix for this stage, not five variations of the same question. Include at least one that probes depth with a follow-up built in ("...and how would you handle X?").
+- Are answerable out loud in an interview — concrete and self-contained, not essay prompts or take-home tasks.
+- Reference the candidate's background from the context when it is provided, to make questions feel targeted.
+
+Do not number the questions or add preamble. Return ONLY a JSON array of question strings.`;
         const result = await callGeminiProxy({
             modelName: DEFAULT_TEXT_MODEL,
             contents: fullPrompt,
@@ -685,7 +750,8 @@ export const generateInterviewQuestions = async (userId: string, prompt: string)
         const tokenUsage = result.response?.usageMetadata?.totalTokenCount || 0;
         await trackUsage(userId, 'question_generation', { tokenUsage });
 
-        return JSON.parse(result.text.trim()) as string[];
+        const parsed = JSON.parse(result.text.trim()) as string[];
+        return Array.isArray(parsed) ? parsed.map(q => String(q).trim()).filter(Boolean) : [];
     } catch (error) {
         console.error("Error generating interview questions:", error);
         reportError(error as Error, { functionName: 'generateInterviewQuestions' });
@@ -717,28 +783,63 @@ export const analyzeInterviewTranscript = async (userId: string, transcript: Tra
     try {
         const formattedTranscript = transcript.map(entry => `${entry.speaker === 'ai' ? 'Interviewer' : 'Candidate'}: ${entry.text}`).join('\n\n');
 
-        const fullPrompt = `You are an expert interview coach. Your task is to analyze the following interview transcript and provide a structured, objective, and constructive feedback report in JSON format. The interview was for the role described as: '${prompt}'.
-...
+        const fullPrompt = `You are an experienced interviewer writing an honest, calibrated feedback report after an interview. Judge the CANDIDATE only — the Interviewer lines are the questions asked. Base every judgment on what the candidate actually said in the transcript; never invent strengths or answers that are not there.
+
+Role / interview context:
+${prompt}
+
+## MANDATORY PROCEDURE — follow in order, write findings into rubricFindings first
+Step 1 — TALLY: list every question the interviewer asked. For each, note in one line: answered fully / answered partially / dodged or no answer, plus the strongest specific detail the candidate gave (metric, name, example) or "no specifics".
+Step 2 — RUBRIC: score each dimension from the tally using the bands below. A dimension score must be explainable purely from your tally lines.
+Step 3 — Write feedback bullets; every bullet must reference a specific question or quote from the transcript.
+
+Scoring bands — all scores 0 to 100. Calibrate against a real hiring bar; typical decent candidates land 60-80:
+- 85-100: strong hire — specific, structured, correct, with depth. Reserve 95+ for at most 1 in 20 candidates; NEVER give 100 if you list any improvement for that dimension.
+- 70-84: hire — solid answers with minor gaps.
+- 50-69: mixed — partially answered, vague, or shallow in places.
+- 30-49: weak — mostly vague, off-target, or missing key substance.
+- 0-29: no signal — barely answered, evasive, or empty transcript.
+
+Score each dimension:
+- communicationScore: structure, clarity, and concision. Did they organize answers (e.g. STAR) and stay easy to follow? Rambling or unstructured answers on 2+ questions caps this at 75.
+- confidenceScore: composure and conviction WITHOUT arrogance. Hedging, rambling, or "I don't know" with no attempt lowers this.
+- relevanceScore: did answers actually address the questions and the role, with concrete detail (metrics, examples, specifics) rather than generic filler? Any question fully dodged caps this at 70; two or more cap it at 55.
+- overallScore: your holistic hire/no-hire read, weighted toward relevance and substance — it may not exceed the highest dimension score.
+
+Hard rules:
+- Empty transcript or barely-responding candidate → everything below 30, say so plainly.
+- One-line or single-word answers are NOT specific: they cannot earn above 60 on relevance no matter how correct.
+- Never credit knowledge the candidate did not state. Judge the words in the transcript, not plausible intent.
+
+Feedback rules:
+- strengths: 2-4 markdown bullets, each citing something specific the candidate actually said (quote or close paraphrase). No generic praise.
+- areasForImprovement: 2-4 markdown bullets, each an actionable fix tied to a concrete moment ("When asked about X, you said Y — instead, quantify the impact and name the trade-off"). Be direct and useful, not soft.
+
 **Transcript:**
 ---
 ${formattedTranscript}
 ---
-...
-Your entire response MUST be a valid JSON object that conforms to the provided schema.`;
+
+Return ONLY a valid JSON object conforming to the schema.`;
 
         const config = {
             responseMimeType: "application/json",
             responseSchema: {
                 type: "OBJECT",
                 properties: {
-                    overallScore: { type: "NUMBER", description: "A weighted average score from 0 to 100." },
+                    // Generated FIRST so the weak model tallies every question
+                    // before committing to scores (structured chain-of-thought).
+                    rubricFindings: { type: "STRING", description: "Working notes: one tally line per interviewer question (answered fully/partially/dodged + strongest specific detail). Written before any score." },
                     communicationScore: { type: "NUMBER", description: "A score from 0 to 100 for communication skills." },
                     confidenceScore: { type: "NUMBER", description: "A score from 0 to 100 for confidence." },
                     relevanceScore: { type: "NUMBER", description: "A score from 0 to 100 for answer relevance." },
+                    overallScore: { type: "NUMBER", description: "Holistic hire read; may not exceed the highest dimension score." },
                     strengths: { type: "STRING", description: "A markdown-formatted string summarizing the candidate's strengths." },
                     areasForImprovement: { type: "STRING", description: "A markdown-formatted string with actionable tips for improvement." }
                 },
+                propertyOrdering: ['rubricFindings', 'communicationScore', 'confidenceScore', 'relevanceScore', 'overallScore', 'strengths', 'areasForImprovement'],
                 required: [
+                    'rubricFindings',
                     'overallScore',
                     'communicationScore',
                     'confidenceScore',
@@ -757,11 +858,237 @@ Your entire response MUST be a valid JSON object that conforms to the provided s
 
         await trackUsage(userId, 'interview_analysis', metadata);
 
-        return JSON.parse(result.text.trim());
+        // The scratchpad improved the scores; it is not part of the report.
+        const { rubricFindings: _rubricFindings, ...analysis } = JSON.parse(result.text.trim());
+        return analysis;
     } catch (error) {
         console.error("Error analyzing transcript:", error);
         reportError(error as Error, { functionName: 'analyzeInterviewTranscript' });
         throw new Error("Failed to analyze interview transcript.");
+    }
+};
+
+/**
+ * Scores a system design diagram (exported as a PNG data URL) against a design
+ * brief. Returns the same shape as analyzeInterviewTranscript so it plugs into
+ * the interview report + quest scoring. The four score fields carry
+ * system-design semantics: communicationScore = diagram clarity,
+ * confidenceScore = requirement coverage, relevanceScore = scalability & trade-offs.
+ */
+export const analyzeSystemDesignDiagram = async (
+    userId: string,
+    imageDataUrl: string,
+    brief: string,
+): Promise<Omit<InterviewAnalysis, 'id' | 'timestamp' | 'transcript'>> => {
+    try {
+        const base64Data = imageDataUrl.includes(',') ? imageDataUrl.split(',')[1] : imageDataUrl;
+        const mimeType = imageDataUrl.startsWith('data:image/jpeg') ? 'image/jpeg' : 'image/png';
+
+        const instruction = `You are a senior staff engineer grading a system design interview diagram. The candidate was given this brief:
+
+---
+${brief}
+---
+
+The attached image is the candidate's whiteboard diagram. Judge ONLY what is visibly drawn and labeled. Never credit intentions — if it is not in the diagram, it does not exist.
+
+## MANDATORY PROCEDURE — follow in order, write findings into rubricFindings first
+Step 1 — INVENTORY: list every labeled component, every arrow/connection, every data store, and every annotation you can actually read in the diagram.
+Step 2 — RUBRIC: score every checklist item below, citing the inventory. An item with no visible evidence scores 0.
+Step 3 — COMPUTE the three dimension scores by summing their items. Do not round up.
+Step 4 — Write feedback bullets, each citing a specific labeled element or a specific missing item.
+
+## CHECKLIST
+
+communicationScore (diagram clarity) = sum of:
+- [0-25] Components have specific labels (e.g. "order-router", "Postgres: tax lots") — generic boxes ("service", "DB") earn at most half.
+- [0-25] Directional arrows show request/data flow between components.
+- [0-25] Layout is organized in layers or groups (client → services → data); related parts are near each other.
+- [0-25] Readable as-is: no orphan boxes, no ambiguous crossings, a stranger could trace one request end-to-end.
+
+confidenceScore (requirement coverage) — the brief lists explicit requirements. Score each of the 4 requirements [0-25] strictly on visible evidence: fully addressed = 20-25, partially = 8-15, mentioned in a label but not designed = 3-7, absent = 0.
+
+relevanceScore (scale & trade-offs) = sum of:
+- [0-30] A concrete scaling mechanism appropriate to the problem (caching, load balancing, partitioning/sharding, batch windows, queues) is drawn AND placed correctly.
+- [0-25] Storage choices fit the data (e.g. ledger in a transactional store, hot data in cache); the diagram shows WHAT each store holds.
+- [0-25] At least one bottleneck or failure mode is explicitly called out with a visible mitigation (retry, DLQ, replica, circuit breaker).
+- [0-20] Trade-off awareness visible (sync vs async boundaries, consistency notes, backpressure, idempotency).
+
+overallScore = round(0.25 × communicationScore + 0.40 × confidenceScore + 0.35 × relevanceScore).
+
+## HARD RULES — violations make the report worthless
+- Empty or unreadable diagram → all scores under 30, say so plainly.
+- Fewer than 4 labeled components → confidenceScore ≤ 40.
+- No directional arrows → communicationScore ≤ 50.
+- Nothing addressing scale → relevanceScore ≤ 40.
+- 90+ on any dimension requires every one of its checklist items at ≥90% credit with cited evidence. Scores of 95+ should occur for at most 1 in 20 real submissions. NEVER output 100 unless literally nothing could be added or improved — if you list ANY area for improvement touching a dimension, that dimension must be below 95.
+- Every strengths bullet MUST name a specific labeled element from the inventory. Every improvement bullet MUST name the missing/weak item, why it matters at this scale, and the concrete fix. No generic advice ("add monitoring" alone is banned; say what to monitor and where).
+
+strengths: 2-4 markdown bullets. areasForImprovement: 3-5 markdown bullets, ordered by impact.
+
+Return ONLY a JSON object matching the schema. Fill rubricFindings FIRST (inventory + per-item scores), then the score fields must equal the sums you computed there.`;
+
+        const contents = {
+            parts: [
+                { text: instruction },
+                { inlineData: { mimeType, data: base64Data } },
+            ],
+        };
+
+        const config = {
+            responseMimeType: "application/json",
+            responseSchema: {
+                type: "OBJECT",
+                properties: {
+                    // Generated FIRST so the weak model does its checklist work
+                    // before committing to scores (structured chain-of-thought).
+                    rubricFindings: { type: "STRING", description: "Working notes: diagram inventory, then every checklist item with its awarded points and the evidence. Written before any score." },
+                    communicationScore: { type: "NUMBER", description: "Sum of the 4 clarity checklist items, 0 to 100." },
+                    confidenceScore: { type: "NUMBER", description: "Sum of the per-requirement coverage scores, 0 to 100." },
+                    relevanceScore: { type: "NUMBER", description: "Sum of the scale & trade-off checklist items, 0 to 100." },
+                    overallScore: { type: "NUMBER", description: "round(0.25*communication + 0.40*confidence + 0.35*relevance)." },
+                    strengths: { type: "STRING", description: "Markdown bullets, each citing a specific labeled element." },
+                    areasForImprovement: { type: "STRING", description: "Markdown bullets: missing item, why it matters, concrete fix." },
+                },
+                propertyOrdering: ['rubricFindings', 'communicationScore', 'confidenceScore', 'relevanceScore', 'overallScore', 'strengths', 'areasForImprovement'],
+                required: ['rubricFindings', 'overallScore', 'communicationScore', 'confidenceScore', 'relevanceScore', 'strengths', 'areasForImprovement'],
+            },
+        };
+
+        const result = await callGeminiProxy({ modelName: DEFAULT_TEXT_MODEL, contents, config });
+
+        const tokenUsage = result.response?.usageMetadata?.totalTokenCount || 0;
+        await trackUsage(userId, 'interview_analysis', { tokenUsage });
+
+        // The scratchpad improved the scores; it is not part of the report.
+        const { rubricFindings: _rubricFindings, ...analysis } = JSON.parse(result.text.trim());
+        return analysis;
+    } catch (error) {
+        console.error("Error analyzing system design diagram:", error);
+        reportError(error as Error, { functionName: 'analyzeSystemDesignDiagram' });
+        throw new Error("Failed to analyze system design diagram.");
+    }
+};
+
+export interface CodingSubmissionInput {
+    language: 'javascript' | 'python' | 'cpp' | 'java' | 'csharp';
+    code: string;
+    /** Challenge brief text (problem, requirements). */
+    brief: string;
+    /** Hidden + visible test outcomes from the in-browser runner, when supported. */
+    passed: number;
+    total: number;
+    /** Up to 5 failing cases as short strings. */
+    failures: string[];
+}
+
+/**
+ * Scores a coding-round submission. Correctness is decided by the real test
+ * run in the browser — the model is told the pass rate and must anchor
+ * confidenceScore to it, grading only approach, clarity, and complexity on
+ * top. Returns the same shape as analyzeInterviewTranscript so it plugs into
+ * the interview report + quest scoring: communicationScore = code clarity,
+ * confidenceScore = correctness (test pass rate), relevanceScore = efficiency
+ * & approach.
+ */
+export const analyzeCodingSubmission = async (
+    userId: string,
+    submission: CodingSubmissionInput,
+): Promise<Omit<InterviewAnalysis, 'id' | 'timestamp' | 'transcript'>> => {
+    try {
+        const hasSandboxResults = submission.total > 0;
+        const passRate = hasSandboxResults ? Math.round((submission.passed / submission.total) * 100) : 0;
+        const instruction = `You are a senior engineer grading a coding-interview submission against a strict rubric. The candidate was given this brief:
+
+---
+${submission.brief}
+---
+
+The candidate submitted this ${submission.language} solution:
+
+\`\`\`${submission.language}
+${submission.code}
+\`\`\`
+
+${hasSandboxResults ? `The solution was ALREADY EXECUTED against a hidden test suite in a sandbox. Ground truth (do not second-guess it):
+- Tests passed: ${submission.passed}/${submission.total} (${passRate}%)
+${submission.failures.length ? `- Failing cases:\n${submission.failures.map((f) => `  - ${f}`).join('\n')}` : '- All tests passed.'}` : `This language is not sandbox-executed in the browser yet. There are no hidden test results. Grade correctness by careful code review against the brief, expected edge cases, complexity, and language semantics.`}
+
+## MANDATORY PROCEDURE — follow in order, write findings into rubricFindings first
+Step 1 — READ the code line by line. In rubricFindings, state: the algorithm used, its actual time complexity and space complexity (as big-O), and the complexity the brief's requirements ask for.
+Step 2 — RUBRIC: score every checklist item below, quoting the exact identifier, expression, or line that justifies each award or deduction.
+Step 3 — COMPUTE the dimension scores by summing their items. Do not round up.
+Step 4 — Write feedback bullets; every bullet must quote a concrete construct from the code.
+
+## CHECKLIST
+
+confidenceScore (correctness) — anchored to ground truth:
+${hasSandboxResults ? `- Start at the pass rate: ${passRate}.
+- Subtract up to 10 ONLY if you identify a concrete input (outside the suite) that would fail, and name that input in rubricFindings.
+- Add up to 10 ONLY if pass rate < 100 and the failures are trivially fixable (e.g. off-by-one on an edge case) — name the fix.` : `- Start from your code-review estimate of functional correctness against the visible brief and examples.
+- Award 85-100 only when the code is complete, type-consistent, handles edge cases, and the algorithm clearly satisfies the requirements.
+- Award 50-84 for plausible but incomplete or edge-case-fragile code.
+- Award 0-49 for starter-code-only, non-compilable, or wrong-approach submissions.`}
+
+communicationScore (code clarity) = sum of:
+- [0-25] Naming: identifiers describe intent (deduct for single letters beyond loop indices, misleading names, inconsistent style).
+- [0-25] Structure: clean decomposition, no dead code, no duplicated logic, early returns over deep nesting (deduct per violation, cite it).
+- [0-25] Idiomatic ${submission.language}: uses the language's natural constructs (deduct for C-style loops where iterators fit, manual index bookkeeping where a map/set fits, reinvented builtins).
+- [0-25] Self-documentation: non-obvious logic has a WHY comment; obvious code is NOT commented (both over- and under-commenting deduct).
+
+relevanceScore (approach & efficiency) = sum of:
+- [0-40] Algorithm vs requirement: compare your Step-1 complexity against the brief's requirement. Meets it exactly = 32-40. Correct but one class worse (e.g. O(n log n) where O(n) asked) = 16-28. Brute force where better is explicitly required = 0-15.
+- [0-20] Data structure choice: the right structure for the access pattern, with justification.
+- [0-20] Edge cases handled IN CODE (empty input, single element, duplicates, negatives, boundaries) — credit only what the code visibly handles.
+- [0-20] No accidental inefficiency: deduct for O(n) lookups inside loops (includes/indexOf/in on arrays), repeated sorting, unnecessary copies, string concatenation in hot loops. Quote each offender.
+
+overallScore = round(0.45 × confidenceScore + 0.20 × communicationScore + 0.35 × relevanceScore).
+
+## HARD RULES — violations make the report worthless
+- Passing tests does NOT imply clean code: communicationScore and relevanceScore are judged from the source, and a 100% pass rate alone never justifies either being above 85.
+- 90+ on any dimension requires every one of its checklist items at ≥90% credit with quoted evidence. 95+ should occur for at most 1 in 20 real submissions. NEVER output 100 unless you can write, in rubricFindings, why not a single point could be deducted — and if you list ANY improvement touching a dimension, that dimension must be below 95.
+- The first improvement bullet MUST state the solution's actual time and space complexity and whether it meets the brief's requirement.
+- Every bullet quotes a concrete identifier, expression, or pattern from the submitted code. Generic advice ("consider edge cases", "improve naming") without a quoted example is banned.
+- Do not praise boilerplate or the starter scaffold; judge only what the candidate wrote.
+
+strengths: 2-4 markdown bullets. areasForImprovement: 3-5 markdown bullets, ordered by impact.
+
+Return ONLY a JSON object matching the schema. Fill rubricFindings FIRST; the score fields must equal the sums you computed there.`;
+
+        const contents = { parts: [{ text: instruction }] };
+
+        const config = {
+            responseMimeType: "application/json",
+            responseSchema: {
+                type: "OBJECT",
+                properties: {
+                    // Generated FIRST so the weak model does its checklist work
+                    // before committing to scores (structured chain-of-thought).
+                    rubricFindings: { type: "STRING", description: "Working notes: algorithm + actual big-O vs required, then every checklist item with awarded points and the quoted code evidence. Written before any score." },
+                    confidenceScore: { type: "NUMBER", description: "Pass rate with at most ±10 justified adjustment, 0 to 100." },
+                    communicationScore: { type: "NUMBER", description: "Sum of the 4 code-clarity checklist items, 0 to 100." },
+                    relevanceScore: { type: "NUMBER", description: "Sum of the approach & efficiency checklist items, 0 to 100." },
+                    overallScore: { type: "NUMBER", description: "round(0.45*confidence + 0.20*communication + 0.35*relevance)." },
+                    strengths: { type: "STRING", description: "Markdown bullets, each quoting a concrete construct from the code." },
+                    areasForImprovement: { type: "STRING", description: "Markdown bullets; first states actual time/space complexity vs requirement." },
+                },
+                propertyOrdering: ['rubricFindings', 'confidenceScore', 'communicationScore', 'relevanceScore', 'overallScore', 'strengths', 'areasForImprovement'],
+                required: ['rubricFindings', 'overallScore', 'communicationScore', 'confidenceScore', 'relevanceScore', 'strengths', 'areasForImprovement'],
+            },
+        };
+
+        const result = await callGeminiProxy({ modelName: DEFAULT_TEXT_MODEL, contents, config });
+
+        const tokenUsage = result.response?.usageMetadata?.totalTokenCount || 0;
+        await trackUsage(userId, 'interview_analysis', { tokenUsage });
+
+        // The scratchpad improved the scores; it is not part of the report.
+        const { rubricFindings: _rubricFindings, ...analysis } = JSON.parse(result.text.trim());
+        return analysis;
+    } catch (error) {
+        console.error("Error analyzing coding submission:", error);
+        reportError(error as Error, { functionName: 'analyzeCodingSubmission' });
+        throw new Error("Failed to analyze coding submission.");
     }
 };
 
@@ -1091,4 +1418,376 @@ Generate 6-15 nodes for a meaningful diagram. Keep IDs strictly 20 alphanumeric 
         reportError(error as Error, { functionName: 'generateExcalidrawDiagram' });
         throw new Error("Failed to generate diagram with AI. Please try a different prompt.");
     }
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Voice-to-Code + Socratic Coach
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface VoiceCoachMessage {
+    role: 'user' | 'coach';
+    text: string;
+}
+
+export interface VoiceToCodeResult {
+    convertedCode: string;
+    coachingMessage: string;
+    /** The most important algorithm, correctness, or complexity topic to revisit next. */
+    focusArea: string;
+    /** Why that topic matters for the candidate's current approach. */
+    whyItMatters: string;
+    /** A small next coding or testing action, not a finished solution. */
+    nextAction: string;
+    /** Comma-separated test cases the candidate should consider next. */
+    suggestedTests: string;
+    /** Whether the coach thinks the current direction is correct. */
+    isOnRightTrack: boolean;
+}
+
+const normalizeVoiceToCodeResult = (value: unknown, currentCode: string): VoiceToCodeResult => {
+    const result = value && typeof value === 'object' ? value as Partial<VoiceToCodeResult> : {};
+    const text = (candidate: unknown, fallback: string) =>
+        typeof candidate === 'string' && candidate.trim() ? candidate.trim() : fallback;
+
+    return {
+        convertedCode: text(result.convertedCode, currentCode),
+        coachingMessage: text(result.coachingMessage, 'What input would most clearly test the assumption in your approach?'),
+        focusArea: text(result.focusArea, 'Validate the core algorithm'),
+        whyItMatters: text(result.whyItMatters, 'A focused test exposes whether the implementation matches the approach you described.'),
+        nextAction: text(result.nextAction, 'Review the generated code, then run the visible tests before you submit.'),
+        suggestedTests: typeof result.suggestedTests === 'string' ? result.suggestedTests.trim() : '',
+        isOnRightTrack: result.isOnRightTrack === true,
+    };
+};
+
+/**
+ * Takes the user's verbal description of their approach and the current state
+ * of the editor, then returns:
+ *   1. `convertedCode`   — the code that faithfully reflects what the user
+ *                          described (not necessarily a correct solution).
+ *   2. `coachingMessage` — a Socratic nudge that guides rather than solves.
+ *   3. `isOnRightTrack`  — true when the described approach is sound.
+ */
+export const voiceToCode = async (params: {
+    problem: string;
+    language: string;
+    userDescription: string;
+    currentCode: string;
+    conversationHistory: VoiceCoachMessage[];
+}): Promise<VoiceToCodeResult> => {
+    const { problem, language, userDescription, currentCode, conversationHistory } = params;
+
+    const historyText = conversationHistory.length
+        ? conversationHistory
+              .map((m) => `${m.role === 'user' ? 'Candidate' : 'Coach'}: ${m.text}`)
+              .join('\n')
+        : 'None yet.';
+
+    const systemInstruction = `You are an expert technical interview coach who helps candidates practise coding interviews using the Socratic method.
+
+## Your two jobs
+1. **Code Transcription** — Convert the candidate's verbal description into ${language} code that faithfully implements what THEY described, even if their idea is flawed or incomplete. Do not fix their logic silently; reflect it.
+2. **Socratic Coaching** — Guide the candidate toward the correct solution with ONE targeted question or hint. Never hand them the answer. Ask leading questions, surface edge cases they haven't considered, or nudge them toward a better data structure or algorithm. Keep it under 3 sentences.
+
+## Rules
+- If the candidate's approach is correct, praise it briefly and then challenge them on complexity or edge cases.
+- If the approach is wrong or inefficient, point out the flaw through a question ("What happens when the input is empty?" / "What's the time complexity of your inner loop?"), then help them discover the fix.
+- The converted code must compile, run, and use conventional indentation and line breaks. Fill in obvious syntactic boilerplate the user implied but didn't state. Use ${language} idioms.
+- Identify one next focus, explain why it matters specifically for this approach, give one small next action, and list at most three useful test cases. Do not provide the complete ideal solution in the coaching fields.
+- Return ONLY valid JSON matching the schema — no markdown fences.`;
+
+    const userPrompt = `## Problem
+${problem}
+
+## Current code in the editor
+\`\`\`${language}
+${currentCode || '(empty)'}
+\`\`\`
+
+## Conversation so far
+${historyText}
+
+## Candidate's latest verbal description
+"${userDescription}"
+
+Respond with JSON:
+{
+  "convertedCode": "<full ${language} solution reflecting candidate's description>",
+  "coachingMessage": "<your Socratic reply — question or nudge, max 3 sentences>",
+  "focusArea": "<one short coding topic, e.g. Duplicate handling>",
+  "whyItMatters": "<one sentence tied to this approach>",
+  "nextAction": "<one concrete coding or testing action>",
+  "suggestedTests": "<comma-separated test cases, or empty string>",
+  "isOnRightTrack": <true|false>
+}`;
+
+    const contents = [{ role: 'user', parts: [{ text: userPrompt }] }];
+
+    const config = {
+        responseMimeType: 'application/json',
+        responseSchema: {
+            type: 'OBJECT',
+            properties: {
+                convertedCode:    { type: 'STRING' },
+                coachingMessage:  { type: 'STRING' },
+                focusArea:        { type: 'STRING' },
+                whyItMatters:     { type: 'STRING' },
+                nextAction:       { type: 'STRING' },
+                suggestedTests:   { type: 'STRING' },
+                isOnRightTrack:   { type: 'BOOLEAN' },
+            },
+            required: ['convertedCode', 'coachingMessage', 'focusArea', 'whyItMatters', 'nextAction', 'suggestedTests', 'isOnRightTrack'],
+        },
+    };
+
+    try {
+        const result = await callGeminiProxy({
+            modelName: DEFAULT_TEXT_MODEL,
+            contents,
+            config,
+            systemInstruction,
+        });
+        return normalizeVoiceToCodeResult(JSON.parse(result.text.trim()), currentCode);
+    } catch (error) {
+        console.error('Error in voiceToCode:', error);
+        reportError(error as Error, { functionName: 'voiceToCode' });
+        throw new Error('Voice-to-code failed. Please try again.');
+    }
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// System Design Voice Coach (Socratic)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface SystemDesignCoachResult {
+    coachingMessage: string;
+    /** The single system-design area the candidate should work on next. */
+    focusArea: string;
+    /** Why this gap matters in the design under discussion. */
+    whyItMatters: string;
+    /** A short action the candidate can take on the canvas before the next response. */
+    nextAction: string;
+    /** Comma-separated component names the coach suggests adding next, e.g. "Load Balancer, Redis Cache" */
+    suggestedComponents: string;
+    isOnRightTrack: boolean;
+}
+
+const normalizeSystemDesignCoachResult = (value: unknown): SystemDesignCoachResult => {
+    const result = value && typeof value === 'object' ? value as Partial<SystemDesignCoachResult> : {};
+    const text = (candidate: unknown, fallback: string) =>
+        typeof candidate === 'string' && candidate.trim() ? candidate.trim() : fallback;
+
+    return {
+        coachingMessage: text(result.coachingMessage, 'What would you draw next to make the request path more explicit?'),
+        focusArea: text(result.focusArea, 'Clarify one missing system boundary'),
+        whyItMatters: text(result.whyItMatters, 'A clear boundary lets an interviewer see how the system behaves as it scales.'),
+        nextAction: text(result.nextAction, 'Add one component or connection that makes this boundary visible.'),
+        suggestedComponents: typeof result.suggestedComponents === 'string' ? result.suggestedComponents.trim() : '',
+        isOnRightTrack: result.isOnRightTrack === true,
+    };
+};
+
+/**
+ * Takes the user's verbal description of their system design approach and
+ * returns Socratic coaching guidance (questions + hints, never the full answer).
+ */
+export const voiceSystemDesignCoach = async (params: {
+    problem: string;
+    requirements: string[];
+    userDescription: string;
+    /** Names of components already drawn on the canvas, if extractable. */
+    existingComponents: string[];
+    conversationHistory: VoiceCoachMessage[];
+}): Promise<SystemDesignCoachResult> => {
+    const { problem, requirements, userDescription, existingComponents, conversationHistory } = params;
+
+    const historyText = conversationHistory.length
+        ? conversationHistory
+              .map((m) => `${m.role === 'user' ? 'Candidate' : 'Coach'}: ${m.text}`)
+              .join('\n')
+        : 'None yet.';
+
+    const componentsText = existingComponents.length
+        ? existingComponents.join(', ')
+        : 'Canvas is empty';
+
+    const systemInstruction = `You are a senior staff engineer coaching a candidate through a system design interview using the Socratic method.
+
+## Your goal
+Guide the candidate toward a correct, scalable architecture — but NEVER design it for them.
+Ask ONE targeted question or give ONE specific hint per turn. Max 3 sentences.
+
+## What to focus on (in order of impact):
+1. Missing critical components (load balancer, caching, queues, databases suited to workload)
+2. Scale bottlenecks not yet addressed
+3. Data flow gaps (no arrows showing how components connect)
+4. Failure modes not called out (no retry, DLQ, replica, or circuit breaker)
+5. Trade-off awareness (sync vs async, consistency vs availability)
+
+## Rules
+- If the approach is correct, push deeper: ask about edge cases, failure modes, or complexity at 10× scale.
+- Suggest no more than three component names the candidate should add next (be specific: "Redis cache", not just "cache").
+- Never write a complete architecture for them.
+- Return ONLY valid JSON matching the schema.`;
+
+    const userPrompt = `## Design problem
+${problem}
+
+## Requirements
+${requirements.map((r, i) => `${i + 1}. ${r}`).join('\n')}
+
+## Components already on the canvas
+${componentsText}
+
+## Conversation so far
+${historyText}
+
+## Candidate's latest verbal description
+"${userDescription}"
+
+Respond with JSON:
+{
+  "coachingMessage": "<Socratic question or nudge, max 3 sentences>",
+  "focusArea": "<one short topic, e.g. Session ownership>",
+  "whyItMatters": "<one sentence tied to this candidate's design>",
+  "nextAction": "<one concrete canvas action, not a full solution>",
+  "suggestedComponents": "<comma-separated specific component names to add next, or empty string>",
+  "isOnRightTrack": <true|false>
+}`;
+
+    const config = {
+        responseMimeType: 'application/json',
+        responseSchema: {
+            type: 'OBJECT',
+            properties: {
+                coachingMessage:     { type: 'STRING' },
+                focusArea:           { type: 'STRING' },
+                whyItMatters:        { type: 'STRING' },
+                nextAction:          { type: 'STRING' },
+                suggestedComponents: { type: 'STRING' },
+                isOnRightTrack:      { type: 'BOOLEAN' },
+            },
+            required: ['coachingMessage', 'focusArea', 'whyItMatters', 'nextAction', 'suggestedComponents', 'isOnRightTrack'],
+        },
+    };
+
+    try {
+        const result = await callGeminiProxy({
+            modelName: DEFAULT_TEXT_MODEL,
+            contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
+            config,
+            systemInstruction,
+        });
+        return normalizeSystemDesignCoachResult(JSON.parse(result.text.trim()));
+    } catch (error) {
+        console.error('Error in voiceSystemDesignCoach:', error);
+        reportError(error as Error, { functionName: 'voiceSystemDesignCoach' });
+        throw new Error('Voice coaching failed. Please try again.');
+    }
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Diagram Style Types (for output picker)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type DiagramStyle = SystemDesignDiagramStyle;
+
+export const DIAGRAM_STYLE_LABELS: Record<DiagramStyle, string> = {
+    auto:     'Auto (AI decides)',
+    flow:     'Flow diagram',
+    layered:  'Layered architecture',
+    sequence: 'Sequence diagram',
+};
+
+export const DIAGRAM_STYLE_DESCRIPTIONS: Record<DiagramStyle, string> = {
+    auto:     'AI picks the best layout for the problem',
+    flow:     'Left-to-right request path: client → services → data',
+    layered:  'Top-down swim lanes: Presentation / API / Services / Data',
+    sequence: 'Time-based: components as columns, messages as arrows',
+};
+
+export interface GeneratedSystemDesignDiagram {
+    plan: SystemDesignDiagramPlan;
+    usedFallback: boolean;
+}
+
+const extractDiagramPlanJson = (value: string): unknown => {
+    const cleaned = value.trim()
+        .replace(/^```json\s*/i, '')
+        .replace(/^```\s*/i, '')
+        .replace(/\s*```$/, '');
+    try {
+        return JSON.parse(cleaned);
+    } catch {
+        const start = cleaned.indexOf('{');
+        const end = cleaned.lastIndexOf('}');
+        if (start === -1 || end <= start) return null;
+        try {
+            return JSON.parse(cleaned.slice(start, end + 1));
+        } catch {
+            return null;
+        }
+    }
+};
+
+/**
+ * Generate a semantic architecture plan. Excalidraw elements are created on
+ * the client from this plan, so malformed AI geometry can never break the canvas.
+ */
+export const generateStyledExcalidrawDiagram = async (
+    userId: string,
+    prompt: string,
+    style: DiagramStyle,
+): Promise<GeneratedSystemDesignDiagram> => {
+    const styleHint: Record<DiagramStyle, string> = {
+        auto: 'Choose the clearest style for the problem: flow, layered, or sequence.',
+        flow: 'Use a LEFT-TO-RIGHT flow layout. Client(s) on the far left, databases on the far right. Arrows show the request path.',
+        layered: 'Use a TOP-TO-DOWN layered layout: Client, Edge/API, Services, Events, Data.',
+        sequence: 'Use a LEFT-TO-RIGHT column layout where each column is a participant/component. Draw horizontal arrows between columns to show message passing. Time flows top-to-bottom. Label each arrow with the message name.',
+    };
+
+    const systemInstruction = `You are an expert system-design interviewer. Return one JSON object only, with this exact shape:
+{"recommendedStyle":"flow|layered|sequence","nodes":[{"id":"short-stable-id","label":"specific component","layer":"client|edge|service|event|data"}],"connections":[{"from":"node-id","to":"node-id","label":"short action"}]}
+
+The candidate needs an editable starting point, not a complete answer. Include 5-8 distinct components and 4-10 directed connections. Every connection must reference a node id. Use concise labels such as "validate token", "publish event", or "persist document". Do not include coordinates, drawing instructions, markdown, or any fields beyond this JSON shape.
+
+Requested presentation: ${styleHint[style]}`;
+
+    if (prompt.length > 1000) throw new Error('Prompt is too long.');
+
+    try {
+        const result = await callGeminiProxy({
+            modelName: DEFAULT_TEXT_MODEL,
+            contents: `Create an editable system-design starter diagram for: "${prompt.slice(0, 1000)}"`,
+            systemInstruction,
+            config: {
+                responseMimeType: 'application/json',
+                responseSchema: {
+                    type: 'OBJECT',
+                    properties: {
+                        recommendedStyle: { type: 'STRING' },
+                        nodes: { type: 'ARRAY', items: { type: 'OBJECT' } },
+                        connections: { type: 'ARRAY', items: { type: 'OBJECT' } },
+                    },
+                    required: ['nodes', 'connections'],
+                },
+            },
+        });
+
+        const plan = normalizeSystemDesignPlan(extractDiagramPlanJson(result.text));
+        if (plan) {
+            const tokenUsage = result.response?.usageMetadata?.totalTokenCount || 0;
+            try {
+                await trackUsage(userId, 'diagram_generation', { tokenUsage });
+            } catch (trackingError) {
+                console.warn('Diagram generation succeeded, but usage tracking did not.', trackingError);
+            }
+            return { plan, usedFallback: false };
+        }
+    } catch (error) {
+        console.warn('System design diagram plan generation failed; using the editable starter diagram.', error);
+        reportError(error as Error, { functionName: 'generateStyledExcalidrawDiagram' });
+    }
+
+    return { plan: createFallbackSystemDesignPlan(prompt), usedFallback: true };
 };

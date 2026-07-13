@@ -1,0 +1,37 @@
+{
+  "company": "Millennium Management",
+  "slug": "millennium-management-interview-guide",
+  "url": "https://www.techinterview.org/companies/millennium-management-interview-guide",
+  "scrapedAt": "2026-07-02T07:18:10.262Z",
+  "interviewStages": [],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "What's the \"5% rule\" at Millennium?",
+      "How does Millennium's pass-through fee structure affect employees?",
+      "Should I target Millennium or Citadel as a new graduate?",
+      "Where is Millennium based and how flexible are roles?",
+      "What background does Millennium hire?",
+      "Typically negotiable?",
+      "Drives year-to-year swing?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Millennium Management Interview Guide: Pod-Shop Hedge Fund, Risk Discipline, Multi-Strategy\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 25, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Millennium Management Interview Guide: Pod-Shop Hedge Fund, Risk Discipline, and Multi-Strategy Scale\n\n- What Millennium Does\n\n- Roles Millennium Hires For\n\n- Millennium Interview Process\n\n- What Millennium Tests For\n\n- Preparation Strategy\n\n- Millennium vs Other Pod Shops\n\n- Compensation\n\n- Frequently Asked Questions\n\n- How Compensation Works Here and How to Read the Offer\n\nUpdated June 30, 2026 · techinterview.org\n\n⏱ 9 min read\n\nMillennium Management\nmlp.com ↗\n\nMillennium Management Interview Guide: Pod-Shop Hedge Fund, Risk Discipline, and Multi-Strategy Scale\n\nMillennium Management is one of the world's largest multi-strategy hedge funds, founded in 1989 by Israel \"Izzy\" Englander. With approximately $70 billion in assets under management and roughly 320 trading teams (pods) globally, Millennium operates the most decentralized of the major pod-shop hedge funds, with a strict risk-management framework that defines the firm's identity. For quant-trading and engineering candidates, Millennium is a top-tier target with serious compensation and a distinctive culture built around individual portfolio manager autonomy under tight risk constraints.\n\nWhat Millennium Does\n\nMillennium runs hundreds of independent trading teams across equities (long/short, sector-specific, statistical arbitrage), fixed income, commodities, FX, futures, and quantitative strategies. Each pod operates with significant autonomy: portfolio managers (PMs) develop their own strategies, allocate within their book, and bear direct responsibility for performance.\n\nThe defining feature is risk discipline:\n\n- Strict drawdown limits: pods that lose more than 5%&ndash;7% of allocated capital are typically wound down. The \"5% rule\" is well-known industry shorthand.\n\n- Centralized risk infrastructure: Millennium invests heavily in cross-pod risk monitoring, position aggregation, and risk-factor decomposition.\n\n- Pass-through cost structure: investors pay for the firm's costs (technology, real estate, compensation) in addition to performance fees. This decouples PM compensation from firm-level performance and aligns incentives sharply with individual pod P&L.\n\nMillennium has substantial offices in NYC (HQ), London, Hong Kong, Singapore, Tokyo, Tel Aviv, Greenwich, and elsewhere.\n\nRoles Millennium Hires For\n\nPortfolio Manager\n\nRuns an independent pod. Responsible for strategy, execution, risk, and team. Hiring is generally lateral: experienced PMs from other hedge funds or banks. New graduates rarely become PMs directly; the typical path is analyst → senior analyst → PM.\n\nQuantitative Researcher / Strategist\n\nBuilds models, signals, and strategies for a pod. Quantitative pods (statistical arbitrage, systematic equity, systematic macro) hire researchers with strong stats / ML / time-series backgrounds. PhD candidates common.\n\nQuantitative Developer / Software Engineer\n\nBuilds research and execution infrastructure for individual pods, plus firm-wide platforms. C++, Python, Java; Python is heavy in research workflows. Pods often have small dedicated engineering teams alongside firm-level platform engineering.\n\nInvestment Analyst (Discretionary Pods)\n\nEquity research analyst on a long/short or sector-specific pod. Fundamental analysis, financial modeling, industry research. Typically requires investment-banking background or strong sector domain knowledge.\n\nRisk and Operations\n\nMillennium's risk function is large and serious. Risk analysts and managers monitor pod exposures, factor sensitivities, and liquidity. Risk roles offer a different career path with strong learning curve across strategies.\n\nMillennium Interview Process\n\nRound 1: Application screen\n\nFor QR / quant SWE: a coding or quantitative reasoning test, plus resume review. For analyst / PM-track roles: behavioral and motivation screening, sometimes a case-style assessment.\n\nRound 2: First-round interview\n\nFor QR: probability and statistics, sometimes a take-home modeling exercise. For SWE: data structures and algorithms, language-specific questions. For analyst track: case discussion of an investment idea, walkthrough of relevant projects.\n\nRound 3: Technical interview\n\nFor QR: deeper modeling discussion, project deep-dive, statistical methodology. For SWE: harder coding and systems design. For analyst: longer investment case discussion, financial modeling.\n\nRound 4: Pod or platform team interviews\n\nMillennium's structure means most hiring is into a specific pod (for PM-led roles) or platform team (for firm-wide engineering / risk). Expect 4&ndash;6 back-to-back interviews with the relevant team. For pod roles, you typically meet the PM directly.\n\nRound 5: Final / decision\n\nSenior leadership review (often including the PM hiring manager). Decision typically within 1&ndash;3 weeks.\n\nWhat Millennium T"
+}

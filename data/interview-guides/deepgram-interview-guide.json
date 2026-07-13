@@ -1,0 +1,35 @@
+{
+  "company": "Deepgram",
+  "slug": "deepgram-interview-guide",
+  "url": "https://www.techinterview.org/companies/deepgram-interview-guide",
+  "scrapedAt": "2026-07-02T07:13:31.980Z",
+  "interviewStages": [
+    "Behavioral: ownership, customer empathy, fast-moving AI startup"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Deepgram remote-friendly?",
+      "How does Deepgram compare to AssemblyAI or ElevenLabs?",
+      "What is the engineering culture?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Deepgram Interview Guide (2026): Speech AI Platform\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 6, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 6, 2026 · techinterview.org\n\n⏱ 1 min read\n\nDeepgram\ndeepgram.com ↗\n\nDeepgram is a leading speech-AI platform — ASR, voice agents, and a real-time streaming API used by enterprises and developers. Series C in 2024. The interview emphasizes speech-recognition systems engineering, real-time streaming infrastructure, and the engineering of multi-tenant ML inference.\n\nProcess\n\nRecruiter screen → 60-minute coding (Python preferred for ML, Go for backend) → onsite virtual: 2 coding, 1 ML system design, 1 craft deep-dive, 1 behavioral. ML-research candidates get a research deep-dive. Cycle: 3–5 weeks.\n\nWhat they actually ask\n\n- Design a real-time ASR service with sub-300ms streaming latency\n\n- Design a multi-tenant inference platform with billing per audio second\n\n- Design a voice-agent platform combining ASR, LLM, TTS, and turn-taking\n\n- Coding: medium DSA, often with audio or pipeline framing\n\n- Behavioral: ownership, customer empathy, fast-moving AI startup\n\nLevels and comp (2026)\n\n- SE: $185K–$255K total (cash + meaningful equity)\n\n- Senior SE: $260K–$355K total\n\n- Staff: $360K–$510K total\n\n- ML Research: $400K–$700K+ total at top of band\n\nPrep priorities\n\n- Be fluent in Python (research/serving) and Go (backend/control plane)\n\n- Understand ASR architectures (CTC, RNN-T, attention) and streaming inference\n\n- Brush up on audio codecs, voice-activity detection, and barge-in handling\n\nFrequently Asked Questions\n\nIs Deepgram remote-friendly?\n\nDistributed since founding. Hub in San Francisco; engineers across US/EU.\n\nHow does Deepgram compare to AssemblyAI or ElevenLabs?\n\nDeepgram is ASR-first with strong real-time streaming. AssemblyAI is ASR-first with broader speech intelligence (sentiment, entities). ElevenLabs is TTS-first. Comp competitive at top of band; Deepgram pays well for ML systems.\n\nWhat is the engineering culture?\n\nTechnical, research-engineering blended. Strong customer focus on enterprise voice-AI deployments.\n\nSimilar company guides\n\nReka AIinterview guideSakana AIinterview guideBlack Forest Labsinterview guideHippocratic AIinterview guideRunwayinterview guidePika Labsinterview guide\n\nPrepping for Deepgram? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextLow-Level Design: Food Delivery System (OOP Interview)⏱ 9 min readLow Level Design: WebSocket Server at Scale⏱ 6 min readLow Level Design: Paxos Consensus Protocol⏱ 6 min read"
+}

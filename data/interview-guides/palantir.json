@@ -1,0 +1,55 @@
+{
+  "company": "Palantir",
+  "slug": "palantir",
+  "url": "https://www.techinterview.org/companies/palantir",
+  "scrapedAt": "2026-07-02T07:24:59.381Z",
+  "interviewStages": [
+    "Coding (1–2 rounds) — algorithms and data structures",
+    "System design (1 round) — distributed systems flavor",
+    "Behavioral / cultural fit (1–2 rounds) — Palantir's culture interviews are rigorous; expect probing on motivation, values, and reasoning",
+    "Product / customer scenario (FDE roles) — case study around how you'd address a customer problem",
+    "Hiring manager / skip-level — about fit, ambition, and ethical perspectives on the work"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [
+      "Design Palantir's distributed systems flavor at production scale. Walk through the architecture, trade-offs, and failure modes.",
+      "Design a service at Palantir scale that shortens URLs. Cover the API, storage, and hot-key handling.",
+      "Design a rate limiter for a public API. Discuss algorithms, distributed coordination, and failure modes."
+    ],
+    "values": [],
+    "other": [
+      "What's the deal with forward-deployed engineering?",
+      "How do I handle the defense / intelligence work question?",
+      "What's the AIP product and how does it change Palantir's hiring?",
+      "Is Palantir's stock-driven compensation reliable?",
+      "How does Palantir's culture compare to typical Bay Area tech?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": [
+    "New-grad SWE: $200k–$320k total comp first year",
+    "Mid-level (4–7 years): $300k–$500k",
+    "Senior (8+ years): $450k–$800k",
+    "Staff / Principal: $700k–$1.5M+",
+    "The forward-deployed engineering work is more customer-facing than typical software engineering; some FDEs feel like consultants.",
+    "The defense / intelligence work is real and central; commercial expansion has grown but doesn't replace it.",
+    "Compensation is more competitive than candidates expect, especially at senior levels.",
+    "The cultural interview is rigorous; candidates without clear motivation for Palantir specifically often fail this round.",
+    "The technology stack is sophisticated (Foundry has substantial engineering depth) but the work culture is opinionated and not for everyone."
+  ],
+  "rawSummary": "Palantir Interview Guide: Foundry, Apollo, AIP, and Forward-Deployed Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  February 1, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Palantir Interview Guide: Foundry, Apollo, AIP, and Forward-Deployed Engineering\n\n- What Palantir Does\n\n- Roles Palantir Hires For\n\n- Palantir Interview Process\n\n- What Palantir Tests For\n\n- Compensation\n\n- Cultural Considerations\n\n- Palantir vs Alternatives\n\n- Things That Surprise Candidates\n\n- Frequently Asked Questions\n\nUpdated April 29, 2026 · techinterview.org\n\n⏱ 6 min read\n\nPalantir\npalantir.com ↗\n\nPalantir Interview Guide: Foundry, Apollo, AIP, and Forward-Deployed Engineering\n\nPalantir is one of the most distinctive engineering organizations in tech. Founded in 2003, the company built its reputation on government and intelligence-community contracts and has expanded into commercial software (Foundry, Apollo, AIP). The hiring process reflects the company's unusual culture: rigorous, opinionated, and explicitly oriented around forward-deployed engineering rather than typical product engineering. For engineers comfortable with the political-defense intersection and substantive deployment work, Palantir offers compensation, technical challenge, and impact at scale. This guide covers the company structure, the interview process, and what makes Palantir hiring distinctive in 2026.\n\nWhat Palantir Does\n\nPalantir builds data integration and analytics software:\n\n- Foundry: the commercial flagship — data integration, ontology-driven analytics, operational decision platform. Used at large enterprises (banks, hospitals, manufacturers, supply chain).\n\n- Gotham: the government / intelligence flagship. Used by US DoD, intelligence community, allied governments.\n\n- Apollo: deployment / continuous-delivery infrastructure. Powers Foundry and Gotham across customer environments.\n\n- AIP (Artificial Intelligence Platform): 2023+ AI integration layer; LLM and generative AI capabilities embedded across products.\n\nDistinctive features:\n\n- Forward-deployed engineering: engineers spend substantial time at customer sites embedded with operations teams, not at HQ writing software in isolation.\n\n- Government and commercial dual-track: products and engineers split between defense / intelligence customers and commercial enterprise.\n\n- Opinionated culture: explicit values, distinctive recruiting language (\"first-principles thinking\", \"build extraordinary\"), strong selection for cultural alignment.\n\n- Public company: NYSE: PLTR; substantial scrutiny and disclosure relative to private peers.\n\nRoles Palantir Hires For\n\nForward Deployed Engineer (FDE)\n\nPalantir's signature role. Engineers embedded at customer sites — government installations, hospitals, enterprise data centers — building solutions on Foundry / Gotham. Combines software engineering with consulting, customer-facing work, and on-site deployment. The \"deployed\" lifestyle (frequent travel, on-site work) is real.\n\nSoftware Engineer (Product / Platform)\n\nBuilds Foundry, Gotham, Apollo, AIP. Standard software engineering work but with the Palantir cultural overlay. Languages: Java, TypeScript, Python, Go.\n\nInfrastructure / Platform engineer\n\nBuilds the deployment infrastructure (Apollo) that makes Foundry and Gotham work across customer environments. Heavy on Kubernetes, distributed systems, multi-tenant infrastructure.\n\nData engineer / Analyst\n\nBuilds data pipelines, analytical workflows, and ontology models on Foundry. Hybrid of data engineering and consulting.\n\nCustomer-facing engineer (sales / SE)\n\nPre-sales solutions engineering. Technical but customer-facing; demonstrates Foundry capabilities to prospective customers.\n\nQuality / Reliability engineer\n\nTests and operates the platforms across customer environments. Specialized work given the security and reliability requirements of government deployments.\n\nPalantir Interview Process\n\nRound 1: Recruiter screen\n\n30 minutes. Background, motivation, role fit. Palantir recruiters often probe for cultural fit early — the company is selective about cultural alignment.\n\nRound 2: Technical phone screen\n\n60–90 minutes. For software engineering roles: coding question (medium-hard difficulty). For FDE roles: a mix of coding and case-study-style problem-solving. The bar is real; expect FAANG-level rigor.\n\nRound 3: On-site / virtual on-site\n\n4–6 rounds, each 60–90 minutes:\n\n- Coding (1–2 rounds) — algorithms and data structures\n\n- System design (1 round) — distributed systems flavor\n\n- Behavioral / cultural fit (1–2 rounds) — Palantir's culture interviews are rigorous; expect probing on motivation, values, and reasoning\n\n- Product / customer scenario (FDE roles) — case study around how you'd address a customer problem\n\n- Hiring manager / skip-level — about fit, ambition, and ethical perspectives on the work\n\nRound 4: Decision\n\nCalibration meeting; offer typically within 1–2 weeks. Compensation negotiation expected.\n\nWhat Palantir Tests For\n\nTechnical dep"
+}

@@ -1,0 +1,35 @@
+{
+  "company": "Astronomer",
+  "slug": "astronomer-interview-guide",
+  "url": "https://www.techinterview.org/companies/astronomer-interview-guide",
+  "scrapedAt": "2026-07-02T07:20:21.042Z",
+  "interviewStages": [
+    "Behavioral: ownership, OSS empathy, customer-driven mindset"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Astronomer remote-friendly?",
+      "How does Astronomer compare to Prefect or Dagster?",
+      "What is the engineering culture?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Astronomer Interview Guide (2026): Apache Airflow Platform\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 6, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 6, 2026 · techinterview.org\n\n⏱ 1 min read\n\nAstronomer\nastronomer.io ↗\n\nAstronomer is the company behind Apache Airflow — Astro is the managed Airflow platform plus Cosmos (dbt-on-Airflow), Astro Observe, and Astro AI. The interview emphasizes data-orchestration internals, Kubernetes-on-Airflow, and the engineering of multi-tenant orchestration at scale.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (Python preferred) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design a multi-tenant Airflow scheduler at thousands of customers\n\n- Design a Kubernetes-based task executor with secure isolation\n\n- Design a lineage and observability pipeline for orchestrated data\n\n- Coding: medium DSA, often with workflow, scheduling, or DAG framing\n\n- Behavioral: ownership, OSS empathy, customer-driven mindset\n\nLevels and comp (2026)\n\n- SE: $160K–$210K total\n\n- Senior SE: $215K–$295K\n\n- Staff: $300K–$410K\n\n- Principal: $420K–$560K\n\nPrep priorities\n\n- Be fluent in Python (Airflow core) and Go (some platform services)\n\n- Understand Airflow internals (scheduler, executor, DAG parsing, XCom)\n\n- Brush up on Kubernetes operator patterns and OpenLineage\n\nFrequently Asked Questions\n\nIs Astronomer remote-friendly?\n\nDistributed-first, hubs in NYC and Cincinnati. Most engineering roles fully remote across US/EU.\n\nHow does Astronomer compare to Prefect or Dagster?\n\nAstronomer is the OSS-Airflow incumbent (largest community). Prefect is the modern Pythonic alternative. Dagster has a stronger asset-based mental model. Comp is competitive for OSS infrastructure.\n\nWhat is the engineering culture?\n\nOSS-driven, customer-focused, calmer pace post-2024 reorgs. Strong written-first culture.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Astronomer? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextCiti Interview Guide 2026: Global Markets Tech, Citi Velocity, Restructuring Era⏱ 7 min readCoding Interview: DFS Advanced Patterns — Cycle Detection, Strongly Connected Components, Articulation Points, Bridges⏱ 6 min readAI/ML Interview: Vector Databases — Embedding Search, FAISS, Pinecone, pgvector, ANN Algorithms (HNSW, IVF)⏱ 6 min read"
+}

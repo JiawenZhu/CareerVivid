@@ -1,0 +1,52 @@
+{
+  "company": "Samsung",
+  "slug": "samsung-electronics-interview-guide",
+  "url": "https://www.techinterview.org/companies/samsung-electronics-interview-guide",
+  "scrapedAt": "2026-07-02T07:19:38.027Z",
+  "interviewStages": [
+    "Coding (1–2 rounds, for software roles) — algorithms with relevant systems flavor",
+    "Domain depth (1–2 rounds) — memory architecture, process engineering, SoC design, ML systems, depending on role",
+    "Behavioral / cross-functional (1 round) — for Korean-headquartered roles, more formal style than US tech"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Implement an LRU cache with O(1) get and put. Then explain how you would make it thread-safe without serializing all access.",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Should I work at Samsung Electronics in Korea or in the US?",
+      "How real is Samsung's HBM challenge?",
+      "Is Samsung Foundry a viable career destination?",
+      "How does the Galaxy AI strategy affect engineering?",
+      "Is Samsung Electronics a good place for early-career engineers?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": [
+    "Korea-based engineering (most roles): Korean-market rates — generally lower than US in absolute terms, cost-adjusted competitive. Samsung is one of the most prestigious employers in Korea; compensation is at the top of the local market.",
+    "US-based engineering (Samsung Research America, Austin, San Jose, Taylor TX): $150k–$300k new-grad to senior; $400k–$800k+ for staff / principal in specialty roles",
+    "Samsung Research (UK, India, etc.): Local-market competitive rates",
+    "The diversity of Samsung Electronics is more substantial than candidates expect; different divisions are essentially different companies.",
+    "The HBM (memory for AI accelerators) work is now strategically critical; SK Hynix beating Samsung to HBM3E volume on NVIDIA was a wake-up call.",
+    "The foundry execution gap with TSMC is real; engineers in Samsung Foundry deal with the commercial reality.",
+    "The Korean corporate culture is real — hierarchical, formal, with long tenures and slower promotion velocity than US tech.",
+    "The compensation gap between Korea and US Samsung roles is substantial; same engineering work different comp.",
+    "Alibaba &mdash; e-commerce and cloud",
+    "Tencent &mdash; social and gaming",
+    "ByteDance / TikTok &mdash; short-form video"
+  ],
+  "rawSummary": "Samsung Electronics Interview Guide 2026: Memory, Foundry, Galaxy AI, Exynos, Display\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 29, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Samsung Electronics Interview Guide 2026: Memory Dominance, Foundry Comeback, Galaxy AI, Exynos, and the Korean Tech Giant&#039;s Multi-Division Engineering\n\n- What Samsung Electronics Does (from an engineering perspective)\n\n- Roles Samsung Electronics Hires For\n\n- Samsung Electronics Interview Process\n\n- What Samsung Electronics Tests For\n\n- Compensation\n\n- Working at Samsung Electronics\n\n- Samsung Electronics vs Alternatives\n\n- Things That Surprise Candidates\n\n- Frequently Asked Questions\n\n- Adjacent International Tech\n\nUpdated May 2, 2026 · techinterview.org\n\n⏱ 8 min read\n\nSamsung Electronics\nsamsung.com ↗\n\nSamsung Electronics Interview Guide 2026: Memory Dominance, Foundry Comeback, Galaxy AI, Exynos, and the Korean Tech Giant's Multi-Division Engineering\n\nSamsung Electronics is one of the largest technology companies globally and the most diversified. The Samsung Group operates across consumer electronics, memory and foundry semiconductors, mobile devices, displays, and home appliances; Samsung Electronics (KRX: 005930) is the publicly listed core. From an engineering perspective, the most relevant divisions are Memory (DRAM and NAND, where Samsung is the global leader), Foundry (the second-largest foundry after TSMC), Mobile eXperience (Galaxy phones, tablets, wearables, including Galaxy AI features), Exynos (in-house mobile SoC), and Display (OLED panels for Samsung and many competitors). The hiring process is rigorous and varies substantially by division. This guide covers what Samsung Electronics does, the engineering tracks, the interview process, and what makes Samsung Electronics hiring distinctive in 2026.\n\nWhat Samsung Electronics Does (from an engineering perspective)\n\nSamsung Electronics operates several major engineering-relevant divisions:\n\n- Memory: DRAM (HBM3E and HBM4 for AI accelerators, DDR5 for servers, LPDDR5 for mobile), NAND flash, SSD products. Samsung leads global DRAM and NAND market share.\n\n- Foundry: 5nm, 4nm, 3nm GAA, and 2nm GAA processes (announcing); fab customers include Qualcomm, Tesla, Google (Tensor SoCs), and others. Second-largest foundry after TSMC; closing gaps but still distant second.\n\n- System LSI: Exynos mobile SoCs, image sensors (competing with Sony in CMOS image sensors), modems, automotive chips.\n\n- Mobile eXperience (MX): Galaxy S, Galaxy Z (Fold / Flip), Galaxy A, Galaxy Tab, Galaxy Watch, Galaxy Buds. Galaxy AI features (Live Translate, Note Assist, Circle to Search collaboration with Google) since 2024.\n\n- Display (Samsung Display): OLED panels for Samsung phones, iPhones, laptops, TVs. Substantial high-margin business.\n\n- Visual Display (TVs): the dominant TV brand globally; Tizen smart TV platform.\n\n- Digital Appliances: refrigerators, washers, etc. Less engineering-relevant but Samsung's connected appliance push has IoT engineering.\n\n- Network Business: 5G base stations, network equipment.\n\n- Samsung Research: R&D arm with substantial AI / mobile / chip research.\n\nDistinctive features:\n\n- Memory dominance: Samsung's DRAM and NAND leadership has been multi-decade. The HBM (High Bandwidth Memory) for AI accelerators is now strategically central — every NVIDIA / AMD AI accelerator uses HBM, and Samsung competes with SK Hynix and Micron for this.\n\n- Foundry as distant second: Samsung Foundry is technically capable but commercially distant from TSMC. Recent Galaxy S25 returned to Snapdragon (TSMC-fabricated); Samsung Exynos use was reduced. Foundry execution is a persistent challenge.\n\n- Multi-division integration: few companies operate at Samsung's combination of memory + foundry + design + final products. Cross-division collaboration drives substantial engineering work.\n\n- Korean corporate culture: Samsung's engineering culture has Korean-corporate influences (hierarchical, formal, intense). Cultural fit varies for international candidates.\n\n- Public company: KRX: 005930; substantial scrutiny and dual-class share structure considerations.\n\nRoles Samsung Electronics Hires For\n\nHardware engineer (memory)\n\nDRAM design, NAND design, HBM stacking and packaging. Mixed-signal design, advanced node experience, memory architecture. Mostly Korea-based but US engineering presence in Austin and San Jose.\n\nHardware engineer (foundry process)\n\nProcess engineering for 4nm, 3nm GAA, 2nm GAA nodes. Manufacturing engineering, yield improvement, customer enablement. Mostly Korea-based; some US presence at Austin / Taylor TX (the new fab under construction).\n\nHardware engineer (Exynos / System LSI)\n\nExynos SoC design, image sensors, modems. Verilog / SystemVerilog. Multi-year product cycles.\n\nSoftware engineer (Galaxy / Android)\n\nGalaxy phone / tablet / wearable software, One UI customization on top of Android, Galaxy AI features. C / C++ for HAL and platform; Java / Kotlin for Android"
+}

@@ -1,0 +1,35 @@
+{
+  "company": "Squarespace",
+  "slug": "squarespace-interview-guide",
+  "url": "https://www.techinterview.org/companies/squarespace-interview-guide",
+  "scrapedAt": "2026-07-02T07:26:44.392Z",
+  "interviewStages": [
+    "Behavioral: customer focus, design empathy, collaboration with PM/design"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Squarespace remote-friendly?",
+      "How does Squarespace compare to Wix or Webflow?",
+      "What is the interview vibe?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Squarespace Interview Guide (2026): Website Builder Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nSquarespace\nsquarespace.com ↗\n\nSquarespace builds the most polished website-as-a-service platform — used by 4M+ creators, small businesses, and personal sites. The interview is design-and-frontend-heavy with strong emphasis on cross-browser rendering, large-scale content management, and the unique challenges of a \"WYSIWYG editor with infinite layout flexibility.\"\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium, often frontend-flavored) → onsite virtual: 2 coding (DSA + practical), 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design a multi-tenant CMS with template inheritance and editing\n\n- Design WYSIWYG image manipulation that produces clean HTML\n\n- Design a global CDN-served page rendering pipeline\n\n- Coding: DSA medium with frontend or DOM manipulation flavor\n\n- Behavioral: customer focus, design empathy, collaboration with PM/design\n\nLevels and comp (2026)\n\n- SE II: $160K–$200K total\n\n- Senior SE: $230K–$300K\n\n- Staff: $320K–$420K\n\n- Principal: $440K–$580K\n\nPrep priorities\n\n- Be fluent in TypeScript/React for frontend roles; Java for platform\n\n- Understand SSR, CDN architecture, and image pipelines\n\n- Read about Squarespace's engineering blog — they have detailed posts on Fluid Engine and templates\n\nFrequently Asked Questions\n\nIs Squarespace remote-friendly?\n\nHybrid in NYC, Dublin, Portland; remote within US. Squarespace is one of the most NYC-anchored tech companies.\n\nHow does Squarespace compare to Wix or Webflow?\n\nSquarespace wins on design polish; Wix wins on SMB volume; Webflow wins on power-user designer features. Comp is comparable across the three.\n\nWhat is the interview vibe?\n\nPragmatic, design-focused, conversational. Bring strong UX intuition and the ability to articulate aesthetic and engineering tradeoffs.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Squarespace? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextSystem Design: Document Store — Schema-Flexible Storage, Indexing, and Consistency Trade-offs⏱ 7 min readBuild a Date Range Picker with Presets⏱ 3 min readLow Level Design: Event Sourcing and CQRS⏱ 7 min read"
+}

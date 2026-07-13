@@ -500,6 +500,362 @@
         "resume_prep": "Resume 和 interview prep 放在一起",
         "chrome_extension": "Chrome Extension workflow"
       }
+    },
+    "public": {
+      "fast_start": {
+        "eyebrow": "从已有内容开始",
+        "title": "上传、粘贴简历，或保存一个职位。CareerVivid 会把它变成求职工作区。",
+        "copy": "最快的方式很具体：先使用现有简历，或先保存目标职位，再基于同一个上下文定制材料。",
+        "actions": {
+          "upload": {
+            "title": "上传简历",
+            "copy": "从 PDF 或 DOCX 开始，然后转换成可编辑的简历章节。",
+            "action": "上传简历"
+          },
+          "paste": {
+            "title": "粘贴简历内容",
+            "copy": "粘贴已有文本，让 CareerVivid 为定制流程整理成结构化内容。",
+            "action": "粘贴简历"
+          },
+          "chrome": {
+            "title": "从 Chrome 保存职位",
+            "copy": "从浏览器捕获职位、公司、申请链接和准备上下文。",
+            "action": "安装扩展程序"
+          }
+        }
+      },
+      "product_index": {
+        "job_tracker": "工作追踪器",
+        "resume_builder": "AI 简历生成器",
+        "ats_checker": "ATS 检查器",
+        "resume_tailor": "简历定制",
+        "autofill": "自动填写申请",
+        "resume_match": "简历匹配",
+        "interview_coach": "面试教练",
+        "career_pipeline": "职业发展路径"
+      },
+      "platform": {
+        "eyebrow": "应用和扩展程序",
+        "title": "在你申请职位的地方使用 CareerVivid。",
+        "copy": "现在可以先使用 Chrome 扩展程序。iOS 和 Android 应用即将推出，让同一个求职工作区从桌面延伸到移动端。",
+        "cards": {
+          "chrome": {
+            "label": "现在可用",
+            "title": "Chrome 扩展程序",
+            "copy": "从招聘网站保存职位，保留原始申请链接，并把浏览器里的工作连接回 CareerVivid 工作区。",
+            "action": "获取 Chrome 扩展程序"
+          },
+          "ios": {
+            "label": "即将推出",
+            "title": "iOS 应用",
+            "copy": "移动应用准备好后，你可以在 iPhone 上管理简历、面试准备和职位跟进。",
+            "action": "iOS 即将推出"
+          },
+          "android": {
+            "label": "即将推出",
+            "title": "Android 应用",
+            "copy": "CareerVivid Android 版正在规划中，让求职者可以在每台设备上使用同一个工作区。",
+            "action": "Android 即将推出"
+          }
+        }
+      },
+      "demo": {
+        "eyebrow": "产品概览",
+        "title": "查看 Chrome 到工作区流程的实际操作。",
+        "copy": "了解 CareerVivid 如何将保存的职位、简历定制和面试准备整合到一个应用工作区中。",
+        "window_label": "CareerVivid 演示",
+        "steps": {
+          "capture": {
+            "label": "捕获",
+            "copy": "从 Chrome 保存职位。"
+          },
+          "tailor": {
+            "label": "定制",
+            "copy": "把这份工作加入你的简历上下文。"
+          },
+          "practice": {
+            "label": "练习",
+            "copy": "基于相同上下文进行准备。"
+          }
+        }
+      },
+      "readiness": {
+        "eyebrow": "简历准备度",
+        "title": "在申请前展示哪些内容正在变得更好。",
+        "score": "分数",
+        "side_eyebrow": "ATS 检查 + 面试准备",
+        "side_title": "简历分数只有能带来下一步行动时才有价值。",
+        "side_copy": "CareerVivid 不应该停留在分数上。它应该显示缺失关键词、证明差距，以及帮助用户讲清楚强项的面试提示。",
+        "checks": {
+          "ats_keywords": {
+            "label": "ATS 关键词",
+            "copy": "目标职位中的关键词覆盖度"
+          },
+          "experience_proof": {
+            "label": "经验证明",
+            "copy": "具体项目和可衡量结果"
+          },
+          "interview_readiness": {
+            "label": "面试准备度",
+            "copy": "与保存职位绑定的练习提示"
+          }
+        },
+        "actions": {
+          "scan": {
+            "title": "扫描职位",
+            "copy": "提取职位描述重视的技能、证据和表达方式。"
+          },
+          "rewrite": {
+            "title": "用证明改写",
+            "copy": "把薄弱经历改写成具体、可衡量的经验。"
+          },
+          "practice": {
+            "title": "练习讲述",
+            "copy": "使用同一个职位上下文排练面试回答。"
+          }
+        }
+      },
+      "resume_examples": {
+        "eyebrow": "简历示例和模板",
+        "title": "给每位求职者一个符合自己故事的起点。",
+        "copy": "好的简历工具应该减少第一稿的空白感。CareerVivid 将模板与职位追踪、定制和面试准备结合，让每个示例都能导向行动。",
+        "preview_role": "前端工程师",
+        "ats_ready": "ATS 就绪",
+        "preview_sections": {
+          "profile": "个人简介",
+          "experience": "经历",
+          "projects": "项目",
+          "contact": "联系方式",
+          "skills": "技能",
+          "education": "教育"
+        },
+        "preview_badges": {
+          "clean_format": "格式清晰",
+          "keyword_match": "关键词匹配",
+          "export_ready": "可导出"
+        },
+        "cards": {
+          "software_engineer": {
+            "title": "软件工程师简历",
+            "copy": "展示全栈项目、系统 ownership、可衡量影响和可用于面试的故事。",
+            "tags": [
+              "React",
+              "Node.js",
+              "系统"
+            ]
+          },
+          "new_grad": {
+            "title": "应届生简历",
+            "copy": "把课程、实习、黑客松和校园经历转化为可信证明。",
+            "tags": [
+              "项目",
+              "实习",
+              "技能"
+            ]
+          },
+          "career_changer": {
+            "title": "转行简历",
+            "copy": "把可迁移能力连接到目标职位，而不是掩盖转型过程。",
+            "tags": [
+              "故事",
+              "证明",
+              "匹配"
+            ]
+          },
+          "frontend_developer": {
+            "title": "前端开发者简历",
+            "copy": "突出 UI 质量、可访问性、性能和产品协作。",
+            "tags": [
+              "UX",
+              "可访问性",
+              "性能"
+            ]
+          }
+        }
+      },
+      "user_stories": {
+        "eyebrow": "用户故事",
+        "title": "围绕求职者反复经历的时刻而设计。",
+        "copy": "这些示例故事卡片展示 CareerVivid 旨在解决的目标用户问题，同时我们仍在收集公开客户评价。",
+        "summary_title": "求职者故事示例",
+        "summary_copy": "示例人物，而非虚假评论。",
+        "story_label": "示例故事",
+        "cards": {
+          "maya": {
+            "role": "转行求职者",
+            "name": "Maya，产品分析师",
+            "quote": "我需要知道今天哪些申请值得定制简历，而不是又收集一份职位列表。",
+            "outcome": "带有匹配差距和下一步的优先级职位卡片。"
+          },
+          "alex": {
+            "role": "应届毕业生",
+            "name": "Alex，计算机新毕业生",
+            "quote": "我想要一个地方保存每个职位的备注、准备问题和原始申请链接，免得忘记当初为什么保存它。",
+            "outcome": "把浏览器里的申请上下文保存到一个工作区。"
+          },
+          "jordan": {
+            "role": "忙碌申请者",
+            "name": "Jordan，全栈工程师",
+            "quote": "我需要一个可重复流程：找到职位、定制简历、直接申请，然后跟进。",
+            "outcome": "职位追踪、简历定制和面试准备连接在一起。"
+          }
+        }
+      },
+      "proof": {
+        "eyebrow": "为什么它让人感觉可信",
+        "title": "用户可以验证的求职工作流程。",
+        "copy": "CareerVivid 让每个申请的直接链接、简历匹配、准备笔记和清晰下一步保持可见。",
+        "cards": {
+          "direct_links": {
+            "title": "直接申请链接保持绑定",
+            "copy": "保存原始公司招聘页面、申请 URL、来源和下一步，而不是丢在浏览器历史记录里。"
+          },
+          "salary_context": {
+            "title": "薪资和级别上下文就绪",
+            "copy": "当有获批合作伙伴数据时，CareerVivid 旨在把目标职位与薪酬和级别上下文配对。"
+          },
+          "application_packet": {
+            "title": "申请包，而不是分散工具",
+            "copy": "简历匹配、定制笔记、面试准备和跟进记录与职位绑定，让用户知道下一步做什么。"
+          }
+        }
+      },
+      "workflow": {
+        "eyebrow": "申请流程",
+        "title": "从隐藏的职位链接到准备好的申请。",
+        "action": "打开职位追踪器",
+        "steps": {
+          "capture": {
+            "title": "找到或捕获职位",
+            "copy": "从网页保存职位，保留直接申请 URL，并添加公司、地点、截止日期、备注和状态。"
+          },
+          "fit": {
+            "title": "了解匹配度",
+            "copy": "将简历与职位对比，查看缺失证明，并判断这份工作是否值得定制。"
+          },
+          "tailor": {
+            "title": "定制并申请",
+            "copy": "创建针对职位的简历改进，保留申请页面，并推进职位流程。"
+          },
+          "prepare": {
+            "title": "为下一次沟通做准备",
+            "copy": "基于保存的精确职位上下文生成面试准备、笔记和跟进提醒。"
+          }
+        }
+      },
+      "teams_trust": {
+        "eyebrow": "信任源于清晰",
+        "title": "一个工作区。每份申请都有清晰上下文。",
+        "copy": "CareerVivid 应该像可靠的工作台，而不是夸张承诺机器。",
+        "primary_action": "免费开始",
+        "secondary_action": "联系我们",
+        "notes": {
+          "plain_claims": {
+            "title": "朴素承诺",
+            "copy": "CareerVivid 将信任建立在可见的产品流程上，而不是夸大的 AI 承诺。"
+          },
+          "private_workspace": {
+            "title": "私人工作区",
+            "copy": "保存的职位、简历、准备笔记和申请上下文都留在用户账号和产品流程中。"
+          },
+          "repeated_use": {
+            "title": "为重复使用而设计",
+            "copy": "这个应用适合每天搜索、申请、跟进和改进材料的节奏。"
+          }
+        },
+        "feature_cards": {
+          "career_center": {
+            "title": "职业中心仪表盘",
+            "copy": "当 CareerVivid 被一组学生或学员使用时，可邀请学生、分配积分并监控进度。"
+          },
+          "application_context": {
+            "title": "申请上下文",
+            "copy": "把职位、公司、地点、链接、日期、备注和准备内容集中在一个地方。"
+          },
+          "gemini_assistance": {
+            "title": "Gemini 提供的辅助",
+            "copy": "根据用户保存的上下文生成有针对性的准备和简历建议。"
+          }
+        }
+      },
+      "pricing": {
+        "eyebrow": "简单定价",
+        "title": "从免费开始，再选择适合你搜索强度的 AI 帮助。",
+        "copy": "先保持清晰入口；当需要更高级 AI 积分时，再到价格页比较当前计划。",
+        "popular": "热门",
+        "plans": {
+          "free": {
+            "name": "免费",
+            "price": "$0",
+            "copy": "无需信用卡，即可开始整理职位、简历和准备内容。",
+            "points": [
+              "基础工作区",
+              "简历起步流程",
+              "职位追踪器"
+            ],
+            "action": "免费开始"
+          },
+          "pro": {
+            "name": "专业版",
+            "price": "AI 积分",
+            "copy": "适合想要更深入定制、练习和 Chrome 工作流的活跃申请者。",
+            "points": [
+              "AI 简历定制",
+              "面试准备",
+              "Chrome 工作流"
+            ],
+            "action": "查看专业版"
+          },
+          "teams": {
+            "name": "团队",
+            "price": "定制",
+            "copy": "适合支持大量求职者的学校、职业中心和训练营。",
+            "points": [
+              "学生仪表盘",
+              "积分分配",
+              "进度追踪"
+            ],
+            "action": "联系我们"
+          }
+        }
+      },
+      "faq": {
+        "eyebrow": "FAQ",
+        "title": "开始前的问题",
+        "items": {
+          "resume_builder": {
+            "question": "CareerVivid 只是简历生成器吗？",
+            "answer": "不是。简历生成器只是工作区的一部分。CareerVivid 还包括职位追踪器、简历匹配、面试准备、申请笔记和 Chrome 扩展工作流。"
+          },
+          "resume_check": {
+            "question": "CareerVivid 可以根据职位描述检查我的简历吗？",
+            "answer": "可以。CareerVivid 围绕职位上下文设计：保存或粘贴职位，对比简历，然后从同一个工作区改进关键词、证明和面试故事。"
+          },
+          "direct_applications": {
+            "question": "CareerVivid 能帮助直接申请吗？",
+            "answer": "可以。这个流程围绕保存原始职位来源和申请链接设计，让用户可以直接申请并保留职位上下文。"
+          },
+          "chrome_extension": {
+            "question": "CareerVivid 有 Chrome 扩展程序吗？",
+            "answer": "有。Chrome 扩展程序可以帮助保存职位、保留申请链接，并把浏览器里的申请工作连接回 CareerVivid。"
+          },
+          "mobile_apps": {
+            "question": "iOS 和 Android 应用可用了吗？",
+            "answer": "Web 应用和 Chrome 扩展程序现在可用。CareerVivid iOS 和 Android 应用正在规划中，并标记为即将推出。"
+          },
+          "api_key": {
+            "question": "我需要自己的 AI API key 吗？",
+            "answer": "托管版不需要。CareerVivid 通过应用提供托管的 Gemini 功能。自行部署的开发者可以配置自己的 Firebase 和 Gemini 设置。"
+          }
+        }
+      },
+      "final_cta": {
+        "eyebrow": "随时准备迎接下一次申请",
+        "title": "为整个求职过程创建一个工作区。",
+        "copy": "完善简历，保存职位，准备面试，并保持下一步可见。",
+        "primary_action": "免费注册",
+        "secondary_action": "联系支持"
+      }
     }
   },
   "pricing": {
@@ -9050,5 +9406,259 @@
     "k_fgj6ob": "您的基于人工智能的职业助手试点项目",
     "k_2nhdqb": "你的AI职业生涯副驾驶",
     "k_8a9xxo": "您的 AI 职业加速器"
+  },
+  "courses": {
+    "title_catalog": "课程目录",
+    "pick_course": "选择课程 — 在实践中学习",
+    "desc_catalog": "围绕动画、操场、测验和代码实验室构建的互动课程。打开一门课程以查看其模块并开始学习。",
+    "lessons_finished": "在所有课程中完成了 {{completed}} / {{total}} 课",
+    "continue_learning": "继续学习",
+    "difficulty_beginner": "初学者 → 高级",
+    "module_1_free": "模块 1 免费",
+    "modules_count": "{{count}} 个模块",
+    "lessons_count": "{{count}} 课",
+    "hours_approx": "~{{count}} 小时",
+    "review": "复习",
+    "continue": "继续",
+    "start": "开始",
+    "free": "免费",
+    "patterns_desc": "{{count}} 种模式，每种模式都有自己的逐步动画",
+    "patterns_count": "{{count}} 种模式",
+    "coming_soon": "即将推出",
+    "in_development": "开发中 — 关注社区动态",
+    "back_to_courses": "返回课程",
+    "back_to_course": "返回课程",
+    "lesson_not_found": "未找到该课",
+    "lesson_counter": "第 {{index}} 课，共 {{total}} 课",
+    "run": "运行",
+    "click_run_hint": "点击 ",
+    "click_run_hint_end": " 在此处查看输出。",
+    "done": "已完成",
+    "back": "返回",
+    "next": "下一步",
+    "finish_course": "结束课程",
+    "coding-interview-patterns": {
+      "title": "编程面试模式",
+      "tagline": "每个算法都有自己的动画 — 观察模式移动，然后自己编写代码。",
+      "description": "掌握编程面试的视觉化方法。每个模式章节都将您控制的逐步动画与动手代码实验室相结合，涵盖了绝大多数面试问题背后的九种模式：双指针、滑动窗口、二分查找、快慢指针、单调栈、合并区间、广度优先搜索 (BFS)、回溯和动态规划。",
+      "difficulty": "中级",
+      "chapters": {
+        "ch-two-pointers": {
+          "title": "双指针"
+        },
+        "ch-sliding-window": {
+          "title": "滑动窗口"
+        },
+        "ch-binary-search": {
+          "title": "二分查找"
+        },
+        "ch-fast-slow": {
+          "title": "快慢指针"
+        },
+        "ch-monotonic-stack": {
+          "title": "单调栈"
+        },
+        "ch-merge-intervals": {
+          "title": "合并区间"
+        },
+        "ch-bfs": {
+          "title": "广度优先搜索 (BFS)"
+        },
+        "ch-backtracking": {
+          "title": "回溯"
+        },
+        "ch-dynamic-programming": {
+          "title": "动态规划"
+        }
+      },
+      "exercises": {
+        "tp-reading": {
+          "title": "模式：双指针",
+          "content": "# 双指针\n\n两个指针/索引从**已排序**的数组（或字符串）的两端出发，向中间收敛。通过这种方式，我们不需要测试所有 O(n²) 个数对，每一次比较都能排除一个指针位置，从而只需 O(n) 的单次遍历。\n\n### 如何识别\n- 输入是已排序的（或可排序的），且你需要寻找具有某种属性的**数对 / 三元组**。\n- 例如：“寻找两数之和等于...”、“判断是否为回文串”、“盛最多水的容器”。\n- 暴力法通常需要比较每一个数对。\n\n### 模板\n```javascript\nlet l = 0, r = nums.length - 1;\nwhile (l < r) {\n  const sum = nums[l] + nums[r];\n  if (sum === target) return [l, r];\n  if (sum < target) l++;   // 需要更大的值，左指针右移\n  else r--;                // 需要更小的值，右指针左移\n}\n```\n\n### 为什么移动指针是安全的\n当 `sum < target` 时，任何使用 `nums[l]` 的数对都不可能满足条件，因为即使与当前最大的 `nums[r]` 相加也依然小于目标值。因此，将 `l` 右移不会漏掉任何可能解。\n\n**复杂度：** 时间复杂度 O(n)，空间复杂度 O(1)。\n\n**经典题目：** 两数之和 II · 三数之和 · 盛最多水的容器 · 验证回文串 · 接雨水"
+        },
+        "tp-viz": {
+          "title": "互动操场：双指针",
+          "content": "# 观察指针收敛\n\n在数组 `[1, 3, 4, 6, 8, 11, 13]` 中寻找相加等于 **15** 的两个数。\n\n在每一步中，思考**哪一个指针应该移动，为什么？** — 这种推理过程正是你在真实技术面试中需要向面试官大声讲解的内容。逐步执行，直到两个数亮起橙色。"
+        },
+        "tp-code": {
+          "title": "代码实验室：两数之和",
+          "content": "# 代码实验室：两数之和\n\n针对一个**已排序**的数组实现 `pairSum(nums, target)` 函数。返回数组中相加等于 `target` 的两个元素的**索引** `[i, j]`；如果不存在这样的数对，则返回 `null`。\n\n使用左右指针向中间收敛的策略 — 不要使用双重嵌套循环！\n\n### 示例\n- `pairSum([1,3,4,6,8,11,13], 15)` → `[2, 5]` (4 + 11)\n- `pairSum([2,7,11,15], 9)` → `[0, 1]`\n- `pairSum([1,2,3], 7)` → `null`"
+        },
+        "sw-reading": {
+          "title": "模式：滑动窗口",
+          "content": "# 滑动窗口\n\n一个窗口 `[left, right]` 在数组或字符串上滑动。其核心思想在于：当窗口移动一步时，**只有一个元素进入窗口，一个元素离开窗口**。因此，你只需要增量式地更新答案，而无需重新计算整个窗口的内容。\n\n### 如何识别\n- 题目包含“最长 / 最短 / 最大**子串或子数组**...”\n- 涉及**连续**的范围\n- 暴力解法会重复计算重叠部分，导致 O(n·k) 或 O(n²) 复杂度\n\n### 两种形式\n**固定大小 k**（如动画所示）：\n```javascript\nlet sum = 0, best = -Infinity;\nfor (let i = 0; i < nums.length; i++) {\n  sum += nums[i];              // 元素进入\n  if (i >= k) sum -= nums[i - k]; // 元素离开\n  if (i >= k - 1) best = Math.max(best, sum);\n}\n```\n**可变大小**：每步扩大右边界 `right`，仅在窗口不满足条件时缩小左边界 `left`。\n\n**复杂度：** O(n) — 每个元素最多进出窗口各一次。\n\n**经典题目：** 子数组最大平均数 · 无重复字符的最长子串 · 最小覆盖子串 · 滑动窗口最大值"
+        },
+        "sw-viz": {
+          "title": "互动操场：滑动窗口",
+          "content": "# 观察窗口滑动\n\n追踪数组 `[1, 3, -1, -3, 5, 3, 6, 7]` 中**每个大小为 3 的窗口的最大值**。\n\n在你逐步执行时，观察发现只有新进入和离开的元素才需要关注 — 窗口中间从不需要重复检查。一直向右滑动以完成本课。"
+        },
+        "sw-code": {
+          "title": "代码实验室：子数组最大和",
+          "content": "# 代码实验室：大小为 k 的子数组最大和\n\n实现 `maxSumSubarray(nums, k)` 函数，返回**长度为 k 的任意连续子数组的最大和**。\n\n仅进行一次遍历：加上进入窗口的元素，减去离开窗口的元素。不要使用内部循环。\n\n### 示例\n- `maxSumSubarray([1,3,-1,-3,5,3,6,7], 3)` → `16` (3+6+7)\n- `maxSumSubarray([2,1,5,1,3,2], 3)` → `9` (5+1+3)\n- `maxSumSubarray([5], 1)` → `5`"
+        },
+        "bs-reading": {
+          "title": "模式：二分查找",
+          "content": "# 二分查找\n\n在**已排序**的数据上，通过与中间元素的一次比较就可以排除一半的搜索空间。n → n/2 → n/4 → … → 1 仅需 **log₂(n)** 步：查找一百万个元素只需 20 次比较。\n\n### 如何识别\n- 已排序数组，或满足**单调性**的 是/否 条件（如“第一个坏版本”、“最小可行容量”）。\n- 面试官提示需要比 O(n) 更优的时间复杂度。\n\n### 模板（记住边界！）\n```javascript\nlet lo = 0, hi = nums.length - 1;\nwhile (lo <= hi) {\n  const mid = Math.floor((lo + hi) / 2);\n  if (nums[mid] === target) return mid;\n  if (nums[mid] < target) lo = mid + 1; // 丢弃左半部分\n  else hi = mid - 1;                    // 丢弃右半部分\n}\nreturn -1;\n```\n\n### 三个经典错误\n1. `while (lo < hi)` 与 `lo <= hi` 混淆导致遗漏或越界\n2. 遗漏 `+1` / `-1` 导致死循环\n3. 在未排序的数据上使用二分查找\n\n**复杂度：** 时间复杂度 O(log n)，空间复杂度 O(1)。\n\n**经典题目：** 搜索插入位置 · 在排序数组中查找元素的第一个和最后一个位置 · 搜索旋转排序数组 · 爱吃香蕉的珂珂（二分答案）"
+        },
+        "bs-viz": {
+          "title": "互动操场：二分查找",
+          "content": "# 观察搜索空间减半\n\n在包含 11 个元素的已排序数组中寻找 **25**。\n\n在每一步，预测：`mid`（中点）的值是太大还是太小，哪些部分会被丢弃？观察灰色（已丢弃）区域的扩张速度。"
+        },
+        "bs-code": {
+          "title": "代码实验室：经典二分查找",
+          "content": "# 代码实验室：经典二分查找\n\n针对已排序数组实现 `binarySearch(nums, target)` 函数。返回 `target` 的**索引**，如果不存在则返回 `-1`。\n\n确保边界条件正确 — 电话技术面试中经常原封不动地考到这个基本函数。\n\n### 示例\n- `binarySearch([3,7,12,19,25,31,42,58,66,74,88], 25)` → `4`\n- `binarySearch([1,3,5], 5)` → `2`\n- `binarySearch([1,3,5], 2)` → `-1`"
+        },
+        "fs-reading": {
+          "title": "模式：快慢指针",
+          "content": "# 快慢指针 (Floyd 判圈算法)\n\n两个指针以**不同的速度**遍历同一个结构 — 慢指针每次移动 1 步，快指针每次移动 2 步。它们的相对运动可以在无需额外内存的情况下揭示结构的特征。\n\n### 两个主要用途\n**1. 环形检测：** 如果存在环，快指针最终会追上慢指针。在环内，两个指针的间距每步缩短 1，因此它们必然相遇。如果没有环，快指针会到达 `null`。\n\n**2. 寻找中点：** 当快指针到达终点时，慢指针正好处于正中间。\n\n### 模板\n```javascript\nlet slow = head, fast = head;\nwhile (fast && fast.next) {\n  slow = slow.next;\n  fast = fast.next.next;\n  if (slow === fast) return true; // 有环！\n}\nreturn false;\n```\n\n### 为什么面试官喜欢它\n显而易见的解法（使用哈希表记录已访问节点）需要 O(n) 的空间复杂度。快慢指针则能在 **O(1) 空间**内解决问题。在面试中同时提及这两种方法并解释折中方案是极大加分项。\n\n**经典题目：** 环形链表 I & II · 链表的中间结点 · 快乐数 · 寻找重复数 · 回文链表"
+        },
+        "fs-viz": {
+          "title": "互动操场：快慢指针",
+          "content": "# 观察乌兔追逐\n\n一个链表 `0 → 1 → 2 → 3 → 4 → 5 → 6 → 7`，其中节点 7 重新指向节点 3 形成环（红色虚线表示）。\n\n让两个指针同时前进，并观察它们在环内的距离如何一步步缩小 — 它们的相遇在数学上是必然的。"
+        },
+        "fs-quiz": {
+          "title": "概念检查：快慢指针",
+          "content": "# 概念检查\n\n三个快速问答，检验你对 Floyd 判圈算法如何运作及其应用场景的理解。",
+          "quiz": {
+            "fs-q1": {
+              "prompt": "在有环链表内，快指针以多快的速度缩小与慢指针的距离？",
+              "options": {
+                "0": "每步 2 个节点",
+                "1": "每步 1 个节点",
+                "2": "这取决于环的长度",
+                "3": "距离永远不会缩小"
+              },
+              "explanation": "慢指针每次移 1 步，快指针移 2 步，所以它们的相对速度刚好是每步 1 个节点 — 它们的距离每一步都缩短 1，这保证了它们最终必定会相遇。"
+            },
+            "fs-q2": {
+              "prompt": "如果链表中没有环，快慢指针会发生什么？",
+              "options": {
+                "0": "它们在最后一个节点相遇",
+                "1": "无限循环/死循环",
+                "2": "fast（或 fast.next）变为 null，我们返回 false",
+                "3": "慢指针反超快指针"
+              },
+              "explanation": "如果没有环，快指针会直接跑到链表末尾 — 触发循环终止条件 `while (fast && fast.next)`。"
+            },
+            "fs-q3": {
+              "prompt": "与在 Set 中存储已访问节点相比，快慢指针的核心优势是什么？",
+              "options": {
+                "0": "速度更快：O(log n) vs O(n)",
+                "1": "它使用的是 O(1) 额外空间而不是 O(n)",
+                "2": "It also works on unsorted arrays",
+                "3": "It finds the longest cycle"
+              },
+              "explanation": "两者的运行时间都是 O(n)。真正的赢面在空间上：双指针仅需常数级空间，而 Set 会占用高达 n 的节点存储空间。"
+            }
+          }
+        },
+        "ms-reading": {
+          "title": "模式：单调栈",
+          "content": "# 单调栈\n\n一种通过在入栈前弹出破坏排序顺序的元素，以保持栈内元素**单调递增/递减**（例如，自底向上递增）的栈。当一个元素被弹出的那一刻，你就获得了一个重要信息：新入栈的元素就是被弹出元素的**下一个更大元素**。\n\n### 如何识别\n- 题目涉及“**下一个更大** / 下一个更小元素...”\n- “还需要等几天才会有更高的温度？”\n- “柱状图中的最大矩形...” — 任何关于寻找最近“压制”当前元素的问题。\n\n### 模板\n```javascript\nconst stack = []; // 存放索引\nfor (let i = 0; i < nums.length; i++) {\n  while (stack.length && nums[stack.at(-1)] < nums[i]) {\n    const j = stack.pop();\n    answer[j] = nums[i]; // nums[i] 是索引 j 处的下一个更大元素！\n  }\n  stack.push(i);\n}\n```\n\n### 复杂度分析\n表面上看，双重循环像是 O(n²)。但由于每个元素**只入栈一次，且最多出栈一次**，因此总的计算步骤是 O(n)。在面试中指出这一点是这道题考察的核心。\n\n**经典题目：** 下下一个更大元素 I/II · 每日温度 · 柱状图中最大的矩形 · 移掉 K 位数字"
+        },
+        "ms-viz": {
+          "title": "互动操场：单调栈",
+          "content": "# 观察栈的单调排列\n\n处理数组 `[2, 1, 5, 3, 6, 2, 3]`，同时使栈保持从栈底到栈顶单调递增的顺序。\n\n在每次点击前预测：**哪些元素会被弹出？** 每次弹出都意味着当前元素就是该弹出值右侧的“下一个更大元素”。"
+        },
+        "ms-code": {
+          "title": "代码实验室：下一个更大元素",
+          "content": "# 代码实验室：下一个更大元素\n\n实现 `nextGreater(nums)` 函数。返回一个数组，其中位置 `i` 存储的是 `nums[i]` **右侧第一个比它严格更大的元素**；如果不存在，则存储 `-1`。\n\n使用单调索引栈进行一次遍历，以实现 O(n) 的复杂度。\n\n### 示例\n- `nextGreater([2,1,5,3,6,2,3])` → `[5,5,6,6,-1,3,-1]`\n- `nextGreater([1,2,3])` → `[2,3,-1]`\n- `nextGreater([3,2,1])` → `[-1,-1,-1]`"
+        },
+        "mi-reading": {
+          "title": "模式：合并区间",
+          "content": "# 合并区间\n\n关于**数轴上的范围**问题 — 比如会议安排、酒店预订、IP地址段。此类问题的通用第一步：**按起始点排序**。排序后，每次区间重叠检测只需与前一个区间进行一次比较即可。\n\n### 核心逻辑\n排序后，当且仅当区间 `b.start <= currentBlock.end` 时，区间 `b` 才会与当前合并的区块发生重叠。更早的区间不可能越过这个界限 — 这正是排序带来的优势。\n\n### 模板\n```javascript\nintervals.sort((a, b) => a[0] - b[0]);\nconst merged = [];\nfor (const [s, e] of intervals) {\n  const last = merged[merged.length - 1];\n  if (last && s <= last[1]) {\n    last[1] = Math.max(last[1], e); // 重叠 → 扩展区间\n  } else {\n    merged.push([s, e]);            // 无重叠 → 新增区块\n  }\n}\n```\n\n### 注意事项\n- `last[1] = Math.max(last[1], e)` — **不**仅仅是 `e`。例如 `[1,10]` 紧跟 `[2,3]` 合并后应该保持 `[1,10]`。\n- 确定相接的区间（如 `[1,3]` 和 `[3,5]`）是否算作重叠 — 别忘了在面试中向面试官确认！\n\n**复杂度：** 排序耗时 O(n log n)，遍历扫描耗时 O(n)。\n\n**经典题目：** 合并区间 · 插入区间 · 会意室 I & II · 无重叠区间"
+        },
+        "mi-viz": {
+          "title": "互动操场：合并区间",
+          "content": "# 观察区间合并\n\n自左向右扫描区间数组 `[[1,3],[2,6],[8,10],[9,12],[15,18]]`。\n\n在每一步，问题只有两种可能：下一个条形区间是**触及当前区间块**（并扩展它），还是**留下间隔**（并开始一个新区间）？最终，五个区间合并成了三个区间块。"
+        },
+        "mi-code": {
+          "title": "代码实验室：合并重叠区间",
+          "content": "# 代码实验室：合并重叠区间\n\n实现 `mergeIntervals(intervals)` 函数 — 合并所有重叠的区间，并返回按起始点排序后的合并结果。\n\n### 示例\n- `mergeIntervals([[1,3],[2,6],[8,10],[9,12],[15,18]])` → `[[1,6],[8,12],[15,18]]`\n- `mergeIntervals([[1,4],[4,5]])` → `[[1,5]]` (这里相接也算作重叠)\n- `mergeIntervals([[5,6],[1,2]])` → `[[1,2],[5,6]]` (别忘了排序！)"
+        },
+        "bfs-reading": {
+          "title": "模式：广度优先搜索 (BFS)",
+          "content": "# 广度优先搜索\n\n使用队列**逐层**探索图或网格：先探索距离为 1 的所有节点，然后是距离为 2 的节点，依此类推 — 就像向外扩散的波浪。因为你是按距离顺序访问节点的，所以**当 BFS 第一次到达某个节点时，所经过的路径就是最短路径**。\n\n### 如何识别\n- **无权**图、网格或状态空间中的“**最短**路径 / **最小**步数”。\n- “有多少个岛屿 / 连通区域？”\n- 单词转换、密码锁盘 — 任何能通过单次操作连接两个状态的问题。\n\n### 模板（网格版本）\n```javascript\nconst queue = [[startR, startC]];\nconst seen = new Set([`${startR},${startC}`]);\nlet dist = 0;\nwhile (queue.length) {\n  const levelSize = queue.length;       // 每次处理一个整环/整层\n  for (let i = 0; i < levelSize; i++) {\n    const [r, c] = queue.shift();\n    if (isTarget(r, c)) return dist;\n    for (const [nr, nc] of neighbors(r, c)) {\n      if (valid(nr, nc) && !seen.has(`${nr},${nc}`)) {\n        seen.add(`${nr},${nc}`);\n        queue.push([nr, nc]);\n      }\n    }\n  }\n  dist++;\n}\n```\n\n### 最常见错误\n在元素**出队时**才标记为已访问，而不是在**入队时**标记。这会导致队列中装满重复节点。务必在入队时就进行标记。\n\n**复杂度：** 时间复杂度 O(V + E) — 每个单元格/节点仅访问一次。\n\n**经典题目：** 岛屿数量 · 腐烂的橘子 · 单词接龙 · 二进制矩阵中的最短路径 · 01 矩阵"
+        },
+        "bfs-viz": {
+          "title": "互动操场：BFS",
+          "content": "# 观察波浪扩张\n\n在迷宫中从起点 **S** 到终点 **E** 运行 BFS。每次点击都会让前沿波浪向外扩张刚好一层 — 每个单元格中的数字代表它与 S 的距离。\n\n请注意：波浪到达 E 时恰好是一次，而这一次相遇**就是**最短路径。"
+        },
+        "bfs-quiz": {
+          "title": "概念检查：BFS",
+          "content": "# 概念检查\n\n当面试官提到“最短”时，你该选择哪种遍历方式，为什么？",
+          "quiz": {
+            "bfs-q1": {
+              "prompt": "为什么 BFS 可以在无权图中找到最短路径？",
+              "options": {
+                "0": "It tries all paths and keeps the best",
+                "1": "它是按照距离由近及远的顺序访问节点的，所以第一次到达某个节点时所走的绝对是最短路径",
+                "2": "The queue sorts nodes by distance",
+                "3": "It doesn't — you need Dijkstra"
+              },
+              "explanation": "BFS 在处理任何距离为 k+1 的节点之前，必定已处理完所有距离为 k 的节点。因此，当它首次到达某节点时，不可能存在更短的路径。只有在边具有不同权重时才需要 Dijkstra 算法。"
+            },
+            "bfs-q2": {
+              "prompt": "一个单元格何时应该被标记为已访问？",
+              "options": {
+                "0": "When it's popped off the queue",
+                "1": "当它被放入队列（入队）时",
+                "2": "After the whole level is processed",
+                "3": "Only if it's on the shortest path"
+              },
+              "explanation": "务必在入队时标记。如果等到出队时才标记，同一个单元格可能会被不同的邻居节点多次放入队列，从而导致队列膨胀和层数统计错误。"
+            },
+            "bfs-q3": {
+              "prompt": "“计算网格中有多少个由 1 组成的岛屿。” 哪种方法可行？",
+              "options": {
+                "0": "Only BFS",
+                "1": "Only DFS",
+                "2": "两者皆可 — 你只需要访问每个连通分量的所有单元格",
+                "3": "Neither — this needs dynamic programming"
+              },
+              "explanation": "统计连通分量不涉及计算最短距离，因此 BFS 和 DFS 都适用。只有在问题中提到“最短”或“最小”步数时，才应该首选 BFS。"
+            }
+          }
+        },
+        "bt-reading": {
+          "title": "模式：回溯",
+          "content": "# 回溯\n\n系统性地探索一棵**决策树**：做出选择，递归进行更深层的探索，然后**撤销选择**并尝试下一个选项。这三个动作始终如一：**做出选择 → 深入探索 → 撤销选择**。\n\n### 如何识别\n- “生成**所有**子集 / 排列 / 组合...”\n- “放置 N 皇后...”、“解数独...” — 约束满足问题。\n- 最终的答案是**一组可行的解**，而不是单个数字。\n\n### 模板\n```javascript\nfunction backtrack(path, choices) {\n  record(path);                 // 或者当满足条件时记录：if (isComplete(path)) record\n  for (const choice of choices) {\n    path.push(choice);          // 做出选择\n    backtrack(path, next(choices, choice)); // 深入探索\n    path.pop();                 // 撤销选择 ← 即“回溯”\n  }\n}\n```\n\n### 两个核心规则\n1. **完美撤销所做的一切：** push 和 pop 动作必须精确成对镜像出现。\n2. **在记录路径时进行拷贝**（例如 `[...path]`）：否则所有记录下来的答案之后都会被后续的修改破坏。\n\n**复杂度：** 由输出规模决定 — 子集问题为 O(2ⁿ)，全排列问题为 O(n!)。通过剪枝（跳过肯定无效的分支）可以极大提高效率，这也是面试中常常讨论的热点。\n\n**经典题目：** 子集 · 全排列 · 组合总和 · N 皇后 · 单词搜索 · 解数独"
+        },
+        "bt-viz": {
+          "title": "互动操场：回溯",
+          "content": "# 观察探索与撤销\n\n一个包含三个分支的决策树。绿色表示深入探索，蓝色虚线表示遇到死胡同后退回（回溯），橙色表示找到了一个解。\n\n逐步走完整个搜索过程，观察每次遇到死胡同时如何触发相同的动作：撤销、返回上一层、尝试下一个分支。"
+        },
+        "bt-code": {
+          "title": "代码实验室：生成所有子集",
+          "content": "# 代码实验室：生成所有子集\n\n实现 `subsets(nums)` 函数。按照标准的 DFS 顺序返回 `nums` 的**每一个子集**：在每个节点记录当前路径，然后（按索引从左到右）加入剩余元素进行扩展。\n\n对于输入 `[1,2,3]`，标准顺序如下：\n\n```\n[] → [1] → [1,2] → [1,2,3] → [1,3] → [2] → [2,3] → [3]\n```\n\n### 示例\n- `subsets([1,2,3])` → `[[],[1],[1,2],[1,2,3],[1,3],[2],[2,3],[3]]`\n- `subsets([7])` → `[[],[7]]`",
+          "hint": "在循环内：path.push(nums[i]); backtrack(i + 1); path.pop(); — pop 操作就是动画里演示的“撤销/回溯”过程。"
+        },
+        "dp-reading": {
+          "title": "模式：动态规划",
+          "content": "# 动态规划\n\n动态规划本质上就是**填表**：将大问题分解为子问题，每个子问题只计算一次并重用答案。它没有任何魔法，每次填表只需执行三个步骤：\n\n1. **定义状态：** `dp[i]`（或 `dp[i][j]`）在通俗语言中代表什么含义？\n2. **状态转移方程：** 当前状态如何由更早的状态组合而成？（例如 `dp[i] = dp[i-1] + dp[i-2]`）\n3. **初始化边界条件，并按依赖顺序填表。**\n\n### 如何识别\n- 题目涉及“**有多少种方法**...”、“到达某处的**最小/最大**开销...”。\n- 每一步都有多种选择，且包含**重叠子问题**（暴力递归会多次重复计算相同的函数调用）。\n- 是/否问题：“你能用这些硬币凑出面值 X 吗？”\n\n### 示例：爬楼梯\n你每次可以爬 1 级或 2 级。爬到第 n 级有多少种方法？\n```javascript\n// dp[i] = 到达第 i 级的不同方法数\n// 你可以从 i-1 级跨 1 步上来，或者从 i-2 级跨 2 步上来：\n// dp[i] = dp[i-1] + dp[i-2]; 边界：dp[1] = 1, dp[2] = 2\n```\n\n### 自顶向下 vs 自底向上\n带备忘录的递归（自顶向下）与迭代填表（自底向上）使用的是同一种算法。在面试中，面试官通常更希望你至少能够写出自底向上的解法。\n\n**经典题目：** 爬楼梯 · 打家劫舍 · 零钱兑换 · 不同路径 · 最长公共子序列 · 编辑距离"
+        },
+        "dp-viz": {
+          "title": "互动操场：动态规划",
+          "content": "# 观察动态规划填表\n\n**不同路径**：一个机器人从 4×4 网格的左上角走到右下角，每次只能向右或向下移动。\n\n每个单元格的值恰好是 *（来自上方的路径数）* + *（来自左侧的路径数）*。请一步步填满表格，看看系统如何在不实际探索任何一条路径的情况下，计算出全部 20 条路径的。"
+        },
+        "dp-code": {
+          "title": "代码实验室：爬楼梯",
+          "content": "# 代码实验室：爬楼梯\n\n实现 `climbStairs(n)` 函数 — 你每次可以爬 **1 级或 2 级**台阶；返回到达第 `n` 级台阶有多少种不同的方法。\n\n状态定义：`dp[i]` = 到达第 `i` 级台阶的方法数。转移方程：`dp[i] = dp[i-1] + dp[i-2]`。\n\n### 示例\n- `climbStairs(2)` → `2` (1+1, 2)\n- `climbStairs(5)` → `8`\n- `climbStairs(10)` → `89`"
+        }
+      }
+    },
+    "prev_step": "上一页",
+    "reset": "重置",
+    "step_counter": "第 {{index}} 步，共 {{total}} 步",
+    "viz": {
+      "expand_wave": "扩张波浪",
+      "halve_it": "折半",
+      "fill_next_cell": "填充下一格",
+      "advance_both": "推进指针",
+      "take_next_interval": "处理下一个区间",
+      "move_pointer": "移动指针",
+      "next_element": "下一个元素",
+      "next_step": "下一步"
+    }
   }
 }

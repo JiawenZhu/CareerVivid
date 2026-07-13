@@ -22,20 +22,20 @@ const WhiteboardsPage: React.FC = () => {
 
     return (
         <AppLayout>
-            <div className="min-h-screen bg-gray-50 dark:bg-gray-950 pb-20 relative text-left">
+            <div className="cv-design-page cv-design-grid relative min-h-screen pb-20 text-left">
                 {/* Top Header Section */}
-                <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 pt-8 pb-12 mb-12">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="cv-design-header mb-12 pb-12 pt-8">
+                    <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="flex justify-between items-center mb-8">
-                            <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
-                                <PenTool className="text-primary-600" size={32} />
+                            <h1 className="cv-design-title flex items-center gap-3 text-3xl">
+                                <PenTool className="text-[var(--cv-action-primary)]" size={32} />
                                 My Whiteboards
                             </h1>
                             <div className="flex items-center gap-3">
                                 <div className={navPosition === 'side' ? 'md:hidden' : ''}>
                                     <button
                                         onClick={() => navigate('/dashboard')}
-                                        className="flex items-center gap-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-semibold py-2 px-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                                        className="cv-design-button-secondary px-4 py-2 text-sm"
                                     >
                                         <LayoutDashboard size={18} />
                                         <span className="hidden sm:inline">Dashboard</span>
@@ -43,7 +43,7 @@ const WhiteboardsPage: React.FC = () => {
                                 </div>
                                 <button
                                     onClick={handleCreateWhiteboard}
-                                    className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors flex items-center gap-2 font-medium"
+                                    className="cv-design-button-primary px-4 py-2 text-sm"
                                 >
                                     <Plus size={20} /> <span className="hidden sm:inline">New Whiteboard</span>
                                 </button>
@@ -64,11 +64,11 @@ const WhiteboardsPage: React.FC = () => {
                                     />
                                 ))
                             ) : (
-                                <div className="col-span-full py-12 text-center bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-dashed border-gray-300 dark:border-gray-700 flex flex-col items-center">
-                                    <p className="text-gray-500 dark:text-gray-400 mb-4">No whiteboards created yet.</p>
+                                <div className="cv-design-card col-span-full flex flex-col items-center rounded-xl border-dashed py-12 text-center">
+                                    <p className="cv-design-body mb-4">No whiteboards created yet.</p>
                                     <button
                                         onClick={handleCreateWhiteboard}
-                                        className="bg-primary-600 text-white font-medium py-2 px-6 rounded-lg hover:bg-primary-700 transition"
+                                        className="cv-design-button-primary rounded-lg px-6 py-2 text-sm"
                                     >
                                         + Create your first Whiteboard
                                     </button>

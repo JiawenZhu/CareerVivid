@@ -1,0 +1,35 @@
+{
+  "company": "Citadel Hedge Fund",
+  "slug": "citadel-hedge-fund-interview-guide",
+  "url": "https://www.techinterview.org/companies/citadel-hedge-fund-interview-guide",
+  "scrapedAt": "2026-07-02T07:17:03.444Z",
+  "interviewStages": [],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "What's the difference between Citadel and Citadel Securities?",
+      "How does Citadel's multi-strategy structure benefit employees?",
+      "Where is Citadel headquartered now?",
+      "How important is the new-graduate vs experienced-hire distinction?",
+      "How does Ken Griffin's involvement shape the firm?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Citadel (Hedge Fund) Interview Guide: Multi-Strategy, Pod Shop at Scale, Quant Research\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 25, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Citadel (Hedge Fund) Interview Guide: Multi-Strategy, Pod Shop at Scale, and Quantitative Research\n\n- What Citadel Does\n\n- Roles Citadel Hires For\n\n- Citadel Interview Process\n\n- What Citadel Tests For\n\n- Preparation Strategy\n\n- Citadel vs Other Pod Shops\n\n- Compensation\n\n- Frequently Asked Questions\n\nUpdated April 25, 2026 · techinterview.org\n\n⏱ 7 min read\n\nCitadel (Hedge Fund)\ncitadel.com ↗\n\nCitadel (Hedge Fund) Interview Guide: Multi-Strategy, Pod Shop at Scale, and Quantitative Research\n\nCitadel is one of the world's largest and most successful hedge funds, founded by Ken Griffin in 1990. With approximately $65 billion in assets under management, Citadel runs a multi-strategy hedge fund operation with discretionary equity (long/short, sector specialists), fixed income, commodities, credit, and quantitative pods. This guide covers Citadel the hedge fund &mdash; distinct from Citadel Securities, the firm's market-making business, which we cover in a separate guide. For quant-research candidates and discretionary investment professionals, Citadel is one of the most competitive and best-paying targets in the industry.\n\nWhat Citadel Does\n\nCitadel runs a multi-strategy hedge fund organized into business lines, each containing multiple portfolio managers (PMs) who run their own books with significant autonomy. The firm is structured around five primary businesses:\n\n- Equities: the largest business; long/short equity organized by sector. Substantial scale across global markets.\n\n- Fixed Income & Macro: rates, FX, sovereign debt, macro strategies.\n\n- Commodities: energy, metals, agricultural products. Citadel is one of the largest hedge fund commodities operations.\n\n- Credit: corporate credit, structured credit, distressed.\n\n- Global Quantitative Strategies: systematic / quantitative trading. The technical analog to Two Sigma or D. E. Shaw, embedded inside Citadel.\n\nDistinctive features:\n\n- Pod-shop model with central infrastructure: PMs run their own books; the firm provides shared technology, risk, operations, and capital.\n\n- Strict risk discipline: Citadel is famous for disciplined risk management; pods that lose substantially see capital reductions or closures, similar to Millennium's framework.\n\n- Miami HQ: Citadel relocated its HQ from Chicago to Miami in 2022; the firm has substantial offices in Chicago, NYC, London, Hong Kong, Tokyo, and elsewhere.\n\n- Ken Griffin's continued involvement: Griffin remains hands-on; the firm reflects his long-term strategic vision and competitive intensity.\n\nRoles Citadel Hires For\n\nInvestment Analyst (Discretionary Equities)\n\nEquity research analyst on a long/short or sector-specific pod. Fundamental research, financial modeling, industry analysis. Typically requires investment-banking-style background or strong domain knowledge. Citadel hires aggressively at the new-graduate level and from experienced laterals.\n\nPortfolio Manager\n\nRuns a pod book with significant autonomy. Hiring is generally lateral &mdash; PMs come from other hedge funds or banks with track records. New graduates rarely become PMs directly.\n\nQuantitative Researcher (Global Quantitative Strategies)\n\nBuilds models, signals, and systematic strategies. Strong stats / ML / time-series background expected. PhD common but not required. Compensation comparable to Two Sigma or D. E. Shaw QR roles.\n\nQuantitative Developer / Software Engineer\n\nBuilds research and execution infrastructure for quantitative strategies. Also broader firm-wide platforms: data, risk, execution. C++ for performance-critical paths; Python heavy in research; Java for parts of the broader stack.\n\nRisk Management\n\nCitadel's risk function is substantial and well-respected. Risk roles offer cross-strategy exposure and a strong learning curve.\n\nOperations / Technology / Compliance\n\nSubstantial firm-wide functions in operations, technology, compliance, legal. Often overlooked entry points; competitive but more accessible than direct investment roles.\n\nCitadel Interview Process\n\nRound 1: Application screen\n\nResume review. For QR / quant SWE: technical screen, sometimes a HackerRank-style coding challenge. For analyst track: behavioral and motivation screen, often with case-style questions.\n\nRound 2: First-round interview\n\n30&ndash;60 minutes. For QR: probability and statistics, sometimes a take-home modeling exercise. For SWE: data structures and algorithms. For analyst track: case discussion of an investment idea, walkthrough of relevant projects.\n\nRound 3: Technical interview\n\nFor QR: deeper modeling discussion, project deep-dive, statistical methodology. For SWE: harder coding and systems design. For analyst track: longer investment case discussion, financial modeling, sometimes a stock pitch.\n\nRound 4: Superday\n\nMulti-hour event at Citadel's office (Miam"
+}

@@ -1,0 +1,88 @@
+{
+  "company": "HashiCorp",
+  "slug": "hashicorp",
+  "url": "https://www.techinterview.org/companies/hashicorp",
+  "scrapedAt": "2026-07-02T07:23:08.752Z",
+  "interviewStages": [
+    "System design (1 round): distributed-systems specific &mdash; \"design a secret-rotation service for 100K applications,\" \"design a service mesh for 10K microservices,\" \"design Terraform state storage with strong consistency.\" The interviewer pushes on correctness under partition, not just availability.",
+    "Behavioral / hiring manager (1 round): past projects, ownership, handling disagreement, remote-work effectiveness. HashiCorp is genuinely remote-first, and this matters."
+  ],
+  "codingTopics": [
+    "Implement a small primitive with specific semantics (TTL cache with eviction callbacks, rate limiter with graceful refill, retry-with-jitter)",
+    "Parse a structured wire format (HCL-like config, JSON with schema validation, binary TLV)",
+    "Model a small distributed problem (leader election, distributed lock, gossip state convergence) &mdash; usually NOT full Raft, but a piece of it",
+    "Graph / tree problems with a systems flavor (dependency resolution, topological sort of Terraform resources, cycle detection in service mesh config)"
+  ],
+  "systemDesignTopics": [
+    "\"Design a secret-distribution service that handles 1M rotations per day across 100K apps.\"",
+    "\"Design service discovery for a 10K-node Kubernetes fleet across 3 regions.\"",
+    "\"Design Terraform state storage for an enterprise with thousands of workspaces.\"",
+    "\"Design a global load balancer with health-check propagation and consistent failover.\"",
+    "Raft: walk through leader election; explain log replication; describe how log compaction works; sketch the state transitions. You should know this cold if interviewing for Consul / Vault / Nomad."
+  ],
+  "behavioralTopics": [
+    "Remote effectiveness: \"Tell me about a complex project you led across timezones.\"",
+    "Open-source vs commercial judgment: \"How do you think about what belongs in open-source vs enterprise tier?\" (Especially relevant post-BSL license change and post-IBM acquisition.)",
+    "Ownership: \"Describe a production issue you owned end-to-end.\"",
+    "Disagreement: \"Tell me about a time you disagreed with a senior engineer about an architectural decision.\""
+  ],
+  "sampleQuestions": {
+    "coding": [
+      "Implement TTL cache with eviction callbacks, rate limiter with graceful refill, retry-with-jitter. Talk through your approach, complexity, and edge cases.",
+      "Implement HCL-like config, JSON with schema validation, binary TLV. Talk through your approach, complexity, and edge cases.",
+      "Implement leader election, distributed lock, gossip state convergence. Talk through your approach, complexity, and edge cases.",
+      "Implement dependency resolution, topological sort of Terraform resources, cycle detection in service mesh config. Talk through your approach, complexity, and edge cases.",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases."
+    ],
+    "behavioral": [
+      "Tell me about a complex project you led across timezones.",
+      "How do you think about what belongs in open-source vs enterprise tier?",
+      "Describe a production issue you owned end-to-end.",
+      "Tell me about a time you disagreed with a senior engineer about an architectural decision.",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
+    "systemDesign": [
+      "Gossip protocols: how does SWIM achieve failure detection? What's the trade-off vs heartbeat-to-coordinator? How does HashiCorp's LAN vs WAN gossip differ?",
+      "Consistency models: given this use case, would you pick linearizable, sequential, or eventual? Why? What's the latency / availability cost?",
+      "Go-specific: how does context cancellation propagate? What are common pitfalls with goroutine leaks? When would you use a sync.Cond vs a channel?",
+      "Design a secret-distribution service that handles 1M rotations per day across 100K apps. Cover the API, data model, and how it scales.",
+      "Design service discovery for a 10K-node Kubernetes fleet across 3 regions. Cover the API, data model, and how it scales."
+    ],
+    "values": [],
+    "other": [
+      "Do I need to know Go to get hired?",
+      "How is the distributed-systems round graded?",
+      "Did the IBM acquisition change the interview process?",
+      "How does HashiCorp compare to Cloudflare on distributed-systems interviews?",
+      "Is remote work genuinely supported?"
+    ]
+  },
+  "difficulty": 8,
+  "tips": [
+    "Know the Raft paper. Genuinely know it &mdash; able to walk through election, replication, and log compaction from memory.",
+    "Read HashiCorp source code. Especially Consul. 3&ndash;4 hours of serious reading makes you visibly better in the deep-dive.",
+    "Have a remote-work story ready. \"I lead across 3 time zones and here's how\" is stronger than \"I'm adaptable.\"",
+    "Know one product deeply. Pick Consul, Vault, Nomad, or Terraform &mdash; use it, understand its internals, form opinions.",
+    "Expect a focus on correctness. Their product category is \"don't lose user data or leak secrets.\" Signal you care about that.",
+    "In Search of an Understandable Consensus Algorithm (Raft paper by Ongaro & Ousterhout)",
+    "SWIM: Scalable Weakly-consistent Infection-style Process Group Membership Protocol",
+    "HashiCorp engineering blog (long archive; the Consul and Vault deep-dive posts are excellent)",
+    "Consul source code on GitHub &mdash; read a few server-side files for real production Go",
+    "The Go Programming Language by Donovan & Kernighan",
+    "Designing Data-Intensive Applications for general distributed-systems context"
+  ],
+  "compensation": [
+    "Software Engineer II: $165k&ndash;$205k base, $30k&ndash;$60k target bonus, IBM RSUs ~$30k&ndash;$60k/year. Total: ~$230k&ndash;$330k / year.",
+    "Senior Software Engineer: $210k&ndash;$265k base, $50k&ndash;$90k bonus, $60k&ndash;$130k/year RSUs. Total: ~$320k&ndash;$485k / year.",
+    "Staff Engineer: $260k&ndash;$320k base, $80k&ndash;$140k bonus, $150k&ndash;$280k/year RSUs. Total: ~$490k&ndash;$740k / year.",
+    "Go fluency matters more than expected. Even non-Go-first teams often want you to write Go.",
+    "The distributed-systems round is not negotiable. Candidates without it often get rejected regardless of other strengths.",
+    "Remote work actually works here; US-East / US-West / Europe time zones are all viable.",
+    "The IBM acquisition is rarely discussed in interviews, but candidates occasionally ask &mdash; answer professionally.",
+    "Saying \"we'd use Raft\" without explaining how. Interviewers will push until you produce real mechanism.",
+    "Treating open-source contribution as optional. For many IC roles, it's part of the job description.",
+    "Hand-waving on consistency models. Defaulting to \"eventually consistent\" for everything is a red flag.",
+    "Weak context propagation or goroutine-leak handling in Go coding rounds signals you haven't written production Go."
+  ],
+  "rawSummary": "HashiCorp Interview Guide 2026: Terraform, Vault, Consul, Nomad, and Post-IBM Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 22, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\tUpdated April 22, 2026 · techinterview.org\n\n⏱ 9 min read\n\nHashiCorp\nhashicorp.com ↗\n\nHashiCorp Interview Process: Complete 2026 Guide\n\nOverview\n\nHashiCorp is the infrastructure automation company behind Terraform, Vault, Consul, Nomad, and Packer. Founded 2012, went public 2021, acquired by IBM in a $6.4B deal announced April 2024 and closed in 2025 &mdash; the company now operates as a business unit within IBM Software with substantial operational autonomy. Engineering is distributed-first with clusters in SF, Austin, NYC, and Amsterdam. The product suite deals with the hardest problems in infrastructure: secret management, distributed consensus, service discovery across heterogeneous networks, and stateful workload scheduling. Interviews reflect this heritage &mdash; you'll be asked to reason about Raft, TTL semantics, and partition failure modes in ways most companies never touch.\n\nInterview Structure\n\nRecruiter screen (30 min): background, why HashiCorp, team preference (Terraform, Vault, Consul, Nomad, platform, cloud). The product surfaces are technically distinct enough that they screen for which you'd naturally fit.\n\nTechnical phone screen (60 min): one coding problem, typically medium-hard. Go dominates &mdash; Terraform, Vault, Consul, and Nomad are all Go, and engineers default to it. Python and TypeScript accepted for platform and SaaS roles; Rust acceptable. Pure-algorithm problems are less common than applied / systems problems.\n\nTake-home (some senior and staff roles): 4&ndash;8 hour focused project. Historically involves implementing a small distributed-systems primitive &mdash; a lease manager, a simple leader election, a retry / backoff library. Code quality and write-up are weighed equally with correctness.\n\nOnsite / virtual onsite (4&ndash;5 rounds):\n\n- Coding (1&ndash;2 rounds): one classic data structures problem, one applied systems problem. Applied rounds often involve building a small protocol or primitive &mdash; parse this wire format, implement this TTL cache, build this lightweight consensus.\n\n- System design (1 round): distributed-systems specific &mdash; \"design a secret-rotation service for 100K applications,\" \"design a service mesh for 10K microservices,\" \"design Terraform state storage with strong consistency.\" The interviewer pushes on correctness under partition, not just availability.\n\n- Distributed systems / Go deep-dive (1 round): a distinctive round. Topics include Raft mechanics, gossip protocols (SWIM), consistency models, transactional semantics, Go concurrency patterns. Expect to whiteboard a Raft election or debate eventual-vs-strong consistency trade-offs.\n\n- Behavioral / hiring manager (1 round): past projects, ownership, handling disagreement, remote-work effectiveness. HashiCorp is genuinely remote-first, and this matters.\n\n- Values / culture round (some loops): team fit, long-term goals, how you think about open-source vs commercial tension (relevant post-IBM).\n\nTechnical Focus Areas\n\nCoding: Go idioms (channels, context propagation, graceful shutdown), tries, trees, parsers, small state machines. Wire-format parsing comes up often. Error-handling depth matters &mdash; HashiCorp production code is famously careful about failure paths.\n\nDistributed systems: Raft (leader election, log replication, log compaction, membership changes), gossip protocols (SWIM, HyParView), consistency models (linearizable, sequential, causal, eventual), CAP trade-offs in concrete products (Consul is CP, DynamoDB is AP, etc.), Paxos at a conceptual level.\n\nSecurity / cryptography (for Vault-adjacent roles): secret lifecycle, sealing / unsealing (Shamir's Secret Sharing, auto-unseal with cloud KMS), transit encryption, PKI internals, dynamic credentials, auth methods (OIDC, mTLS, AppRole, Kubernetes service account).\n\nNetwork / service mesh (for Consul-adjacent roles): service discovery semantics, health check strategies, mTLS everywhere, L7 routing, intention-based access control, multi-datacenter replication with LAN / WAN gossip.\n\nScheduling (for Nomad-adjacent roles): bin-packing algorithms, preemption, stateful vs stateless workload differences, placement constraints, federation.\n\nState management (for Terraform): state file consistency, locking semantics, plan vs apply semantics, refresh behavior, drift detection, import workflows.\n\nCoding Interview Details\n\nTwo coding rounds, 60 minutes each, medium-hard difficulty. Comparable to Google L4&ndash;L5. Interviewers will push on idiomatic Go if you're coding in it &mdash; context propagation, channel patterns, error wrapping, testing approach. If you're not coding in Go, they care less about idioms and more about clarity.\n\nTypical problem types:\n\n- Implement a small primitive with specific semantics (TTL cache with eviction callbacks, rate limiter with gra"
+}

@@ -1,0 +1,92 @@
+{
+  "company": "xAI",
+  "slug": "xai",
+  "url": "https://www.techinterview.org/companies/xai",
+  "scrapedAt": "2026-07-02T07:16:20.745Z",
+  "interviewStages": [
+    "System design (1 round): training / inference / cluster prompts. \"Design the training infrastructure for a frontier model at 100K+ GPU scale.\" \"Design the inference-serving system for Grok across X, API, and product surfaces.\" \"Design the data pipeline ingesting X-platform content for model training.\"",
+    "Behavioral / hiring manager: past projects, comfort with fast-paced environments, willingness to work intensely."
+  ],
+  "codingTopics": [
+    "Implement attention from scratch with appropriate efficiency (standard question for research engineering)",
+    "Parallel-algorithm primitive in CUDA or multi-GPU setting",
+    "Data processing at scale &mdash; deduplication, sampling, quality filtering with bounded memory",
+    "Systems problem with strict latency or throughput constraints",
+    "Classic algorithm problems (DP, graphs, trees) with ML or infrastructure twists"
+  ],
+  "systemDesignTopics": [
+    "\"Design the training cluster management for 100K H100 GPUs with fault tolerance and elastic-scaling.\"",
+    "\"Design the inference-serving system for Grok across X, API, and Grok.com with diverse latency requirements.\"",
+    "\"Design the data pipeline ingesting X content at petabyte scale for model training with safety filtering.\"",
+    "\"Design the checkpoint / resume system for a frontier model training run that can survive rack failures.\"",
+    "Walk through Grok's architecture &mdash; differences from GPT / Claude / Gemini architecturally.",
+    "Discuss scaling-law reasoning for training-compute decisions.",
+    "Debug a hypothetical training-divergence scenario at 100K GPU scale.",
+    "Design an experiment to test a specific architectural or data-mix hypothesis."
+  ],
+  "behavioralTopics": [
+    "Pace and intensity: \"Tell me about the fastest-shipped impactful project in your career.\"",
+    "Technical ownership: \"Describe a production or research system you owned end-to-end.\"",
+    "Musk-style fit: \"What excites you about xAI specifically, given the intensity reputation?\"",
+    "Independent judgment: \"Tell me about a time you made a contrarian technical call that turned out right.\""
+  ],
+  "sampleQuestions": {
+    "coding": [
+      "Implement attention from scratch with appropriate efficiency (standard question for research engineering). Talk through your approach, complexity, and edge cases.",
+      "Implement a thread-safe bounded queue. How do you prevent race conditions and deadlocks?",
+      "Implement an LRU cache with O(1) get and put. Then explain how you would make it thread-safe without serializing all access.",
+      "Implement a streaming feature aggregator: given a stream of events, maintain rolling counts and averages per key with bounded memory. Discuss complexity and eviction.",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases."
+    ],
+    "behavioral": [
+      "Tell me about the fastest-shipped impactful project in your career.",
+      "Describe a production or research system you owned end-to-end.",
+      "What excites you about xAI specifically, given the intensity reputation?",
+      "Tell me about a time you made a contrarian technical call that turned out right.",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
+    "systemDesign": [
+      "Design the training cluster management for 100K H100 GPUs with fault tolerance and elastic-scaling.",
+      "Design the inference-serving system for Grok across X, API, and Grok.com with diverse latency requirements.",
+      "Design the data pipeline ingesting X content at petabyte scale for model training with safety filtering.",
+      "Design the checkpoint / resume system for a frontier model training run that can survive rack failures.",
+      "Design an experiment to test a specific architectural or data-mix hypothesis. Cover the API, data model, and how it scales."
+    ],
+    "values": [],
+    "other": [
+      "Is the Musk-company intensity reputation accurate?",
+      "How does xAI compare to OpenAI / Anthropic / Mistral on interviews?",
+      "What's the Colossus cluster actually like from an engineering perspective?",
+      "What about the X integration?",
+      "Is the compensation really that high?"
+    ]
+  },
+  "difficulty": 8.5,
+  "tips": [
+    "Prepare for intensity-fit questions directly. Be honest about your appetite &mdash; overclaiming backfires.",
+    "Use Grok seriously. Have informed opinions about model quality relative to peers.",
+    "Engage with Colossus-scale problems. For infrastructure roles, study public details of frontier-lab clusters.",
+    "Know Grok's papers. xAI has published technical reports; reference them specifically.",
+    "Move fast in interviews. Execution bias shows in how you respond to questions &mdash; over-deliberating loses ground.",
+    "xAI technical blog and Grok model-release papers",
+    "Deep Learning by Goodfellow et al. for foundations",
+    "Megatron-LM, DeepSpeed, FSDP documentation for large-scale training",
+    "The original Attention Is All You Need, GPT-3, PaLM, Chinchilla papers",
+    "Public technical deep-dives on Colossus cluster architecture (Nvidia blog posts, Supermicro / Dell case studies)",
+    "Grok itself &mdash; use it actively for 1&ndash;2 weeks before interviewing"
+  ],
+  "compensation": [
+    "Member of Technical Staff / Software Engineer: $200k&ndash;$250k base, $400k&ndash;$700k equity/yr at current internal valuations, performance-based bonus. Total: ~$500k&ndash;$800k / year.",
+    "Senior MTS / Senior Software Engineer: $260k&ndash;$340k base, $800k&ndash;$1.5M equity/yr. Total: ~$800k&ndash;$1.4M / year.",
+    "Staff / Principal: $350k&ndash;$450k base, $1.5M&ndash;$4M+ equity/yr. Total: ~$1.3M&ndash;$3M+ / year.",
+    "The Colossus cluster is a real competitive moat. 200K+ GPUs changed xAI's training capability dramatically.",
+    "The X integration is substantial engineering scope, not marketing.",
+    "Compensation is among the highest in the industry at senior levels.",
+    "The Musk-company intensity is real and filters aggressively for fit. Candidates should be honest with themselves about appetite.",
+    "Hand-waving on large-scale training specifics. Colossus-scale reasoning is expected.",
+    "No engagement with Grok. Having used it and having opinions matters.",
+    "Wanting structured work-life balance. The culture doesn't offer it.",
+    "Unfamiliarity with scaling-laws reasoning for research roles."
+  ],
+  "rawSummary": "xAI Interview Guide 2026: Grok, Colossus Supercluster, Musk-Style Pace, and Frontier Lab Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 24, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\tUpdated April 24, 2026 · techinterview.org\n\n⏱ 9 min read\n\nxAI\nx.ai ↗\n\nxAI Interview Process: Complete 2026 Guide\n\nOverview\n\nxAI is the frontier AI lab founded in 2023 by Elon Musk to build Grok &mdash; a frontier large-language-model competitor to GPT, Claude, Gemini, and Llama. The company famously assembled the Colossus supercluster in Memphis in 2024, bringing 100K+ H100 GPUs online in a record-breaking build-out that scaled to 200K+ GPUs through 2025 with the Colossus 2 expansion. Integrated tightly with X (formerly Twitter) as a deployment surface, Grok models are available in the X app, via grok.com, via xAI API, and via Tesla vehicles (for in-car AI assistance and some AI5 / Dojo overlaps). ~1,500 employees in 2026, concentrated in Palo Alto (HQ), Memphis (data center), and smaller Seattle / London presence. Interviews reflect the Musk-company reality: fast decisions, long hours implied, ambitious technical scope, and an intensity distinctive even among frontier labs. Engineering is Python-heavy for ML with Rust / C++ for high-performance systems; the culture rewards velocity and technical independence.\n\nInterview Structure\n\nRecruiter screen (30 min): background, why xAI, team preference. The engineering surface: pre-training research, post-training / RLHF, inference, data engineering, infrastructure (Colossus / cluster management), Grok product engineering (app, API, X integrations), and robotics / Optimus-adjacent work. Triage early; the loops differ meaningfully by area.\n\nTechnical phone screen (60 min): one coding problem, medium-hard. Python for ML; Rust / C++ for infrastructure; Go for some services. Problems tilt applied and algorithmic &mdash; implement an attention primitive, handle a streaming data pipeline, build a small scheduler.\n\nTake-home (some senior / research roles): 4&ndash;8 hours on a realistic problem. Expect substantial scope and short turnarounds &mdash; xAI's pace is faster than typical frontier labs.\n\nOnsite / virtual onsite (4&ndash;5 rounds, often compressed timeline):\n\n- Coding (2 rounds): one algorithms round, one applied ML-systems or infrastructure round. Difficulty is comparable to OpenAI / Meta FAIR &mdash; solidly hard.\n\n- System design (1 round): training / inference / cluster prompts. \"Design the training infrastructure for a frontier model at 100K+ GPU scale.\" \"Design the inference-serving system for Grok across X, API, and product surfaces.\" \"Design the data pipeline ingesting X-platform content for model training.\"\n\n- ML / research round (1&ndash;2 rounds for research roles): paper deep-dive, experiment design, debugging training scenarios. The bar is frontier-lab depth.\n\n- Behavioral / hiring manager: past projects, comfort with fast-paced environments, willingness to work intensely.\n\n- Executive round (often for senior roles): Musk has historically interviewed senior candidates personally, and that pattern continues for executive-track hires. Other senior executives interview staff+ level candidates.\n\nTechnical Focus Areas\n\nCoding: Python fluency, C++ / CUDA for hot paths, Rust for systems. Clean code plus performance awareness; not a beauty-over-function culture.\n\nTransformer / ML fundamentals: attention mechanisms, positional encodings, tokenization, scaling laws, RLHF pipelines. xAI has shipped successive Grok versions (Grok-2, Grok-3, Grok-4 and follow-ons) with distinct architectural choices; engineers are expected to be current on these.\n\nTraining infrastructure at scale: distributed training across 100K+ GPUs is a defining technical challenge for xAI &mdash; data / tensor / pipeline / sequence parallelism, fault tolerance across tens-of-thousands-of-nodes, checkpoint I/O at scale, network topology awareness (Infiniband / NVLink topology), power and cooling considerations in the Memphis facility.\n\nInference / serving: Grok serves X (highly concurrent), API customers, and product surfaces. Scale is substantial; latency budgets are real. Expect depth on continuous batching, KV-cache management, multi-tenant serving.\n\nData engineering: ingesting X-platform content at scale, data-quality filtering, deduplication, safety / alignment curation, training data pipelines. The data-engineering scope is distinctive given xAI's integration with X.\n\nInfrastructure / Colossus: GPU cluster management at record scale, power management (Colossus consumes substantial power), cooling (mixed air / liquid), networking (Tomahawk ASICs, RoCE), storage (massive parallel filesystem), monitoring at 100K+ node scale.\n\nProduct engineering: Grok integration with X (in-app AI), API delivery, iOS / Android clients, web product. Strong product engineering adjacent to frontier research.\n\nCoding Interview Details\n\nTwo coding rounds, 60 minutes each. Difficulty is solidly hard &mdash; comparable to OpenA"
+}

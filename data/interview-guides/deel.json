@@ -1,0 +1,92 @@
+{
+  "company": "Deel",
+  "slug": "deel",
+  "url": "https://www.techinterview.org/companies/deel",
+  "scrapedAt": "2026-07-02T07:17:17.050Z",
+  "interviewStages": [
+    "System design (1 round): global-payroll prompts. \"Design the multi-country payroll execution system handling 100+ jurisdictions with regulatory compliance.\" \"Design the international contractor payment orchestration with currency conversion and banking partner integration.\" \"Design the benefits enrollment system supporting country-specific plans and regulations.\"",
+    "Behavioral / hiring manager: past projects, global / cross-timezone effectiveness, hypergrowth comfort."
+  ],
+  "codingTopics": [
+    "Payroll calculation: given an employee and jurisdiction, compute gross-to-net with correct tax handling",
+    "Multi-currency transfer orchestration with FX conversion and bank routing",
+    "Contract-lifecycle state machine with jurisdiction-specific variations",
+    "Benefits-eligibility evaluator given plan rules and employee attributes",
+    "Classic algorithm problems (graphs, DP) with global-HR applied twists"
+  ],
+  "systemDesignTopics": [
+    "\"Design the multi-country payroll execution system running bi-weekly or monthly cycles in 100+ countries with jurisdictional compliance.\"",
+    "\"Design the contractor payment orchestration with multi-currency support and banking partner failover.\"",
+    "\"Design the benefits administration platform supporting country-specific plans with ongoing enrollment and changes.\"",
+    "\"Design the immigration / visa case-management system integrating with government services where available.\"",
+    "Walk through what happens legally when Deel hires an employee in Germany for a US customer.",
+    "Discuss the trade-offs of contractor vs EOR classification for international hires.",
+    "Reason about how you'd handle a country's new tax law change affecting all customers' employees in that jurisdiction.",
+    "Describe data-residency considerations for employment records in GDPR vs non-GDPR jurisdictions."
+  ],
+  "behavioralTopics": [
+    "Hypergrowth comfort: \"How do you operate in a fast-growing company with shifting priorities?\"",
+    "Global collaboration: \"Describe working effectively across many timezones and cultures.\"",
+    "Customer empathy: \"Tell me about understanding a customer's HR / compliance challenge.\"",
+    "Ownership: \"Describe a complex project you owned end-to-end.\""
+  ],
+  "sampleQuestions": {
+    "coding": [
+      "Given an employee and jurisdiction, compute gross-to-net with correct tax handling. Talk through your approach, complexity, and edge cases.",
+      "Implement a double-entry ledger that processes a stream of transactions and detects imbalances. How do you guarantee idempotency when a transaction is delivered twice?",
+      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph.",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution."
+    ],
+    "behavioral": [
+      "How do you operate in a fast-growing company with shifting priorities?",
+      "Describe working effectively across many timezones and cultures.",
+      "Tell me about understanding a customer's HR / compliance challenge.",
+      "Describe a complex project you owned end-to-end.",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
+    "systemDesign": [
+      "Design the multi-country payroll execution system running bi-weekly or monthly cycles in 100+ countries with jurisdictional compliance.",
+      "Design the contractor payment orchestration with multi-currency support and banking partner failover.",
+      "Design the benefits administration platform supporting country-specific plans with ongoing enrollment and changes.",
+      "Design the immigration / visa case-management system integrating with government services where available.",
+      "Walk through what happens legally when Deel hires an employee in Germany for a US customer."
+    ],
+    "values": [],
+    "other": [
+      "How does Deel compare to Rippling / Workday on interviews?",
+      "Is EOR really that complex technically?",
+      "What's the competitive landscape?",
+      "How distributed is engineering really?",
+      "What's the AI / automation direction?"
+    ]
+  },
+  "difficulty": 7,
+  "tips": [
+    "Learn about EOR structure. Understand how Deel legally employs people for customers.",
+    "Engage with jurisdictional variance. Have opinions about why payroll differs meaningfully across countries.",
+    "Demonstrate global awareness. Experience working across cultures / timezones helps.",
+    "Prepare hypergrowth stories. Past experiences with rapid scaling or priority shifts.",
+    "Ask about the distributed work reality. Signals you understand the culture.",
+    "Deel's public content (blog, country guides, compliance resources)",
+    "Comparative resources on international payroll (SHRM, HR industry publications)",
+    "Designing Data-Intensive Applications (Kleppmann) for general systems context",
+    "GDPR overview and regional payroll-law summaries",
+    "Remote / Oyster / Papaya websites for competitive context",
+    "Deel's own product if your employer uses it"
+  ],
+  "compensation": [
+    "Software Engineer (US): $170k&ndash;$215k base, $130k&ndash;$260k equity (4 years), modest bonus. Total: ~$260k&ndash;$420k / year.",
+    "Senior Software Engineer: $220k&ndash;$280k base, $280k&ndash;$520k equity. Total: ~$370k&ndash;$580k / year.",
+    "Staff Engineer: $285k&ndash;$345k base, $550k&ndash;$1M equity. Total: ~$510k&ndash;$830k / year.",
+    "The global scale is genuinely real. Deel operates in 150+ countries with local legal entities.",
+    "The engineering complexity is substantial &mdash; global payroll is harder than it looks.",
+    "The distributed-workforce culture is first-class, not a marketing claim.",
+    "Hypergrowth pace is real; candidates should expect shifting priorities and rapid change.",
+    "Dismissing the international-HR domain as \"just payroll.\" It's genuinely complex.",
+    "Weak multi-currency / multi-jurisdiction reasoning in system design.",
+    "Expecting structured-hierarchy work environment.",
+    "Ignoring compliance implications of EOR legal structure."
+  ],
+  "rawSummary": "Deel Interview Guide 2026: Global Payroll, EOR, International Contractor Payments, and Distributed Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 24, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\tUpdated April 24, 2026 · techinterview.org\n\n⏱ 8 min read\n\nDeel\ndeel.com ↗\n\nDeel Interview Process: Complete 2026 Guide\n\nOverview\n\nDeel is the global HR and payroll platform focused on international workforce &mdash; employer-of-record (EOR) services letting companies hire employees in 150+ countries without establishing local entities, contractor payments, international payroll, and global benefits administration. Founded 2019 by Alex Bouaziz and Shuo Wang, private with valuations approaching $12B through 2024 and continued growth in 2025. ~5,000 employees in 2026. Headquartered in San Francisco but operating as a truly distributed global company with engineering hubs across the Americas, Europe, and Asia-Pacific. The product is category-defining for international hiring &mdash; competitors include Remote, Oyster, Papaya Global, and larger platforms adding EOR services. Engineering stack is TypeScript / Node.js heavy for product, Python for data and ML, with substantial integration engineering connecting to payroll providers, benefits carriers, and banking systems across many jurisdictions. Interviews reflect the reality of a fast-growing international-first company &mdash; strong engineering discipline with global-regulatory-awareness overlay.\n\nInterview Structure\n\nRecruiter screen (30 min): background, why Deel, team interest. The product surface: EOR operations, contractor platform, global payroll execution, benefits administration, immigration / visa support, integration engineering (payroll providers, banks, accounting systems), AI / automation features, and enterprise product for larger customers.\n\nTechnical phone screen (60 min): one coding problem, medium-hard. TypeScript / Node.js for product work; Python for data. Problems tilt applied &mdash; model a payroll calculation with jurisdiction rules, handle a multi-currency transfer, implement a compliance-driven workflow.\n\nTake-home (some senior / staff roles): 4&ndash;6 hours on a realistic engineering problem.\n\nOnsite / virtual onsite (4&ndash;5 rounds):\n\n- Coding (1&ndash;2 rounds): one algorithms round, one applied OO / compliance-aware round.\n\n- System design (1 round): global-payroll prompts. \"Design the multi-country payroll execution system handling 100+ jurisdictions with regulatory compliance.\" \"Design the international contractor payment orchestration with currency conversion and banking partner integration.\" \"Design the benefits enrollment system supporting country-specific plans and regulations.\"\n\n- Domain / global-compliance round (1 round): discussion of international employment realities &mdash; EOR legal structure, payroll-law variance across jurisdictions, visa / immigration integration, tax withholding compliance.\n\n- Behavioral / hiring manager: past projects, global / cross-timezone effectiveness, hypergrowth comfort.\n\nTechnical Focus Areas\n\nCoding: TypeScript fluency (modern idioms, discriminated unions for domain modeling), Node.js for backend, some Python for data / ML work. Clean OO design for complex domain modeling.\n\nGlobal payroll domain: distinctive expertise area. Understanding per-country tax calculation (US federal + state, UK PAYE + NI, EU country variants, Latin American variants, Asian variants), pay cycle timing, benefit structures, statutory contributions, gross-to-net logic, payslip generation.\n\nEOR legal structure: understanding how employer-of-record works &mdash; Deel legally employs people on behalf of customer companies in jurisdictions where Deel has local entities. This creates engineering implications for data modeling (who is the employer-of-record vs the client-of-record), compliance (Deel holds employment obligations), and risk (Deel's entities face regulatory liability).\n\nMulti-currency financial engineering: handling currency conversion, FX risk, bank partner routing across jurisdictions (SWIFT, SEPA, local rails), settlement timing, reconciliation of cross-currency flows.\n\nIntegration engineering: connecting to payroll providers, banks, benefits carriers, insurance partners, immigration-service providers, accounting systems across many countries. Each integration has country-specific quirks.\n\nCompliance / legal: employment law variance (notice periods, severance, PTO, parental leave, classification of contractors vs employees), tax withholding requirements, data residency (GDPR, Russia, China), sanctions screening, AML / KYC for employees.\n\nAI / automation: Deel has invested in AI-powered features (contract generation, compliance assistance, automated classification reviews, support workflows). Production LLM experience applied to global-HR contexts is valued.\n\nCoding Interview Details\n\nTwo coding rounds, 60 minutes each. Difficulty is medium-hard. Comparable to mid-tier public SaaS &mdash; below Google L5 "
+}

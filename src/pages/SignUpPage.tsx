@@ -14,6 +14,7 @@ import { queueTransactionalAuthEmail } from '../services/transactionalEmailServi
 import { resolveSignedInWorkspace } from '../services/authAccountLinkingService';
 import { getSafeRelativeRedirect } from '../utils/security';
 import { getEmailDisplayName } from '../utils/userDisplayName';
+import { waitForReferralEntitlement } from '../services/referralService';
 
 const SignUpPage: React.FC = () => {
     const { t } = useTranslation();
@@ -115,6 +116,10 @@ const SignUpPage: React.FC = () => {
                 ...(referredBy ? { referredBy } : {}),
                 ...(source ? { source } : {})
             });
+            if (referredBy) {
+                const referralApplied = await waitForReferralEntitlement(cred.user.uid);
+                if (referralApplied) localStorage.removeItem('careervivid_referral');
+            }
             trackUsage(cred.user.uid, 'sign_in', { signup: true });
 
             // Check for redirect param
@@ -160,6 +165,10 @@ const SignUpPage: React.FC = () => {
                     ...(referredBy ? { referredBy } : {}),
                     ...(source ? { source } : {})
                 });
+                if (referredBy) {
+                    const referralApplied = await waitForReferralEntitlement(user.uid);
+                    if (referralApplied) localStorage.removeItem('careervivid_referral');
+                }
                 trackUsage(user.uid, 'sign_in', {
                     signup: true,
                     provider: 'google',
@@ -307,7 +316,7 @@ const SignUpPage: React.FC = () => {
                         {getReferralCode() && (
                             <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-yellow-100 to-yellow-50 dark:from-yellow-900/30 dark:to-yellow-800/20 rounded-full">
                                 <span className="text-sm font-semibold text-yellow-800 dark:text-yellow-300">
-                                    🎁 Referral code applied! You'll get 1-Month Free Premium (1000 AI credits/month)
+                                    🎁 Referral code applied! You'll get 2 Months of Free Premium (1000 AI credits/month)
                                 </span>
                             </div>
                         )}

@@ -1,0 +1,86 @@
+{
+  "company": "Block",
+  "slug": "block",
+  "url": "https://www.techinterview.org/companies/block",
+  "scrapedAt": "2026-07-02T07:16:41.905Z",
+  "interviewStages": [
+    "System design (1 round): business-unit-specific prompts. \"Design the merchant payment-processing pipeline for 1M TPS peak across Square.\" \"Design Cash App's P2P transfer system with bounded latency and fraud detection.\" \"Design the Bitkey self-custody recovery flow with hardware-security constraints.\"",
+    "Behavioral / hiring manager: past projects, ownership, comfort with regulatory / compliance constraints."
+  ],
+  "codingTopics": [
+    "Card authorization state machine with all failure paths (Square)",
+    "Idempotent P2P transfer handler under at-least-once delivery (Cash App)",
+    "Installment scheduling with customer-specific payment plans (Afterpay)",
+    "Bitcoin transaction construction with multi-sig constraints (Bitkey)",
+    "Fraud-signal aggregation from streaming transaction data",
+    "Classic algorithm problems (graphs, trees, DP) with fintech twists"
+  ],
+  "systemDesignTopics": [
+    "Square: \"Design the card-present payment-processing pipeline handling 10K TPS with 100ms auth budget.\"",
+    "Cash App: \"Design P2P transfer at consumer scale with fraud detection and social-feed integration.\"",
+    "Afterpay: \"Design the credit-decisioning system that approves or declines BNPL applications within 500ms.\"",
+    "Bitkey: \"Design the self-custody recovery flow with 2-of-3 multi-sig and no custodial trust.\"",
+    "Square: discuss EMV chip-card authentication; reason about interchange routing; debug a hypothetical terminal-firmware bug scenario.",
+    "Cash App: discuss fraud vectors unique to consumer P2P; reason about bot / scam patterns; describe UX trade-offs in fraud-review flows.",
+    "Afterpay: discuss credit-scoring feature engineering; reason about regulatory evolution; describe a collections workflow.",
+    "Bitkey: discuss hardware wallet security threats; reason about key-generation entropy; describe a firmware-update attack surface."
+  ],
+  "behavioralTopics": [
+    "Customer focus: \"Tell me about a time you deeply engaged with a customer problem.\"",
+    "Ownership: \"Describe a production incident you owned end-to-end.\"",
+    "Regulatory awareness: \"Have you worked under compliance constraints? How did it shape your engineering?\"",
+    "Mission alignment: \"What draws you to the 'economic empowerment' mission specifically?\""
+  ],
+  "sampleQuestions": {
+    "coding": [
+      "Implement a double-entry ledger that processes a stream of transactions and detects imbalances. How do you guarantee idempotency when a transaction is delivered twice?",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you deeply engaged with a customer problem.",
+      "Describe a production incident you owned end-to-end.",
+      "Have you worked under compliance constraints? How did it shape your engineering?",
+      "What draws you to the 'economic empowerment' mission specifically?",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "How different are Square and Cash App as interview experiences?",
+      "Is Bitkey a serious engineering opportunity or a Bitcoin vanity project?",
+      "How does Block compare to Stripe on interviews?",
+      "What's happening with Afterpay post the 2024 BNPL regulatory changes?",
+      "Is Bitcoin-denominated compensation a thing?"
+    ]
+  },
+  "difficulty": 7.5,
+  "tips": [
+    "Pick your BU carefully. Research Square vs Cash App vs Bitkey vs Afterpay culture and fit. They're meaningfully different.",
+    "Use the product you're applying to. Square terminal if merchant-adjacent, Cash App for consumer, Bitkey hardware for wallet team.",
+    "Know fintech fundamentals. Idempotency, card networks, settlement cycles &mdash; baseline vocabulary.",
+    "Engage with Bitcoin where relevant. Don't dismiss it if targeting Bitcoin-adjacent work.",
+    "Demonstrate customer empathy. Merchants, consumers, hardware users &mdash; engineers are expected to engage with real users.",
+    "Block / Square / Cash App engineering blogs (each BU posts separately)",
+    "Mastering Bitcoin by Andreas Antonopoulos for Bitkey / Spiral prep",
+    "Stripe engineering blog for payment-processing canon",
+    "Designing Data-Intensive Applications (Kleppmann)",
+    "Square's public developer documentation for API shape and product structure",
+    "The Bitkey wallet (purchasable) for hands-on understanding"
+  ],
+  "compensation": [
+    "L4 / Software Engineer: $160k&ndash;$205k base, $70k&ndash;$140k equity/yr, 10% bonus. Total: ~$240k&ndash;$360k / year.",
+    "L5 / Senior Software Engineer: $210k&ndash;$270k base, $130k&ndash;$240k equity/yr. Total: ~$340k&ndash;$510k / year.",
+    "L6 / Staff Engineer: $275k&ndash;$340k base, $240k&ndash;$450k equity/yr. Total: ~$510k&ndash;$750k / year.",
+    "The BUs are more autonomous than outsiders expect. Square and Cash App have distinctly different cultures.",
+    "Bitkey is a real hardware-security company within Block. The engineering culture there differs meaningfully from the software-only BUs.",
+    "Afterpay's BNPL regulations are evolving rapidly (US, UK, Australia); engineering must navigate changing compliance landscape.",
+    "Economic empowerment as mission is taken seriously; candidates who don't engage with it often don't fit.",
+    "Picking the wrong BU. Optimizing for a specific technical interest across BUs rarely goes well; pick one and commit.",
+    "Hand-waving on payment-rail or consumer-fraud realities.",
+    "No opinions about Bitcoin if targeting Bitkey or Spiral. Jack Dorsey's Bitcoin orientation is real.",
+    "Dismissing the mission as marketing. It's not."
+  ],
+  "rawSummary": "Block Interview Guide 2026: Square, Cash App, Afterpay, Bitkey, and the Multi-BU Engineering Culture\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 23, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\tUpdated April 23, 2026 · techinterview.org\n\n⏱ 8 min read\n\nBlock\nblock.xyz ↗\n\nBlock Interview Process: Complete 2026 Guide\n\nOverview\n\nBlock is the parent company behind Square (merchant payments and commerce), Cash App (consumer financial services), Afterpay (BNPL), TIDAL (music streaming), Spiral (Bitcoin open-source investment), Bitkey (self-custody Bitcoin wallet hardware), and a range of financial-services adjacent products. Founded 2009 as Square by Jack Dorsey and Jim McKelvey, rebranded Block in 2021 to reflect the expansion beyond the core Square merchant business, public since 2015. ~11,500 employees in 2026 after post-COVID normalization and multiple organizational restructurings. The company operates as a collection of relatively autonomous business units with shared engineering platform underneath. Headquartered in Oakland with major offices in San Francisco, Atlanta, Melbourne, Dublin, and remote hiring globally. Engineering is Java / Kotlin heavy at Square; Kotlin / Go at Cash App; Rust / C++ at Bitkey; and a mix across smaller products. Interviews reflect the company's breadth: expect different technical profiles depending on which business unit you're interviewing with, though all share fintech-correctness and scale themes.\n\nInterview Structure\n\nRecruiter screen (30 min): background, why Block, business-unit preference. The business units hire largely independently and have distinct cultures: Square is merchant-services-focused and traditional-fintech-rigorous; Cash App is consumer-fintech-fast-paced; Bitkey is hardware-security-specialist; Afterpay is BNPL and consumer-credit-risk focused. Triage matters.\n\nTechnical phone screen (60 min): one coding problem, medium-hard. Java / Kotlin at Square; Kotlin / Go at Cash App; Rust at Bitkey; Python for ML / data. Problems tilt applied &mdash; implement a card-authorization state machine, process a transaction stream, model a BNPL installment schedule.\n\nTake-home (some senior / staff roles): 4&ndash;6 hours on a realistic engineering problem. Historically involves payment-processing or consumer-finance primitives.\n\nOnsite / virtual onsite (4&ndash;6 rounds):\n\n- Coding (1&ndash;2 rounds): one algorithms round, one applied round. The applied round covers BU-specific primitives &mdash; merchant-payment flows at Square, consumer-transfer flows at Cash App, Bitcoin transaction construction at Bitkey.\n\n- System design (1 round): business-unit-specific prompts. \"Design the merchant payment-processing pipeline for 1M TPS peak across Square.\" \"Design Cash App's P2P transfer system with bounded latency and fraud detection.\" \"Design the Bitkey self-custody recovery flow with hardware-security constraints.\"\n\n- Domain / craft round (1 round): deep discussion of financial correctness, regulatory awareness, or domain-specific technical topics. Square cares about merchant reality; Cash App about consumer-fintech UX; Bitkey about cryptographic primitives and hardware security.\n\n- Behavioral / hiring manager: past projects, ownership, comfort with regulatory / compliance constraints.\n\n- Values round: each BU has its own version but the common thread is \"economic empowerment\" as the parent-company mission.\n\nTechnical Focus Areas\n\nSquare (merchant payments): card-present and card-not-present processing, terminal hardware integration (Square's POS ecosystem), PCI compliance, fraud detection for merchants, risk underwriting, settlement cycles, interchange economics, dispute and chargeback handling.\n\nCash App (consumer fintech): P2P transfers with fraud detection, Cash Card (debit) operations, stock investing, Bitcoin buying / selling / sending, tax filing integration, Cash App Pay for merchants. Technical focus: idempotent transfers, consumer-grade UX, extreme scale (50M+ MAU).\n\nAfterpay (BNPL): credit-underwriting models, installment scheduling, merchant integration, consumer communication, collections workflow, regulatory compliance in the BNPL space (evolving rapidly in 2024&ndash;2026).\n\nBitkey (Bitcoin self-custody): hardware security modules, multi-signature schemes (Bitkey is 2-of-3), secure key generation, recovery flows without custodial risk, firmware update integrity, embedded C / Rust programming.\n\nShared platform: authentication and identity across BUs, financial ledger, data infrastructure, ML platform, engineering tooling. Shared-platform roles have broader scope across the company.\n\nAI / ML: fraud detection across all BUs, credit underwriting for Square Capital and Afterpay, personalization for Cash App, spam / abuse detection. Block has invested in AI tooling cross-cutting the BUs.\n\nCoding Interview Details\n\nTwo coding rounds, 60 minutes each. Difficulty is medium-hard, varying by BU. Square is solidly medium-hard on Java / Kotlin. Cash App is medium-hard on Kotlin / G"
+}

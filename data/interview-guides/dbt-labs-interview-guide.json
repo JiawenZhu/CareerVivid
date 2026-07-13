@@ -1,0 +1,35 @@
+{
+  "company": "dbt Labs",
+  "slug": "dbt-labs-interview-guide",
+  "url": "https://www.techinterview.org/companies/dbt-labs-interview-guide",
+  "scrapedAt": "2026-07-02T07:21:54.222Z",
+  "interviewStages": [
+    "Behavioral: collaboration with data analysts, explaining tradeoffs to non-engineers"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is dbt Labs fully remote?",
+      "Do I need to know dbt before interviewing?",
+      "What is the engineering culture like?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "dbt Labs Interview Guide (2026): Analytics Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\ndbt Labs\ngetdbt.com ↗\n\ndbt Labs created the analytics engineering category — SQL-based transformations, version-controlled, tested, and packaged. dbt Cloud is the SaaS layer. The interview is a hybrid of data engineering and traditional software engineering, with strong emphasis on SQL fluency and developer empathy.\n\nProcess\n\nRecruiter screen → 60-minute technical phone (often SQL + DSA hybrid) → onsite virtual: 2 coding (one DSA, one practical), 1 system design, 1 past-project deep dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design dbt Cloud orchestration — schedule, retry, dependency-aware execution of model graphs\n\n- Design a metrics layer that compiles to SQL across multiple warehouses (Snowflake, BigQuery, Redshift)\n\n- SQL: complex window functions, recursive CTEs, query optimization tradeoffs\n\n- Coding: graph problems (DAG traversal mirrors dbt model dependencies)\n\n- Behavioral: collaboration with data analysts, explaining tradeoffs to non-engineers\n\nLevels and comp (2026)\n\n- SE II: $170K–$210K total\n\n- Senior SE: $240K–$310K\n\n- Staff: $340K–$450K\n\n- Principal: $480K–$620K\n\nPrep priorities\n\n- Be fluent in SQL (window functions, CTEs, query plans) — this is non-negotiable\n\n- Have hands-on dbt experience or at minimum read the dbt docs and run through tutorials\n\n- Understand modern data stack: Snowflake, BigQuery, Redshift, Airflow, Fivetran\n\nFrequently Asked Questions\n\nIs dbt Labs fully remote?\n\nYes. ~600 employees distributed globally. Hubs in Philadelphia, NYC, Sydney are optional.\n\nDo I need to know dbt before interviewing?\n\nStrongly preferred. At minimum, install dbt locally and build a small project — they will ask about it.\n\nWhat is the engineering culture like?\n\nAsync-heavy, writing-focused, collaborative. dbt Labs values craft and clear thinking over heroics.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for dbt Labs? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextLow-Level Design: Healthcare Appointment Booking — Scheduling, Reminders, EMR Integration⏱ 6 min readSystem Design Interview: Autocomplete and Typeahead Service⏱ 6 min readLow-Level Design: Ride-sharing Matching Engine — Driver Matching, Pricing, and Trip State Machine⏱ 5 min read"
+}

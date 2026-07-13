@@ -1,0 +1,35 @@
+{
+  "company": "Runway",
+  "slug": "runway-interview-guide",
+  "url": "https://www.techinterview.org/companies/runway-interview-guide",
+  "scrapedAt": "2026-07-02T07:14:24.586Z",
+  "interviewStages": [
+    "Behavioral: ownership, taste, customer empathy for film/creative professionals"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Runway remote-friendly?",
+      "How does Runway compare to Pika or OpenAI Sora?",
+      "What is the engineering culture?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Runway Interview Guide (2026): AI Video Creation Platform\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 6, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 6, 2026 · techinterview.org\n\n⏱ 1 min read\n\nRunway\nrunwayml.com ↗\n\nRunway is the AI video creation platform — known for Gen-3 (text-to-video) and a deep set of creative tools used by film and advertising professionals. Series D in 2024. The interview emphasizes deep generative-video research, creative-tools product engineering, and the unique blend of professional and consumer use cases.\n\nProcess\n\nRecruiter screen → 60-minute coding (Python or TypeScript) → onsite virtual: 2 coding, 1 ML system design or product system design, 1 craft deep-dive, 1 behavioral. Research candidates get a paper-discussion round. Cycle: 4–5 weeks.\n\nWhat they actually ask\n\n- Design a video generation pipeline that runs at multiple quality tiers\n\n- Design a credit / billing system for variable-cost generation jobs\n\n- Design a creative editor that integrates generative with classic editing\n\n- Coding: medium-hard DSA\n\n- Behavioral: ownership, taste, customer empathy for film/creative professionals\n\nLevels and comp (2026)\n\n- SE: $185K–$255K total\n\n- Senior SE: $265K–$365K total\n\n- Staff / ML Research: $380K–$570K+ total\n\nPrep priorities\n\n- Be fluent in Python (research / serving) and TypeScript (product)\n\n- Understand video diffusion, motion priors, and temporal coherence\n\n- Brush up on video editing pipelines, NLE concepts, and color science\n\nFrequently Asked Questions\n\nIs Runway remote-friendly?\n\nHubs in NYC (HQ) and San Francisco. Many engineering roles remote within US/Europe.\n\nHow does Runway compare to Pika or OpenAI Sora?\n\nRunway has the strongest professional / film customer base and a deeper editing product. Pika competes on consumer simplicity. Sora is highest-quality but limited access. Runway pays competitively at top of AI startup tier.\n\nWhat is the engineering culture?\n\nResearch-engineering blended; strong art-and-tech identity. Customer-driven by film and advertising professionals.\n\nSimilar company guides\n\nReka AIinterview guideSakana AIinterview guideBlack Forest Labsinterview guideHippocratic AIinterview guidePika Labsinterview guideSunointerview guide\n\nPrepping for Runway? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextQdrant Interview Guide (2026): Vector Database Engineering⏱ 1 min readSystem Design: Design Google Drive — Cloud Storage, File Versioning, Sharing, Collaboration, Quotas, Trash Recovery⏱ 7 min readThe Annual Plan: Building a Multi-Quarter Engineering Roadmap⏱ 3 min read"
+}

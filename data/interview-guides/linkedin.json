@@ -1,0 +1,47 @@
+{
+  "company": "LinkedIn",
+  "slug": "linkedin",
+  "url": "https://www.techinterview.org/companies/linkedin",
+  "scrapedAt": "2026-07-02T07:23:56.760Z",
+  "interviewStages": [
+    "Coding Rounds (2-3): Algorithm problems covering arrays, strings, trees, graphs, and dynamic programming. LinkedIn values efficient solutions with good time/space complexity.",
+    "System Design (1 round): Design scalable systems like social networks, news feeds, messaging platforms, or recommendation systems. Consider data modeling and graph structures.",
+    "Behavioral (1 round): Questions about collaboration, driving results, and building relationships. LinkedIn values \"relationships matter\" as a core principle."
+  ],
+  "codingTopics": [
+    "Graphs: Social network analysis, connection recommendations, shortest path between professionals",
+    "Trees: Binary trees, tree traversals, organizational hierarchies",
+    "Hash Tables: Deduplication, frequency analysis, caching",
+    "Sorting/Searching: Custom sorting, binary search variations",
+    "System Design: Social networks, recommendation engines, news feed algorithms, messaging systems, search indexing"
+  ],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph.",
+      "Serialize and deserialize a binary tree. Walk through your encoding choices, complexity, and edge cases.",
+      "Design a data structure supporting insert, delete, and get-random in O(1). Explain your reasoning.",
+      "Implement an LRU cache with O(1) get and put. Then explain how you would make it thread-safe without serializing all access.",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [],
+    "values": [],
+    "other": []
+  },
+  "difficulty": null,
+  "tips": [
+    "Study Graph Algorithms: LinkedIn's core is a social graph. Master BFS, DFS, shortest path, and graph traversal problems.",
+    "Practice Medium Problems: Focus on 100-150 LeetCode problems at medium difficulty. LinkedIn rarely asks extremely hard questions.",
+    "Understand LinkedIn's Products: Use LinkedIn actively. Understand feed algorithms, connection suggestions, job recommendations, and messaging.",
+    "Show Data-Driven Thinking: LinkedIn emphasizes metrics and A/B testing. Discuss how you've used data to make decisions.",
+    "Prepare Collaboration Stories: Demonstrate strong relationship-building and cross-team collaboration."
+  ],
+  "compensation": null,
+  "rawSummary": "LinkedIn\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  February 1, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\tUpdated February 1, 2026 · techinterview.org\n\n⏱ 1 min read\n\nLinkedIn\nlinkedin.com ↗\n\nInterview Process Overview\n\nLinkedIn's interview process emphasizes technical excellence, relationship building, and data-driven decision making. As part of Microsoft, LinkedIn maintains its distinct culture focused on connecting professionals and creating economic opportunity.\n\nWhat to Expect\n\nRecruiter Screen: Discussion of your professional background, interest in LinkedIn's mission, and role requirements.\n\nTechnical Phone Screen (1 round): 1-hour coding interview focusing on algorithms and data structures. Medium difficulty problems using a shared coding environment.\n\nOnsite Interviews (4-5 rounds):\n\n- Coding Rounds (2-3): Algorithm problems covering arrays, strings, trees, graphs, and dynamic programming. LinkedIn values efficient solutions with good time/space complexity.\n\n- System Design (1 round): Design scalable systems like social networks, news feeds, messaging platforms, or recommendation systems. Consider data modeling and graph structures.\n\n- Behavioral (1 round): Questions about collaboration, driving results, and building relationships. LinkedIn values \"relationships matter\" as a core principle.\n\nCommon Question Topics\n\n- Graphs: Social network analysis, connection recommendations, shortest path between professionals\n\n- Trees: Binary trees, tree traversals, organizational hierarchies\n\n- Hash Tables: Deduplication, frequency analysis, caching\n\n- Sorting/Searching: Custom sorting, binary search variations\n\n- System Design: Social networks, recommendation engines, news feed algorithms, messaging systems, search indexing\n\nPreparation Tips\n\n- Study Graph Algorithms: LinkedIn's core is a social graph. Master BFS, DFS, shortest path, and graph traversal problems.\n\n- Practice Medium Problems: Focus on 100-150 LeetCode problems at medium difficulty. LinkedIn rarely asks extremely hard questions.\n\n- Understand LinkedIn's Products: Use LinkedIn actively. Understand feed algorithms, connection suggestions, job recommendations, and messaging.\n\n- Show Data-Driven Thinking: LinkedIn emphasizes metrics and A/B testing. Discuss how you've used data to make decisions.\n\n- Prepare Collaboration Stories: Demonstrate strong relationship-building and cross-team collaboration.\n\nInterview Culture\n\nLinkedIn values transformation, integrity, collaboration, humor, and results. The company culture emphasizes building relationships, data-driven decisions, and creating economic opportunity for every member of the global workforce. Show genuine interest in connecting professionals and career development.\n\nLast Updated: February 2026\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for LinkedIn? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextRobinhood Interview Guide 2026: Retail Trading at Scale, Order Routing, and 24-Hour Markets⏱ 8 min readGalaxy Digital Interview Guide 2026: Institutional Crypto, Trading + Asset Management + Mining + IB⏱ 8 min readLangChain Interview Guide 2026: LLM Application Framework, LangGraph Agents, LangSmith Platform, and Enterprise AI⏱ 8 min read"
+}

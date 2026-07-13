@@ -1,0 +1,56 @@
+{
+  "company": "Galaxy Digital",
+  "slug": "galaxy-digital-interview-guide",
+  "url": "https://www.techinterview.org/companies/galaxy-digital-interview-guide",
+  "scrapedAt": "2026-07-02T07:17:32.289Z",
+  "interviewStages": [
+    "Coding (1–2 rounds) — algorithms with practical engineering flavor",
+    "System design (1 round) — financial systems with crypto-specific considerations",
+    "Domain depth (1 round) — depends on role: trading, blockchain / DeFi, mining infrastructure, asset management",
+    "Behavioral / cultural fit (1 round) — collaboration, comfort with crypto chaos, business-line fit"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "A function intermittently fails in production. Walk me through how you would reproduce, isolate, and fix the bug.",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [
+      "Design Galaxy Digital's financial systems with crypto-specific considerations at production scale. Walk through the architecture, trade-offs, and failure modes.",
+      "Design a service at Galaxy Digital scale that shortens URLs. Cover the API, storage, and hot-key handling.",
+      "Design a rate limiter for a public API. Discuss algorithms, distributed coordination, and failure modes."
+    ],
+    "values": [],
+    "other": [
+      "Should I work at Galaxy or a pure-crypto firm like Coinbase or Wintermute?",
+      "How is the Galaxy Helios AI hosting pivot going?",
+      "What's the Galaxy investment banking business actually like?",
+      "How does the Mike Novogratz culture affect engineering?",
+      "Is Galaxy a good place for early-career engineers?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": [
+    "New-grad SWE: $130k–$200k total comp first year",
+    "Mid-level (4–7 years): $200k–$400k",
+    "Senior (8+ years): $350k–$700k",
+    "Director / VP: $600k–$1.2M+",
+    "Senior trader / Senior MD: $1M–$5M+ in good crypto cycles",
+    "The diversification across 5 business lines is more substantial than candidates expect — engineers can move between trading, asset management, IB, mining over their career.",
+    "The Mike Novogratz culture is more traditional-finance-flavored than candidates expect from a crypto firm.",
+    "The Galaxy Helios facility's pivot to AI compute hosting is real and growing — engineers wanting the crypto-AI infrastructure intersection have unique opportunities here.",
+    "The NASDAQ listing (2025) provides more financial transparency than crypto-native private firms.",
+    "Compensation is base + bonus + stock with crypto-cycle volatility; calibrate against multi-year average rather than peak/trough."
+  ],
+  "rawSummary": "Galaxy Digital Interview Guide 2026: Institutional Crypto, Trading + Asset Management + Mining + IB\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 30, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Galaxy Digital Interview Guide 2026: Institutional Crypto, Mike Novogratz Era, Trading + Asset Management + Mining + Investment Banking\n\n- What Galaxy Digital Does\n\n- Roles Galaxy Digital Hires For\n\n- Galaxy Digital Interview Process\n\n- What Galaxy Tests For\n\n- Compensation\n\n- Working at Galaxy\n\n- Galaxy Digital vs Alternatives\n\n- Things That Surprise Candidates\n\n- Frequently Asked Questions\n\nUpdated April 30, 2026 · techinterview.org\n\n⏱ 8 min read\n\nGalaxy Digital\ngalaxy.com ↗\n\nGalaxy Digital Interview Guide 2026: Institutional Crypto, Mike Novogratz Era, Trading + Asset Management + Mining + Investment Banking\n\nGalaxy Digital (NASDAQ: GLXY, listed in May 2025 after years of TSX-only listing) is the most diversified institutional crypto firm globally. Founded in 2018 by Mike Novogratz (former Goldman Sachs / Fortress macro trader), Galaxy operates across crypto trading, asset management, mining, investment banking, and venture investing — distinct from pure-play crypto firms like Coinbase (exchange) or Wintermute (market making). The hiring process reflects the firm's hybrid identity: parts feel like a hedge fund, parts like an investment bank, parts like a crypto-native startup. This guide covers what Galaxy does, the engineering tracks, the interview process, and what makes Galaxy hiring distinctive in 2026.\n\nWhat Galaxy Digital Does\n\nGalaxy operates four primary business lines:\n\n- Galaxy Trading: spot and derivatives trading, OTC market making, lending. Galaxy is one of the largest institutional crypto trading desks. Counterparties include institutional investors, hedge funds, miners, exchanges.\n\n- Galaxy Asset Management: crypto-focused asset management. Active funds, indices, structured products, co-managed funds with traditional asset managers (e.g., Galaxy / Invesco partnership for institutional crypto products).\n\n- Galaxy Investment Banking: M&A advisory, capital markets origination, capital introductions for crypto-related transactions. Distinct from peer crypto firms; closest analog to a traditional investment bank specializing in crypto.\n\n- Galaxy Mining + Infrastructure: Bitcoin mining operations (substantial Helios facility in Texas), staking services for proof-of-stake networks, AI / HPC compute hosting via Galaxy Helios. The mining facilities have been substantially repurposed for AI compute hosting alongside Bitcoin mining.\n\n- Galaxy Ventures: venture capital investing in crypto startups. Smaller than dedicated crypto VCs but real fund.\n\nDistinctive features:\n\n- Diversification across crypto verticals: few firms operate at all five Galaxy lines (trading + asset management + IB + mining + VC). Most peers focus on 1–2 verticals. The diversification creates engineering complexity but also business resilience across crypto cycles.\n\n- NASDAQ listing (May 2025): after years on Toronto Stock Exchange only, Galaxy listed on NASDAQ as GLXY in May 2025. The dual listing brings more US institutional visibility and broader investor base.\n\n- Mike Novogratz era: Novogratz's Goldman Sachs / Fortress pedigree shapes the firm's culture — closer to traditional finance than typical crypto-native firms. Senior staff often have traditional Wall Street backgrounds.\n\n- AI / HPC hosting pivot: Galaxy's Helios facility (originally Bitcoin mining) has been substantially repositioned for AI compute hosting (CoreWeave, others). The pivot reflects the broader trend of crypto miners diversifying into AI infrastructure.\n\n- Public company: NASDAQ: GLXY; substantial financial disclosure transparency unusual among crypto firms.\n\nRoles Galaxy Digital Hires For\n\nSoftware engineer (trading systems)\n\nBuilds the trading infrastructure for Galaxy's institutional trading desk — exchange connectivity, OTC ticket booking, risk systems, settlement. Mix of C++, Python, Go. Smaller team than at HFT firms; focused on institutional rather than HFT use cases.\n\nQuantitative trader / analyst\n\nTrading strategies, market making, OTC pricing. Less algorithmic than HFT firms; more fundamental and macro-flavored given Novogratz heritage.\n\nSoftware engineer (asset management platform)\n\nBuilds infrastructure for Galaxy's asset management products — fund administration, NAV calculation, investor reporting, custody integration. Java + Python heavy.\n\nSoftware engineer (DeFi / on-chain)\n\nBuilds on-chain infrastructure — staking systems, DeFi interactions, multi-chain operations. Smaller team than at DeFi-pure firms but real engineering.\n\nML engineer / data engineer\n\nCrypto market data analytics, alternative data, risk modeling, ad-hoc trading research. Growing area.\n\nMining / infrastructure engineer (Galaxy Helios)\n\nOperates the Helios mining + AI compute hosting facility in Texas. Datacenter operations, hardware management, hybrid Bitcoin mining + AI "
+}

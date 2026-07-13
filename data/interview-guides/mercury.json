@@ -1,0 +1,90 @@
+{
+  "company": "Mercury",
+  "slug": "mercury",
+  "url": "https://www.techinterview.org/companies/mercury",
+  "scrapedAt": "2026-07-02T07:18:07.579Z",
+  "interviewStages": [
+    "System design (1 round): banking-platform prompts. \"Design the ACH transfer orchestration system with retry handling and partner-bank dependency.\" \"Design the real-time fraud detection pipeline with <50ms scoring latency.\" \"Design the per-customer spending-control rules engine for virtual cards.\"",
+    "Behavioral / hiring manager: past projects, comfort with regulated environments, handling long-tail failure modes, customer empathy."
+  ],
+  "codingTopics": [
+    "Model a transfer lifecycle with all failure paths (pending, authorized, settled, returned, reversed)",
+    "Implement an idempotent processor for at-least-once delivery (message queue consumer handling duplicates)",
+    "Build a rate limiter with fairness guarantees across customers",
+    "Parse and validate structured input (ACH NACHA files, ISO 20022 messages, Plaid-style transaction data)",
+    "Classic algorithms (graphs, trees, DP) with fintech twists (approval chain routing, ledger reconciliation across accounts)"
+  ],
+  "systemDesignTopics": [
+    "\"Design the ACH orchestration system processing 100K transfers/day with partner-bank dependency.\"",
+    "\"Design a real-time fraud detection pipeline with <50ms scoring latency and feedback loops.\"",
+    "\"Design the virtual-card issuance and spending-controls rules engine.\"",
+    "\"Design the reconciliation system that matches Mercury's internal state against partner-bank feeds nightly.\"",
+    "How do you represent states that can't coexist? (make illegal states unrepresentable)",
+    "Show me a time you caught a bug through the type system."
+  ],
+  "behavioralTopics": [
+    "Craft: \"Tell me about a time you pushed back on shipping because the design wasn't right yet.\"",
+    "Customer empathy: \"Describe a moment where you understood a user / customer need deeply.\"",
+    "Ownership: \"Tell me about a production incident you owned end-to-end.\"",
+    "Regulated-environment comfort: \"Have you worked under compliance / regulatory constraints?\""
+  ],
+  "sampleQuestions": {
+    "coding": [
+      "Implement pending, authorized, settled, returned, reversed. Talk through your approach, complexity, and edge cases.",
+      "Implement an idempotent processor for at-least-once delivery (message queue consumer handling duplicates). Talk through your approach, complexity, and edge cases.",
+      "Build a rate limiter with fairness guarantees across customers. Talk through your approach, complexity, and edge cases.",
+      "Implement ACH NACHA files, ISO 20022 messages, Plaid-style transaction data. Talk through your approach, complexity, and edge cases.",
+      "Implement a double-entry ledger that processes a stream of transactions and detects imbalances. How do you guarantee idempotency when a transaction is delivered twice?"
+    ],
+    "behavioral": [
+      "Tell me about a time you pushed back on shipping because the design wasn't right yet.",
+      "Describe a moment where you understood a user / customer need deeply.",
+      "Tell me about a production incident you owned end-to-end.",
+      "Have you worked under compliance / regulatory constraints?",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
+    "systemDesign": [
+      "When do you reach for a sum type vs a field-with-null?",
+      "How do you handle errors &mdash; exceptions, Result / Either, or something else?",
+      "When is a type system overkill?",
+      "Design the ACH orchestration system processing 100K transfers/day with partner-bank dependency.",
+      "Design a real-time fraud detection pipeline with <50ms scoring latency and feedback loops. Cover the API, data model, and how it scales."
+    ],
+    "values": [],
+    "other": [
+      "Do I need to know Haskell to get hired?",
+      "How does Mercury compare to Brex on interviews?",
+      "Is Mercury profitable? What does that mean for compensation and stability?",
+      "What about the Synapse banking-as-a-service collapse in 2024?",
+      "Is Mercury remote-friendly?"
+    ]
+  },
+  "difficulty": 7.5,
+  "tips": [
+    "Engage with the stack. You don't need to be fluent in Haskell, but know enough to discuss its trade-offs.",
+    "Prepare type-system stories. \"I modeled this state machine so that invalid transitions couldn't compile\" &mdash; specifics win.",
+    "Know partner-bank banking. The distinction between Mercury and its partner banks is real; understand it before interviewing.",
+    "Use the product. If you can't open an account, read the Mercury blog and understand the product deeply from the outside.",
+    "Read Immad's writing. His public posts on engineering culture and product direction are signals of fit.",
+    "Mercury engineering blog (posts on Haskell in production, infrastructure, architecture)",
+    "Learn You a Haskell for Great Good (free online) or Haskell Programming from First Principles (Allen & Moronuki)",
+    "Stripe engineering blog for idempotency and payment-processing patterns",
+    "Designing Data-Intensive Applications (Kleppmann)",
+    "The NACHA operating rules (ACH primer) for fintech domain",
+    "Immad Akhund's essays and podcast appearances"
+  ],
+  "compensation": [
+    "Software Engineer: $175k&ndash;$220k base, $150k&ndash;$270k equity (4 years), modest bonus. Total: ~$280k&ndash;$420k / year.",
+    "Senior Software Engineer: $225k&ndash;$285k base, $280k&ndash;$520k equity. Total: ~$380k&ndash;$580k / year.",
+    "Staff Engineer: $290k&ndash;$355k base, $550k&ndash;$1M equity. Total: ~$520k&ndash;$830k / year.",
+    "Haskell actually works at Mercury. It's not a vanity choice; the team ships production features in it daily.",
+    "The hiring bar is higher than the 700-person company size suggests.",
+    "The craft round is decisive for many candidates &mdash; technical strength alone isn't enough.",
+    "Customer empathy is real; engineers frequently hear directly from founders using the product.",
+    "Dismissing Haskell / Elm as \"niche\" or \"hipster.\" Mercury chose them carefully; dismissiveness lands badly.",
+    "Weak opinions about type systems. \"Types are good\" without specifics signals shallow thinking.",
+    "Ignoring partner-bank dependency realities in system design.",
+    "Not having authentic customer empathy. Business banking is serious &mdash; founders' companies depend on it."
+  ],
+  "rawSummary": "Mercury Interview Guide 2026: Startup Banking Platform, Haskell/Elm Stack, and the Craft Round\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 23, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\tUpdated April 23, 2026 · techinterview.org\n\n⏱ 9 min read\n\nMercury\nmercury.com ↗\n\nMercury Interview Process: Complete 2026 Guide\n\nOverview\n\nMercury is the startup-focused banking platform offering business checking, savings, credit cards, treasury, bill pay, and spend controls to venture-backed companies and ambitious small businesses. Founded 2017 by Immad Akhund, Jason Zhang, and Max Tagher, private with a 2024 Series C valuation of $1.6B; ~700 employees in 2026. The product is built on partner banks (Choice Financial Group and Evolve Bank & Trust) and has grown into one of the most popular banking platforms for startup founders. Headquartered in San Francisco with offices in New York and Portland plus remote hiring in the US and Canada. Mercury is distinctively known among engineers for its Haskell backend and Elm frontend &mdash; unusual choices that reflect a commitment to type-safe, maintainable code for financial infrastructure. Interviews reflect that commitment: expect thoughtful engagement with functional programming, strong typing, and the realities of banking-adjacent engineering.\n\nInterview Structure\n\nRecruiter screen (30 min): background, why Mercury, team preference. The engineering surface is smaller than at larger fintechs but still covers product (accounts, cards, treasury, bill pay), platform, infrastructure, and data / ML (fraud, risk, underwriting). They screen early for openness to Haskell / Elm &mdash; candidates hostile to functional languages rarely advance.\n\nTechnical phone screen (60 min): one coding problem, medium-hard. Candidates can code in any mainstream language (including Haskell or Elm if comfortable); Python, TypeScript, and Java are common. Problems tilt applied and data-modeling &mdash; design a small fraud-detection primitive, model a transfer flow, implement an idempotency layer.\n\nTake-home (many senior / staff roles): 4&ndash;6 hours on a realistic engineering problem. Historically involves a small banking or fraud-detection system. Write-up quality and type-discipline matter substantially.\n\nOnsite / virtual onsite (4&ndash;5 rounds):\n\n- Coding (2 rounds): one algorithms round, one applied round. The applied round often involves fintech primitives &mdash; ledger accounting, transfer idempotency, scheduled-job processing for recurring payments.\n\n- System design (1 round): banking-platform prompts. \"Design the ACH transfer orchestration system with retry handling and partner-bank dependency.\" \"Design the real-time fraud detection pipeline with <50ms scoring latency.\" \"Design the per-customer spending-control rules engine for virtual cards.\"\n\n- Craft / type-system round (1 round): distinctive at Mercury. A discussion of how you think about types, invariants, and error handling. Candidates with ML / Haskell / Rust / strict-TypeScript background find this round most natural.\n\n- Behavioral / hiring manager: past projects, comfort with regulated environments, handling long-tail failure modes, customer empathy.\n\nTechnical Focus Areas\n\nCoding: any mainstream language, with genuine openness to Haskell / Elm but no requirement to use them in interviews. Applied correctness matters more than specific language.\n\nHaskell (if declaring it): ADTs, monadic patterns, property-based testing with QuickCheck / Hedgehog, lens / optics for data manipulation, concurrent programming with STM or async. Not required for most roles but welcomed.\n\nSystem design: partner-bank integration patterns (banking-as-a-service partners are the actual chartered banks), ACH / wire / real-time payment processing, idempotency under at-least-once delivery, ledger-style accounting with double-entry bookkeeping, reconciliation workflows.\n\nFraud & risk: feature engineering for real-time fraud scoring, model serving with strict latency budgets, rule engines alongside ML, adversarial-robustness considerations, model monitoring in production, edge cases in consumer-vs-business fraud patterns.\n\nCompliance: KYC / KYB (Know Your Business), AML, Bank Secrecy Act (BSA), OFAC sanctions screening, Suspicious Activity Reports (SARs), partner-bank oversight, SOC 2 Type II controls.\n\nData: PostgreSQL at reasonable scale, event-sourced ledger systems, analytic workloads against operational data, data-quality tooling for financial data.\n\nCoding Interview Details\n\nTwo coding rounds, 60 minutes each. Difficulty is medium-hard. Below Google L5 on pure algorithms; higher on applied correctness and type discipline. Interviewers care about whether you write code that's reviewable and correct, not just working.\n\nTypical problem shapes:\n\n- Model a transfer lifecycle with all failure paths (pending, authorized, settled, returned, reversed)\n\n- Implement an idempotent processor for at-least-once delivery (message queue consumer handling duplicates)\n\n- Build a r"
+}

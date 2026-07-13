@@ -1,0 +1,103 @@
+{
+  "company": "Oracle",
+  "slug": "oracle-interview",
+  "url": "https://www.techinterview.org/companies/oracle-interview",
+  "scrapedAt": "2026-07-02T07:13:03.585Z",
+  "interviewStages": [
+    "System Design (Enterprise Focus)"
+  ],
+  "codingTopics": [
+    "Clean, maintainable code (they love comments)",
+    "Edge case handling",
+    "Error handling",
+    "Testing mindset",
+    "Production-ready code",
+    "Implement a cache (LRU, LFU)",
+    "Design a database schema",
+    "Parse and process log files",
+    "Tree/graph traversal",
+    "String matching and parsing"
+  ],
+  "systemDesignTopics": [
+    "Requirements gathering: Ask about scale, latency requirements, consistency needs",
+    "Database choice: When to use Oracle DB vs NoSQL vs both",
+    "Reliability: How to handle failures, backups, disaster recovery",
+    "Performance: Caching, indexing, query optimization",
+    "Monitoring: How you'd monitor and debug issues"
+  ],
+  "behavioralTopics": [
+    "Ownership: Taking responsibility for projects",
+    "Collaboration: Working across teams",
+    "Long-term thinking: Building for the future",
+    "Customer focus: Enterprise customers have different needs",
+    "Debugging production issues",
+    "Working with difficult stakeholders",
+    "Making technical tradeoffs",
+    "Learning from failures"
+  ],
+  "sampleQuestions": {
+    "coding": [
+      "A function intermittently fails in production. Walk me through how you would reproduce, isolate, and fix the bug.",
+      "Implement a cache (LRU, LFU). Talk through your approach, complexity, and edge cases.",
+      "Design a database schema. Talk through your approach, complexity, and edge cases.",
+      "Parse and process log files. Talk through your approach, complexity, and edge cases.",
+      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph."
+    ],
+    "behavioral": [
+      "Describe a production incident or project you owned end-to-end. What did you do, and what was the outcome?",
+      "Tell me about a time you worked across teams to deliver something. How did you handle competing priorities?",
+      "Tell me about a time you engaged deeply with a customer or user problem. How did it change what you built?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
+    "systemDesign": [],
+    "values": [],
+    "other": []
+  },
+  "difficulty": 9,
+  "tips": [
+    "Practice 50-75 leetcode medium problems",
+    "Focus on implementation over trick solutions",
+    "Practice explaining your code",
+    "Think about edge cases and error handling",
+    "Review SQL thoroughly (joins, subqueries, aggregations)",
+    "Understand indexes (B-tree, hash)",
+    "Learn about query optimization",
+    "Study transaction isolation levels",
+    "Study distributed systems fundamentals",
+    "Learn about CAP theorem, consistency models",
+    "Understand caching strategies",
+    "Practice designing systems with strict reliability requirements",
+    "Don't underestimate SQL: It's a bigger part than you think",
+    "Think about production: Edge cases, error handling, monitoring",
+    "Show long-term thinking: They want engineers who build for maintainability",
+    "Ask about the team: Oracle is huge – team culture varies wildly",
+    "Be prepared for depth: They'll drill into your experience"
+  ],
+  "compensation": [
+    "New grad: $120-140K base + $20-40K stock",
+    "Mid-level (3-5 YOE): $140-180K base + $40-80K stock",
+    "Senior (5-8 YOE): $180-240K base + $80-150K stock",
+    "Staff+: $250-350K+ total comp",
+    "Excellent work-life balance (40-45 hours/week typical)",
+    "Strong engineering culture in cloud division",
+    "Massive scale – billions of transactions/day",
+    "Stable, established company",
+    "Slower pace than startups",
+    "More process and bureaucracy",
+    "Legacy code in some areas",
+    "Less \"cool factor\" than FAANG",
+    "Team turnover rate",
+    "On-call rotation",
+    "Technical debt situation",
+    "Relationship with product managers",
+    "Bombed the SQL round – hadn't studied database internals",
+    "Did okay on coding but wasn't enthusiastic enough",
+    "Didn't ask good questions about the team",
+    "Spent 3 weeks reviewing SQL and database concepts",
+    "Practiced explaining code clearly",
+    "Asked detailed questions about team dynamics",
+    "Showed genuine interest in Oracle Cloud"
+  ],
+  "rawSummary": "Oracle Interview\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  February 1, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\tUpdated February 1, 2026 · techinterview.org\n\n⏱ 4 min read\n\nOracle\noracle.com ↗\n\nOracle Interview Process: Complete 2026 Guide\n\nI interviewed at Oracle twice – once in 2019 for a database engineer role (didn't get it), and again in 2022 for a cloud infrastructure position (got the offer). Here's everything I learned about their process.\n\nOverview\n\nOracle is old-school enterprise software done right. They care deeply about system stability, backward compatibility, and handling massive scale. The interview reflects this – expect questions about databases, distributed systems, and handling edge cases that matter in production.\n\nDon't expect the rapid-fire leetcode grind of FAANG. Oracle wants engineers who think about the long-term maintainability of code, not just clever algorithms.\n\nInterview Structure\n\nPhone Screen (45 minutes):\n\n- 1-2 coding problems (easier than FAANG)\n\n- Discussion about databases or your experience\n\n- Questions about SQL, data structures\n\n- Cultural fit questions\n\nMy phone screen: Implement LRU cache and discuss how I'd optimize database queries. Straightforward.\n\nOnsite/Virtual Onsite (4-5 hours):\n\n- 3-4 technical rounds (45 min each)\n\n- 1 behavioral/hiring manager round\n\n- Mix of coding, system design, and deep technical discussions\n\nTechnical Focus Areas\n\n1. Database and SQL (Very Important)\n\nThis is Oracle. They WILL test your database knowledge:\n\n- SQL queries (joins, subqueries, window functions)\n\n- Indexing strategies\n\n- Transaction isolation levels\n\n- Query optimization\n\n- B-trees and database internals\n\nExample question I got: \"How would you optimize a query that's doing a full table scan on a 10TB table?\"\n\n2. Data Structures & Algorithms (Moderate Difficulty)\n\nNot as hard as Google/Meta, but still solid:\n\n- Hash tables, trees, graphs\n\n- String manipulation\n\n- Array problems\n\n- Some DP (but not heavy)\n\nExpect medium leetcode difficulty. They want clean, working code more than the absolute optimal solution.\n\n3. System Design (Enterprise Focus)\n\nDesign questions focus on:\n\n- Scalability and reliability\n\n- Database design\n\n- Distributed systems\n\n- Handling failures gracefully\n\n- Backward compatibility\n\nExample: \"Design a distributed caching system that can handle 100K requests/second with 99.99% uptime.\"\n\n4. Concurrency and Threading\n\nOracle cares a lot about multithreading:\n\n- Thread safety\n\n- Deadlocks and race conditions\n\n- Locks vs lock-free structures\n\n- Producer-consumer patterns\n\nIn my 2022 interview, one entire round was about concurrency bugs in sample code.\n\nCoding Interview Tips\n\nWhat Oracle looks for:\n\n- Clean, maintainable code (they love comments)\n\n- Edge case handling\n\n- Error handling\n\n- Testing mindset\n\n- Production-ready code\n\nThey'll ask: \"What if the input is null? What if it's a billion records? How would you test this?\"\n\nCommon problem types:\n\n- Implement a cache (LRU, LFU)\n\n- Design a database schema\n\n- Parse and process log files\n\n- Tree/graph traversal\n\n- String matching and parsing\n\nSystem Design Interview\n\nFocus on:\n\n- Requirements gathering: Ask about scale, latency requirements, consistency needs\n\n- Database choice: When to use Oracle DB vs NoSQL vs both\n\n- Reliability: How to handle failures, backups, disaster recovery\n\n- Performance: Caching, indexing, query optimization\n\n- Monitoring: How you'd monitor and debug issues\n\nThey want to see you think about production concerns, not just the happy path.\n\nBehavioral Interview\n\nOracle values:\n\n- Ownership: Taking responsibility for projects\n\n- Collaboration: Working across teams\n\n- Long-term thinking: Building for the future\n\n- Customer focus: Enterprise customers have different needs\n\nPrepare STAR stories about:\n\n- Debugging production issues\n\n- Working with difficult stakeholders\n\n- Making technical tradeoffs\n\n- Learning from failures\n\nPreparation Strategy\n\nFor coding:\n\n- Practice 50-75 leetcode medium problems\n\n- Focus on implementation over trick solutions\n\n- Practice explaining your code\n\n- Think about edge cases and error handling\n\nFor databases:\n\n- Review SQL thoroughly (joins, subqueries, aggregations)\n\n- Understand indexes (B-tree, hash)\n\n- Learn about query optimization\n\n- Study transaction isolation levels\n\nFor system design:\n\n- Study distributed systems fundamentals\n\n- Learn about CAP theorem, consistency models\n\n- Understand caching strategies\n\n- Practice designing systems with strict reliability requirements\n\nTime needed: 4-6 weeks of preparation if you have a strong foundation.\n\nDifficulty: 7/10\n\nEasier than Google/Meta (8-9/10), harder than mid-tier companies (5-6/10).\n\nThe coding problems aren't as tricky, but the breadth of knowledge required (databases, concurrency, system design) makes it challenging.\n\nCompensation\n\nOracle pays well, especially for senior levels:\n\n- New grad: $120-140K base + $20-40K stock\n\n- Mid-level (3-5 YOE): $140-180K base + $40-80K stock\n\n- Senior (5-8 YOE): $1"
+}

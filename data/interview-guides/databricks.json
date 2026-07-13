@@ -1,0 +1,55 @@
+{
+  "company": "Databricks",
+  "slug": "databricks",
+  "url": "https://www.techinterview.org/companies/databricks",
+  "scrapedAt": "2026-07-02T07:21:46.303Z",
+  "interviewStages": [
+    "Coding (1–2 rounds) — algorithms, often with systems / data flavor",
+    "System design (1 round) — distributed data systems flavor (sharding, query execution, transactional consistency, multi-cloud)",
+    "Domain depth (1–2 rounds) — depends on role: distributed systems, database internals, ML systems, infrastructure",
+    "Behavioral / cross-functional (1 round) — collaboration, ambiguity, customer focus"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Implement an LRU cache with O(1) get and put. Then explain how you would make it thread-safe without serializing all access.",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [
+      "Design one of Databricks's core distributed data systems flavor — address sharding, query execution, transactional consistency, multi-cloud. Walk through the architecture, trade-offs, and failure modes.",
+      "Design a service at Databricks scale that shortens URLs. Cover the API, storage, and hot-key handling.",
+      "Design a rate limiter for a public API. Discuss algorithms, distributed coordination, and failure modes."
+    ],
+    "values": [],
+    "other": [
+      "Do I need Spark experience to work at Databricks?",
+      "How does the Snowflake rivalry actually affect engineers?",
+      "What's the Mosaic AI integration like?",
+      "How does the IPO equity story work?",
+      "Is Databricks good for early-career engineers?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": [
+    "New-grad SWE: $200k–$320k total comp first year",
+    "Mid-level (4–7 years): $300k–$500k",
+    "Senior (8+ years): $450k–$800k",
+    "Staff / Principal: $700k–$1.5M+",
+    "The Spark / Photon codebase is large and complex; engineers ramping into runtime work take 6+ months to be fully productive.",
+    "The ML platform pivot (Mosaic acquisition) has shifted hiring substantially; engineers from pure-data backgrounds may find ML systems context required for some teams.",
+    "The multi-cloud requirement is real; engineers from single-cloud backgrounds need to expand their mental model.",
+    "Enterprise customer base means engineers think about contracts, SLAs, compliance more than at consumer-product companies.",
+    "The IPO expectation is real but timing is uncertain; engineers joining for IPO upside should calibrate against potential delays."
+  ],
+  "rawSummary": "Databricks Interview Guide 2026: Lakehouse, Spark, Photon, Unity Catalog, Mosaic AI\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  February 1, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Databricks Interview Guide 2026: Lakehouse, Spark, Photon, Unity Catalog, MLflow, and the Mosaic AI Stack\n\n- What Databricks Does\n\n- Roles Databricks Hires For\n\n- Databricks Interview Process\n\n- What Databricks Tests For\n\n- Compensation\n\n- Working at Databricks\n\n- Databricks vs Alternatives\n\n- Things That Surprise Candidates\n\n- Frequently Asked Questions\n\nUpdated April 29, 2026 · techinterview.org\n\n⏱ 6 min read\n\nDatabricks\ndatabricks.com ↗\n\nDatabricks Interview Guide 2026: Lakehouse, Spark, Photon, Unity Catalog, MLflow, and the Mosaic AI Stack\n\nDatabricks is the dominant data + AI platform company outside the hyperscalers. Founded in 2013 by the original creators of Apache Spark at Berkeley, the company has grown to a $62B valuation (last 2024 round) and is widely expected to IPO in 2026. The product surface has expanded substantially — from Spark-as-a-service to a full lakehouse platform with first-party AI / LLM tooling via the Mosaic AI acquisition. The hiring process is rigorous and reflects the company's distributed-systems and data-engineering depth. This guide covers what Databricks does, the engineering tracks, the interview process, and what makes Databricks hiring distinctive in 2026.\n\nWhat Databricks Does\n\nDatabricks operates the Lakehouse Platform:\n\n- Apache Spark / Photon: the distributed query / processing engine. Photon is the C++ vectorized engine that replaced JVM execution for SQL workloads.\n\n- Delta Lake: ACID storage layer over object storage; the foundation of the lakehouse architecture.\n\n- Unity Catalog: unified governance, lineage, access control across data and ML assets.\n\n- MLflow: open-source ML lifecycle platform; Databricks-hosted version is the flagship managed product.\n\n- Mosaic AI: LLM training, fine-tuning, and serving — built on top of the 2023 MosaicML acquisition.\n\n- Genie / AI/BI: natural-language data exploration; Databricks's bet on conversational analytics.\n\n- SQL Warehouse: serverless SQL for analytics workloads, competitive with Snowflake.\n\n- Workflows / DLT (Delta Live Tables): declarative pipelines on Spark.\n\nDistinctive features:\n\n- Open-source roots: Spark, Delta Lake, MLflow, Unity Catalog all have open-source versions. The open-vs-managed strategy is central to the business.\n\n- Multi-cloud: runs on AWS, Azure, GCP. Customers often pick Databricks specifically to avoid hyperscaler lock-in.\n\n- AI-platform pivot: the Mosaic acquisition shifted Databricks from \"the data company\" to \"the data + AI platform.\" Hiring has shifted heavily toward LLM training, fine-tuning, and inference engineering.\n\n- Pre-IPO at scale: $62B valuation; widely expected IPO in 2026. Equity is substantial but illiquid until then.\n\nRoles Databricks Hires For\n\nSoftware engineer (runtime / Photon)\n\nBuilds the Spark / Photon execution engines, query optimization, vectorization. C++ and Scala dominate; deep distributed-systems and database internals expertise expected.\n\nSoftware engineer (Delta / storage)\n\nBuilds Delta Lake, transactional protocols, time-travel, optimization. Scala-heavy; storage-engine fundamentals (write-ahead logs, MVCC, compaction).\n\nSoftware engineer (control plane / platform)\n\nBuilds the multi-cloud control plane, cluster orchestration, networking, security. Heavy Go / Scala. Kubernetes-adjacent infrastructure.\n\nML engineer / research engineer (Mosaic AI)\n\nTrains and fine-tunes LLMs, builds inference serving (Mosaic Inference / DBRX / Foundation Model APIs), contributes to model releases. PyTorch + Megatron / Composer-flavored training infrastructure.\n\nML platform engineer (MLflow / Unity Catalog ML)\n\nBuilds the ML lifecycle tooling — tracking, registry, deployment, governance for ML assets. Hybrid of platform engineering and ML systems.\n\nFrontend engineer\n\nBuilds the Databricks workspace UI, notebooks, dashboards. React + TypeScript; substantial scale and complexity.\n\nField engineer / solutions architect\n\nPre-sales technical work with enterprise customers. Hybrid of engineering and customer engagement.\n\nSecurity engineer\n\nMulti-cloud security, governance, compliance, IAM. Substantial security investment given enterprise customer base.\n\nDatabricks Interview Process\n\nRound 1: Recruiter screen\n\n30 minutes. Background, motivation, role fit. Databricks recruiters often probe specifically on data systems / Spark experience for relevant roles.\n\nRound 2: Technical phone screen\n\n60–90 minutes. Coding (medium-hard), some technical depth on relevant systems. For runtime / Photon roles, expect database internals questions; for ML roles, expect ML systems questions.\n\nRound 3: On-site / virtual on-site\n\n4–6 rounds, each 60–90 minutes:\n\n- Coding (1–2 rounds) — algorithms, often with systems / data flavor\n\n- System design (1 round) — distributed data systems flavor (sharding, query execution, transac"
+}

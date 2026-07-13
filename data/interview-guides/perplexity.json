@@ -1,0 +1,100 @@
+{
+  "company": "Perplexity",
+  "slug": "perplexity",
+  "url": "https://www.techinterview.org/companies/perplexity",
+  "scrapedAt": "2026-07-02T07:14:08.533Z",
+  "interviewStages": [
+    "System design (1 round): AI-search-flavored prompts. \"Design the retrieval pipeline that pulls from 100B web pages with sub-second latency.\" \"Design the ranking system combining BM25, dense retrieval, and LLM reranking.\" \"Design Comet's on-device + cloud hybrid browsing architecture.\"",
+    "Behavioral / hiring manager: past projects, shipping velocity, handling ambiguity in a rapidly-evolving AI-product space."
+  ],
+  "codingTopics": [
+    "Implement a small reranker: given candidate documents and a query, produce ranked output using a scoring function",
+    "Stream-process LLM response tokens with structured-output parsing (extract citations as they appear)",
+    "Query reformulation: given a user question, generate retrieval-optimized queries",
+    "Retrieval combining multiple sources: merge BM25 + dense-retrieval results with a scoring function",
+    "Classic algorithm problems (graphs, trees, priority queues) with search / ranking twists"
+  ],
+  "systemDesignTopics": [
+    "\"Design the retrieval pipeline pulling from 100B web pages with sub-second latency and freshness guarantees.\"",
+    "\"Design the ranking system combining BM25, dense retrieval, and LLM reranking across multiple indexes.\"",
+    "\"Design Comet's hybrid browser architecture combining on-device privacy with cloud AI assistance.\"",
+    "\"Design the citation-verification system to reduce hallucinations in generated answers.\"",
+    "Walk through dense vs lexical retrieval trade-offs for different query types.",
+    "Discuss reranker architecture choices (cross-encoder, ColBERT, LLM-based).",
+    "Reason about citation extraction when the LLM's answer doesn't match source exactly.",
+    "Describe an evaluation framework for AI-answer quality with both automated and human signals.",
+    "Explain approaches for reducing hallucinations in cited answers.",
+    "\"What makes a Perplexity answer great vs mediocre?\"",
+    "\"How would you evaluate an answer's citation quality?\"",
+    "\"Where does Perplexity lose to traditional search, and where does it win?\"",
+    "\"Design a feature that would make Perplexity stickier for power users.\""
+  ],
+  "behavioralTopics": [
+    "Shipping velocity: \"Tell me about a feature you shipped in an AI-product context.\"",
+    "Handling unreliable components: \"How do you design systems around LLM unreliability?\"",
+    "Ambiguity comfort: \"Describe working with rapidly-evolving model capabilities and user expectations.\"",
+    "Product quality instinct: \"What's your approach to shipping AI features that users trust?\""
+  ],
+  "sampleQuestions": {
+    "coding": [
+      "Given candidate documents and a query, produce ranked output using a scoring function. Talk through your approach, complexity, and edge cases.",
+      "Stream-process LLM response tokens with structured-output parsing (extract citations as they appear). Talk through your approach, complexity, and edge cases.",
+      "Given a user question, generate retrieval-optimized queries. Talk through your approach, complexity, and edge cases.",
+      "Merge BM25 + dense-retrieval results with a scoring function. Talk through your approach, complexity, and edge cases.",
+      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph."
+    ],
+    "behavioral": [
+      "Tell me about a feature you shipped in an AI-product context.",
+      "How do you design systems around LLM unreliability?",
+      "Describe working with rapidly-evolving model capabilities and user expectations.",
+      "What's your approach to shipping AI features that users trust?",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
+    "systemDesign": [
+      "Design the retrieval pipeline pulling from 100B web pages with sub-second latency and freshness guarantees.",
+      "Design the ranking system combining BM25, dense retrieval, and LLM reranking across multiple indexes.",
+      "Design Comet's hybrid browser architecture combining on-device privacy with cloud AI assistance.",
+      "Design the citation-verification system to reduce hallucinations in generated answers. Cover the API, data model, and how it scales.",
+      "Design a feature that would make Perplexity stickier for power users. Cover the API, data model, and how it scales."
+    ],
+    "values": [],
+    "other": [
+      "Is Perplexity just an LLM wrapper?",
+      "How does Perplexity compete with ChatGPT Search and Google?",
+      "What's Comet browser?",
+      "How does compensation compare to frontier labs?",
+      "What's the IPO outlook?"
+    ]
+  },
+  "difficulty": 7.5,
+  "tips": [
+    "Use Perplexity daily. 1&ndash;2 weeks of real usage before interviewing. Form authentic opinions.",
+    "Know retrieval fundamentals. BM25, dense retrieval, hybrid fusion &mdash; vocabulary for system design.",
+    "Engage with citation quality. It's a core Perplexity differentiator; having views helps.",
+    "Understand RAG evaluation. How do you know a cited answer is good? Have a framework.",
+    "Move fast in interviews. Perplexity's culture rewards velocity; reflect it in how you respond.",
+    "Perplexity engineering blog and product release notes",
+    "SBERT / sentence-transformers documentation for dense retrieval",
+    "ColBERT and cross-encoder papers for reranking depth",
+    "RAG evaluation papers (RAGAS, TruLens, LLM-as-judge with calibration)",
+    "Classic IR textbooks at introductory level: Introduction to Information Retrieval (Manning, Raghavan, Sch&uuml;tze)",
+    "Perplexity Pro subscription for a month &mdash; try diverse query types",
+    "Glean &mdash; enterprise AI search",
+    "Character.AI &mdash; consumer AI",
+    "Weights & Biases &mdash; ML experiment tracking"
+  ],
+  "compensation": [
+    "Software Engineer: $185k&ndash;$230k base, $200k&ndash;$380k equity (4 years), modest bonus. Total: ~$310k&ndash;$500k / year.",
+    "Senior Software Engineer: $235k&ndash;$295k base, $400k&ndash;$750k equity. Total: ~$450k&ndash;$700k / year.",
+    "Staff Engineer: $300k&ndash;$370k base, $800k&ndash;$1.5M equity. Total: ~$650k&ndash;$1M+ / year.",
+    "The retrieval and ranking engineering is substantial &mdash; not just LLM prompting over external APIs.",
+    "Comet browser represents real engineering investment in client-side AI assistance.",
+    "Competition with Google / ChatGPT search is real; strategic speed matters.",
+    "The product / craft round weights authentic Perplexity usage meaningfully.",
+    "Dismissing Perplexity as \"LLM-wrapper over Google.\" The retrieval infrastructure is real engineering.",
+    "Not having used Perplexity meaningfully. Interviewers notice.",
+    "Weak opinions about search UX. The product is UX-heavy.",
+    "Hand-waving on hallucination / citation-quality handling."
+  ],
+  "rawSummary": "Perplexity Interview Guide 2026: AI Answer Engine, Retrieval and Ranking, Comet Browser, and Product-First AI\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 24, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Perplexity Interview Process: Complete 2026 Guide\n\n- Frequently Asked Questions\n\n- Adjacent AI / ML Tooling Companies\n\nUpdated May 2, 2026 · techinterview.org\n\n⏱ 8 min read\n\nPerplexity\nperplexity.ai ↗\n\nPerplexity Interview Process: Complete 2026 Guide\n\nOverview\n\nPerplexity is the AI-powered answer engine challenging traditional search with synthesized, citation-backed responses. Founded 2022 by Aravind Srinivas, Denis Yarats, Johnny Ho, and Andy Konwinski, private with a 2025 valuation approaching $9B after multiple successive fundraises through the AI boom. ~350 employees in 2026, concentrated in San Francisco with growing New York and remote presence. The product strategy differentiates from frontier labs (OpenAI, Anthropic, xAI) by focusing on search-and-answer as the primary use case &mdash; combining retrieval, ranking, and LLM synthesis into a single product surface that includes web search, Pages (long-form research), Perplexity for Finance, Perplexity Labs, Comet browser, and a Pro subscription tier that aggregates access to frontier models. Engineering stack is Python-heavy for ML and retrieval; TypeScript for client; Go for some infrastructure; heavy LLM-API integration across multiple model providers. Interviews reflect the reality of running an AI-product company at the intersection of retrieval, ranking, and generation.\n\nInterview Structure\n\nRecruiter screen (30 min): background, why Perplexity, team preference. The engineering surface: search / retrieval, ranking, LLM integration / prompt engineering, product engineering (web, iOS / Android, Comet browser), data / ML (fine-tuning, evaluation), and infrastructure. Each has a distinct profile.\n\nTechnical phone screen (60 min): one coding problem, medium-hard. Python dominant; TypeScript for product engineering; Go / Rust for some infrastructure. Problems tilt toward applied search / ranking / LLM systems &mdash; implement a small reranker, build a streaming response handler, process structured search results.\n\nTake-home (some senior / staff roles): 4&ndash;6 hours on a realistic engineering problem. Historically involves building a small search / rerank / LLM pipeline or extending a mini-app.\n\nOnsite / virtual onsite (4&ndash;5 rounds):\n\n- Coding (2 rounds): one algorithms round, one applied round. Applied problems often involve search / ranking primitives, LLM prompting with structured outputs, or streaming-response handling.\n\n- System design (1 round): AI-search-flavored prompts. \"Design the retrieval pipeline that pulls from 100B web pages with sub-second latency.\" \"Design the ranking system combining BM25, dense retrieval, and LLM reranking.\" \"Design Comet's on-device + cloud hybrid browsing architecture.\"\n\n- ML / search-systems deep-dive (1 round): retrieval-systems (BM25, dense retrieval, hybrid fusion), reranking (cross-encoder architectures, LLM-based reranking), citation quality, hallucination mitigation, evaluation methodology for answer quality.\n\n- Product / craft round (1 round): distinctive at Perplexity. Engagement with search-product quality, citation trustworthiness, and UX for an AI-answer product. Candidates are expected to have used Perplexity deeply.\n\n- Behavioral / hiring manager: past projects, shipping velocity, handling ambiguity in a rapidly-evolving AI-product space.\n\nTechnical Focus Areas\n\nCoding: Python fluency with async patterns (LLM API calls are latency-heavy), TypeScript for client, clean data modeling, idiomatic error handling.\n\nRetrieval systems: lexical search (BM25, Okapi, term weighting), dense retrieval (dual-encoder embeddings, approximate nearest neighbor search with HNSW / IVF), hybrid search combining both, query understanding, query reformulation.\n\nRanking: cross-encoder reranking, LLM-based reranking, feature engineering for learning-to-rank, evaluation metrics (MRR, NDCG) for search-quality judgments.\n\nLLM integration: prompting for structured outputs, streaming responses, handling hallucination, citation insertion and verification, cost management across multiple model providers (Perplexity uses Claude, GPT, Gemini, open-weight models depending on tier), fallback handling.\n\nSearch infrastructure at scale: web-crawl / indexing (Perplexity has built its own crawling infrastructure for recency), index-update strategies, sharded retrieval, query routing across retrieval layers.\n\nEvaluation: how to measure answer quality when ground truth is subjective; human-labeled evaluation; LLM-as-judge with calibration; user-signal inference (implicit feedback from clicks and follow-ups).\n\nProduct engineering: streaming UI for AI-generated content, citation UX, Pages for long-form content, Comet browser integration, mobile clients.\n\nCoding Interview Details\n\nTwo coding rounds, 60 minutes each. Difficulty "
+}

@@ -12,6 +12,14 @@ CareerVivid is your AI-powered co-pilot for the job search. It helps job seekers
 - Blog: https://careervivid.app/blog
 - Contact: https://careervivid.app/contact
 
+## Learning Courses
+
+- Interactive course catalog: https://careervivid.app/learning
+- AI Agent Builder Curriculum: https://careervivid.app/learning/ai-agent-curriculum
+  - 10 modules and 58 lessons from LLM foundations to an AI agent portfolio project. The Foundations module is free to start.
+- Coding Interview Patterns: https://careervivid.app/learning/coding-interview-patterns
+  - 20 algorithm patterns, 60 lessons, visual step-through animations, and runnable JavaScript code labs. Currently free to access.
+
 ## What CareerVivid Does
 
 - AI resume builder and resume tailoring

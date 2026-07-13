@@ -1,0 +1,58 @@
+{
+  "company": "Anduril",
+  "slug": "anduril-interview-guide",
+  "url": "https://www.techinterview.org/companies/anduril-interview-guide",
+  "scrapedAt": "2026-07-02T07:19:14.958Z",
+  "interviewStages": [
+    "Coding (1–2 rounds) — algorithms, often with embedded / real-time flavor",
+    "System design (1 round) — autonomy systems, distributed sensors, real-time architectures",
+    "Domain depth (1–2 rounds) — robotics, ML, hardware, embedded, depending on role",
+    "Behavioral / mission alignment (1 round) — explicit probing on motivation and comfort with the work"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Implement a fixed-size ring buffer for sensor readings with O(1) reads and writes and no dynamic allocation. Walk through the concurrency considerations.",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [
+      "Design Anduril's autonomy systems platform — cover distributed sensors, real-time architectures. Walk through the architecture, trade-offs, and failure modes.",
+      "Design a service at Anduril scale that shortens URLs. Cover the API, storage, and hot-key handling.",
+      "Design a rate limiter for a public API. Discuss algorithms, distributed coordination, and failure modes."
+    ],
+    "values": [],
+    "other": [
+      "Do I need a security clearance to work at Anduril?",
+      "How do I handle the defense / weapons work question?",
+      "What's the equity story like pre-IPO?",
+      "How does Anduril compare culturally to typical Silicon Valley?",
+      "Is Anduril a good place for early-career engineers?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": [
+    "New-grad engineer: $180k–$280k total comp first year",
+    "Mid-level (4–7 years): $280k–$450k",
+    "Senior (8+ years): $400k–$700k",
+    "Staff / Principal: $600k–$1.2M+",
+    "The hardware-software integration depth is real; engineers without hardware exposure have a learning curve.",
+    "The mission-alignment screening is rigorous; cultural fit matters as much as technical fit.",
+    "Compensation is higher than candidates expect coming from \"defense\" associations; it's competitive with FAANG.",
+    "The pace is faster than defense backgrounds expect; slower than pure-software startup backgrounds expect. Calibrate.",
+    "Manufacturing engineering is a real career track; Anduril builds its own hardware unlike software-only defense companies.",
+    "SpaceX &mdash; reusable rockets and Starlink",
+    "Blue Origin &mdash; New Glenn and lunar lander",
+    "Defense Primes (Lockheed, Northrop, RTX) &mdash; traditional defense engineering"
+  ],
+  "rawSummary": "Anduril Industries Interview Guide 2026: Defense Tech, Lattice OS, Autonomy\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 29, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Anduril Industries Interview Guide: Defense Tech, Lattice OS, Autonomy, and the Hardware-Software Mission\n\n- What Anduril Does\n\n- Roles Anduril Hires For\n\n- Anduril Interview Process\n\n- What Anduril Tests For\n\n- Compensation\n\n- Cultural Considerations\n\n- Anduril vs Alternatives\n\n- Things That Surprise Candidates\n\n- Frequently Asked Questions\n\n- Adjacent Aerospace and Defense\n\nUpdated May 2, 2026 · techinterview.org\n\n⏱ 6 min read\n\nAnduril Industries\nanduril.com ↗\n\nAnduril Industries Interview Guide: Defense Tech, Lattice OS, Autonomy, and the Hardware-Software Mission\n\nAnduril is the most prominent defense-tech startup of the last decade. Founded in 2017 by Palmer Luckey and others, it has scaled rapidly to become a credible challenger to legacy defense primes (Lockheed, Raytheon, Northrop, General Dynamics) by building hardware-software products on commercial-tech timelines rather than government-contractor decade-cycles. The company is engineering-driven, mission-explicit, and selective in hiring. This guide covers what Anduril does, the engineering tracks, the interview process, and what makes Anduril hiring distinctive in 2026.\n\nWhat Anduril Does\n\nAnduril designs and manufactures autonomous defense systems plus the software that runs them:\n\n- Lattice OS: the company's flagship software platform — a sensor-fusion, command-and-control, autonomy-orchestration layer that ties Anduril hardware (and increasingly third-party hardware) together.\n\n- Sentry towers: autonomous surveillance towers deployed at borders and bases.\n\n- Ghost UAS: small unmanned aerial systems for ISR (intelligence, surveillance, reconnaissance).\n\n- Anvil counter-UAS: drone interception system.\n\n- Dive autonomous underwater vehicles: AUVs for naval applications.\n\n- Roadrunner: reusable autonomous interceptor (announced 2023).\n\n- Fury: CCA (collaborative combat aircraft) program for US Air Force.\n\n- Barracuda: low-cost cruise missile family (announced 2024).\n\nDistinctive features:\n\n- Hardware-software integration: unlike Palantir (software-only) or traditional primes (hardware-heavy with bolted-on software), Anduril builds full hardware-software stacks for each product.\n\n- Commercial pace: ships products on 12–24 month timelines vs. defense-prime decades.\n\n- Mission-explicit hiring: the company recruits engineers who actively want to work on defense; ambivalent candidates are screened out.\n\n- Private but mature: last public valuation $14B (2024); 2026 valuation reportedly higher pending pre-IPO funding.\n\nRoles Anduril Hires For\n\nSoftware engineer (Lattice / autonomy)\n\nBuilds Lattice OS, autonomy stacks, perception pipelines, sensor fusion. C++ and Rust dominate; some Python. Real-time and safety-critical engineering experience is valued.\n\nRobotics / autonomy engineer\n\nSpecializes in autonomous flight, control systems, computer vision, simulation. ROS / ROS2 background common. Strong math / controls fundamentals.\n\nHardware / mechanical engineer\n\nDesigns and integrates hardware systems — UAS, ground vehicles, tower hardware, missile bodies. Aerospace / mechanical engineering backgrounds.\n\nElectrical / firmware engineer\n\nDesigns avionics, communication systems, embedded firmware. C / C++ and HDL skills.\n\nML / perception engineer\n\nBuilds computer vision and perception systems for autonomy products. PyTorch / JAX, embedded ML deployment.\n\nTest / V&V engineer\n\nTest infrastructure, hardware-in-loop simulation, certification work. Critical given safety-critical nature of products.\n\nManufacturing / production engineer\n\nAnduril manufactures its own hardware; production engineering is a real role unlike at pure-software defense companies.\n\nAnduril Interview Process\n\nRound 1: Recruiter screen\n\n30 minutes. Background, motivation (the mission question is probed early), role fit. Anduril recruiters pay attention to whether candidates are mission-motivated; ambivalent candidates are filtered.\n\nRound 2: Technical phone screen\n\n60–90 minutes. Coding (medium-hard), some systems / domain depth depending on role. The bar is real; comparable to FAANG-level rigor.\n\nRound 3: On-site / virtual on-site\n\n4–6 rounds, each 60–90 minutes:\n\n- Coding (1–2 rounds) — algorithms, often with embedded / real-time flavor\n\n- System design (1 round) — autonomy systems, distributed sensors, real-time architectures\n\n- Domain depth (1–2 rounds) — robotics, ML, hardware, embedded, depending on role\n\n- Behavioral / mission alignment (1 round) — explicit probing on motivation and comfort with the work\n\nRound 4: Decision\n\nCalibration meeting; offer typically within 1–2 weeks. Compensation negotiation expected.\n\nWhat Anduril Tests For\n\nTechnical depth\n\nThe bar is high. Embedded systems, real-time programming, safety-critical engineering, C++ / Rust depth all matter for relevant roles. Generic web-stack experie"
+}

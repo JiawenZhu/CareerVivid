@@ -1,0 +1,804 @@
+{
+  "$schema": "https://careervivid.app/schemas/design-system-theme.schema.json",
+  "name": "CareerVivid System Theme",
+  "slug": "careervivid-system-theme",
+  "version": "2026-07-03",
+  "status": "source-documentation",
+  "description": "Detailed design theme reference for CareerVivid web, dashboard, interview, onboarding, public pages, and extension surfaces.",
+  "sourceFiles": [
+    "src/index.css",
+    "src/pages/InterviewStudio.tsx",
+    "src/components/JobTracker/KanbanBoard.tsx",
+    "src/pages/JobTrackerPage.tsx",
+    "src/extension-ui/layout/ExtensionLayout.tsx",
+    "src/extension-ui/pages/ExtensionHome.tsx",
+    "src/extension-ui/components/ExtensionHeader.tsx"
+  ],
+  "designPrinciples": [
+    "CareerVivid should feel warm, useful, calm, and job-search focused.",
+    "The product is a career workspace, not a flashy AI toy.",
+    "Use warm paper and near-white backgrounds as the default visual base.",
+    "Use CareerVivid purple as a controlled accent for primary actions, selected states, and focus cues.",
+    "Use muted dashboard-inspired status colors in small badges, icon wells, and progress indicators.",
+    "Favor compact readable typography, thin borders, soft shadows, and stable action sizes.",
+    "Avoid one-note purple, saturated gradients, dark slate dominance, beige-only pages, decorative orbs, and generic AI marketing visuals."
+  ],
+  "personality": {
+    "productFeel": "Warm professional workspace",
+    "keywords": [
+      "calm",
+      "organized",
+      "practical",
+      "trustworthy",
+      "job-search focused",
+      "editorial",
+      "scanable"
+    ],
+    "copyTone": {
+      "style": "Direct, warm, and practical",
+      "preferred": [
+        "Save to tracker",
+        "Tailor resume",
+        "Start mock interview",
+        "Open pipeline",
+        "Improve next signal",
+        "Practice from real company guides"
+      ],
+      "avoid": [
+        "Revolutionary AI",
+        "Magic career unlock",
+        "Overlong in-app feature explanations",
+        "All-caps primary labels outside tiny badges"
+      ]
+    }
+  },
+  "palette": {
+    "warmPaper": {
+      "50": "#fffaf1",
+      "100": "#f7f1e7",
+      "200": "#efe5d6",
+      "300": "#e6dac8",
+      "400": "#e4d3bc",
+      "ink": "#211b16",
+      "muted": "#665a4a"
+    },
+    "neutral": {
+      "0": "#ffffff",
+      "25": "#fbfbfe",
+      "50": "#f8f8fb",
+      "100": "#f3f4f6",
+      "200": "#e5e7eb",
+      "300": "#d1d5db",
+      "400": "#9ca3af",
+      "500": "#6b7280",
+      "600": "#4b5563",
+      "700": "#374151",
+      "800": "#1f2937",
+      "900": "#111827",
+      "950": "#030712"
+    },
+    "careerPurple": {
+      "25": "#fbfbff",
+      "50": "#f3f2ff",
+      "75": "#eef0ff",
+      "100": "#e5e7ff",
+      "200": "#dfdcff",
+      "300": "#c8c3ff",
+      "400": "#8d88e6",
+      "500": "#7069dc",
+      "600": "#625bd5",
+      "700": "#514ac5",
+      "darkSurface": "#2f2b55",
+      "darkBorder": "#484273",
+      "darkText": "#bbb8ff"
+    },
+    "warmAmber": {
+      "50": "#fff7e8",
+      "100": "#f2dfc2",
+      "200": "#e4c48d",
+      "400": "#caa26c",
+      "600": "#a97935",
+      "700": "#7c4f18"
+    },
+    "success": {
+      "50": "#eef9f2",
+      "100": "#d9f2e2",
+      "200": "#cfe8d5",
+      "600": "#15803d",
+      "700": "#166534"
+    },
+    "warning": {
+      "50": "#fffbeb",
+      "100": "#fef3c7",
+      "200": "#fde68a",
+      "600": "#d97706",
+      "700": "#b45309"
+    },
+    "danger": {
+      "50": "#fff1f2",
+      "100": "#ffe4e6",
+      "200": "#fecdd3",
+      "600": "#e11d48",
+      "700": "#be123c"
+    },
+    "blue": {
+      "50": "#eff6ff",
+      "100": "#dbeafe",
+      "500": "#3b82f6",
+      "600": "#2563eb"
+    },
+    "pink": {
+      "50": "#fdf2f8",
+      "100": "#fce7f3",
+      "500": "#ec4899",
+      "600": "#db2777"
+    },
+    "darkNeutral": {
+      "page": "#1f1f1d",
+      "surface": "#262522",
+      "surfaceRaised": "#302e2a",
+      "navySurface": "#111827",
+      "navyDeep": "#0f172a",
+      "border": "#37332d",
+      "text": "#f4f1e9",
+      "body": "#f1eee7",
+      "muted": "#aaa39a",
+      "coolMuted": "#94a3b8"
+    }
+  },
+  "modes": {
+    "light": {
+      "page": {
+        "background": "#f7f1e7",
+        "text": "#211b16",
+        "gridLineHorizontal": "rgba(139, 90, 22, 0.06)",
+        "gridLineVertical": "rgba(139, 90, 22, 0.07)"
+      },
+      "appShell": {
+        "background": "#f8f8fb",
+        "surface": "#ffffff",
+        "surfaceSubtle": "#fbfbfe",
+        "border": "#ececf4",
+        "shadow": "0 1px 2px rgba(16, 24, 40, 0.05)"
+      },
+      "publicWarm": {
+        "cardBackground": "rgba(255, 250, 241, 0.88)",
+        "cardBorder": "#e4d3bc",
+        "eyebrow": "#a97935",
+        "heading": "#211b16",
+        "body": "#665a4a"
+      },
+      "action": {
+        "primaryBackground": "#625bd5",
+        "primaryHover": "#514ac5",
+        "primaryText": "#ffffff",
+        "softBackground": "#eef0ff",
+        "softHover": "#e5e7ff",
+        "softText": "#625bd5",
+        "softBorder": "#dfe2ff"
+      },
+      "focus": {
+        "ring": "#8d88e6",
+        "ringSoft": "rgba(98, 91, 213, 0.22)",
+        "outline": "2px solid #8d88e6",
+        "outlineOffset": "2px"
+      }
+    },
+    "dark": {
+      "page": {
+        "background": "#1f1f1d",
+        "text": "#f1eee7",
+        "gridLineHorizontal": "rgba(244, 241, 233, 0.04)",
+        "gridLineVertical": "rgba(244, 241, 233, 0.05)"
+      },
+      "appShell": {
+        "background": "#0f172a",
+        "surface": "#111827",
+        "surfaceSubtle": "#1f2937",
+        "border": "#374151",
+        "shadow": "0 1px 2px rgba(0, 0, 0, 0.2)"
+      },
+      "publicWarm": {
+        "cardBackground": "rgba(38, 37, 34, 0.88)",
+        "cardBorder": "#37332d",
+        "eyebrow": "#caa26c",
+        "heading": "#f4f1e9",
+        "body": "#aaa39a"
+      },
+      "action": {
+        "primaryBackground": "#7069dc",
+        "primaryHover": "#8d88e6",
+        "primaryText": "#ffffff",
+        "softBackground": "rgba(47, 43, 85, 0.7)",
+        "softHover": "#383266",
+        "softText": "#bbb8ff",
+        "softBorder": "#484273"
+      },
+      "focus": {
+        "ring": "#bbb8ff",
+        "ringSoft": "rgba(187, 184, 255, 0.22)",
+        "outline": "2px solid #bbb8ff",
+        "outlineOffset": "2px"
+      }
+    }
+  },
+  "semanticTokens": {
+    "background": {
+      "publicPage": "{modes.light.page.background}",
+      "publicPageDark": "{modes.dark.page.background}",
+      "productPage": "{modes.light.appShell.background}",
+      "productPageDark": "{modes.dark.appShell.background}",
+      "surface": "#ffffff",
+      "surfaceWarm": "#fffaf1",
+      "surfaceMuted": "#fbfbfe",
+      "surfaceSelected": "#eef0ff"
+    },
+    "text": {
+      "heading": "#211b16",
+      "headingProduct": "#111827",
+      "body": "#665a4a",
+      "bodyProduct": "#64748b",
+      "muted": "#6b7280",
+      "subtle": "#9ca3af",
+      "inverse": "#ffffff",
+      "accent": "#625bd5"
+    },
+    "border": {
+      "warm": "#e4d3bc",
+      "product": "#e5e7eb",
+      "subtle": "#ececf4",
+      "accent": "#dfdcff",
+      "focus": "#8d88e6"
+    },
+    "shadow": {
+      "card": "0 1px 2px rgba(16, 24, 40, 0.05)",
+      "cardHover": "0 8px 24px rgba(98, 91, 213, 0.08)",
+      "modal": "0 24px 70px rgba(17, 24, 39, 0.24)",
+      "warmCard": "0 1px 2px rgba(139, 90, 22, 0.05)",
+      "inputFocus": "0 1px 2px rgba(16, 24, 40, 0.05), 0 4px 14px rgba(16, 24, 40, 0.08)"
+    },
+    "status": {
+      "success": {
+        "background": "#eef9f2",
+        "text": "#15803d",
+        "border": "#cfe8d5"
+      },
+      "warning": {
+        "background": "#fffbeb",
+        "text": "#b45309",
+        "border": "#fde68a"
+      },
+      "danger": {
+        "background": "#fff1f2",
+        "text": "#be123c",
+        "border": "#fecdd3"
+      },
+      "info": {
+        "background": "#eff6ff",
+        "text": "#2563eb",
+        "border": "#dbeafe"
+      },
+      "accent": {
+        "background": "#f3f2ff",
+        "text": "#625bd5",
+        "border": "#dfdcff"
+      }
+    }
+  },
+  "typography": {
+    "fontFamily": {
+      "body": "Inter, sans-serif",
+      "heading": "Plus Jakarta Sans, sans-serif",
+      "mono": "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace"
+    },
+    "letterSpacing": {
+      "default": "0",
+      "compact": "0",
+      "eyebrow": "0.22em",
+      "badge": "0.08em"
+    },
+    "scale": {
+      "pageTitle": {
+        "fontSize": "24px-32px",
+        "fontWeight": "700-800",
+        "lineHeight": "1.05-1.15",
+        "usage": "Dashboard titles, public page hero titles, primary workspace headings"
+      },
+      "sectionTitle": {
+        "fontSize": "16px-22px",
+        "fontWeight": "650-750",
+        "lineHeight": "1.2-1.3",
+        "usage": "Workspace modules, landing sections, settings panels"
+      },
+      "cardTitle": {
+        "fontSize": "13px-15px",
+        "fontWeight": "700",
+        "lineHeight": "1.25-1.35",
+        "usage": "Job cards, interview company cards, resume cards"
+      },
+      "body": {
+        "fontSize": "12px-14px",
+        "fontWeight": "500",
+        "lineHeight": "1.45-1.75",
+        "usage": "Descriptions, helper copy, card summaries"
+      },
+      "metadata": {
+        "fontSize": "10px-12px",
+        "fontWeight": "600",
+        "lineHeight": "1.2-1.4",
+        "usage": "Counts, dates, file metadata, usage summaries"
+      },
+      "badge": {
+        "fontSize": "10px-11px",
+        "fontWeight": "700",
+        "lineHeight": "1",
+        "usage": "Plan chips, state chips, filter labels, compact status"
+      }
+    }
+  },
+  "layout": {
+    "spacingScale": {
+      "0": "0",
+      "1": "4px",
+      "2": "8px",
+      "3": "12px",
+      "4": "16px",
+      "5": "20px",
+      "6": "24px",
+      "8": "32px",
+      "10": "40px",
+      "12": "48px",
+      "16": "64px"
+    },
+    "radius": {
+      "controlSmall": "6px",
+      "control": "8px",
+      "input": "16px",
+      "card": "12px",
+      "largeCard": "16px",
+      "extensionCard": "16px-20px",
+      "pill": "999px"
+    },
+    "borderWidth": {
+      "default": "1px",
+      "focus": "2px",
+      "neverHeavyUnless": "Use thick borders only for focused inputs or intentional editor outlines."
+    },
+    "containers": {
+      "publicPageMaxWidth": "1120px-1280px",
+      "dashboardShell": "Full-height product workspace with sidebar plus scrollable content",
+      "compactPanel": "Use dense spacing, stable icon buttons, and predictable rows"
+    },
+    "grid": {
+      "warmPublicGrid": {
+        "backgroundSize": "64px 64px",
+        "lineWeight": "1px",
+        "intent": "Subtle editorial structure, never decorative noise"
+      },
+      "cardGrid": {
+        "minColumnWidth": "260px",
+        "gap": "12px-24px",
+        "intent": "Scanable repeated work items"
+      }
+    }
+  },
+  "components": {
+    "button": {
+      "base": {
+        "height": "36px-44px",
+        "radius": "8px-16px depending on surrounding UI",
+        "fontSize": "12px-14px",
+        "fontWeight": "650-700",
+        "gap": "6px-8px",
+        "iconSize": "16px-18px"
+      },
+      "primary": {
+        "background": "#625bd5",
+        "hoverBackground": "#514ac5",
+        "text": "#ffffff",
+        "shadow": "soft, low contrast"
+      },
+      "softPurple": {
+        "background": "#eef0ff",
+        "hoverBackground": "#e5e7ff",
+        "text": "#625bd5",
+        "border": "#dfe2ff",
+        "usage": "Interview guide CTAs, secondary primary actions, selected helpful actions"
+      },
+      "neutral": {
+        "background": "#ffffff",
+        "hoverBackground": "#f8f8fb",
+        "text": "#374151",
+        "border": "#e5e7eb"
+      },
+      "danger": {
+        "background": "#fff1f2",
+        "hoverBackground": "#ffe4e6",
+        "text": "#be123c",
+        "border": "#fecdd3",
+        "usage": "Sparse destructive actions only"
+      }
+    },
+    "input": {
+      "search": {
+        "height": "46px-52px",
+        "radius": "16px",
+        "background": "rgba(249, 250, 251, 0.8)",
+        "focusedBackground": "#ffffff",
+        "border": "#e5e7eb",
+        "focusedBorder": "#9ca3af",
+        "placeholder": "#9ca3af",
+        "text": "#111827",
+        "icon": "#9ca3af",
+        "focusedIcon": "#374151",
+        "shadowOnFocus": "{semanticTokens.shadow.inputFocus}",
+        "example": "Company guide search bar"
+      },
+      "textField": {
+        "height": "42px-52px",
+        "radius": "8px-16px",
+        "background": "#ffffff",
+        "border": "#d1d5db",
+        "focusRing": "#625bd5"
+      }
+    },
+    "card": {
+      "base": {
+        "background": "#ffffff",
+        "border": "#e5e7eb",
+        "radius": "12px",
+        "padding": "16px-24px",
+        "shadow": "{semanticTokens.shadow.card}"
+      },
+      "hover": {
+        "translateY": "-2px",
+        "background": "#fbfbff",
+        "border": "#dfdcff",
+        "shadow": "{semanticTokens.shadow.cardHover}"
+      },
+      "warmPublic": {
+        "background": "rgba(255, 250, 241, 0.88)",
+        "border": "#e4d3bc",
+        "radius": "12px",
+        "shadow": "{semanticTokens.shadow.warmCard}"
+      },
+      "rules": [
+        "Do not place decorative cards inside other decorative cards.",
+        "Use cards for repeated items, modals, or framed tools.",
+        "Use full-width sections or unframed layouts for page structure."
+      ]
+    },
+    "badge": {
+      "base": {
+        "radius": "999px",
+        "padding": "2px 8px",
+        "fontSize": "10px-11px",
+        "fontWeight": "700",
+        "lineHeight": "1"
+      },
+      "accent": {
+        "background": "#f3f2ff",
+        "text": "#625bd5",
+        "border": "#dfdcff"
+      },
+      "success": {
+        "background": "#eef9f2",
+        "text": "#15803d",
+        "border": "#cfe8d5"
+      },
+      "warning": {
+        "background": "#fffbeb",
+        "text": "#b45309",
+        "border": "#fde68a"
+      }
+    },
+    "segmentedControl": {
+      "container": {
+        "background": "#f3f4f6",
+        "radius": "8px",
+        "padding": "4px"
+      },
+      "item": {
+        "height": "34px",
+        "radius": "6px",
+        "inactiveText": "#4b5563",
+        "activeBackground": "#ffffff",
+        "activeText": "#625bd5",
+        "activeShadow": "0 1px 2px rgba(16, 24, 40, 0.06)"
+      }
+    },
+    "categoryFilter": {
+      "usage": "Interview company guide category filters",
+      "active": {
+        "background": "#030712",
+        "text": "#ffffff",
+        "shadow": "0 1px 2px rgba(16, 24, 40, 0.08)"
+      },
+      "inactive": {
+        "background": "#ffffff",
+        "text": "#4b5563",
+        "border": "#e5e7eb",
+        "hoverBackground": "#fbfbff",
+        "hoverText": "#625bd5",
+        "hoverBorder": "#dfdcff"
+      },
+      "darkActive": {
+        "background": "#f3f4f6",
+        "text": "#030712"
+      }
+    },
+    "companyInterviewCard": {
+      "usage": "Company interview guide cards in Interview Studio",
+      "container": {
+        "background": "#ffffff",
+        "border": "#e5e7eb",
+        "radius": "12px",
+        "padding": "16px",
+        "hoverBackground": "#fbfbff",
+        "hoverBorder": "#dfdcff",
+        "hoverShadow": "0 8px 24px rgba(98, 91, 213, 0.08)"
+      },
+      "avatar": {
+        "size": "40px",
+        "radius": "8px",
+        "tones": [
+          {
+            "background": "#f3f2ff",
+            "text": "#625bd5",
+            "ring": "#dfdcff"
+          },
+          {
+            "background": "#eef0ff",
+            "text": "#7069dc",
+            "ring": "#dfe2ff"
+          },
+          {
+            "background": "#f7f1ff",
+            "text": "#7c5fd6",
+            "ring": "#eadfff"
+          },
+          {
+            "background": "#f5f7ff",
+            "text": "#5c62d6",
+            "ring": "#e0e5ff"
+          }
+        ]
+      },
+      "scoreBadge": {
+        "high": {
+          "background": "#fff1f2",
+          "text": "#be123c",
+          "ring": "#fecdd3"
+        },
+        "medium": {
+          "background": "#fffbeb",
+          "text": "#b45309",
+          "ring": "#fde68a"
+        },
+        "low": {
+          "background": "#eef9f2",
+          "text": "#15803d",
+          "ring": "#cfe8d5"
+        }
+      },
+      "topicChip": {
+        "background": "#f3f4f6",
+        "text": "#4b5563",
+        "hoverBackground": "#f3f2ff",
+        "hoverText": "#625bd5"
+      },
+      "primaryAction": {
+        "background": "#eef0ff",
+        "hoverBackground": "#e5e7ff",
+        "text": "#625bd5",
+        "hoverText": "#514ac5",
+        "ring": "#dfe2ff"
+      },
+      "sourceAction": {
+        "background": "#ffffff",
+        "border": "#e5e7eb",
+        "icon": "#9ca3af",
+        "hoverIcon": "#625bd5"
+      }
+    },
+    "dashboardStatCard": {
+      "background": "#ffffff",
+      "border": "#e5e7eb",
+      "radius": "16px",
+      "title": {
+        "fontSize": "11px-12px",
+        "fontWeight": "700",
+        "color": "#64748b"
+      },
+      "number": {
+        "fontSize": "24px-32px",
+        "fontWeight": "800",
+        "color": "#111827"
+      },
+      "iconWell": {
+        "size": "32px-40px",
+        "radius": "12px",
+        "useTintedBackground": true
+      }
+    },
+    "jobPipelineCard": {
+      "background": "#ffffff",
+      "border": "#e5e7eb",
+      "radius": "10px-12px",
+      "title": {
+        "fontSize": "13px-15px",
+        "fontWeight": "700"
+      },
+      "metadata": {
+        "fontSize": "11px-12px",
+        "color": "#6b7280"
+      },
+      "statusColors": "Use small chips and dots only; avoid large saturated blocks."
+    },
+    "sidebar": {
+      "background": "#ffffff",
+      "border": "#ececf4",
+      "activeItem": {
+        "background": "#eef0ff",
+        "text": "#625bd5",
+        "border": "#dfe2ff"
+      },
+      "item": {
+        "text": "#64748b",
+        "hoverText": "#111827",
+        "height": "34px-40px"
+      },
+      "creditMeter": {
+        "track": "#e5e7eb",
+        "fill": "#625bd5",
+        "label": "#111827",
+        "muted": "#6b7280"
+      }
+    },
+    "modal": {
+      "backdrop": "rgba(17, 24, 39, 0.45)",
+      "background": "#ffffff",
+      "radius": "18px-24px",
+      "shadow": "{semanticTokens.shadow.modal}",
+      "border": "#e5e7eb",
+      "padding": "24px-32px",
+      "heading": {
+        "fontSize": "20px-24px",
+        "fontWeight": "800"
+      }
+    },
+    "publicLandingSection": {
+      "background": "#f7f1e7",
+      "grid": "{layout.grid.warmPublicGrid}",
+      "eyebrow": {
+        "color": "#a97935",
+        "fontSize": "12px",
+        "fontWeight": "700",
+        "letterSpacing": "0.22em",
+        "textTransform": "uppercase"
+      },
+      "heading": {
+        "color": "#211b16",
+        "fontWeight": "650",
+        "letterSpacing": "0"
+      },
+      "body": {
+        "color": "#665a4a",
+        "fontWeight": "500",
+        "lineHeight": "2rem"
+      }
+    },
+    "chromeExtensionPanel": {
+      "defaultThemeBehavior": "Follow system setting unless user chooses light or dark.",
+      "background": "#f8f8fb",
+      "surface": "#ffffff",
+      "border": "#ececf4",
+      "accent": "#625bd5",
+      "typography": "Compact job-pipeline typography",
+      "themeControl": {
+        "visibleButton": "One visible theme button",
+        "expandedChoices": [
+          "system",
+          "light",
+          "dark"
+        ],
+        "interaction": "Hover or focus menu must remain clickable while pointer moves from trigger to menu."
+      }
+    }
+  },
+  "motion": {
+    "duration": {
+      "fast": "120ms",
+      "normal": "200ms",
+      "slow": "320ms"
+    },
+    "easing": {
+      "standard": "cubic-bezier(0.2, 0, 0, 1)",
+      "emphasized": "cubic-bezier(0.34, 1.56, 0.64, 1)"
+    },
+    "rules": [
+      "Use motion to clarify state changes, not decorate.",
+      "Hover lift should stay subtle: about -2px.",
+      "Loading and streaming states should be calm and readable.",
+      "Respect reduced motion preferences when adding new animation."
+    ]
+  },
+  "accessibility": {
+    "contrastTargets": {
+      "bodyText": "WCAG AA",
+      "smallText": "WCAG AA wherever practical",
+      "focusIndicator": "Visible against light and dark surfaces"
+    },
+    "focus": {
+      "alwaysVisibleForKeyboard": true,
+      "minimumOutlineWidth": "2px",
+      "minimumOutlineOffset": "2px"
+    },
+    "hitTargets": {
+      "minimum": "32px",
+      "preferred": "40px-44px for primary controls"
+    },
+    "textOverflow": {
+      "buttons": "No clipping; wrap or shorten labels.",
+      "cards": "Truncate repeated-item titles only when the full value is available through context or tooltip.",
+      "mobile": "Check all major cards and sidebars at narrow widths."
+    },
+    "themeQA": [
+      "Verify light mode.",
+      "Verify dark mode.",
+      "Verify system theme behavior.",
+      "Verify visible focus states.",
+      "Verify muted label contrast.",
+      "Verify hover menus remain clickable."
+    ]
+  },
+  "implementationGuidance": {
+    "tailwindPatterns": {
+      "primaryButton": "bg-[#625bd5] text-white hover:bg-[#514ac5]",
+      "softPurpleButton": "bg-[#eef0ff] text-[#625bd5] ring-1 ring-[#dfe2ff] hover:bg-[#e5e7ff]",
+      "activeCategoryFilter": "bg-gray-950 text-white dark:bg-gray-100 dark:text-gray-950",
+      "warmCard": "cv-warm-card",
+      "warmEyebrow": "cv-warm-eyebrow",
+      "warmGrid": "cv-warm-grid"
+    },
+    "cssClasses": {
+      "cvWarmPage": ".cv-warm-page",
+      "cvWarmGrid": ".cv-warm-grid",
+      "cvWarmCard": ".cv-warm-card",
+      "cvWarmEyebrow": ".cv-warm-eyebrow",
+      "cvWarmHeading": ".cv-warm-heading",
+      "cvWarmBody": ".cv-warm-body"
+    },
+    "do": [
+      "Use product screenshots or concrete UI for public pages.",
+      "Use icons in compact actions when lucide icons exist.",
+      "Use tinted icon wells for visual rhythm.",
+      "Use black only for strong active category filters or high-contrast text.",
+      "Keep purple action surfaces light when a section already contains many cards."
+    ],
+    "doNot": [
+      "Do not make purple the whole page theme.",
+      "Do not use saturated gradient panels as primary surfaces.",
+      "Do not add decorative blobs, orbs, or bokeh backgrounds.",
+      "Do not nest decorative cards inside decorative cards.",
+      "Do not use oversized hero type inside cards, sidebars, dashboards, or tools.",
+      "Do not mix bright white cards into dark mode without dark equivalents."
+    ]
+  },
+  "futureTokenization": {
+    "recommendation": "If this JSON becomes runtime tokens, generate CSS variables and Tailwind theme extensions from semanticTokens rather than referencing palette values directly in components.",
+    "candidateCssVariables": {
+      "--cv-bg-page": "#f7f1e7",
+      "--cv-bg-surface": "#ffffff",
+      "--cv-bg-surface-warm": "#fffaf1",
+      "--cv-text-heading": "#211b16",
+      "--cv-text-body": "#665a4a",
+      "--cv-border-warm": "#e4d3bc",
+      "--cv-accent": "#625bd5",
+      "--cv-accent-hover": "#514ac5",
+      "--cv-accent-soft": "#eef0ff",
+      "--cv-accent-soft-border": "#dfe2ff",
+      "--cv-focus-ring": "#8d88e6"
+    }
+  }
+}

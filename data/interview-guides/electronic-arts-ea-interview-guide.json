@@ -1,0 +1,75 @@
+{
+  "company": "Electronic Arts",
+  "slug": "electronic-arts-ea-interview-guide",
+  "url": "https://www.techinterview.org/companies/electronic-arts-ea-interview-guide",
+  "scrapedAt": "2026-07-02T07:22:16.967Z",
+  "interviewStages": [
+    "Recruiter screen.",
+    "Technical phone screen (60–90 min). Coding and game-specific concepts.",
+    "Onsite or virtual loop (4–6 rounds).",
+    "1 game-systems design round",
+    "1 domain depth round (graphics, physics, animation, networking — track-specific)",
+    "1 behavioral round",
+    "Studio-level final review.",
+    "C++ depth for engine, gameplay, and graphics",
+    "Game-specific algorithms: spatial partitioning, animation blending, physics simulation",
+    "For EA Sports games: large-scale animation systems, motion capture pipelines, AI for sports simulation",
+    "For online services / Origin / EA App: distributed systems, matchmaking, account systems",
+    "For DICE Frostbite engine: rendering pipeline, multiplayer networking, modding/scripting interfaces",
+    "EA Sports (Vancouver, Tiburon): annual sports-game cadence; FIFA / FC and Madden are flagship products. Heavy emphasis on production reliability and content pipelines.",
+    "DICE (Stockholm): Frostbite engine and Battlefield. AAA shooter focus; rendering and networking depth.",
+    "Respawn (Los Angeles): Apex Legends and Star Wars Jedi titles. Live-service multiplayer focus.",
+    "Maxis (Redwood City): The Sims franchise. Long-running content-heavy game."
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Do I need game-development experience?",
+      "How does EA compare to Activision Blizzard?",
+      "Is C++ required?",
+      "What is work-life balance like?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": [
+    "Senior engineer: $160–220K base + EA RSU + bonus → $250–380K total",
+    "Staff: $220–290K base + RSU → $380–550K total",
+    "Principal: $290–380K base + RSU → $550K–800K total",
+    "Implement a fixed-step physics integrator. Discuss the difference between Euler, Verlet, and RK4 for game physics. Why fixed timestep matters for deterministic multiplayer; how to handle variable rendering frame rates with a physics interpolation buffer.",
+    "Spatial partitioning for a 100,000-actor scene. Quadtree vs octree vs BVH vs grid. Discuss memory layout, cache behavior, and what changes when actors move every frame vs are mostly static.",
+    "Animation blending between two clips. Linear blending in joint space, spherical interpolation for rotations, the role of additive layers (e.g., adding a shooting pose on top of a walking gait).",
+    "Lag compensation: how to rewind authoritative server state to the moment a client fired a shot. Trade-offs against players-around-corners issues.",
+    "Client-side prediction and rollback: how Apex Legends and Battlefield handle 60-tick servers with smooth perceived movement on 100ms-RTT clients.",
+    "Anti-cheat architecture: client-side detection (signed binaries, kernel-level monitors) vs server-side detection (anomaly models, replay analysis). Why both are needed.",
+    "Hot-fixing live games without taking servers down: data-only patches, content updates via CDN, the role of live-config systems.",
+    "FUT (FIFA / FC Ultimate Team) trade economy: how to detect and prevent gold farming, account-trading, and bot activity in a live marketplace with millions of daily transactions.",
+    "Apex Legends battle-pass progression: storing per-player progress at scale, eventual-vs-strong consistency on stat updates, the role of account-wide rate limits.",
+    "Annual ship cadence: how to balance shipping a new game every year against deep technical investment. Why the FC and Madden teams have such large content pipelines.",
+    "Motion capture pipelines: ingesting hundreds of hours of mocap, retargeting onto in-game skeletons, automated cleanup for outliers.",
+    "AI for sports simulation: how positional decision-making is modeled, the difference between scripted plays and emergent behavior, and how rule changes (e.g., a real-world rules update) propagate to the game.",
+    "EA Sports / Tiburon (Orlando): annual sports cadence, heavy content pipelines, large engineering org, more enterprise-feeling.",
+    "EA Sports Vancouver: FC franchise, similar pipeline-heavy culture as Tiburon.",
+    "DICE (Stockholm): Frostbite engine, Battlefield. Smaller org, rendering and networking depth, longer release cycles.",
+    "Respawn (Los Angeles): Apex Legends, Star Wars Jedi. Live-service shooter focus, smaller more startup-feeling team.",
+    "Activision Blizzard &mdash; MMORPG and shooter franchises",
+    "Riot Games &mdash; League and Valorant",
+    "Epic Games &mdash; Unreal Engine and Fortnite",
+    "Unity &mdash; game engine"
+  ],
+  "rawSummary": "Electronic Arts (EA) Interview Guide (2026): Process, Questions, Compensation\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 2, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Interview process\n\n- Common technical questions\n\n- The studio differences\n\n- Compensation (2026 estimates, US)\n\n- Sample interview questions in depth\n\n- The studio personalities\n\n- Frequently Asked Questions\n\n- Adjacent Gaming Companies\n\nUpdated May 3, 2026 · techinterview.org\n\n⏱ 4 min read\n\nElectronic Arts (EA)\nea.com ↗\n\nElectronic Arts (EA) Interview Guide\n\nCompany overview: Electronic Arts is one of the largest game publishers, with major franchises including FC (formerly FIFA), Madden NFL, Battlefield, Apex Legends, The Sims, and Star Wars titles. Redwood City, California headquarters; engineering across Redwood City, Vancouver (EA Sports), Stockholm (DICE), Orlando (Tiburon — sports games), and many other studios. Public on NASDAQ (EA).\n\nInterview process\n\nTimeline: 4–7 weeks. Varies by studio.\n\n- Recruiter screen.\n\n- Technical phone screen (60–90 min). Coding and game-specific concepts.\n\n- Onsite or virtual loop (4–6 rounds).\n\n2 coding rounds (C++ heavy for engine; more flexible for tools, services)\n\n- 1 game-systems design round\n\n- 1 domain depth round (graphics, physics, animation, networking — track-specific)\n\n- 1 behavioral round\n\n- Studio-level final review.\n\nCommon technical questions\n\n- C++ depth for engine, gameplay, and graphics\n\n- Game-specific algorithms: spatial partitioning, animation blending, physics simulation\n\n- For EA Sports games: large-scale animation systems, motion capture pipelines, AI for sports simulation\n\n- For online services / Origin / EA App: distributed systems, matchmaking, account systems\n\n- For DICE Frostbite engine: rendering pipeline, multiplayer networking, modding/scripting interfaces\n\nThe studio differences\n\n- EA Sports (Vancouver, Tiburon): annual sports-game cadence; FIFA / FC and Madden are flagship products. Heavy emphasis on production reliability and content pipelines.\n\n- DICE (Stockholm): Frostbite engine and Battlefield. AAA shooter focus; rendering and networking depth.\n\n- Respawn (Los Angeles): Apex Legends and Star Wars Jedi titles. Live-service multiplayer focus.\n\n- Maxis (Redwood City): The Sims franchise. Long-running content-heavy game.\n\nCompensation (2026 estimates, US)\n\n- Senior engineer: $160–220K base + EA RSU + bonus → $250–380K total\n\n- Staff: $220–290K base + RSU → $380–550K total\n\n- Principal: $290–380K base + RSU → $550K–800K total\n\nBelow pure FAANG cash; competitive with other AAA game studios.\n\nSample interview questions in depth\n\nC++ engine and gameplay\n\n- Implement a fixed-step physics integrator. Discuss the difference between Euler, Verlet, and RK4 for game physics. Why fixed timestep matters for deterministic multiplayer; how to handle variable rendering frame rates with a physics interpolation buffer.\n\n- Spatial partitioning for a 100,000-actor scene. Quadtree vs octree vs BVH vs grid. Discuss memory layout, cache behavior, and what changes when actors move every frame vs are mostly static.\n\n- Animation blending between two clips. Linear blending in joint space, spherical interpolation for rotations, the role of additive layers (e.g., adding a shooting pose on top of a walking gait).\n\nNetworking for multiplayer (DICE / Apex / Battlefield teams)\n\n- Lag compensation: how to rewind authoritative server state to the moment a client fired a shot. Trade-offs against players-around-corners issues.\n\n- Client-side prediction and rollback: how Apex Legends and Battlefield handle 60-tick servers with smooth perceived movement on 100ms-RTT clients.\n\n- Anti-cheat architecture: client-side detection (signed binaries, kernel-level monitors) vs server-side detection (anomaly models, replay analysis). Why both are needed.\n\nLive-ops and content systems\n\n- Hot-fixing live games without taking servers down: data-only patches, content updates via CDN, the role of live-config systems.\n\n- FUT (FIFA / FC Ultimate Team) trade economy: how to detect and prevent gold farming, account-trading, and bot activity in a live marketplace with millions of daily transactions.\n\n- Apex Legends battle-pass progression: storing per-player progress at scale, eventual-vs-strong consistency on stat updates, the role of account-wide rate limits.\n\nSports games (FC, Madden) — specific challenges\n\n- Annual ship cadence: how to balance shipping a new game every year against deep technical investment. Why the FC and Madden teams have such large content pipelines.\n\n- Motion capture pipelines: ingesting hundreds of hours of mocap, retargeting onto in-game skeletons, automated cleanup for outliers.\n\n- AI for sports simulation: how positional decision-making is modeled, the difference between scripted plays and emergent behavior, and how rule changes (e.g., a real-world rules update) propagate to the game.\n\nThe studio personalities\n\nThe four major studios at EA each have distinct engineering cultures:\n\n- EA S"
+}

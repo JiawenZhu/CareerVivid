@@ -1,0 +1,237 @@
+{
+  "$schemaNote": "Machine-readable mirror of docs/learning/resource-inventory.md. Licenses verified against live GitHub pages on 2026-07-06 — re-verify before actually running the sync script if this file is stale.",
+  "sources": [
+    {
+      "id": "microsoft-generative-ai-for-beginners",
+      "title": "Generative AI for Beginners",
+      "org": "Microsoft",
+      "repoUrl": "https://github.com/microsoft/generative-ai-for-beginners",
+      "license": "MIT",
+      "commercialUse": true,
+      "downloadable": true,
+      "localPath": "third_party/learning-sources/microsoft-generative-ai-for-beginners",
+      "moduleIds": [
+        "01-foundations",
+        "02-llm-basics",
+        "03-prompt-engineering",
+        "04-rag",
+        "05-agent-architecture"
+      ]
+    },
+    {
+      "id": "microsoft-ai-agents-for-beginners",
+      "title": "AI Agents for Beginners",
+      "org": "Microsoft",
+      "repoUrl": "https://github.com/microsoft/ai-agents-for-beginners",
+      "license": "MIT",
+      "commercialUse": true,
+      "downloadable": true,
+      "localPath": "third_party/learning-sources/microsoft-ai-agents-for-beginners",
+      "moduleIds": [
+        "05-agent-architecture",
+        "06-multi-agent",
+        "08-security"
+      ]
+    },
+    {
+      "id": "openai-cookbook",
+      "title": "OpenAI Cookbook",
+      "org": "OpenAI",
+      "repoUrl": "https://github.com/openai/openai-cookbook",
+      "license": "MIT",
+      "commercialUse": true,
+      "downloadable": true,
+      "localPath": "third_party/learning-sources/openai-cookbook",
+      "moduleIds": [
+        "03-prompt-engineering",
+        "04-rag",
+        "07-evaluation-observability",
+        "10-capstone-projects"
+      ]
+    },
+    {
+      "id": "google-gemini-cookbook",
+      "title": "Gemini Cookbook",
+      "org": "Google",
+      "repoUrl": "https://github.com/google-gemini/cookbook",
+      "license": "Apache-2.0",
+      "commercialUse": true,
+      "attributionRequired": true,
+      "downloadable": true,
+      "localPath": "third_party/learning-sources/google-gemini-cookbook",
+      "moduleIds": [
+        "04-rag",
+        "09-deployment",
+        "10-capstone-projects"
+      ]
+    },
+    {
+      "id": "anthropic-claude-cookbooks",
+      "title": "Claude Cookbooks",
+      "org": "Anthropic",
+      "repoUrl": "https://github.com/anthropics/claude-cookbooks",
+      "license": "MIT",
+      "commercialUse": true,
+      "downloadable": true,
+      "localPath": "third_party/learning-sources/anthropic-claude-cookbooks",
+      "moduleIds": [
+        "03-prompt-engineering",
+        "04-rag",
+        "05-agent-architecture",
+        "07-evaluation-observability"
+      ]
+    },
+    {
+      "id": "anthropic-claude-quickstarts",
+      "title": "Claude Quickstarts",
+      "org": "Anthropic",
+      "repoUrl": "https://github.com/anthropics/claude-quickstarts",
+      "license": "MIT",
+      "commercialUse": true,
+      "downloadable": true,
+      "localPath": "third_party/learning-sources/anthropic-claude-quickstarts",
+      "moduleIds": [
+        "09-deployment",
+        "10-capstone-projects"
+      ]
+    },
+    {
+      "id": "huggingface-agents-course",
+      "title": "Hugging Face Agents Course",
+      "org": "Hugging Face",
+      "repoUrl": "https://github.com/huggingface/agents-course",
+      "license": "Apache-2.0",
+      "commercialUse": true,
+      "attributionRequired": true,
+      "downloadable": true,
+      "localPath": "third_party/learning-sources/huggingface-agents-course",
+      "moduleIds": [
+        "05-agent-architecture",
+        "06-multi-agent",
+        "07-evaluation-observability"
+      ]
+    },
+    {
+      "id": "mlabonne-llm-course",
+      "title": "LLM Course",
+      "org": "mlabonne",
+      "repoUrl": "https://github.com/mlabonne/llm-course",
+      "license": "Apache-2.0",
+      "commercialUse": true,
+      "attributionRequired": true,
+      "downloadable": true,
+      "localPath": "third_party/learning-sources/mlabonne-llm-course",
+      "moduleIds": [
+        "02-llm-basics",
+        "09-deployment"
+      ]
+    },
+    {
+      "id": "dair-prompt-engineering-guide",
+      "title": "Prompt Engineering Guide",
+      "org": "DAIR.AI",
+      "repoUrl": "https://github.com/dair-ai/Prompt-Engineering-Guide",
+      "license": "MIT",
+      "commercialUse": true,
+      "downloadable": true,
+      "localPath": "third_party/learning-sources/dair-prompt-engineering-guide",
+      "moduleIds": [
+        "03-prompt-engineering",
+        "04-rag"
+      ]
+    },
+    {
+      "id": "nirdiamant-rag-techniques",
+      "title": "RAG Techniques",
+      "org": "Nir Diamant",
+      "repoUrl": "https://github.com/NirDiamant/RAG_Techniques",
+      "license": "Custom (non-commercial)",
+      "commercialUse": false,
+      "downloadable": false,
+      "localPath": null,
+      "moduleIds": [
+        "04-rag"
+      ],
+      "notes": "License explicitly forbids commercial use, distribution, and sublicensing without the author's written permission. Link out only; do not clone."
+    },
+    {
+      "id": "langchain-rag-from-scratch",
+      "title": "RAG From Scratch",
+      "org": "LangChain",
+      "repoUrl": "https://github.com/langchain-ai/rag-from-scratch",
+      "license": "None (all rights reserved by default)",
+      "commercialUse": false,
+      "downloadable": false,
+      "localPath": null,
+      "moduleIds": [
+        "04-rag"
+      ],
+      "notes": "No LICENSE file found in the repo. Under GitHub ToS this defaults to all-rights-reserved. Link out only; do not clone or copy."
+    },
+    {
+      "id": "claude-code-docs",
+      "title": "Claude Code Docs",
+      "org": "Anthropic",
+      "repoUrl": "https://docs.claude.com/en/docs/claude-code",
+      "license": "N/A (product documentation, not a course repo)",
+      "commercialUse": false,
+      "downloadable": false,
+      "localPath": null,
+      "moduleIds": [
+        "06-multi-agent",
+        "08-security"
+      ],
+      "notes": "Reference only. Curriculum content referencing Claude Code is written original by CareerVivid, not scraped."
+    },
+    {
+      "id": "misc-social-media-inspiration",
+      "title": "YouTube / blogs / commercial course material",
+      "org": null,
+      "repoUrl": null,
+      "license": "Unknown / third-party copyright",
+      "commercialUse": false,
+      "downloadable": false,
+      "localPath": null,
+      "moduleIds": [],
+      "notes": "Structure/sequencing inspiration only. Never copy transcripts, slides, or screenshots."
+    },
+    {
+      "id": "system-design-primer",
+      "title": "The System Design Primer",
+      "org": "Donne Martin",
+      "repoUrl": "https://github.com/donnemartin/system-design-primer",
+      "license": "CC BY 4.0",
+      "commercialUse": true,
+      "downloadable": true,
+      "localPath": "third_party/learning-sources/system-design-primer",
+      "moduleIds": [
+        "system-design-interview"
+      ]
+    },
+    {
+      "id": "tech-interview-handbook",
+      "title": "Tech Interview Handbook",
+      "org": "Yangshun Tay",
+      "repoUrl": "https://github.com/yangshun/tech-interview-handbook",
+      "license": "MIT",
+      "commercialUse": true,
+      "downloadable": true,
+      "localPath": "third_party/learning-sources/tech-interview-handbook",
+      "moduleIds": [
+        "coding-interview-patterns"
+      ]
+    },
+    {
+      "id": "karanpratapsingh-system-design",
+      "title": "System Design (karanpratapsingh)",
+      "org": "Karan Pratap Singh",
+      "repoUrl": "https://github.com/karanpratapsingh/system-design",
+      "license": "CC BY-NC-ND 4.0",
+      "commercialUse": false,
+      "downloadable": true,
+      "localPath": "third_party/learning-sources/system-design",
+      "moduleIds": [],
+      "note": "NonCommercial + NoDerivatives: DO NOT derive course content from this repo. External reference links only."
+    }
+  ]
+}

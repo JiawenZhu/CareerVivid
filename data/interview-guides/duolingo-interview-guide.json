@@ -1,0 +1,35 @@
+{
+  "company": "Duolingo",
+  "slug": "duolingo-interview-guide",
+  "url": "https://www.techinterview.org/companies/duolingo-interview-guide",
+  "scrapedAt": "2026-07-02T07:22:12.150Z",
+  "interviewStages": [
+    "Behavioral: customer focus, mission-driven (free education), data-driven"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Duolingo remote-friendly?",
+      "How does Duolingo compare to Babbel or Rosetta Stone?",
+      "What is the engineering culture?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Duolingo Interview Guide (2026): Language Learning Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nDuolingo\nduolingo.com ↗\n\nDuolingo is the largest language learning platform globally — 80M+ monthly active users. Public since 2021. The interview emphasizes ML-driven personalization (Duolingo's Birdbrain), gamification, and the unique scale challenges of running a content-heavy mobile app at consumer scale.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design Birdbrain — ML model that predicts lesson difficulty per user\n\n- Design streak / engagement systems (Duolingo's famous push notifications)\n\n- Design AI-powered language tutoring with LLMs\n\n- Coding: medium DSA, often with ML or graph framing\n\n- Behavioral: customer focus, mission-driven (free education), data-driven\n\nLevels and comp (2026)\n\n- SE II: $165K–$205K total\n\n- Senior SE: $235K–$310K\n\n- Staff: $335K–$445K\n\n- Principal: $470K–$620K\n\nPrep priorities\n\n- Be fluent in Python (ML/data) and Swift/Kotlin (mobile)\n\n- Understand recommendation systems and ML for adaptive learning\n\n- Brush up on LLM patterns (Duolingo Max uses GPT-4)\n\nFrequently Asked Questions\n\nIs Duolingo remote-friendly?\n\nHybrid in Pittsburgh (HQ), NYC, Berlin, Beijing. Most engineering roles are 3-day-in-office.\n\nHow does Duolingo compare to Babbel or Rosetta Stone?\n\nDuolingo dominates by free user count. Babbel is paid-only. Rosetta Stone is legacy. Duolingo pays competitively with FAANG-tier companies.\n\nWhat is the engineering culture?\n\nMission-driven, data-driven, ML-curious. Famous green-owl mascot reflects the culture's playful seriousness.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Duolingo? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextEvent-Driven Architecture System Design⏱ 9 min readLow Level Design: E-Learning Platform⏱ 7 min readBox 'o Numbers⏱ 2 min read"
+}

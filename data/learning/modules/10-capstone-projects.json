@@ -1,0 +1,14 @@
+{
+  "id": "10-capstone-projects",
+  "order": 10,
+  "title": "Capstone Projects",
+  "objective": "Ship one real, end-to-end portfolio project using everything from modules 01–09.",
+  "topics": [
+    "OpenAI RAG app — a RAG-backed Q&A tool over a real document set, with retrieval, generation, and an eval harness",
+    "Gemini multimodal app — an app that combines text + image/audio input using Gemini's multimodal capabilities",
+    "Claude agent workflow — a tool-using, multi-step agent workflow built on Claude, with tracing and a security review"
+  ],
+  "exercise": null,
+  "project": "Pick one (or do all three over time). Each should include: a README, an eval/test set, basic cost/latency notes, and a short security review borrowing the module-08 checklist.",
+  "sourceIds": ["openai-cookbook", "google-gemini-cookbook", "anthropic-claude-quickstarts"]
+}

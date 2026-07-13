@@ -6,9 +6,19 @@ interface UpgradeModalProps {
     isOpen: boolean;
     onClose: () => void;
     feature?: string;
+    downloadCredits?: number;
+    isBuyingOneTime?: boolean;
+    onBuyOneTime?: () => void;
 }
 
-const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, feature = 'PDF Export' }) => {
+const UpgradeModal: React.FC<UpgradeModalProps> = ({
+    isOpen,
+    onClose,
+    feature = 'PDF Export',
+    downloadCredits = 0,
+    isBuyingOneTime = false,
+    onBuyOneTime,
+}) => {
     if (!isOpen) return null;
 
     const handleUpgrade = () => {
@@ -32,8 +42,8 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, feature = 
                             <Sparkles className="w-6 h-6" />
                         </div>
                         <div>
-                            <h2 className="text-2xl font-bold">{feature} is Premium</h2>
-                            <p className="text-white/90 text-sm mt-1">Upgrade to unlock this feature</p>
+                            <h2 className="text-2xl font-bold">Unlock {feature}</h2>
+                            <p className="text-white/90 text-sm mt-1">Choose Pro access or pay once for this PDF.</p>
                         </div>
                     </div>
                 </div>
@@ -68,26 +78,42 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, feature = 
                         <div className="flex items-center justify-between text-sm">
                             <span className="text-gray-600 dark:text-gray-400">Starting from</span>
                             <div className="text-right">
-                                <span className="text-2xl font-bold text-gray-900 dark:text-white">$6.90</span>
+                                <span className="text-2xl font-bold text-gray-900 dark:text-white">$2.99</span>
                                 <span className="text-gray-600 dark:text-gray-400 text-sm ml-1">one-time</span>
                             </div>
                         </div>
+                        {downloadCredits > 0 && (
+                            <p className="text-xs text-primary-700 dark:text-primary-300 mt-2">
+                                You have {downloadCredits} PDF download credit{downloadCredits === 1 ? '' : 's'} available.
+                            </p>
+                        )}
                     </div>
 
                     {/* Actions */}
-                    <div className="flex gap-3">
-                        <button
-                            onClick={onClose}
-                            className="flex-1 px-4 py-3 rounded-xl font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                        >
-                            Maybe Later
-                        </button>
-                        <button
-                            onClick={handleUpgrade}
-                            className="flex-1 px-4 py-3 rounded-xl font-medium text-white bg-primary-600 hover:bg-primary-700 transition-colors shadow-lg shadow-primary-600/30"
-                        >
-                            View Plans
-                        </button>
+                    <div className="space-y-3">
+                        {onBuyOneTime && (
+                            <button
+                                onClick={onBuyOneTime}
+                                disabled={isBuyingOneTime}
+                                className="w-full px-4 py-3 rounded-xl font-semibold text-primary-700 dark:text-primary-300 bg-primary-50 dark:bg-primary-900/30 hover:bg-primary-100 dark:hover:bg-primary-900/50 transition-colors disabled:opacity-60"
+                            >
+                                {isBuyingOneTime ? 'Opening secure checkout...' : 'Buy one PDF download — $2.99'}
+                            </button>
+                        )}
+                        <div className="flex gap-3">
+                            <button
+                                onClick={onClose}
+                                className="flex-1 px-4 py-3 rounded-xl font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                            >
+                                Maybe Later
+                            </button>
+                            <button
+                                onClick={handleUpgrade}
+                                className="flex-1 px-4 py-3 rounded-xl font-medium text-white bg-primary-600 hover:bg-primary-700 transition-colors shadow-lg shadow-primary-600/30"
+                            >
+                                View Plans
+                            </button>
+                        </div>
                     </div>
 
                     <p className="text-center text-xs text-gray-500 dark:text-gray-400 mt-4">

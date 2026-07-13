@@ -1,0 +1,96 @@
+{
+  "company": "Cursor",
+  "slug": "cursor",
+  "url": "https://www.techinterview.org/companies/cursor",
+  "scrapedAt": "2026-07-02T07:13:26.903Z",
+  "interviewStages": [
+    "System design (1 round): AI-editor prompts. \"Design Cursor's tab prediction system with sub-100ms latency across millions of users.\" \"Design the Cursor agent that edits multiple files based on a task description.\" \"Design the privacy-preserving inference architecture keeping user code confidential.\"",
+    "Behavioral / hiring manager: past projects, fast-pace comfort, craft orientation, hiring-bar awareness."
+  ],
+  "codingTopics": [
+    "Implement a text-buffer primitive with efficient edit operations (rope, piece table, or similar)",
+    "Context-retrieval: given a cursor position in a codebase, select most relevant code snippets for an LLM prompt",
+    "Streaming edit application: handle incoming LLM tokens and apply them as real-time edits to a document",
+    "Multi-file diff / coordination: track changes across many files with consistency",
+    "Classic algorithm problems (trees, graphs, DP) with editor or AI-adjacent twists"
+  ],
+  "systemDesignTopics": [
+    "\"Design the tab-prediction system with sub-100ms latency end-to-end for millions of users.\"",
+    "\"Design Cursor's agent mode executing multi-file edits with verification and rollback.\"",
+    "\"Design the privacy-preserving inference architecture letting enterprise customers keep code confidential.\"",
+    "\"Design the custom-model training pipeline producing coding-specialized variants from foundation models.\"",
+    "Discuss fine-tuning a base model for coding-specific tasks &mdash; data selection, training objectives, evaluation.",
+    "Reason about context-retrieval approaches for LLM coding prompts.",
+    "Describe an evaluation methodology for \"was this completion helpful.\"",
+    "Explain inference-optimization choices for ultra-low-latency completions.",
+    "\"Compare Cursor to Copilot / Windsurf / Claude Code. Where does each win?\"",
+    "\"What's broken about Cursor today? What would you fix?\"",
+    "\"Describe a time you obsessed over a product-craft decision in your own work.\"",
+    "\"What's your take on AI-coding-tool market positioning &mdash; editor-first vs IDE-integration vs chat-based?\""
+  ],
+  "behavioralTopics": [
+    "Selective-bar awareness: \"How do you think about hiring and team quality?\"",
+    "Fast pace: \"Describe operating through rapid product evolution.\"",
+    "Craft: \"Tell me about pushing for quality despite deadline pressure.\"",
+    "Customer empathy: \"Describe understanding a developer user's workflow deeply.\""
+  ],
+  "sampleQuestions": {
+    "coding": [
+      "Implement a text-buffer primitive with efficient edit operations (rope, piece table, or similar). Talk through your approach, complexity, and edge cases.",
+      "Given a cursor position in a codebase, select most relevant code snippets for an LLM prompt. Talk through your approach, complexity, and edge cases.",
+      "Handle incoming LLM tokens and apply them as real-time edits to a document. Talk through your approach, complexity, and edge cases.",
+      "Track changes across many files with consistency. Talk through your approach, complexity, and edge cases.",
+      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph."
+    ],
+    "behavioral": [
+      "How do you think about hiring and team quality?",
+      "Describe operating through rapid product evolution.",
+      "Tell me about pushing for quality despite deadline pressure.",
+      "Describe understanding a developer user's workflow deeply.",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
+    "systemDesign": [
+      "Design the tab-prediction system with sub-100ms latency end-to-end for millions of users. Cover the API, data model, and how it scales.",
+      "Design Cursor's agent mode executing multi-file edits with verification and rollback. Cover the API, data model, and how it scales.",
+      "Design the privacy-preserving inference architecture letting enterprise customers keep code confidential.",
+      "Design the custom-model training pipeline producing coding-specialized variants from foundation models.",
+      "Explain inference-optimization choices for ultra-low-latency completions."
+    ],
+    "values": [],
+    "other": [
+      "How does Cursor (Anysphere) compare to Windsurf (Codeium)?",
+      "What's the hypergrowth really like?",
+      "Is the custom model training real, or is Cursor mostly a wrapper over foundation models?",
+      "What's the competitive positioning vs GitHub Copilot?",
+      "Is remote work supported?"
+    ]
+  },
+  "difficulty": 8,
+  "tips": [
+    "Use Cursor heavily, daily, for real work. 2&ndash;4 weeks minimum before interviewing.",
+    "Compare thoughtfully with competitors. Use Copilot and Windsurf too; know where each wins.",
+    "Read editor-engineering materials. VSCode extension docs, language server protocol basics.",
+    "Have AI-coding-tool market opinions. Editor-first vs chat vs agent-framework &mdash; engage seriously.",
+    "Prepare for intensity. The interview rhythm reflects the culture.",
+    "Cursor's product documentation and changelog (see how fast it moves)",
+    "VSCode architecture documentation",
+    "Language Server Protocol specification basics",
+    "StarCoder, Code Llama, and follow-on coding-model papers",
+    "Harrison Chase, Simon Willison, and other AI-tool commentators for landscape perspective",
+    "Cursor itself &mdash; daily usage for real work is the best preparation"
+  ],
+  "compensation": [
+    "Software Engineer: $200k&ndash;$250k base, $250k&ndash;$500k equity (4 years), modest bonus. Total: ~$380k&ndash;$600k / year.",
+    "Senior Software Engineer: $260k&ndash;$320k base, $550k&ndash;$1M equity. Total: ~$550k&ndash;$900k / year.",
+    "Staff Engineer: $330k&ndash;$410k base, $1M&ndash;$2M+ equity. Total: ~$780k&ndash;$1.4M / year.",
+    "The engineering bar is genuinely high &mdash; comparable to top frontier labs for the specific combination of skills required.",
+    "Editor engineering is real substantial work &mdash; making VSCode do what Cursor needs requires deep platform knowledge.",
+    "The ML-systems work (custom models, evaluation, inference) is frontier-adjacent in rigor.",
+    "Cursor usage is expected authentic &mdash; interviewers can tell whether you've used the product for real work.",
+    "Using Cursor only to prepare for interview. Interviewers detect lack of authentic usage.",
+    "Dismissing competitors (Copilot, Windsurf, Claude Code). Thoughtful comparison matters.",
+    "Weak product opinions.",
+    "Underestimating the editor-engineering depth required."
+  ],
+  "rawSummary": "Cursor Interview Guide 2026: Anysphere, AI-Native Code Editor, Tab Prediction, and Custom Model Training\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 24, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Cursor Interview Process: Complete 2026 Guide (Anysphere)\n\n- Frequently Asked Questions\n\n- What This Role Pays and How to Weigh the Equity\n\nUpdated June 30, 2026 · techinterview.org\n\n⏱ 11 min read\n\nCursor\ncursor.com ↗\n\nTL;DR &mdash; To pass a Cursor interview at Anysphere, show that you can ship real, user-facing features quickly and reason clearly about how AI-native tooling behaves in production. Expect questions tied to the product itself — how Tab prediction generates multi-line edits, how custom model training and low-latency inference fit together, and how editor design shapes the way developers actually work. The bar favors engineers with sharp product instincts who can think about model behavior and systems performance at the same time.\n\nCursor Interview Process: Complete 2026 Guide (Anysphere)\n\nOverview\n\nCursor is the AI-native code editor built by Anysphere, founded in 2022 by MIT students Michael Truell, Sualeh Asif, Arvid Lunnemark, and Aman Sanger. The product is a VSCode fork deeply integrated with LLMs for code completion, inline editing, agent-style tasks, and \"tab-tab-tab\" predictive editing that has become a defining experience for many developers. The company rode one of the most remarkable hypergrowth arcs of 2023&ndash;2024, reaching $100M+ ARR rapidly and valuations approaching $10B in 2025. ~150 employees in 2026, concentrated in San Francisco with remote hires carefully chosen. Cursor competes with GitHub Copilot, Windsurf (Codeium), Claude Code, and Sourcegraph Cody for the AI-coding-tool market while maintaining distinctive product positioning through its editor-first experience and \"predict-your-next-edit\" capabilities. Engineering stack is TypeScript / React for the editor, Rust for performance-critical components, Python for ML / evaluation, custom ML-infrastructure for training specialized coding models. Interviews reflect the combination of frontier-AI-product speed, editor-engineering depth, and selective hiring culture.\n\nInterview Structure\n\nRecruiter screen (30 min): background, why Cursor specifically, team interest. The engineering surface spans editor engineering (VSCode fork customization, UI performance), AI / ML (custom model training, inference, evaluation), infrastructure (serving at scale, latency optimization), applied product engineering (features like agent mode, tab prediction), and enterprise product (team management, security).\n\nTechnical phone screen (60 min): one coding problem, medium-hard. TypeScript for editor / product work; Rust for performance-critical; Python for ML. Problems tilt toward applied AI-systems or editor primitives &mdash; implement a syntax-aware edit operation, handle streaming LLM output, model a file-tree diff.\n\nTake-home (many senior / staff roles): 4&ndash;8 hours on a realistic engineering problem. Known to be substantial and a meaningful signal.\n\nOnsite / virtual onsite (3&ndash;5 rounds, compact):\n\n- Coding (1&ndash;2 rounds): one algorithms round, one applied round. Applied problems often involve AI-editor primitives &mdash; multi-file edit coordination, context-retrieval for LLM prompts, streaming edit application.\n\n- System design (1 round): AI-editor prompts. \"Design Cursor's tab prediction system with sub-100ms latency across millions of users.\" \"Design the Cursor agent that edits multiple files based on a task description.\" \"Design the privacy-preserving inference architecture keeping user code confidential.\"\n\n- ML / AI deep-dive (1 round for ML-adjacent roles): custom model training for coding, evaluation methodology for code quality, context-retrieval for LLM prompts, inference optimization for editor-embedded use.\n\n- Product / craft round (1 round): deep engagement with Cursor product quality, developer-experience philosophy, and competitive positioning vs Copilot / Windsurf / Claude Code. Candidates who haven't used Cursor heavily struggle here.\n\n- Behavioral / hiring manager: past projects, fast-pace comfort, craft orientation, hiring-bar awareness.\n\nTechnical Focus Areas\n\nCoding: TypeScript fluency at sophisticated level (generics, discriminated unions, strict mode), Rust for performance work, Python for ML / evaluation. Clean code matters &mdash; Cursor engineers read each other's code closely.\n\nEditor engineering: VSCode fork customization, extension-system modifications, TextMate grammars, language server protocol integration, file-system abstractions for remote development, performance optimization for long-running editor sessions.\n\nAI code completion and agents: context retrieval for LLM prompts (which files, which symbols, how much), prompt engineering for code generation, streaming output with real-time incorporation into the editor, agent-style multi-turn interactions, tool-calling for file operations.\n\nT"
+}

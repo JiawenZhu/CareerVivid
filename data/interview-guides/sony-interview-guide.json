@@ -1,0 +1,50 @@
+{
+  "company": "Sony",
+  "slug": "sony-interview-guide",
+  "url": "https://www.techinterview.org/companies/sony-interview-guide",
+  "scrapedAt": "2026-07-02T07:19:40.484Z",
+  "interviewStages": [
+    "Coding (1–2 rounds) — algorithms with practical engineering flavor",
+    "Domain depth (1–2 rounds) — depends on role: graphics, system software, distributed systems, hardware, ML",
+    "System design or specialty design (1 round)",
+    "Behavioral / cross-functional (1 round) — for Japanese-headquartered roles, expect more formal style than US tech"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "A function intermittently fails in production. Walk me through how you would reproduce, isolate, and fix the bug.",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Should I work at Sony PlayStation studios or third-party gaming companies?",
+      "What's the Bungie integration story?",
+      "How real is Sony Semiconductor Solutions as a career destination?",
+      "How does the Tokyo HQ affect US-based engineers?",
+      "Is Sony a good place for early-career engineers?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": [
+    "SIE / PlayStation Studios SWE (US-based): $150k–$240k total comp first year (new-grad), $250k–$420k mid-level, $400k–$650k senior, $600k–$1M+ staff",
+    "Sony Semiconductor Solutions (mostly Japan-based): Japan-market rates, generally lower in absolute terms but cost-adjusted competitive",
+    "Sony AI / R&D: US-tech-comparable for senior research roles",
+    "The diversity of Sony's engineering work is more substantial than candidates expect; different divisions are essentially different companies.",
+    "Image sensor engineering is genuinely world-class and underrecognized; the work is in nearly every smartphone globally.",
+    "PlayStation Studios operate with substantial autonomy from corporate Sony; studio cultures vary widely.",
+    "Compensation is below US Big Tech in absolute terms but competitive within respective markets.",
+    "The Bungie acquisition has been culturally complex; integration with Sony has had public friction."
+  ],
+  "rawSummary": "Sony Interview Guide 2026: PlayStation, Bungie, Image Sensors, Multi-Division Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 29, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Sony Interview Guide 2026: PlayStation, Bungie, Image Sensors, Music, Pictures, and the Diversified Japanese Tech Conglomerate\n\n- What Sony Does (from an engineering perspective)\n\n- Roles Sony Hires For\n\n- Sony Interview Process\n\n- What Sony Tests For\n\n- Compensation\n\n- Working at Sony\n\n- Sony vs Alternatives\n\n- Things That Surprise Candidates\n\n- Frequently Asked Questions\n\nUpdated April 29, 2026 · techinterview.org\n\n⏱ 7 min read\n\nSony\nsony.com ↗\n\nSony Interview Guide 2026: PlayStation, Bungie, Image Sensors, Music, Pictures, and the Diversified Japanese Tech Conglomerate\n\nSony is one of the most diversified large technology and media companies. The Sony Group (Tokyo Stock Exchange: 6758, NYSE: SONY) operates Sony Interactive Entertainment (PlayStation), Sony Pictures, Sony Music, Sony Imaging (camera image sensors), Sony Semiconductor Solutions, and several other businesses. From an engineering perspective, the most relevant divisions are PlayStation (gaming hardware and platform), Sony Interactive Entertainment Studios (Naughty Dog, Insomniac, Santa Monica Studio, Bungie, etc.), and Sony Semiconductor Solutions (the dominant CMOS image sensor maker globally). The hiring process is rigorous and varies substantially by division. This guide covers what Sony does, the engineering tracks, the interview process, and what makes Sony hiring distinctive in 2026.\n\nWhat Sony Does (from an engineering perspective)\n\nSony Group operates several major engineering-relevant businesses:\n\n- Sony Interactive Entertainment (SIE): PlayStation platform — PS5 / PS5 Pro hardware, PlayStation Network, PlayStation Studios first-party games, PlayStation Plus services, PlayStation Portal handheld.\n\n- Sony Semiconductor Solutions (SSS): CMOS image sensors. Sony dominates the global market — substantial share of smartphone (including iPhone), camera, automotive, security camera image sensors. Major engineering investment area.\n\n- Sony Pictures Entertainment: film and TV production; technical work on production tools, VFX pipelines.\n\n- Sony Music Entertainment: recorded music; technical work on streaming infrastructure, rights management.\n\n- Sony Imaging Products and Solutions: Alpha cameras, professional video equipment.\n\n- Sony AI: research lab focused on game AI (with Gran Turismo as a notable example), imaging AI, and gastronomy AI. Smaller than Big Tech AI labs.\n\nDistinctive features:\n\n- PlayStation engineering depth: SIE operates the dominant console gaming platform. Hardware engineering, OS, network services, first-party game studios all under one umbrella.\n\n- Image sensor dominance: Sony's CMOS image sensor business is the highest-margin and most technically distinctive within the company. Engineers in this division work on silicon that's in nearly every flagship smartphone globally.\n\n- Studio acquisitions: Sony has acquired Bungie ($3.6B, 2022), Insomniac ($229M, 2019), and others. Studio engineering operates with substantial autonomy from corporate Sony.\n\n- Diversified conglomerate: Sony's businesses are genuinely diverse; engineering culture varies substantially across them.\n\n- Public company: dual-listed Tokyo / NYSE; substantial scrutiny.\n\nRoles Sony Hires For\n\nSoftware engineer (PlayStation system / OS)\n\nBuilds PlayStation system software — kernel, runtime, system services, store, platform APIs. C / C++ heavy; deep operating system internals expertise.\n\nSoftware engineer (PlayStation Network)\n\nBuilds PSN backend — accounts, friends, multiplayer matchmaking, store, downloads, cloud saves, Trophies. Distributed systems at hundreds-of-millions-of-users scale. Java / Scala / Go heavy.\n\nGame engineer (PlayStation Studios)\n\nVarious studios — Naughty Dog, Santa Monica Studio (God of War), Insomniac (Spider-Man, Wolverine), Sucker Punch (Ghost of Tsushima), Guerrilla (Horizon), Bluepoint, Polyphony Digital (Gran Turismo), Bungie (Destiny, Marathon). Engineering varies by studio; mostly C++ with custom or Unreal engines.\n\nHardware engineer (PlayStation hardware / image sensors)\n\nPS5 / PS5 Pro hardware design; future console generation work. Image sensor design at SSS (separate engineering organization). VLSI / mixed-signal expertise.\n\nGraphics engineer\n\nParticularly at Sony first-party studios — graphics programming for PS5 hardware. Some of the most prestigious gaming engineering work; PlayStation studios push platform graphics capabilities.\n\nML engineer / Sony AI\n\nSony AI research; ML for Gran Turismo (GT Sophy), imaging, gastronomy. Smaller team than peer AI investment but real specialized work.\n\nCloud / streaming engineer\n\nPlayStation Plus cloud streaming, game streaming infrastructure. Substantial growth area.\n\nSony Interview Process\n\nRound 1: Recruiter screen\n\n30 minutes. Background, motivation, role fit. Recruiters often probe gaming "
+}

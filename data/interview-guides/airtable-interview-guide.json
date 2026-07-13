@@ -1,0 +1,60 @@
+{
+  "company": "Airtable",
+  "slug": "airtable-interview-guide",
+  "url": "https://www.techinterview.org/companies/airtable-interview-guide",
+  "scrapedAt": "2026-07-02T07:19:57.963Z",
+  "interviewStages": [
+    "System design",
+    "Recruiter screen.",
+    "Hiring manager.",
+    "Technical phone screen.",
+    "Onsite or virtual loop (4-5 rounds).",
+    "Hiring committee.",
+    "Standard LeetCode mediums and harder.",
+    "For backend: data model for flexible-schema tables, multi-tenant database design, real-time sync.",
+    "For frontend: React performance with large datasets, complex state management (formula evaluation, cell dependencies), spreadsheet-style interactions.",
+    "For platform: extensions and scripting platform (Airtable's customization layer)."
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [
+    "Design Airtable's flexible-schema table system.",
+    "Design real-time sync for a 100K-row table edited by multiple users.",
+    "Design Airtable's formula evaluation engine.",
+    "Design a custom-views system (grid, calendar, kanban, gallery, gantt)."
+  ],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [
+      "Design Airtable's flexible-schema table system. Cover the API, data model, and how it scales.",
+      "Design real-time sync for a 100K-row table edited by multiple users. Cover the API, data model, and how it scales.",
+      "Design Airtable's formula evaluation engine. Cover the API, data model, and how it scales.",
+      "Design a custom-views system (grid, calendar, kanban, gallery, gantt). Cover the API, data model, and how it scales.",
+      "Design a service at Airtable scale that shortens URLs. Cover the API, storage, and hot-key handling."
+    ],
+    "values": [],
+    "other": [
+      "How is Airtable different from Notion?",
+      "Is the no-code emphasis still the focus?",
+      "What languages are used?",
+      "How does the formula engine work?",
+      "Is the bar comparable to Notion?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": [
+    "Senior: $200-260K base + equity → $400-650K total",
+    "Staff: $260-340K base + equity → $650K-1M total"
+  ],
+  "rawSummary": "Airtable Interview Guide (2026): No-Code Database Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Interview process\n\n- Common technical questions\n\n- System design\n\n- Compensation (2026 estimates, San Francisco)\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 2 min read\n\nAirtable\nairtable.com ↗\n\nAirtable Interview Guide\n\nCompany overview: Airtable is the leading no-code database platform. San Francisco headquartered with engineering offices in SF, Mountain View, NYC, and remote. The product is a spreadsheet-database hybrid used by hundreds of thousands of teams for project management, content management, CRM, and custom internal tooling. The company has pivoted toward AI-native features in 2024-2026, with product investment around AI-augmented workflows.\n\nInterview process\n\nTimeline: 5-8 weeks.\n\n- Recruiter screen.\n\n- Hiring manager.\n\n- Technical phone screen.\n\n- Onsite or virtual loop (4-5 rounds).\n\n- Hiring committee.\n\nCommon technical questions\n\n- Standard LeetCode mediums and harder.\n\n- For backend: data model for flexible-schema tables, multi-tenant database design, real-time sync.\n\n- For frontend: React performance with large datasets, complex state management (formula evaluation, cell dependencies), spreadsheet-style interactions.\n\n- For platform: extensions and scripting platform (Airtable's customization layer).\n\nSystem design\n\nDatabase-and-collaboration-flavored. Common prompts:\n\n- Design Airtable's flexible-schema table system.\n\n- Design real-time sync for a 100K-row table edited by multiple users.\n\n- Design Airtable's formula evaluation engine.\n\n- Design a custom-views system (grid, calendar, kanban, gallery, gantt).\n\nCompensation (2026 estimates, San Francisco)\n\n- Senior: $200-260K base + equity → $400-650K total\n\n- Staff: $260-340K base + equity → $650K-1M total\n\nEquity is pre-IPO Airtable stock; tenders have occurred. The company has been independent since founding without a public listing.\n\nFrequently Asked Questions\n\nHow is Airtable different from Notion?\n\nAirtable's core is structured database with views; Notion's core is unstructured documents with embedded databases. Engineering challenges differ accordingly — Airtable is more database-engineering heavy, Notion is more editor-engineering heavy.\n\nIs the no-code emphasis still the focus?\n\n2024-2026 has seen Airtable pivot toward AI-augmented features. The core no-code database value remains but the strategic emphasis is on AI-augmented workflows.\n\nWhat languages are used?\n\nBackend uses Node.js heavily, with some Python and Go. Frontend is React + TypeScript. Mobile is React Native.\n\nHow does the formula engine work?\n\nAirtable's formula language is Excel-like but adapted for database-style references. Senior+ candidates working on the formula or extensions platform should be conversant with the language design and evaluation model.\n\nIs the bar comparable to Notion?\n\nYes, though slightly different focus. Notion's bar emphasizes editor architecture; Airtable's emphasizes database and reactive UI.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Airtable? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextPersonalization Engine Low-Level Design: User Embeddings, Real-Time Signals, and Serving Infrastructure⏱ 5 min readPalo Alto Networks Interview Guide 2026: Strata, Prisma, Cortex, Platformization⏱ 6 min readService Discovery System: Low-Level Design⏱ 4 min read"
+}

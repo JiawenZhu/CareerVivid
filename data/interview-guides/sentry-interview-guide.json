@@ -1,0 +1,35 @@
+{
+  "company": "Sentry",
+  "slug": "sentry-interview-guide",
+  "url": "https://www.techinterview.org/companies/sentry-interview-guide",
+  "scrapedAt": "2026-07-02T07:26:14.182Z",
+  "interviewStages": [
+    "Behavioral: customer empathy (developers are the customer), open source contribution"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Sentry remote-friendly?",
+      "What is the interview vibe?",
+      "How does Sentry compare to Datadog or New Relic?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Sentry Interview Guide (2026): Error Monitoring at Scale\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nSentry\nsentry.io ↗\n\nSentry is the dominant open-source-friendly error monitoring and APM platform — used by Disney, Microsoft, GitHub, and tens of thousands of others. The interview blends data-pipeline design (think 100B+ events per month), backend engineering, and developer-tools sensibility. Sentry hires for craft.\n\nProcess\n\nRecruiter screen → 60-minute coding pair (often Python or TypeScript, practical) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design an error ingestion pipeline that handles 1M events/sec with bursty traffic\n\n- Design a stack-trace symbolicator for native code (iOS, Android, C++)\n\n- Design grouping logic — same error from different stack traces should cluster\n\n- Coding: practical refactors, often involving event parsing or data transformation\n\n- Behavioral: customer empathy (developers are the customer), open source contribution\n\nLevels and comp (2026)\n\n- SE II: $170K–$210K total\n\n- Senior SE: $240K–$310K\n\n- Staff: $340K–$450K\n\n- Principal: $480K–$620K\n\nPrep priorities\n\n- Read Sentry blog and SDK source code — the company values OSS engagement\n\n- Be fluent in Python, JavaScript, or Rust depending on team\n\n- Understand event-driven architectures: Kafka, ingest pipelines, columnar storage (ClickHouse)\n\nFrequently Asked Questions\n\nIs Sentry remote-friendly?\n\nDistributed-first across US and EU. Hubs in San Francisco, Vienna, Toronto are optional.\n\nWhat is the interview vibe?\n\nCalm, conversational, and highly technical. Interviewers are typically engineers who shipped real systems; expect meaningful follow-up questions, not gotchas.\n\nHow does Sentry compare to Datadog or New Relic?\n\nSentry is developer-first and open-source friendly. Datadog is broader infra/APM. New Relic is older and more enterprise-flavored. Comp at Sentry lags Datadog by ~10–15% on senior+ levels.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Sentry? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextFrontend System Design: Build Google Docs Real-Time Editor⏱ 3 min readDivide and Conquer Interview Patterns: Merge Sort, Quick Select, Master Theorem⏱ 7 min readEpic Systems Interview Guide (2026): Process, Questions, Compensation⏱ 4 min read"
+}

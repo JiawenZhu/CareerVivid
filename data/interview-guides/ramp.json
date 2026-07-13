@@ -1,0 +1,93 @@
+{
+  "company": "Ramp",
+  "slug": "ramp",
+  "url": "https://www.techinterview.org/companies/ramp",
+  "scrapedAt": "2026-07-02T07:18:26.345Z",
+  "interviewStages": [
+    "System design (1 round): AI-native-fintech prompts. \"Design the spend-categorization pipeline that processes 10M transactions/day with AI-assisted classification and human review.\" \"Design an approval-routing engine with custom policies per customer.\" \"Design the procurement-automation system integrating with 20+ vendor APIs.\"",
+    "Behavioral / hiring manager: past projects, shipping velocity, customer focus, comfort with financial-correctness constraints."
+  ],
+  "codingTopics": [
+    "Spend-categorization primitive: given transaction data, implement a deterministic categorization rule engine with overrides",
+    "Approval workflow: model routing rules with conditional logic, escalations, and per-customer policy",
+    "Idempotent handler for webhook / API requests with duplicate-detection semantics",
+    "Streaming aggregation for fraud signals or spend insights",
+    "Classic algorithm problems (graphs, trees, DP) with fintech / procurement twists"
+  ],
+  "systemDesignTopics": [
+    "\"Design the spend-categorization pipeline handling 10M transactions/day with AI-assisted classification plus human review.\"",
+    "\"Design the approval-routing engine with policies that customers configure in their own UI.\"",
+    "\"Design the accounting-sync pipeline to NetSuite / QuickBooks with eventual consistency and audit trails.\"",
+    "\"Design the Ramp Intelligence layer retrieving customer-specific context for spend anomaly detection.\"",
+    "\"When should a finance feature use an LLM vs a deterministic rule?\"",
+    "\"Walk me through an AI feature you've shipped or would ship. How did you handle the cases where the model is wrong?\"",
+    "\"Customers are complaining that your AI categorization is wrong for their industry. How do you approach the fix?\"",
+    "\"Design the evaluation methodology for a new AI feature. What metrics? What thresholds for shipping?\""
+  ],
+  "behavioralTopics": [
+    "Shipping velocity: \"Tell me about the fastest end-to-end feature you've shipped.\"",
+    "Customer focus: \"Describe a time you deeply understood a customer's finance workflow. How did it change what you built?\"",
+    "Technical correctness: \"Tell me about a time a subtle bug could have cost money. How did you find and prevent it?\"",
+    "AI pragmatism: \"Where have you been skeptical of an AI solution? Where have you been a strong advocate? What informed those positions?\""
+  ],
+  "sampleQuestions": {
+    "coding": [
+      "Given transaction data, implement a deterministic categorization rule engine with overrides. Talk through your approach, complexity, and edge cases.",
+      "Implement a streaming feature aggregator: given a stream of events, maintain rolling counts and averages per key with bounded memory. Discuss complexity and eviction.",
+      "Implement a double-entry ledger that processes a stream of transactions and detects imbalances. How do you guarantee idempotency when a transaction is delivered twice?",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution."
+    ],
+    "behavioral": [
+      "Tell me about the fastest end-to-end feature you've shipped.",
+      "Describe a time you deeply understood a customer's finance workflow. How did it change what you built?",
+      "Tell me about a time a subtle bug could have cost money. How did you find and prevent it?",
+      "Where have you been skeptical of an AI solution? Where have you been a strong advocate? What informed those positions?",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
+    "systemDesign": [
+      "Design the spend-categorization pipeline handling 10M transactions/day with AI-assisted classification plus human review.",
+      "Design the approval-routing engine with policies that customers configure in their own UI. Cover the API, data model, and how it scales.",
+      "Design the accounting-sync pipeline to NetSuite / QuickBooks with eventual consistency and audit trails.",
+      "Design the Ramp Intelligence layer retrieving customer-specific context for spend anomaly detection.",
+      "Design the evaluation methodology for a new AI feature. What metrics? What thresholds for shipping?"
+    ],
+    "values": [
+      "How stable is equity value given the private-market valuation?"
+    ],
+    "other": [
+      "Do I need production AI experience to get hired?",
+      "How does Ramp compare to Brex and Mercury on interviews?",
+      "What is Ramp Intelligence?",
+      "Is NYC headquarters a real hub or can I stay SF / remote?"
+    ]
+  },
+  "difficulty": 7.5,
+  "tips": [
+    "Have production-AI opinions. What works, what doesn't, how to ship it reliably.",
+    "Know the fintech fundamentals. Idempotency, ledger accounting, authorization state machines.",
+    "Engage with customer outcomes. \"This saved customers N hours per month\" is the framing.",
+    "Ship fast in interviews. Clean first-pass code, then iterate with the interviewer. Velocity is a signal.",
+    "Ask about Ramp Intelligence direction. Signals you're aware of strategic priorities.",
+    "Ramp engineering blog and product-announcement posts",
+    "Designing Machine Learning Systems and Building LLM applications for production by Chip Huyen",
+    "Stripe engineering blog for idempotency / payment patterns",
+    "OpenAI cookbook for structured-output and agent patterns",
+    "Designing Data-Intensive Applications (Kleppmann)",
+    "NetSuite / QuickBooks API overview documents for ERP integration context"
+  ],
+  "compensation": [
+    "Software Engineer: $180k&ndash;$220k base, $180k&ndash;$320k equity (4 years), modest bonus. Total: ~$290k&ndash;$460k / year.",
+    "Senior Software Engineer: $230k&ndash;$290k base, $350k&ndash;$650k equity. Total: ~$420k&ndash;$650k / year.",
+    "Staff Engineer: $295k&ndash;$365k base, $700k&ndash;$1.3M equity. Total: ~$600k&ndash;$1M / year.",
+    "The AI product work is genuinely production-grade, not demo-ware. Evaluation discipline is real.",
+    "Customer-ROI thinking extends deep into engineering. Features are evaluated by customer-time-saved, not just completeness.",
+    "The NYC culture is distinct. Some SF-oriented candidates find it more conventional; others find it energizing.",
+    "The hiring bar is higher than the company size suggests.",
+    "AI hand-waving. Ramp has shipped real AI in production; cheerleading or vague claims don't land.",
+    "Treating fintech as simple. The regulatory, partner-bank, and accounting-integration realities are genuine engineering complexity.",
+    "Low customer empathy. Engineers are expected to engage with how customers use the product.",
+    "Slow coding. The velocity focus is real in interview rounds."
+  ],
+  "rawSummary": "Ramp Interview Guide 2026: AI-Native Finance Platform, Corporate Cards, and Ramp Intelligence\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 23, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\tUpdated April 23, 2026 · techinterview.org\n\n⏱ 9 min read\n\nRamp\nramp.com ↗\n\nRamp Interview Process: Complete 2026 Guide\n\nOverview\n\nRamp is the AI-native finance platform &mdash; corporate cards, expense management, bill pay, procurement, accounting automation, and Treasury &mdash; purpose-built around the thesis that generative AI fundamentally changes how finance work gets done. Founded 2019 by Eric Glyman, Karim Atiyeh, and Gene Lee (the trio previously behind Paribus), private with a 2025 valuation of $13B after rapid growth through 2024. ~900 employees in 2026, concentrated in New York City with a growing SF presence and remote hiring across North America. Ramp differentiates from competitors (Brex, Mercury, Divvy, Navan) with aggressive AI integration &mdash; the company was among the earliest enterprise SaaS companies to ship production LLM features (Ramp Intelligence in 2023) and has doubled down since. Engineering is Python / TypeScript heavy with a thoughtful approach to AI-in-product &mdash; features ship when they reliably work, not when they demo well. Interviews reflect both the fintech reality (idempotency, fraud, compliance) and the AI-native culture (agent orchestration, RAG over enterprise data, prompt engineering as production practice).\n\nInterview Structure\n\nRecruiter screen (30 min): background, why Ramp, team preference. The product surface spans corporate cards, bill pay, accounting automation, procurement, and Ramp Intelligence (the AI product). Triage matters &mdash; the AI teams have a distinct interview profile from core fintech engineering.\n\nTechnical phone screen (60 min): one coding problem, medium-hard. Python and TypeScript are preferred; Go accepted for some infrastructure roles. Problems are applied and systems-adjacent &mdash; implement a spend-categorization primitive, model an approval workflow, handle a streaming transaction feed.\n\nTake-home (some senior / staff roles): 4&ndash;6 hours on a realistic problem. Historically involves financial-data processing, approval-workflow implementation, or a focused AI-systems task (evaluation harness, RAG retrieval).\n\nOnsite / virtual onsite (4&ndash;5 rounds):\n\n- Coding (2 rounds): one algorithms round, one applied round. The applied round tilts toward fintech primitives (ledger, idempotency, reconciliation) or AI primitives (evaluation, retrieval, agent orchestration) depending on role.\n\n- System design (1 round): AI-native-fintech prompts. \"Design the spend-categorization pipeline that processes 10M transactions/day with AI-assisted classification and human review.\" \"Design an approval-routing engine with custom policies per customer.\" \"Design the procurement-automation system integrating with 20+ vendor APIs.\"\n\n- Product / AI-product round (1 round): distinctive at Ramp. Conversation about AI in production &mdash; what features are worth shipping with AI, how you handle LLM unreliability, how to design for human-AI collaboration. Candidates without real production LLM experience often struggle here for AI-team roles.\n\n- Behavioral / hiring manager: past projects, shipping velocity, customer focus, comfort with financial-correctness constraints.\n\n- Values round (sometimes): Ramp values (Build for the Long Term, Do the Right Thing, Save Time & Money, Move with Urgency, Be Curious) come up in specific question phrasings.\n\nTechnical Focus Areas\n\nCoding: Python / TypeScript idiomatic code, clean data modeling, async patterns, state machines for financial workflows, testing discipline.\n\nFintech fundamentals: idempotent transfer handlers, ledger-style accounting, authorization state machines, reconciliation with external feeds, fraud-signal aggregation, compliance-aware data handling.\n\nAI systems: RAG over enterprise data (customer-specific spend, vendor data, policy documents), LLM evaluation in production (was this categorization correct? did this approval recommendation align with policy?), agent orchestration for finance workflows, prompt engineering for structured outputs, human-in-the-loop design patterns, confidence calibration and fallback handling.\n\nSystem design: multi-tenant SaaS at enterprise scale, card-authorization paths, approval / workflow engines with customer-specific rules, integration with ERP systems (NetSuite, QuickBooks, Xero), data pipelines for accounting sync.\n\nData: PostgreSQL at scale, event sourcing for ledger, batch / streaming accounting reconciliation, analytical workloads for spend insights.\n\nIntegrations: ERP / accounting API fluency (NetSuite, QuickBooks, Xero, Sage), SAML / SSO, SCIM user provisioning, webhook reliability.\n\nCompliance: KYB for business customers, BSA / AML, SOC 2, PCI for card-adjacent flows, partner-bank oversight (Ramp cards are issued on partner-bank rails).\n\nCoding Interview Details\n\nTwo coding rounds,"
+}

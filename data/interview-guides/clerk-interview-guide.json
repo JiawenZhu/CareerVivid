@@ -1,0 +1,35 @@
+{
+  "company": "Clerk",
+  "slug": "clerk-interview-guide",
+  "url": "https://www.techinterview.org/companies/clerk-interview-guide",
+  "scrapedAt": "2026-07-02T07:21:06.311Z",
+  "interviewStages": [
+    "Behavioral: customer focus, written communication, security mindset"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Clerk fully remote?",
+      "How does Clerk compare to Auth0 (Okta) or Supabase Auth?",
+      "What is the engineering culture?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Clerk Interview Guide (2026): Authentication for Modern Apps\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nClerk\nclerk.com ↗\n\nClerk is the modern authentication and user-management platform — used by tens of thousands of startups and SaaS companies. Drop-in components for sign-in, MFA, organization management, and increasingly for B2B SaaS auth flows. The interview emphasizes frontend SDK design, security, and the realities of running a high-availability auth platform.\n\nProcess\n\nRecruiter screen → 60-minute coding pair → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 2–4 weeks.\n\nWhat they actually ask\n\n- Design a session management system with stateful and stateless modes\n\n- Design an SSO (SAML / OIDC) flow that handles arbitrary enterprise IdPs\n\n- Design a passkey enrollment and login flow\n\n- Coding: practical TypeScript/Node, often with security framing\n\n- Behavioral: customer focus, written communication, security mindset\n\nLevels and comp (2026)\n\n- SE: $180K–$240K total\n\n- Senior SE: $260K–$340K\n\n- Staff: $370K–$480K\n\n- Principal: $500K–$650K\n\nPrep priorities\n\n- Be fluent in TypeScript and at least one auth protocol (OIDC, SAML, WebAuthn)\n\n- Understand security fundamentals: cookies, tokens, CSRF, XSS\n\n- Read the Clerk engineering blog and architecture documentation\n\nFrequently Asked Questions\n\nIs Clerk fully remote?\n\nYes. Distributed across US and EU. Quarterly off-sites.\n\nHow does Clerk compare to Auth0 (Okta) or Supabase Auth?\n\nAuth0 is enterprise-broad. Supabase Auth is Postgres-native. Clerk wins on developer experience and modern UI components for B2C and B2B SaaS. Comp is competitive at senior+.\n\nWhat is the engineering culture?\n\nFast-moving, async-friendly, opinionated. Strong written-communication culture. Genuine craft pride.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Clerk? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextDefense Primes Interview Guide (2026): Lockheed Martin, Northrop Grumman, Raytheon (RTX)⏱ 3 min readLow Level Design: Cursor-Based vs Offset Pagination⏱ 6 min readMore Hat Puzzles⏱ 3 min read"
+}

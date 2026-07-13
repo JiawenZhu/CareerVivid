@@ -1,0 +1,86 @@
+{
+  "company": "Cloudflare",
+  "slug": "cloudflare",
+  "url": "https://www.techinterview.org/companies/cloudflare",
+  "scrapedAt": "2026-07-02T07:21:16.263Z",
+  "interviewStages": [
+    "System design (1 round): classic distributed-systems problems with an edge twist &mdash; design a global rate limiter, design a KV store replicated across 300 POPs, design a cache invalidation system for a CDN with 10B requests/day. Operational numbers matter: cache hit ratios, tail latency, cross-region replication lag.",
+    "Hiring manager / values (1 round): team fit, past projects, how you handle on-call, how you think about reliability and blast radius. Cloudflare cares that you understand the weight of shipping code that serves ~20% of the internet.",
+    "Behavioral (1 round): STAR stories about ownership, conflict, and shipping under pressure."
+  ],
+  "codingTopics": [
+    "Implement a specific protocol / format handler (tiny HTTP parser, TLV decoder, WebSocket frame reader)",
+    "Rate limiter with specific semantics (fixed window, sliding window log, token bucket with burst)",
+    "Connection or resource pool with fairness and timeout constraints",
+    "Streaming aggregation (top-K, sketches, sliding window counts over a long stream)"
+  ],
+  "systemDesignTopics": [
+    "TLS 1.3 handshake: know the message flow (ClientHello, ServerHello, EncryptedExtensions, Finished), what's encrypted and when, why session resumption matters, how 0-RTT works and its replay risk.",
+    "QUIC vs TCP: why QUIC avoids head-of-line blocking, how connection migration works, the performance implications for mobile networks.",
+    "DNS: recursive vs authoritative, what a typical resolution path looks like, why DNSSEC deployment is hard, how DoH / DoT change the trust model.",
+    "CDN behavior: how cache keys are constructed, how purge works across a distributed edge, origin shielding, conditional requests."
+  ],
+  "behavioralTopics": [
+    "On-call ownership &mdash; \"Tell me about a production incident you owned.\"",
+    "Writing culture &mdash; \"Describe an RFC or design doc you wrote that changed a decision.\"",
+    "Reliability tradeoffs &mdash; \"When did you intentionally sacrifice feature velocity for reliability?\"",
+    "Global scale awareness &mdash; \"How do you think about the blast radius of a change?\""
+  ],
+  "sampleQuestions": {
+    "coding": [
+      "Implement tiny HTTP parser, TLV decoder, WebSocket frame reader. Talk through your approach, complexity, and edge cases.",
+      "Implement fixed window, sliding window log, token bucket with burst. Talk through your approach, complexity, and edge cases.",
+      "Implement top-K, sketches, sliding window counts over a long stream. Talk through your approach, complexity, and edge cases.",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution."
+    ],
+    "behavioral": [
+      "Tell me about a production incident you owned.",
+      "Describe an RFC or design doc you wrote that changed a decision.",
+      "When did you intentionally sacrifice feature velocity for reliability?",
+      "How do you think about the blast radius of a change?",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
+    "systemDesign": [
+      "One round, 60 minutes. The framing is almost always edge-computing flavored: \"Design a global rate limiter that enforces 10K req/s per API key across 300 POPs,\" or \"Design the cache-purge system for a CDN with billions of entries.\" The interviewer pushes on operational concerns: How do you handle a POP failure? What's your cache hit ratio goal and how do you measure it? How does write-back propagation handle a 300-node network partition?",
+      "Design a service at Cloudflare scale that shortens URLs. Cover the API, storage, and hot-key handling.",
+      "Design a rate limiter for a public API. Discuss algorithms, distributed coordination, and failure modes."
+    ],
+    "values": [],
+    "other": [
+      "Do I need networking experience to get hired at Cloudflare?",
+      "Is Rust actually required or just nice-to-have?",
+      "How does Workers compare to AWS Lambda in interviews?",
+      "What's the on-call like?",
+      "Is remote work genuinely supported?"
+    ]
+  },
+  "difficulty": 7.5,
+  "tips": [
+    "Read the engineering blog. Deeply. Especially the posts on Pingora, QUIC, DDoS mitigation, and Workers architecture.",
+    "Build something on Workers. Even a URL shortener. You'll understand the isolate model better and have a concrete story.",
+    "Learn Rust well enough to be conversational. You don't need expert fluency; you need to not be scared of ownership / borrowing.",
+    "Practice networking out loud. Draw TLS handshakes, explain QUIC, narrate a DNS resolution. Verbal fluency helps a lot.",
+    "Ask about on-call. \"What's on-call rotation like for this team?\" signals you take reliability seriously.",
+    "Cloudflare engineering blog (multi-year archive &mdash; start with Pingora, QUIC, DDoS, Workers)",
+    "High Performance Browser Networking by Ilya Grigorik (free online)",
+    "Computer Networking: A Top-Down Approach (Kurose & Ross) for fundamentals",
+    "Julia Evans's networking zines (tcpdump, DNS, traceroute)",
+    "The TLS 1.3 RFC (RFC 8446) &mdash; skim sections 1 & 2",
+    "LeetCode medium set + the Rust book (if you're ramping on Rust)"
+  ],
+  "compensation": [
+    "L4 / Software Engineer: $170k&ndash;$210k base, $150k&ndash;$250k equity (4 years), 10% bonus. Total: ~$260k&ndash;$400k / year.",
+    "L5 / Senior Software Engineer: $220k&ndash;$280k base, $300k&ndash;$550k equity, similar bonus. Total: ~$400k&ndash;$600k / year.",
+    "L6 / Staff Engineer: $280k&ndash;$350k base, $600k&ndash;$1.2M equity. Total: ~$550k&ndash;$900k / year.",
+    "You'll be expected to know how the internet actually works, not just how APIs work.",
+    "Rust is real day-to-day code, not a marketing term. Pingora, workerd, and quiche are all Rust.",
+    "The company writes publicly a LOT. Read the engineering blog for at least a month before interviewing.",
+    "The Workers platform has its own quirks (isolate model, CPU time limits, no Node APIs). Candidates interviewing for Workers roles should have built something on it.",
+    "Treating the networking round as optional. You cannot talk your way through TLS handshake questions.",
+    "\"Microservices\" as the answer to every system design question. Edge computing is structurally different.",
+    "Hand-waving on failure modes. \"We'd have replicas\" isn't an answer; \"we'd use Raft with a quorum of 3 per region\" is.",
+    "Not having read the Cloudflare engineering blog. Interviewers notice."
+  ],
+  "rawSummary": "Cloudflare Interview Guide 2026: Edge Engineering, Networking Depth, Workers, and Rust\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 22, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\tUpdated April 22, 2026 · techinterview.org\n\n⏱ 9 min read\n\nCloudflare\ncloudflare.com ↗\n\nCloudflare Interview Process: Complete 2026 Guide\n\nOverview\n\nCloudflare runs a global edge network with 330+ cities of presence, powering CDN, DNS, WAF, zero-trust security, Workers serverless compute, D1/R2/KV storage, and a growing AI inference layer. Founded 2009, public since 2019, ~4,000 employees in 2026. The company's engineering culture is network-heavy, systems-focused, and unusually writing-intensive &mdash; internal RFCs carry significant weight. Interviews reflect this: expect networking fundamentals that most application-tier engineers don't touch, plus strong systems programming chops. Roles are distributed across Austin, SF, London, Lisbon, and remote.\n\nInterview Structure\n\nRecruiter screen (30 min): background, why Cloudflare, which team caught your eye. They triage candidates toward specific orgs early &mdash; application platform, Workers, networking, security, data/AI infra are quite different hiring bars.\n\nTechnical phone screen (60 min): one coding problem, typically medium-hard. Rust, Go, and TypeScript are the house languages; Python, C, C++ accepted depending on role. Problems often have a systems flavor &mdash; implement a ring buffer, parse an HTTP/2 frame, handle a retry budget. Pure algorithms appear but less often than at FAANG.\n\nTake-home (some roles, ~4 hours): a focused engineering task, typically networking- or systems-adjacent. Read the prompt carefully &mdash; they weight constraint-following and clean error handling heavily.\n\nOnsite / virtual onsite (4&ndash;5 rounds):\n\n- Coding (1&ndash;2 rounds): one classic data-structures / algorithms round, one applied systems round. The systems round often involves implementing a small protocol handler, a rate limiter with specific semantics, or a connection pool. Expect to care about error paths, not just happy paths.\n\n- Systems / networking deep-dive: core round for most engineering positions. Topics include TCP/QUIC behavior, TLS handshake internals, DNS resolution paths, HTTP/2 and HTTP/3 framing, Anycast routing, DDoS mitigation patterns, BGP basics for networking roles.\n\n- System design (1 round): classic distributed-systems problems with an edge twist &mdash; design a global rate limiter, design a KV store replicated across 300 POPs, design a cache invalidation system for a CDN with 10B requests/day. Operational numbers matter: cache hit ratios, tail latency, cross-region replication lag.\n\n- Hiring manager / values (1 round): team fit, past projects, how you handle on-call, how you think about reliability and blast radius. Cloudflare cares that you understand the weight of shipping code that serves ~20% of the internet.\n\n- Behavioral (1 round): STAR stories about ownership, conflict, and shipping under pressure.\n\nTechnical Focus Areas\n\nCoding: ring buffers, sliding window rate limiters, state machines, parsers, bloom filters, LRU variants. Streaming / parsing problems are common. Rust fluency is a significant advantage for several teams.\n\nNetworking: TCP congestion control (Reno, Cubic, BBR), TLS 1.3 handshake, 0-RTT tradeoffs, HTTP/2 multiplexing vs HTTP/3 QUIC, DNS over HTTPS/TLS, Anycast routing and gotchas, BGP path selection basics. You don't need CCIE-level depth, but you must know more than \"TCP is reliable, UDP is fast.\"\n\nSystems design: global distributed caches, eventual consistency models, Raft / gossip protocols, at-edge vs at-origin computation tradeoffs, WebAssembly isolate model (Workers), zone-level caching and purge strategies, DDoS mitigation architectures.\n\nSecurity (for security roles): WAF rule design, rate limiting as a security primitive, bot detection signals, TLS fingerprinting, CSP, SSRF defenses, SSO and mTLS for zero-trust access.\n\nAI / inference (for newer AI teams): edge-inference tradeoffs, model quantization for deployment, per-user rate limiting for LLM endpoints, multi-tenant GPU sharing at the edge.\n\nCoding Interview Details\n\nTwo coding rounds at onsite, 60 minutes each. Difficulty is Google L4&ndash;L5 equivalent. Interviewers are hands-on, frequently asking to refactor for clarity, handle edge cases, or tighten complexity. Rust is actively welcomed; Go is the dominant backend language; TypeScript common on platform teams. Less Python than FAANG.\n\nTypical problem types:\n\n- Implement a specific protocol / format handler (tiny HTTP parser, TLV decoder, WebSocket frame reader)\n\n- Rate limiter with specific semantics (fixed window, sliding window log, token bucket with burst)\n\n- Connection or resource pool with fairness and timeout constraints\n\n- Streaming aggregation (top-K, sketches, sliding window counts over a long stream)\n\nSystem Design Interview\n\nOne round, 60 minutes. The framing is almost always edge-computing flavored: \"Design a "
+}

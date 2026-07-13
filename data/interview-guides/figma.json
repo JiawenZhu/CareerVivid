@@ -1,0 +1,83 @@
+{
+  "company": "Figma",
+  "slug": "figma",
+  "url": "https://www.techinterview.org/companies/figma",
+  "scrapedAt": "2026-07-02T07:22:33.932Z",
+  "interviewStages": [
+    "System design (1 round): classic distributed-systems, OR frontend-leaning system design (how do you architect a collaborative editor? how do you handle 200 cursors on one document?). Know CRDTs, operational transforms, conflict resolution, presence protocols, and WebSocket scaling.",
+    "Behavioral / team fit: past projects, conflict, how you handle ambiguity, how you think about design-engineering partnership. Figma has an unusually tight design-engineering loop."
+  ],
+  "codingTopics": [
+    "Implement a data structure tied to a practical operation (range tree for selection, interval map for formatting, trie for autocomplete)",
+    "Parse or transform a structured stream (command log, event sequence, expression tree)",
+    "Model a small state machine (undo/redo, selection state, focus state) with explicit transitions",
+    "Design a small sub-system with a clear API and write the implementation (text buffer, diff algorithm, presence tracker)"
+  ],
+  "systemDesignTopics": [
+    "Canvas vs DOM vs WebGL tradeoffs for different UI problems",
+    "Bundle splitting and code loading strategies for a large app",
+    "Input handling: IME composition, pointer events, gesture recognition"
+  ],
+  "behavioralTopics": [
+    "Design-engineering partnership &mdash; tell a story about collaborating with a designer on a hard problem",
+    "Performance work &mdash; a time you made something measurably faster, with before/after numbers"
+  ],
+  "sampleQuestions": {
+    "coding": [
+      "Implement range tree for selection, interval map for formatting, trie for autocomplete. Talk through your approach, complexity, and edge cases.",
+      "Implement command log, event sequence, expression tree. Talk through your approach, complexity, and edge cases.",
+      "Implement undo/redo, selection state, focus state. Talk through your approach, complexity, and edge cases.",
+      "Design a small sub-system with a clear API and write the implementation (text buffer, diff algorithm, presence tracker). Talk through your approach, complexity, and edge cases.",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases."
+    ],
+    "behavioral": [
+      "Ambiguity &mdash; how do you ship when the spec isn't clear?",
+      "Long-running technical debt &mdash; how do you decide when to pay it down?",
+      "Tell me about a time you worked across teams to deliver something. How did you handle competing priorities?",
+      "Describe a time you had to deliver under a tight deadline. What trade-offs did you make?",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
+    "systemDesign": [
+      "Rendering pipeline: when does the browser layout, paint, composite? What triggers a reflow?",
+      "Memory profiling: how do you find a leak in a long-running SPA?",
+      "Design a service at Figma scale that shortens URLs. Cover the API, storage, and hot-key handling.",
+      "Design a rate limiter for a public API. Discuss algorithms, distributed coordination, and failure modes."
+    ],
+    "values": [],
+    "other": [
+      "Is the frontend interview at Figma really harder than FAANG's?",
+      "Do I need to know CRDTs cold to pass system design?",
+      "How is the take-home used? Can I skip it?",
+      "What language should I use in the coding rounds?",
+      "How's the Adobe acquisition situation affecting hiring?"
+    ]
+  },
+  "difficulty": 8,
+  "tips": [
+    "Read Figma's engineering blog. The multiplayer post, the rendering posts, and the plugin system posts are gold.",
+    "Build a small collaborative editor. Even a 300-line Yjs-based toy deepens intuition enormously.",
+    "Use Figma before the interview. Plugins, prototyping mode, dev mode, variables. Know the product.",
+    "Quantify performance work. \"Cut TTI by 40%\" beats \"improved perf\" in behavioral answers.",
+    "Ask about the design-engineering loop. \"What's it like when design and engineering disagree about a spec?\" signals you understand the culture.",
+    "Figma engineering blog &mdash; especially the multiplayer and rendering posts",
+    "Yjs documentation + A comprehensive study of Convergent and Commutative Replicated Data Types (Shapiro et al.)",
+    "Crafting Interpreters (Nystrom) for state-machine intuition",
+    "Designing Data-Intensive Applications (Kleppmann) for systems background",
+    "The Chrome DevTools Performance panel tutorial for rendering depth",
+    "LeetCode medium set, with focus on trees, tries, and intervals"
+  ],
+  "compensation": [
+    "L4 / Software Engineer II: $180k&ndash;$220k base, $200k&ndash;$320k equity (4 years), 10% bonus. Total: ~$290k&ndash;$430k / year.",
+    "L5 / Senior Software Engineer: $230k&ndash;$290k base, $400k&ndash;$700k equity, similar bonus. Total: ~$430k&ndash;$650k / year.",
+    "L6 / Staff Engineer: $300k&ndash;$380k base, $800k&ndash;$1.5M equity. Total: ~$600k&ndash;$1M / year.",
+    "The frontend bar is higher than the backend bar, unusual for a consumer-tech company.",
+    "Product sense is weighted heavily even for infra roles.",
+    "The take-home is long but genuinely representative of the work &mdash; people who found it tedious often don't enjoy the actual job either.",
+    "CRDTs and real-time collaboration aren't just buzzwords here; they're daily work.",
+    "Never having used Figma seriously. Interviewers notice immediately.",
+    "Hand-waving on rendering performance. \"React is fast\" or \"use memoization\" doesn't fly.",
+    "Treating the multiplayer problem as a generic pub/sub design &mdash; they'll push you until you produce CRDT-specific reasoning.",
+    "Over-optimizing code for style in the take-home without handling edge cases (concurrent edits, disconnects, undo through a sync)."
+  ],
+  "rawSummary": "Figma Interview Guide 2026: Collaborative Editor Engineering, CRDTs, and Frontend Performance\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 22, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\tUpdated April 22, 2026 · techinterview.org\n\n⏱ 8 min read\n\nFigma\nfigma.com ↗\n\nFigma Interview Process: Complete 2026 Guide\n\nOverview\n\nFigma is the collaborative design platform used by virtually every product team at scale &mdash; founded in 2012, went public in 2024 after the Adobe acquisition unwound, and now sits at ~2,500 employees as of 2026. The engineering bar is unusually high for a design tool company because the core product is a real-time collaborative editor with hard performance requirements: WebGL rendering, CRDT-based multiplayer, and a custom browser runtime. Interviewing there means proving you can handle both the systems complexity of Google Docs and the rendering performance discipline of a game engine. Roles are concentrated in SF and NYC, with some remote positions.\n\nInterview Structure\n\nRecruiter screen (30 min): background, why Figma, interest in the product and the design space. They do screen for genuine affinity with the product &mdash; candidates who've never used Figma seriously tend to struggle later in the loop.\n\nTechnical phone screen (60 min): one coding problem, typically medium-hard. Languages: TypeScript, Python, or Rust depending on role. The question often has a UI or applied twist &mdash; implement an LRU with specific eviction rules, parse a structured event stream, model a small state machine. Pure-algorithm problems appear but less often than at FAANG.\n\nTake-home (frontend and some infra roles): 3&ndash;5 hour take-home implementing a small feature. Historically this has been variations of \"build a mini collaborative editor\" or \"implement undo/redo for this data model.\" Write-up quality matters &mdash; they read every line of your code review notes.\n\nOnsite / virtual onsite (4&ndash;5 rounds):\n\n- Coding (1&ndash;2 rounds): one classic data-structures problem, one applied problem. The applied round often involves implementing a small piece of a text editor, a selection system, or an event dispatch mechanism. Expect to handle edge cases around input &mdash; IME, composition events, focus management if the role is frontend.\n\n- System design (1 round): classic distributed-systems, OR frontend-leaning system design (how do you architect a collaborative editor? how do you handle 200 cursors on one document?). Know CRDTs, operational transforms, conflict resolution, presence protocols, and WebSocket scaling.\n\n- Frontend deep-dive (frontend roles): a meaty discussion of browser rendering, reflows, paint, WebGL or canvas rendering, memory profiling, bundle splitting. Figma's rendering pipeline is custom &mdash; they expect you to have real opinions about this layer, not just React lifecycle knowledge.\n\n- Craft / product sense: you'll get shown a Figma feature and asked what you'd improve. Not a trick &mdash; they want to know if you engage with the product as a user.\n\n- Behavioral / team fit: past projects, conflict, how you handle ambiguity, how you think about design-engineering partnership. Figma has an unusually tight design-engineering loop.\n\nTechnical Focus Areas\n\nCoding: tries, graphs, trees with a frontend-applied flavor (DOM diffing, selection ranges, command-pattern undo). Stream / event problems. TypeScript-idiomatic code if you're on the frontend track. Rust and C++ competence valued for the core rendering engine team.\n\nSystem design (frontend flavor): CRDTs (Yjs, Automerge, custom), operational transforms, conflict-free merge semantics, presence and awareness protocols, WebSocket gateway with Redis Pub/Sub, document sharding, write fan-out, offline sync, delta encoding.\n\nSystem design (backend): classic &mdash; pub/sub, caching, rate limiting, sharded databases &mdash; with a tilt toward real-time systems. Expect questions about WebSocket scaling, connection-affinity routing, and state recovery on disconnect.\n\nRendering / graphics: for core engine roles, know WebGL and WebGPU, how browsers compose layers, GPU memory budgeting, tile-based rendering, text shaping (HarfBuzz), and performance profiling tools (Chrome DevTools Performance tab, RenderDoc).\n\nProduct sense: have opinions about your last 3 feature requests as a Figma user. Know the competitors: Sketch, Adobe XD, Canva, Framer. Understand why Figma won the multiplayer-design battle.\n\nCoding Interview Details\n\nTwo coding rounds at onsite, 60 minutes each. Difficulty is comparable to Google L4/L5. Interviewers actively collaborate &mdash; they'll push on naming, extract helpers with you, and ask you to handle additional edge cases live. TypeScript dominant; Python acceptable; Rust common for infra candidates.\n\nTypical problem shapes:\n\n- Implement a data structure tied to a practical operation (range tree for selection, interval map for formatting, trie for autocomplete)\n\n- Parse or transform a structured stream (command log, event s"
+}

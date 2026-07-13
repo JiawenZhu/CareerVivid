@@ -1,0 +1,56 @@
+{
+  "company": "Lazard",
+  "slug": "lazard-interview-guide",
+  "url": "https://www.techinterview.org/companies/lazard-interview-guide",
+  "scrapedAt": "2026-07-02T07:17:58.106Z",
+  "interviewStages": [
+    "Round 1: Recruiter screen / HireVue. 30 minutes; behavioral, motivation, fit.",
+    "Round 2: First-round interviews. 30–60 minutes each; mix of behavioral, technical (financial modeling, accounting), motivation. Usually 2 interviews.",
+    "Round 3: Superday. 4–6 30-minute interviews on a single day. Mix of behavioral, technical, fit. Often includes a senior banker (MD-level).",
+    "Round 4: Decision and offer. Within 1–3 weeks.",
+    "Round 1: Recruiter screen.",
+    "Round 2: Technical phone screen — coding plus systems concepts.",
+    "Round 3: On-site / virtual on-site — 3–4 rounds of coding, system design, behavioral.",
+    "Round 4: Decision and offer."
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "What's working in restructuring at Lazard like?",
+      "How does Lazard compare to bulge-bracket banks for analysts?",
+      "Is Lazard a good engineering destination?",
+      "How does the Bermuda HQ affect employees?",
+      "Should I do my MBA before joining Lazard?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": [
+    "1st-year analyst: $110k base + $50k–$80k signing bonus + ~$70k–$100k year-end bonus = ~$230k–$290k total comp first year",
+    "2nd–3rd year analyst: $125k–$150k base + ~$100k–$160k bonus = ~$225k–$310k total",
+    "Associate (post-MBA): $175k–$225k base + $200k–$300k bonus = ~$375k–$525k total",
+    "VP: $250k–$350k base + $400k–$700k bonus = ~$650k–$1.05M+ total",
+    "Director / SVP: $400k–$500k base + $700k–$1.5M+ bonus",
+    "MD: $500k–$1M base + $1M–$5M+ bonus depending on deal flow",
+    "The restructuring franchise is more substantial than candidates expect — Lazard is genuinely the largest restructuring advisor globally and the work is intellectually demanding.",
+    "The Paris office is more substantive than candidates expect — Lazard's European heritage means Paris is a major engineering and banking center.",
+    "The independent model is genuinely operationalized; client conversations differ from integrated banks because of conflict-of-interest considerations.",
+    "The engineering organization is smaller than candidates expect; engineers don't have FAANG-scale infrastructure problems.",
+    "Compensation at MD level can be substantial given partnership-flavored economics; junior compensation broadly comparable to bulge brackets."
+  ],
+  "rawSummary": "Lazard Interview Guide 2026: Boutique Investment Bank, Largest Restructuring Practice\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 30, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Lazard Interview Guide 2026: Boutique Investment Bank, Financial Advisory, Asset Management, M&A Advisory Pure Play\n\n- What Lazard Does\n\n- Roles Lazard Hires For\n\n- Lazard Interview Process\n\n- What Lazard Tests For\n\n- Compensation\n\n- Working at Lazard\n\n- Lazard vs Alternatives\n\n- Things That Surprise Candidates\n\n- Frequently Asked Questions\n\nUpdated April 30, 2026 · techinterview.org\n\n⏱ 7 min read\n\nLazard\nlazard.com ↗\n\nLazard Interview Guide 2026: Boutique Investment Bank, Financial Advisory, Asset Management, M&A Advisory Pure Play\n\nLazard (NYSE: LAZ) is the largest pure-play boutique investment bank globally and one of the most distinctive financial firms by structure — independent, partnership-rooted, with no commercial banking, sales-and-trading, or balance-sheet lending. Founded in 1848 in New Orleans, Lazard built its reputation on independent M&A advisory and restructuring advisory; the modern firm operates in two segments — Financial Advisory (M&A, restructuring) and Asset Management. The hiring process reflects the firm's investment-banking-pure heritage. This guide covers what Lazard does, the engineering tracks, the interview process, and what makes Lazard hiring distinctive in 2026.\n\nWhat Lazard Does\n\nLazard operates two business segments:\n\n- Financial Advisory: M&A advisory, restructuring (largest globally), capital markets advisory, sovereign advisory, geopolitical advisory. Primary revenue contributor.\n\n- Asset Management: equity, fixed income, alternative investments. ~$240B AUM. Less prominent than competitors but real franchise.\n\nWithin Financial Advisory, distinctive practices:\n\n- M&A advisory: traditional sell-side and buy-side M&A. Lazard advises on a meaningful share of large global transactions.\n\n- Restructuring (largest globally): Lazard's restructuring practice is the largest in the world — advising distressed companies, creditor committees, and sovereigns through bankruptcy and recapitalization. The 2008 financial crisis, 2020 pandemic, and various sovereign debt crises have grown this practice.\n\n- Capital markets advisory: capital structure and financing advisory; doesn't underwrite securities.\n\n- Geopolitical advisory: sovereign advisory for governments, often around debt restructuring or major economic policy.\n\nDistinctive features:\n\n- Independent model: no commercial banking, no sales-and-trading, no underwriting. Avoids conflicts of interest that integrated banks face. The independence is genuinely valued by clients in restructurings and contested transactions.\n\n- Partnership heritage: Lazard operated as a partnership for most of its history; converted to public company in 2005. Cultural style still partnership-flavored.\n\n- European presence: historically distinctive among US-listed banks for substantial Paris and London presence. Now headquartered in Bermuda for tax reasons but operates globally.\n\n- Public company: NYSE: LAZ since 2005 IPO; substantial financial transparency.\n\n- Small relative to bulge-bracket competitors: ~3,400 employees, much smaller than Goldman Sachs (~46,000+) or JPMorgan (~300,000+). Different operating model, different engineering footprint.\n\nRoles Lazard Hires For\n\nInvestment banking analyst / associate\n\nThe largest hiring track. Standard IB analyst / associate work — financial modeling, presentation creation, transaction execution. Recruiting from top business schools (Wharton, HBS, Stanford GSB, Booth, Columbia, etc.) for associates; top undergraduate target schools for analysts.\n\nRestructuring analyst / associate\n\nDistinctive sub-track within IB. Restructuring work involves complex bankruptcy / recapitalization analysis. Lazard's restructuring practice is the largest globally; this is one of the most prestigious sub-tracks within IB.\n\nSoftware engineer\n\nSmaller engineering organization than bulge-bracket peers. Builds internal tools — financial modeling tools, deal tracking, client management, asset management platforms. Java + Python heavy; some C# in legacy systems; React + TypeScript on frontend.\n\nQuantitative analyst (Asset Management)\n\nLazard Asset Management's quant teams — factor research, portfolio construction, risk analytics. Smaller-scale than top quant funds but real work.\n\nData engineer / data scientist\n\nPipeline engineering for asset management data, deal databases, alternative data. Smaller engineering organization means individual engineers have broader scope.\n\nAsset management technology\n\nBuilds the asset management platform — portfolio management, fund administration, client reporting. Smaller team than at BlackRock / Vanguard scale.\n\nIT / infrastructure\n\nStandard enterprise IT for a financial advisory firm. Less engineering-intensive than bulge-bracket peers; more support-and-operations-flavored.\n\nLazard Interview Process\n\nInvestment banking "
+}

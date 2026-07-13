@@ -1,5 +1,6 @@
 import { NO_NEXT_ACTION, type ApplicationStatus, type JobApplicationData, type PracticeHistoryEntry, type ResumeData } from '../types';
 import type { PortfolioData } from '../features/portfolio/types/portfolio';
+import { normalizeScore } from '../lib/gamification';
 import { extractRecommendationProfileKeywords } from './recommendationProfile';
 
 export type CareerProfileGraphNodeId =
@@ -77,6 +78,22 @@ export interface SkillGapLearningMission {
     steps: SkillGapLearningStep[];
 }
 
+export interface PracticeTrend {
+    /** Average normalized score of the 5 most recent sessions. */
+    recentAvg: number;
+    /** Average of the 5 sessions before those. */
+    previousAvg: number;
+    delta: number;
+}
+
+export interface PracticeInsights {
+    sessionsAnalyzed: number;
+    trend: PracticeTrend | null;
+    weakestDimension: { label: string; score: number } | null;
+    /** Actionable bullets from the most recent report's areasForImprovement. */
+    practiceNext: string[];
+}
+
 export interface CareerProfileGraphSummary {
     completionScore: number;
     signalCount: number;
@@ -89,6 +106,7 @@ export interface CareerProfileGraphSummary {
     nextBestStep: CareerProfileGraphNode;
     roleGoal: CareerProfileRoleGoal;
     learningMissions: SkillGapLearningMission[];
+    practiceInsights: PracticeInsights;
     nodes: CareerProfileGraphNode[];
 }
 
@@ -165,14 +183,86 @@ const getResumeReadiness = (resume?: ResumeData): number => {
     return clamp((checks.filter(Boolean).length / checks.length) * 100);
 };
 
+/** All analyses, newest first, scores normalized downstream. */
+const getSortedAnalyses = (practiceHistory: PracticeHistoryEntry[]) => practiceHistory
+    .flatMap((entry) => entry.interviewHistory || [])
+    .filter((analysis) => Number.isFinite(Number(analysis.overallScore)))
+    .sort((a, b) => (Number(b.timestamp) || 0) - (Number(a.timestamp) || 0));
+
+type ScoreField = 'overallScore' | 'communicationScore' | 'confidenceScore' | 'relevanceScore';
+
+const averageNormalized = (
+    analyses: Array<Partial<Record<ScoreField, number>>>,
+    field: ScoreField = 'overallScore',
+): number => (
+    analyses.length
+        ? clamp(analyses.reduce((sum, analysis) => sum + normalizeScore(Number(analysis[field]) || 0), 0) / analyses.length)
+        : 0
+);
+
 const getInterviewReadiness = (practiceHistory: PracticeHistoryEntry[]): number => {
-    const analyses = practiceHistory.flatMap((entry) => entry.interviewHistory || []);
-    if (analyses.length > 0) {
-        const average = analyses.reduce((sum, analysis) => sum + (Number(analysis.overallScore) || 0), 0) / analyses.length;
-        return clamp(average);
-    }
+    // Recent sessions only: readiness should reflect where the user is NOW,
+    // not be dragged down forever by early low scores. Scores are stored on
+    // mixed scales (0-10 and 0-100) — normalize before averaging.
+    const analyses = getSortedAnalyses(practiceHistory).slice(0, 10);
+    if (analyses.length > 0) return averageNormalized(analyses);
 
     return clamp(practiceHistory.length * 20, 0, 80);
+};
+
+/** Extract clean bullets from a markdown feedback string ("* x * y" or lines). */
+const parseFeedbackBullets = (markdown?: string): string[] => {
+    if (!markdown) return [];
+    return markdown
+        .split(/\n+/)
+        .flatMap((line) => line.split(/(?:^|\s)\*\s+/))
+        .map((item) => item.replace(/^[-*•\s]+/, '').trim())
+        .filter((item) => item.length > 12)
+        .slice(0, 3);
+};
+
+const PRACTICE_DIMENSIONS = [
+    { label: 'Communication', field: 'communicationScore' },
+    { label: 'Confidence', field: 'confidenceScore' },
+    { label: 'Answer relevance', field: 'relevanceScore' },
+] as const;
+
+const buildPracticeInsights = (practiceHistory: PracticeHistoryEntry[]): PracticeInsights => {
+    const analyses = getSortedAnalyses(practiceHistory);
+    const recent = analyses.slice(0, 5);
+    const previous = analyses.slice(5, 10);
+
+    const trend: PracticeTrend | null = recent.length && previous.length
+        ? {
+            recentAvg: averageNormalized(recent),
+            previousAvg: averageNormalized(previous),
+            delta: averageNormalized(recent) - averageNormalized(previous),
+        }
+        : null;
+
+    const weakestDimension = recent.length
+        ? PRACTICE_DIMENSIONS
+            .map(({ label, field }) => ({ label, score: averageNormalized(recent, field) }))
+            .sort((a, b) => a.score - b.score)[0]
+        : null;
+
+    return {
+        sessionsAnalyzed: analyses.length,
+        trend,
+        weakestDimension,
+        practiceNext: parseFeedbackBullets(analyses[0]?.areasForImprovement),
+    };
+};
+
+/** Best normalized practice score across all sessions, regardless of role. */
+const getBestInterviewScoreOverall = (practiceHistory: PracticeHistoryEntry[]): number | null => {
+    const scores = practiceHistory
+        .flatMap((entry) => entry.interviewHistory || [])
+        .map((analysis) => normalizeScore(Number(analysis.overallScore) || 0))
+        .filter((score) => score > 0);
+
+    if (scores.length === 0) return null;
+    return clamp(Math.max(...scores));
 };
 
 const getProofProjects = (portfolios: PortfolioData[]): string[] => compactUnique(
@@ -224,9 +314,21 @@ const getStatusBreakdown = (jobApplications: JobApplicationData[]): Array<{ labe
         .filter((item) => item.count > 0);
 };
 
-const getNextBestStep = (nodes: CareerProfileGraphNode[]): CareerProfileGraphNode => (
-    [...nodes].sort((a, b) => a.progress - b.progress)[0] || nodes[0]
-);
+const getNextBestStep = (nodes: CareerProfileGraphNode[]): CareerProfileGraphNode => {
+    // Practice is the core improvement loop. Fill genuinely missing setup
+    // first (anything under 40), but once the basics exist, keep pointing
+    // the user back to mock interviews until they hit the target bar —
+    // never endlessly polish setup items over actual practice.
+    const setupGap = [...nodes]
+        .filter((node) => node.id !== 'interview')
+        .sort((a, b) => a.progress - b.progress)[0];
+    if (setupGap && setupGap.progress < 40) return setupGap;
+
+    const interview = nodes.find((node) => node.id === 'interview');
+    if (interview && interview.progress < 85) return interview;
+
+    return [...nodes].sort((a, b) => a.progress - b.progress)[0] || nodes[0];
+};
 
 const getBestResumeMatchScore = (job?: JobApplicationData): number | null => {
     const scores = Object.values(job?.matchAnalyses || {})
@@ -261,8 +363,8 @@ const getBestInterviewScoreForJob = (
     const scores = practiceHistory
         .filter((entry) => practiceMatchesJob(entry, job))
         .flatMap((entry) => entry.interviewHistory || [])
-        .map((analysis) => Number(analysis.overallScore))
-        .filter((score) => Number.isFinite(score));
+        .map((analysis) => normalizeScore(Number(analysis.overallScore) || 0))
+        .filter((score) => score > 0);
 
     if (scores.length === 0) return null;
     return clamp(Math.max(...scores));
@@ -315,14 +417,17 @@ const buildRoleGoal = (
     const title = goalJob ? `${company ? `${company} ` : ''}${role}` : 'Choose a target role';
     const matchScore = getBestResumeMatchScore(goalJob);
     const interviewScore = getBestInterviewScoreForJob(practiceHistory, goalJob);
+    const bestOverallInterviewScore = getBestInterviewScoreOverall(practiceHistory);
     const hasNextAction = Boolean(goalJob?.nextAction && goalJob.nextAction !== NO_NEXT_ACTION);
     const applicationScore = goalJob
         ? Math.max(statusGoalScores[goalJob.applicationStatus] || 0, hasNextAction ? 45 : 0)
         : 0;
-    const resumeGoalScore = goalJob
-        ? matchScore ?? (resumes.length ? Math.min(resumeReadiness, 60) : 0)
-        : 0;
+    // Honest scores only: a match that was never run is 0, not a proxy number.
+    const resumeGoalScore = matchScore ?? 0;
     const interviewGoalScore = interviewScore ?? 0;
+    // Deep links into the Job Tracker: open THIS job's detail (where the
+    // match runs), or the "Track a New Job Application" modal when no job yet.
+    const goalJobPath = goalJob ? `/job-tracker?job=${goalJob.id}` : '/job-tracker?action=new';
 
     const steps: CareerProfileGoalStep[] = [
         {
@@ -333,7 +438,7 @@ const buildRoleGoal = (
             targetScore: 100,
             status: goalJob ? 'ready' : 'start',
             actionLabel: goalJob ? 'Open job' : 'Save target job',
-            actionPath: goalJob ? '/job-tracker' : '/jobs/recommend',
+            actionPath: goalJobPath,
         },
         {
             id: 'resumeMatch',
@@ -341,13 +446,15 @@ const buildRoleGoal = (
             detail: goalJob
                 ? matchScore != null
                     ? `${matchScore}% match against this role.`
-                    : 'Run a resume match for this saved job.'
+                    : 'No match run yet — run one against this saved job.'
                 : 'Match a resume after saving a target job.',
             score: resumeGoalScore,
             targetScore: 90,
             status: getGoalStatus(resumeGoalScore, 90),
             actionLabel: matchScore != null ? 'Improve resume' : 'Run match',
-            actionPath: goalJob?.resumeId ? `/edit/${goalJob.resumeId}` : '/newresume',
+            // "Improve resume" edits the linked resume; "Run match" opens the
+            // job in the tracker where the match analysis actually runs.
+            actionPath: matchScore != null && goalJob?.resumeId ? `/edit/${goalJob.resumeId}` : goalJobPath,
         },
         {
             id: 'interviewScore',
@@ -355,7 +462,9 @@ const buildRoleGoal = (
             detail: goalJob
                 ? interviewScore != null
                     ? `${interviewScore}% best practice score for this role.`
-                    : 'Practice this role until the score is interview-ready.'
+                    : bestOverallInterviewScore != null
+                        ? `Best score ${bestOverallInterviewScore}% on other roles — practice this one.`
+                        : 'Practice this role until the score is interview-ready.'
                 : 'Practice after choosing a target role.',
             score: interviewGoalScore,
             targetScore: 85,
@@ -377,7 +486,7 @@ const buildRoleGoal = (
             targetScore: 85,
             status: goalJob?.applicationStatus === 'Offered' ? 'ready' : getGoalStatus(applicationScore, 85),
             actionLabel: hasNextAction ? 'Open plan' : 'Set next action',
-            actionPath: '/job-tracker',
+            actionPath: goalJobPath,
         },
     ];
 
@@ -547,6 +656,7 @@ export const buildCareerProfileGraph = ({
     const proofProjects = getProofProjects(portfolios);
     const activeGoals = getActiveGoals(jobApplications);
     const interviewReadiness = getInterviewReadiness(practiceHistory);
+    const practiceInsights = buildPracticeInsights(practiceHistory);
     const statusBreakdown = getStatusBreakdown(jobApplications);
     const activeJobs = jobApplications.filter((job) => job.applicationStatus !== 'Rejected').length;
     const roleGoal = buildRoleGoal(resumes, practiceHistory, jobApplications, targetRoles, resumeReadiness);
@@ -621,7 +731,11 @@ export const buildCareerProfileGraph = ({
             id: 'interview',
             label: 'Interview readiness',
             value: `${interviewReadiness}% ready`,
-            detail: practiceHistory.length ? `${pluralize(practiceHistory.length, 'practice session')} tracked.` : 'Practice against a target role to build readiness.',
+            detail: practiceInsights.trend
+                ? `${practiceInsights.trend.delta >= 0 ? '+' : ''}${practiceInsights.trend.delta} vs your previous 5 sessions.`
+                : practiceHistory.length
+                    ? `${pluralize(practiceHistory.length, 'practice session')} tracked.`
+                    : 'Practice against a target role to build readiness.',
             progress: interviewReadiness,
             tags: compactUnique([
                 practiceHistory[0]?.job?.title,
@@ -636,7 +750,18 @@ export const buildCareerProfileGraph = ({
             label: 'Job history',
             value: jobApplications.length ? pluralize(jobApplications.length, 'job') : 'No jobs',
             detail: activeJobs ? `${pluralize(activeJobs, 'active role')} in your pipeline.` : 'Save jobs to build a useful history.',
-            progress: clamp(jobApplications.length ? 45 + Math.min(activeJobs, 5) * 10 : 0),
+            // Progress mirrors how far the pipeline has actually advanced
+            // (furthest active status), not an arbitrary base for saving jobs.
+            progress: clamp(
+                jobApplications.length
+                    ? Math.max(
+                        20, // something is saved
+                        ...jobApplications
+                            .filter((job) => job.applicationStatus !== 'Rejected')
+                            .map((job) => statusGoalScores[job.applicationStatus] || 0),
+                    )
+                    : 0,
+            ),
             tags: statusBreakdown.slice(0, 3).map((item) => `${item.label}: ${item.count}`),
             actionLabel: jobApplications.length ? 'Open pipeline' : 'Save a job',
             actionPath: '/job-tracker',
@@ -661,6 +786,7 @@ export const buildCareerProfileGraph = ({
         nextBestStep,
         roleGoal,
         learningMissions,
+        practiceInsights,
         nodes,
     };
 };

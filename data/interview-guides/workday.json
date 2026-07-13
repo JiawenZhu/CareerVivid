@@ -1,0 +1,92 @@
+{
+  "company": "Workday",
+  "slug": "workday",
+  "url": "https://www.techinterview.org/companies/workday",
+  "scrapedAt": "2026-07-02T07:29:43.292Z",
+  "interviewStages": [
+    "System design (1 round): enterprise multi-tenant prompts. \"Design the payroll calculation engine that runs bi-weekly for 30M employees across 10K customers.\" \"Design the benefits-enrollment workflow with open-enrollment traffic spikes.\" \"Design the audit log for compliance with SOC 2, GDPR, and customer-specific regulations.\"",
+    "Behavioral / hiring manager: past projects, customer focus, working in a regulated environment, handling slow-changing enterprise software timelines."
+  ],
+  "codingTopics": [
+    "OO design: model an org chart with managers / reports / dotted-line relationships, a benefits-enrollment system with eligibility rules, a workflow with conditional approvals",
+    "Implement a domain-specific primitive (expense-approval chain, time-off balance calculation, tax bracket calculation)",
+    "Extend an existing Java codebase: add a feature respecting existing patterns, write tests",
+    "Tree / graph problems with practical twists (org hierarchy traversal, workflow DAG evaluation, dependency resolution)",
+    "Data processing (reconcile two data sources, deduplicate records, detect anomalies in a payroll run)"
+  ],
+  "systemDesignTopics": [
+    "\"Design the payroll-run system that processes bi-weekly runs for 30M employees across 10K customers with correctness guarantees.\"",
+    "\"Design the benefits-enrollment system handling annual open-enrollment spikes (1000x normal traffic).\"",
+    "\"Design the audit log that captures every field change across all Workday records for compliance.\"",
+    "\"Design the reports engine that runs complex ad-hoc queries against multi-tenant object graphs.\"",
+    "Explain the Java memory model and what happens during concurrent object modification.",
+    "Walk through garbage collection choices (G1 vs ZGC vs Shenandoah) and tuning parameters.",
+    "Describe how you'd debug a memory leak in a production JVM."
+  ],
+  "behavioralTopics": [
+    "Employees: \"Tell me about a time you helped a teammate grow or succeed.\"",
+    "Customer Service: \"Describe a situation where you deeply engaged with a customer problem.\"",
+    "Innovation: \"Tell me about a creative solution you proposed for a hard problem.\"",
+    "Integrity: \"Describe a time you made a difficult ethical choice at work.\"",
+    "Fun: \"What do you do to make work enjoyable for yourself and others?\""
+  ],
+  "sampleQuestions": {
+    "coding": [
+      "Implement a streaming feature aggregator: given a stream of events, maintain rolling counts and averages per key with bounded memory. Discuss complexity and eviction.",
+      "Implement expense-approval chain, time-off balance calculation, tax bracket calculation. Talk through your approach, complexity, and edge cases.",
+      "Implement org hierarchy traversal, workflow DAG evaluation, dependency resolution. Talk through your approach, complexity, and edge cases.",
+      "Implement reconcile two data sources, deduplicate records, detect anomalies in a payroll run. Talk through your approach, complexity, and edge cases.",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases."
+    ],
+    "behavioral": [
+      "Tell me about a time you helped a teammate grow or succeed.",
+      "Describe a situation where you deeply engaged with a customer problem.",
+      "Tell me about a creative solution you proposed for a hard problem.",
+      "Describe a time you made a difficult ethical choice at work.",
+      "What do you do to make work enjoyable for yourself and others?"
+    ],
+    "systemDesign": [
+      "How does Java generics type erasure affect runtime behavior?",
+      "When would you choose a ConcurrentHashMap vs Collections.synchronizedMap vs a read-write lock?",
+      "Design the payroll-run system that processes bi-weekly runs for 30M employees across 10K customers with correctness guarantees.",
+      "Design the benefits-enrollment system handling annual open-enrollment spikes (1000x normal traffic).",
+      "Design the audit log that captures every field change across all Workday records for compliance."
+    ],
+    "values": [],
+    "other": [
+      "Do I need prior HR / payroll / finance domain experience?",
+      "How different is the OMS from a traditional RDBMS?",
+      "How does Workday compare to SAP / Oracle on interviews?",
+      "Is AI really central now?",
+      "What's the release cadence really like?"
+    ]
+  },
+  "difficulty": 6.5,
+  "tips": [
+    "Read Workday's architecture overviews. The OMS and the metadata-driven platform philosophy are well-documented publicly.",
+    "Write modern Java. Records, sealed classes, streams, text blocks. Current idiom is a signal.",
+    "Engage with multi-tenancy and compliance. In system design, name data residency and audit logging as first-class constraints.",
+    "Prepare customer-focused stories. Demonstrate you understand enterprise software serves customers who depend on it for their operations.",
+    "Ask about HiredScore / Illuminate. Signals you're aware of the AI strategy.",
+    "Workday engineering blog (architecture, platform, AI posts)",
+    "Effective Java (3rd edition) by Joshua Bloch",
+    "Designing Data-Intensive Applications (Kleppmann) for multi-tenant architecture",
+    "Public talks on Workday's OMS architecture (QCon, other conferences)",
+    "Recent Workday earnings calls for AI investment context",
+    "LeetCode's OO design / low-level design section"
+  ],
+  "compensation": [
+    "P3 / Software Engineer: $150k&ndash;$190k base, $50k&ndash;$100k equity/yr, 10% bonus. Total: ~$215k&ndash;$320k / year.",
+    "P4 / Senior Software Engineer: $195k&ndash;$245k base, $100k&ndash;$180k equity/yr. Total: ~$310k&ndash;$460k / year.",
+    "P5 / Principal Engineer: $260k&ndash;$315k base, $180k&ndash;$320k equity/yr. Total: ~$460k&ndash;$650k / year.",
+    "The OMS architecture is genuinely different from typical RDBMS-backed SaaS. Understanding its trade-offs signals preparation.",
+    "Backward compatibility is sacred &mdash; Workday customers expect to upgrade across years of releases without data loss. This shapes every architectural decision.",
+    "Customer-success emphasis is real; behavioral answers that lack customer context read as detached.",
+    "AI is a real strategic investment with executive attention, not a marketing initiative.",
+    "Ignoring multi-tenancy and compliance in system design.",
+    "Dated Java style &mdash; writing 2010-era Java signals you haven't kept up.",
+    "Lack of customer awareness in behavioral answers.",
+    "Dismissing enterprise software as \"boring.\" The problems at Workday scale (30M employees, SOC 2, multi-region data residency) are real engineering."
+  ],
+  "rawSummary": "Workday Interview Guide 2026: HCM and Finance Platform, OMS Architecture, and Workday Illuminate AI\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 23, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\tUpdated April 23, 2026 · techinterview.org\n\n⏱ 9 min read\n\nWorkday\nworkday.com ↗\n\nWorkday Interview Process: Complete 2026 Guide\n\nOverview\n\nWorkday is the enterprise cloud platform for human capital management (HCM), financial management, planning, spend management, and increasingly AI-driven workforce analytics. Founded 2005 by PeopleSoft veterans Dave Duffield and Aneel Bhusri, public since 2012, ~20,000 employees in 2026. The product serves ~65% of the Fortune 500 and deals with some of the most sensitive data enterprises handle &mdash; payroll, workforce identity, financial results, merger and reorganization planning. Headquartered in Pleasanton, CA with major engineering hubs in Dublin, Toronto, and Chennai, plus a large AI-focused R&D center in the Bay Area post the Insurify and HiredScore acquisitions. The technical stack is distinctive: a proprietary in-memory object model (the Object Management Server, OMS) on top of a durable object store rather than a traditional RDBMS, paired with a custom DSL (Workday Studio) for configuration and development. Interviews reflect this reality: expect strong Java / object-oriented depth, multi-tenant SaaS reasoning, and enterprise compliance awareness.\n\nInterview Structure\n\nRecruiter screen (30 min): background, why Workday, team interest among platform core, HCM apps, Financials, Planning, AI / HiredScore, extend (integrations), and SRE. The loop varies meaningfully by org &mdash; core platform is more systems-heavy; applications are more product-oriented; AI is research-adjacent.\n\nTechnical phone screen (60 min): one coding problem, medium difficulty. Java dominates core backend; Kotlin growing; TypeScript for frontend; Python for data / ML. Problems tend toward applied OO design &mdash; model a small HR or finance scenario, extend a class hierarchy, implement a small rules engine.\n\nTake-home (some senior / staff roles): 4&ndash;6 hours on a focused engineering problem. Tests, documentation, and clean API design matter.\n\nOnsite / virtual onsite (4&ndash;5 rounds):\n\n- Coding (1&ndash;2 rounds): one algorithms round, one OO / design round. The OO round often asks you to model an enterprise scenario &mdash; a time-off approval workflow, a payroll calculation with tax jurisdictions, an org-chart hierarchy with custom roles.\n\n- System design (1 round): enterprise multi-tenant prompts. \"Design the payroll calculation engine that runs bi-weekly for 30M employees across 10K customers.\" \"Design the benefits-enrollment workflow with open-enrollment traffic spikes.\" \"Design the audit log for compliance with SOC 2, GDPR, and customer-specific regulations.\"\n\n- Platform / Java depth (1 round): Java language depth (generics, concurrency primitives, GC behavior), Workday's OMS model if relevant, Spring / Spring Boot if the team uses it, transactional semantics.\n\n- Behavioral / hiring manager: past projects, customer focus, working in a regulated environment, handling slow-changing enterprise software timelines.\n\n- Values round: Workday's \"core values\" (Employees, Customer Service, Innovation, Integrity, Fun, Profitability) come up in specific questions.\n\nTechnical Focus Areas\n\nCoding: Java fluency (modern features: records, sealed classes, text blocks, streams, Optional, pattern matching), object-oriented modeling, test-driven development with JUnit / Mockito, working with large existing codebases.\n\nOO / data modeling: enterprise domain modeling is central to Workday. Practice modeling: org hierarchies with custom roles, workflow engines with approvals and escalations, time-tracking with overtime rules across jurisdictions, benefits packages with eligibility rules, payroll with tax calculations.\n\nSystem design: multi-tenant enterprise SaaS (serving 10K tenants where each tenant has thousands to millions of employees), high-concurrency transactional workloads (payroll runs, period closes), customer-level data residency (Workday has separate cell infrastructure for different compliance regions), integration patterns (SOAP, REST, EDI for legacy enterprise integration).\n\nWorkday-specific architecture: the Object Management Server (OMS) is an in-memory object model backed by a durable object store rather than a traditional RDBMS. Understanding the trade-offs &mdash; no SQL joins in the traditional sense, transaction semantics, cache coherence across nodes &mdash; helps for platform-engineering roles.\n\nAI / HiredScore: agent orchestration for HR workflows, RAG over enterprise employee data (with strict privacy constraints), evaluation in regulated contexts, integration with existing Workday records.\n\nCompliance / security: SOC 2, ISO 27001, GDPR, country-specific payroll and tax regulations, data residency, audit logging for finance and HR systems.\n\nCoding Interview Details\n\nTwo coding rounds, 60 min"
+}

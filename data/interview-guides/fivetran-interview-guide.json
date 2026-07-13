@@ -1,0 +1,35 @@
+{
+  "company": "Fivetran",
+  "slug": "fivetran-interview-guide",
+  "url": "https://www.techinterview.org/companies/fivetran-interview-guide",
+  "scrapedAt": "2026-07-02T07:22:38.965Z",
+  "interviewStages": [
+    "Behavioral: ownership, customer focus, technical writing"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Fivetran remote-friendly?",
+      "How does Fivetran compare to Stitch or Airbyte?",
+      "What is the bar like?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Fivetran Interview Guide (2026): Automated Data Integration\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nFivetran\nfivetran.com ↗\n\nFivetran is the dominant managed ELT (extract-load-transform) platform — automated data integration from hundreds of sources into modern warehouses. The interview emphasizes data engineering, schema evolution, change-data-capture (CDC), and the realities of building reliable connectors against unstable third-party APIs.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (medium DSA) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design a CDC-based connector for a transactional database (Postgres, MySQL)\n\n- Design schema evolution: source adds a column, downstream queries should not break\n\n- Design a connector framework that handles rate limits and incremental sync\n\n- Coding: medium DSA with parsing or data-transformation framing\n\n- Behavioral: ownership, customer focus, technical writing\n\nLevels and comp (2026)\n\n- SE II: $160K–$200K total\n\n- Senior SE: $230K–$300K\n\n- Staff: $330K–$430K\n\n- Principal: $450K–$580K\n\nPrep priorities\n\n- Be fluent in Java (the bulk of the connector platform) and one scripting language\n\n- Understand database internals: WAL, replication slots, binlogs\n\n- Read about modern data stacks: Snowflake, BigQuery, Redshift, dbt\n\nFrequently Asked Questions\n\nIs Fivetran remote-friendly?\n\nHybrid in Oakland, Denver, Bangalore, and others. Many engineering roles are remote within supported countries.\n\nHow does Fivetran compare to Stitch or Airbyte?\n\nFivetran is the broadest commercial offering with strong enterprise traction. Airbyte is open-source. Stitch (Talend) is older and more limited. Fivetran pays best.\n\nWhat is the bar like?\n\nStrong fundamentals with practical engineering. Less LeetCode-hard, more \"can you build a robust system.\"\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Fivetran? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextWix Interview Guide (2026): Website Builder Engineering⏱ 1 min readSystem Design Interview: Design a Fleet Management and Vehicle Tracking System⏱ 5 min readDynamic Programming on Strings Interview Patterns⏱ 9 min read"
+}

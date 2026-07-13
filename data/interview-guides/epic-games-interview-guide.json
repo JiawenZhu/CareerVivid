@@ -1,0 +1,59 @@
+{
+  "company": "Epic Games",
+  "slug": "epic-games-interview-guide",
+  "url": "https://www.techinterview.org/companies/epic-games-interview-guide",
+  "scrapedAt": "2026-07-02T07:22:19.347Z",
+  "interviewStages": [
+    "Coding (1–2 rounds) — algorithms with practical engineering flavor; less competitive-programming style than FAANG",
+    "Domain depth (1–2 rounds) — depends on role: graphics, engine internals, distributed systems, gameplay programming, ML",
+    "System design (1 round) — varies substantially by role; gameplay-systems design or backend distributed systems design",
+    "Behavioral / cross-functional (1 round)"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "A function intermittently fails in production. Walk me through how you would reproduce, isolate, and fix the bug.",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [
+      "Design Epic Games's varies substantially by role; gameplay-systems design or backend distributed systems design at production scale. Walk through the architecture, trade-offs, and failure modes.",
+      "Design a service at Epic Games scale that shortens URLs. Cover the API, storage, and hot-key handling.",
+      "Design a rate limiter for a public API. Discuss algorithms, distributed coordination, and failure modes."
+    ],
+    "values": [],
+    "other": [
+      "Do I need Unreal Engine experience to interview at Epic?",
+      "What's working on Unreal Engine actually like?",
+      "How does the Verse language work fit into Epic's roadmap?",
+      "Is the crunch reputation still real?",
+      "What's the equity story like at private Epic?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": [
+    "New-grad SWE: $160k–$240k total comp first year",
+    "Mid-level (4–7 years): $240k–$400k",
+    "Senior (8+ years): $380k–$600k",
+    "Staff / Principal: $550k–$1M+",
+    "The Cary NC HQ is the cultural center; engineers in remote offices describe a less integrated experience.",
+    "The Verse language work is more substantial than candidates expect; building a programming language for the metaverse is a multi-decade ambition.",
+    "The Tencent-Sony ownership doesn't translate to day-to-day involvement; Epic engineering operates autonomously.",
+    "The crunch reputation has improved but is not eliminated; team-by-team variance is real.",
+    "The breadth of work — engine, games, storefront, online services, ML, anti-cheat — surprises candidates who think of Epic as just \"the Fortnite company.\"",
+    "Riot Games &mdash; League and Valorant",
+    "Activision Blizzard &mdash; MMORPG and shooter franchises",
+    "Electronic Arts &mdash; sports franchises and AAA",
+    "Unity &mdash; game engine"
+  ],
+  "rawSummary": "Epic Games Interview Guide 2026: Fortnite, Unreal Engine, UEFN, Verse Language\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 29, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Epic Games Interview Guide 2026: Fortnite, Unreal Engine, Epic Games Store, Live-Service Engineering, and the Tencent-Sony Backed Studio\n\n- What Epic Games Does\n\n- Roles Epic Hires For\n\n- Epic Interview Process\n\n- What Epic Tests For\n\n- Compensation\n\n- Working at Epic\n\n- Epic vs Alternatives\n\n- Things That Surprise Candidates\n\n- Frequently Asked Questions\n\n- Adjacent Gaming Companies\n\nUpdated May 2, 2026 · techinterview.org\n\n⏱ 7 min read\n\nEpic Games\nepicgames.com ↗\n\nEpic Games Interview Guide 2026: Fortnite, Unreal Engine, Epic Games Store, Live-Service Engineering, and the Tencent-Sony Backed Studio\n\nEpic Games is one of the most influential gaming companies of the modern era — operator of Fortnite (one of the largest live-service games globally), maker of Unreal Engine (the most-used real-time 3D engine), operator of the Epic Games Store (challenger to Steam), and parent of Bandcamp and Mediatonic (Fall Guys). Founded in 1991 by Tim Sweeney, the company is privately held with substantial investments from Tencent (40% stake) and Sony. The hiring process is rigorous and reflects the company's distinctive engineering culture: a mix of game development, engine R&D, and the creator-economy ambition behind Unreal Engine + UEFN. This guide covers what Epic does, the engineering tracks, the interview process, and what makes Epic hiring distinctive in 2026.\n\nWhat Epic Games Does\n\nEpic operates several major product lines:\n\n- Fortnite: the flagship live-service game — battle royale plus expanded mode lineup (Festival, Lego Fortnite, Rocket Racing, Ballistic, etc.). Tens of millions of concurrent players globally during peak events.\n\n- Unreal Engine: the dominant real-time 3D engine; used in games, film (Mandalorian's StageCraft), automotive (Mercedes, Porsche), architecture, broadcast. UE5 (Nanite, Lumen, Chaos) defines the current generation.\n\n- Unreal Editor for Fortnite (UEFN): creator tooling letting third-party developers build Fortnite islands using Unreal-grade tools. Substantial creator-economy investment.\n\n- Epic Games Store: PC game distribution challenging Steam; lower revenue cut, exclusive deals.\n\n- Epic Online Services: backend services (matchmaking, accounts, friends) free for use by external developers.\n\n- MetaHuman: high-fidelity digital human creator.\n\n- RealityScan / RealityCapture: photogrammetry tools.\n\n- Bandcamp, Fall Guys, Rocket League: acquired or owned products.\n\n- Verse: Tim Sweeney's long-developed programming language for the open metaverse, debuted in UEFN.\n\nDistinctive features:\n\n- Engine + game + storefront triple-play: few gaming companies operate at all three layers; Epic does, with substantial engineering investment in each.\n\n- Open-metaverse vision: Tim Sweeney's stated long-term direction; UEFN, Verse, and the broader creator-economy push reflect this.\n\n- Cross-platform engineering: Fortnite and UE run across PC, console (PS5, Xbox), mobile, web, increasingly cloud streaming. Engineers operate on multi-platform realities.\n\n- Privately held: not public; tender offers exist but liquidity is limited. Tencent (40%) and Sony are major shareholders.\n\n- Antitrust posture: Epic's lawsuits against Apple and Google over App Store policies are central to its identity; the company actively pushes the open-platform agenda.\n\nRoles Epic Hires For\n\nSoftware engineer (Unreal Engine)\n\nBuilds and maintains UE — rendering (Nanite, Lumen, RT), physics (Chaos), animation, audio, engine core, editor. Heavy C++; deep graphics or systems engineering depending on team. Broadly considered some of the most desirable engineering work in gaming.\n\nSoftware engineer (Fortnite gameplay / live ops)\n\nBuilds gameplay systems, mission logic, item systems, season content infrastructure. C++ in UE plus Verse for newer content systems.\n\nSoftware engineer (Fortnite backend / online services)\n\nBuilds matchmaking, account services, social, store, telemetry. Distributed systems at hundreds-of-millions-of-users scale. Go and Python heavy; C# in some legacy systems.\n\nGraphics engineer / rendering engineer\n\nMost prestigious specialty within UE engineering. Deep graphics expertise (DirectX 12, Vulkan, Metal, ray tracing, GPU compute). Few engineers globally with this depth; Epic is a destination for this work.\n\nML engineer / AI engineer\n\nMetaHuman synthesis, in-game ML (NPC behavior, content generation), engine-level ML integration. Smaller team but growing.\n\nVerse language / programming systems engineer\n\nBuilds the Verse programming language — the long-developed creator-facing language launched in UEFN. Compiler, runtime, and tooling work; one of the most ambitious language efforts in gaming.\n\nAnti-cheat engineer\n\nEasy Anti-Cheat (Epic's anti-cheat) plus Fortnite-specific cheat detection. Adversarial engineering.\n\nPlatform / infrastructure engi"
+}

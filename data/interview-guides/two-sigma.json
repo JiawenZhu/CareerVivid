@@ -1,0 +1,91 @@
+{
+  "company": "Two Sigma",
+  "slug": "two-sigma",
+  "url": "https://www.techinterview.org/companies/two-sigma",
+  "scrapedAt": "2026-07-02T07:18:47.166Z",
+  "interviewStages": [
+    "System design (for senior SWE): data infrastructure, research platforms, low-latency execution, ML pipelines for finance.",
+    "Behavioral / fit (1 round): conversation about background, intellectual interests, why Two Sigma. The firm values genuine intellectual curiosity; canned answers underperform."
+  ],
+  "codingTopics": [
+    "Implement an efficient time-series operation (rolling statistic, expanding window, irregular-time-series resampling)",
+    "Process a large structured dataset with bounded memory",
+    "Algorithm problems (graphs, trees, dynamic programming) at LeetCode medium-hard difficulty",
+    "Code-quality refactoring: given working but suboptimal code, improve it",
+    "Numerical computation: implement a function that's robust to floating-point edge cases",
+    "\"Design an experiment to determine whether X is a good predictor of Y.\" Discuss controlling for confounders, sample-size considerations, multiple-testing correction.",
+    "\"Explain when you'd use OLS regression vs robust regression, and what diagnostics you'd run.\"",
+    "\"Stationarity matters because&#8230; walk me through what happens if you ignore non-stationarity in time-series modeling.\"",
+    "\"What are common ways researchers fool themselves with backtests?\" Look-ahead bias, survivorship bias, multiple-hypothesis testing, regime mismatches.",
+    "\"Given a data set with N observations and P features where P > N, how would you approach modeling?\"",
+    "\"Design a strategy to predict next-day returns for stocks in the S&P 500.\"",
+    "\"How would you build a system to detect regime changes in a financial time series?\"",
+    "\"You have access to alternative data X. How would you evaluate whether it adds value?\""
+  ],
+  "systemDesignTopics": [],
+  "behavioralTopics": [
+    "\"What's a research question that interests you that has nothing to do with finance?\"",
+    "\"Walk me through a project you started for fun &mdash; what motivated it, what did you learn?\"",
+    "\"What do you read for pleasure?\"",
+    "\"What's a time you changed your mind based on data?\""
+  ],
+  "sampleQuestions": {
+    "coding": [
+      "Implement rolling statistic, expanding window, irregular-time-series resampling. Talk through your approach, complexity, and edge cases.",
+      "Process a large structured dataset with bounded memory. Talk through your approach, complexity, and edge cases.",
+      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph.",
+      "Given working but suboptimal code, improve it. Talk through your approach, complexity, and edge cases.",
+      "Implement a function that's robust to floating-point edge cases. Talk through your approach, complexity, and edge cases."
+    ],
+    "behavioral": [
+      "What's a research question that interests you that has nothing to do with finance?",
+      "Walk me through a project you started for fun &mdash; what motivated it, what did you learn?",
+      "What do you read for pleasure?",
+      "What's a time you changed your mind based on data?",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Do I need a PhD for Two Sigma quant research?",
+      "How does Two Sigma compare to D. E. Shaw or Citadel hedge fund?",
+      "What's the work-life balance like?",
+      "How does the take-home assignment work?",
+      "Is the SoHo NYC office really required?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [
+    "Pick your track honestly. QR vs SWE tracks have different bars; trying to be both rarely works in interviews.",
+    "Show genuine intellectual curiosity. Have an interest you'll talk about authentically.",
+    "Engage with the firm's open-source. Beam, Beakerx, OpenComponents &mdash; reading any of these signals real interest.",
+    "Be careful with backtesting questions. Strong candidates name pitfalls preemptively (look-ahead, survivorship); weaker candidates need them pointed out.",
+    "Behavioral round matters. Don't underprepare it relative to technical; the firm filters for fit explicitly.",
+    "Two Sigma open-source projects on GitHub (signal of engineering culture)",
+    "A Practical Guide to Quantitative Finance Interviews by Xinfeng Zhou for QR-track prep",
+    "Statistical Inference by Casella & Berger for statistics fundamentals",
+    "Time Series Analysis by Box, Jenkins, Reinsel &mdash; the canonical time-series text",
+    "LeetCode medium-hard for SWE-track prep",
+    "Two Sigma's \"Insights\" research blog &mdash; the firm publishes occasional industry-facing technical content"
+  ],
+  "compensation": [
+    "New-grad SWE / junior QR: $200K&ndash;$280K base, $50K&ndash;$150K signing, $100K&ndash;$300K performance bonus year 1. Total Year 1: $350K&ndash;$700K.",
+    "Mid-career SWE (3&ndash;5 years): $250K&ndash;$340K base, performance bonuses $200K&ndash;$700K. Total $500K&ndash;$1M.",
+    "Senior QR with proven track record: $350K&ndash;$500K base, performance bonuses can be substantial &mdash; $1M&ndash;$5M+ in good years. Total $1.5M&ndash;$5M+.",
+    "Established QR / research lead: $5M&ndash;$15M+ in good firm years.",
+    "Academic-adjacent: open-source contributions, conference attendance and presentations, technical writing, publishing-friendly. The firm has supported research that resulted in academic papers.",
+    "Engineering-respected: SWEs are first-class, not service staff for researchers. Engineering paths to senior levels exist with comparable comp progression.",
+    "Calmer pace than prop firms: the daily rhythm is closer to research-lab than trading-floor. Intense periods exist (when strategies launch, when issues arise) but the median day is more measured than at Citadel Securities or HRT.",
+    "Office-centric: NYC SoHo HQ with significant in-person presence. Hybrid options exist for some roles but are limited.",
+    "Intellectual depth valued over salesmanship: the culture rewards careful thinking and acknowledged uncertainty over confident assertions.",
+    "The engineering culture is genuinely strong; SWEs aren't second-class to researchers.",
+    "The firm is much more academic-adjacent than the typical hedge fund &mdash; visible engagement with research community.",
+    "Compensation for top performers is competitive with the highest-paying firms in the industry.",
+    "Two Sigma maintains substantial on-premise infrastructure, not just cloud &mdash; this matters for systems-engineering candidates.",
+    "Skipping statistics depth. PhD-level statistics is the QR-track filter; underprepared statistics signals immediate down-leveling.",
+    "Confusing Two Sigma's culture with prop-trading firm culture. The pace, the gamesmanship, the trading-game style are different.",
+    "Not having a research interest beyond the immediate role. The firm filters for intellectual curiosity.",
+    "Generic \"I want to work at a top hedge fund\" applications. Show why Two Sigma specifically vs Citadel hedge fund or D. E. Shaw."
+  ],
+  "rawSummary": "Two Sigma Interview Guide 2026: Quant Research Hedge Fund, Statistics Depth, Engineering Culture\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 25, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\tUpdated April 25, 2026 · techinterview.org\n\n⏱ 9 min read\n\nTwo Sigma\ntwosigma.com ↗\n\nTwo Sigma Interview Process: Complete 2026 Guide\n\nOverview\n\nTwo Sigma is the data-science-driven quantitative hedge fund founded 2001 by David Siegel (ex-D. E. Shaw, ex-Tudor) and John Overdeck (ex-D. E. Shaw, ex-Amazon). Headquartered in New York's SoHo with offices in Houston, London, Tokyo, Hong Kong, and Tel Aviv. ~1,800 employees in 2026, of whom ~600 are engineers and ~400 are quantitative researchers. Assets under management above $60B. Two Sigma's identity is distinctive among hedge funds: heavier on technology and data infrastructure than most peers (Renaissance excepted), with a strong academic / research-engagement culture (open-source contributions, technical conferences, publication-friendly). The firm is known for hiring extensively from CS, math, physics, and statistics PhD pipelines and from top engineering schools. Compensation for quant researchers and senior engineers is among the highest in the industry. Interviews are demanding, statistically focused, and weight technical depth more than the gamesmanship found at prop trading firms.\n\nInterview Structure\n\nRecruiter screen (30 min): background, why Two Sigma specifically, target role (quant researcher, software engineer, modeling engineer, quantitative analyst, etc.). Two Sigma triages carefully &mdash; the same candidate might be redirected from quant-research track to engineering track based on backgrounds, and these have meaningfully different interview loops.\n\nTechnical phone screen (60 min): coding for engineering candidates; statistics / probability for quant-research candidates. Phone screens are substantive (not just \"fizzbuzz\") and a real filter.\n\nTake-home assignment (some roles): 4&ndash;8 hours on a realistic data-science or modeling problem. Two Sigma uses take-homes more frequently than prop trading firms because their work is more research-oriented and a take-home better mirrors actual day-to-day.\n\nOnsite (or virtual onsite, 4&ndash;6 rounds):\n\n- Coding (1&ndash;2 rounds for SWE-track): algorithms and applied programming. Difficulty comparable to top FAANG teams. Languages: Python, Java, C++ depending on team.\n\n- Statistics / probability (1&ndash;2 rounds for QR-track): harder than prop-firm brainteasers; goes deeper into statistical reasoning, regression diagnostics, time series, hypothesis testing. Expect to whiteboard derivations or design experiments.\n\n- Modeling round (for QR-track): open-ended problem like \"design a strategy to predict X given Y.\" Tests how you frame problems, what features you'd consider, how you'd evaluate, what could go wrong.\n\n- System design (for senior SWE): data infrastructure, research platforms, low-latency execution, ML pipelines for finance.\n\n- Behavioral / fit (1 round): conversation about background, intellectual interests, why Two Sigma. The firm values genuine intellectual curiosity; canned answers underperform.\n\n- Research-discussion round (for QR-track): walk through a paper or research project from your past. Interviewers probe your understanding, methodological choices, and limitations.\n\nTechnical Focus Areas\n\nFor Quantitative Researchers:\n\n- Probability and statistics at PhD-prep level: regression, hypothesis testing, conditional expectations, time-series stationarity, ARMA / GARCH, multivariate normal, dimensionality reduction, factor models\n\n- Time-series specifics: signal-to-noise reasoning, look-ahead bias, regime changes, transaction costs, multi-period evaluation\n\n- Machine learning for finance: cross-validation specifics for time-series (forward chaining, walk-forward), regularization, ensemble methods, deep learning for sequential prediction (with appropriate skepticism about overfit)\n\n- Backtesting methodology: avoiding survivorship bias, look-ahead bias, snooping bias; out-of-sample testing protocols\n\n- Portfolio construction: mean-variance optimization, risk parity, factor exposures, transaction-cost-aware optimization\n\nFor Software Engineers:\n\n- Strong CS fundamentals: algorithms, data structures, system design at top-tier-FAANG depth\n\n- Distributed systems for research platforms: data pipelines processing terabytes of historical market data, compute orchestration for backtests and simulations\n\n- Performance engineering: low-latency execution paths, efficient time-series databases, SIMD optimization for numerical workloads\n\n- Programming languages: Python and Java are dominant; C++ for some performance-critical paths; Scala / Spark for some data engineering\n\n- Cloud / on-prem hybrid: Two Sigma operates substantial on-premise compute alongside cloud resources\n\nFor Modeling Engineers (intersection role): blend of QR depth and SWE rigor. Build the platforms and tools researchers use; sometimes write production"
+}

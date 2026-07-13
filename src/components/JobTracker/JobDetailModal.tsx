@@ -342,7 +342,7 @@ const JobDetailModal: React.FC<JobDetailModalProps> = ({ job, onClose, onUpdate,
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 p-3 backdrop-blur-sm sm:p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 p-1.5 backdrop-blur-sm sm:p-3">
             <CreditLimitModal />
             {regenModalState && (
                 <RegenerateModal
@@ -361,7 +361,7 @@ const JobDetailModal: React.FC<JobDetailModalProps> = ({ job, onClose, onUpdate,
                     confirmText={t('job_tracker.modal.delete_btn')}
                 />
             )}
-            <div className="flex h-[95vh] w-full max-w-6xl flex-col overflow-hidden rounded-2xl border border-[#e6dac8] bg-[#f8f8fb] shadow-[0_24px_70px_rgba(15,23,42,0.22)] dark:border-gray-800 dark:bg-[#1f1f1d]">
+            <div className="flex h-[calc(100vh-0.75rem)] w-full max-w-[1800px] flex-col overflow-hidden rounded-3xl border border-[#e6dac8] bg-[#f8f8fb] shadow-[0_24px_70px_rgba(15,23,42,0.22)] dark:border-gray-800 dark:bg-[#1f1f1d] sm:h-[calc(100vh-1.5rem)]">
                 <JobDetailHeader
                     localJob={localJob}
                     t={t}
@@ -379,7 +379,8 @@ const JobDetailModal: React.FC<JobDetailModalProps> = ({ job, onClose, onUpdate,
                 />
 
                 <div className="flex-grow overflow-y-auto bg-[#f7f1e7] p-3 dark:bg-[#111827] sm:p-5">
-                    <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_340px] gap-4">
+                    {/* Wide screens get a two-column sidebar so all cards fit without scrolling. */}
+                    <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_340px] xl:grid-cols-[minmax(0,1fr)_720px]">
                         <main className="min-w-0 space-y-4">
                             <div className="overflow-hidden rounded-2xl border border-[#ececf4] bg-white shadow-[0_10px_24px_rgba(15,23,42,0.04)] dark:border-gray-800 dark:bg-gray-900">
                                 <div className="flex items-center gap-1 border-b border-[#ececf4] px-3 pt-3 dark:border-gray-800">
@@ -425,7 +426,7 @@ const JobDetailModal: React.FC<JobDetailModalProps> = ({ job, onClose, onUpdate,
                                         ) : (
                                             <div
                                                 onClick={() => setIsEditingDescription(true)}
-                                                className={`w-full min-h-[420px] max-h-[62vh] overflow-y-auto rounded-xl border border-transparent p-3 transition-colors hover:bg-[#fffaf4] dark:hover:bg-gray-800/60 cursor-pointer ${textSizeClass}`}
+                                                className={`w-full min-h-[480px] max-h-[68vh] overflow-y-auto rounded-xl border border-transparent p-3 transition-colors hover:bg-[#fffaf4] dark:hover:bg-gray-800/60 cursor-pointer ${textSizeClass}`}
                                             >
                                                 {localJob.jobDescription ? (
                                                     <div className="whitespace-pre-wrap break-words">

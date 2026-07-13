@@ -1,0 +1,49 @@
+{
+  "company": "Airbnb",
+  "slug": "airbnb",
+  "url": "https://www.techinterview.org/companies/airbnb",
+  "scrapedAt": "2026-07-02T07:19:53.029Z",
+  "interviewStages": [
+    "Coding Rounds (2 rounds): Algorithm and data structure problems. Airbnb emphasizes code quality, edge cases, and testing. Expect questions on arrays, trees, graphs, and system-level thinking.",
+    "System Design (1 round): Design scalable systems like booking platforms, search engines, or payment systems. Consider user experience alongside technical architecture.",
+    "Cross-Functional (1 round): Work through a problem with a product manager or designer. Shows your ability to collaborate across disciplines.",
+    "Core Values Interview (1 round): Dedicated behavioral round assessing alignment with Airbnb's values: Champion the Mission, Be a Host, Embrace the Adventure, Be a Cereal Entrepreneur.",
+    "Experience/Past Work (1 round): Deep-dive into your previous projects, design decisions, and trade-offs."
+  ],
+  "codingTopics": [
+    "Arrays/Strings: Manipulation, searching, optimization",
+    "Trees: Binary trees, tree traversals, BST operations",
+    "Graphs: BFS, DFS, shortest path",
+    "Dynamic Programming: Classic DP problems",
+    "System Design: Booking systems, search/recommendation engines, payment processing, calendar availability"
+  ],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Given an array of integers, find the longest contiguous subarray whose sum equals a target. Discuss complexity and edge cases.",
+      "Serialize and deserialize a binary tree. Walk through your encoding choices, complexity, and edge cases.",
+      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph.",
+      "Given a set of coin denominations, compute the minimum number of coins needed to reach a target amount. Compare the recursive and bottom-up approaches.",
+      "Implement a double-entry ledger that processes a stream of transactions and detects imbalances. How do you guarantee idempotency when a transaction is delivered twice?"
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [],
+    "values": [],
+    "other": []
+  },
+  "difficulty": null,
+  "tips": [
+    "Study Core Values: Read about Airbnb's mission and values deeply. Prepare stories demonstrating each value with specific examples.",
+    "Show Product Sense: Demonstrate understanding of user experience, design trade-offs, and product thinking. Use Airbnb as a user.",
+    "Practice System Design: Focus on marketplace dynamics, two-sided platforms, trust and safety systems.",
+    "Write Production Code: Airbnb values code quality highly. Use meaningful names, proper structure, error handling, and testing.",
+    "Prepare Project Stories: Be ready to discuss technical decisions, collaboration challenges, and impact of your work."
+  ],
+  "compensation": null,
+  "rawSummary": "Airbnb\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  February 1, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\tUpdated February 1, 2026 · techinterview.org\n\n⏱ 2 min read\n\nAirbnb\nairbnb.com ↗\n\nInterview Process Overview\n\nAirbnb's interview process uniquely balances technical skills with cultural fit and product sense. The company deeply values candidates who align with their mission of \"belong anywhere\" and show strong design sensibility.\n\nWhat to Expect\n\nRecruiter Screen: Discussion of your background, interest in Airbnb's mission, and alignment with core values.\n\nTechnical Phone Screen (1-2 rounds): 45-minute coding interviews focusing on algorithms and problem-solving. Medium difficulty with emphasis on clean, production-quality code.\n\nOnsite Interviews (5-6 rounds):\n\n- Coding Rounds (2 rounds): Algorithm and data structure problems. Airbnb emphasizes code quality, edge cases, and testing. Expect questions on arrays, trees, graphs, and system-level thinking.\n\n- System Design (1 round): Design scalable systems like booking platforms, search engines, or payment systems. Consider user experience alongside technical architecture.\n\n- Cross-Functional (1 round): Work through a problem with a product manager or designer. Shows your ability to collaborate across disciplines.\n\n- Core Values Interview (1 round): Dedicated behavioral round assessing alignment with Airbnb's values: Champion the Mission, Be a Host, Embrace the Adventure, Be a Cereal Entrepreneur.\n\n- Experience/Past Work (1 round): Deep-dive into your previous projects, design decisions, and trade-offs.\n\nCommon Question Topics\n\n- Arrays/Strings: Manipulation, searching, optimization\n\n- Trees: Binary trees, tree traversals, BST operations\n\n- Graphs: BFS, DFS, shortest path\n\n- Dynamic Programming: Classic DP problems\n\n- System Design: Booking systems, search/recommendation engines, payment processing, calendar availability\n\nPreparation Tips\n\n- Study Core Values: Read about Airbnb's mission and values deeply. Prepare stories demonstrating each value with specific examples.\n\n- Show Product Sense: Demonstrate understanding of user experience, design trade-offs, and product thinking. Use Airbnb as a user.\n\n- Practice System Design: Focus on marketplace dynamics, two-sided platforms, trust and safety systems.\n\n- Write Production Code: Airbnb values code quality highly. Use meaningful names, proper structure, error handling, and testing.\n\n- Prepare Project Stories: Be ready to discuss technical decisions, collaboration challenges, and impact of your work.\n\nInterview Culture\n\nAirbnb seeks people who are passionate about the mission of creating a world where anyone can belong anywhere. The company values empathy, creativity, and cross-functional collaboration. Demonstrate genuine care for user experience and ability to think holistically about products.\n\nLast Updated: February 2026\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Airbnb? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextxAI Interview Guide 2026: Grok, Colossus Supercluster, Musk-Style Pace, and Frontier Lab Engineering⏱ 9 min readSupabase Interview Guide 2026: Open-Source Postgres Platform, Realtime, Edge Functions, and Vector Search⏱ 8 min readRobinhood Interview Guide⏱ 7 min read"
+}

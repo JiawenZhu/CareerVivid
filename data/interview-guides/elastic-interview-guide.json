@@ -1,0 +1,75 @@
+{
+  "company": "Elastic",
+  "slug": "elastic-interview-guide",
+  "url": "https://www.techinterview.org/companies/elastic-interview-guide",
+  "scrapedAt": "2026-07-02T07:22:14.500Z",
+  "interviewStages": [
+    "Recruiter screen (30 min).",
+    "Hiring manager screen (45 min).",
+    "Technical phone screen (60 min). One coding problem.",
+    "Onsite or virtual loop (4–5 rounds).",
+    "1 distributed systems / search architecture round",
+    "1 domain-depth round (Lucene internals, query DSL, aggregations) for senior+",
+    "1 behavioral round",
+    "Hiring committee or panel review.",
+    "Java internals for core engine roles: GC tuning, off-heap memory management, NIO",
+    "Distributed search: sharding, replication, quorum reads/writes, eventual consistency",
+    "Lucene internals (senior+): inverted index, segment files, merge policies, scoring (BM25, TF-IDF)",
+    "Query DSL design: bool queries, aggregations, percolator, runtime fields",
+    "Observability use cases: log-shipping pipelines, metric aggregation, trace sampling"
+  ],
+  "codingTopics": [
+    "Implement an inverted index — accept a list of documents, build a map from term to posting list with positions. Discuss term-frequency vs document-frequency, why posting lists are stored as deltas (gap encoding), and how merge-on-read works during querying.",
+    "Top-K terms in a stream — count-min sketch + heap, or HyperLogLog for cardinality. Tests whether the candidate has thought about approximate-data-structure trade-offs that show up in Elasticsearch's aggregation framework.",
+    "Fuzzy matching with edit distance — implement Levenshtein, then discuss how Lucene's automaton-based fuzzy matching works in practice. Senior+ candidates should be aware that brute-force edit-distance over an inverted index is too slow at scale."
+  ],
+  "systemDesignTopics": [
+    "Design a search system over 1B documents. Sharding (number of primary shards, replicas), routing, query coordination across shards, scoring (BM25), aggregations, refresh interval trade-offs, and the cost model for Elastic Cloud.",
+    "Design log ingestion at 1M events/second. Beats / Elastic Agent → Logstash or ingest pipeline → Elasticsearch indices. Hot/warm/cold tier strategy, ILM policies, and what to do when ingestion exceeds capacity.",
+    "Design alerting on log streams. Watcher / Kibana alerts, throttling, deduplication, and the integration with downstream paging (PagerDuty).",
+    "Segment file structure: terms dictionary, postings, stored fields, doc values, term vectors. Why Lucene segments are immutable and how merging works.",
+    "Scoring: BM25 vs TF-IDF, why BM25 became the default in Lucene 6, how custom similarity classes work.",
+    "Memory considerations: heap vs off-heap, why Elasticsearch defaults to a 50% heap split, the role of OS page cache.",
+    "Weeks 1-2: LeetCode mediums (arrays, strings, hash maps). Aim for 3-5 problems/day.",
+    "Weeks 3-4: Distributed systems via Designing Data-Intensive Applications, focusing on consistency, replication, and search-engine architecture chapters.",
+    "Weeks 5-6: Lucene internals — read the official Lucene file format docs and at least 2 Elasticsearch blog posts on indexing internals. Practice 5-10 problems involving inverted indexes or trie structures.",
+    "Weeks 7-8: Elastic-specific: query DSL, aggregations, ILM. Read the Elastic blog for recent feature announcements.",
+    "Splunk &mdash; log analytics and SIEM",
+    "Datadog &mdash; SaaS observability"
+  ],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Implement an inverted index — accept a list of documents, build a map from term to posting list with positions. Talk through your approach, complexity, and edge cases.",
+      "Find the k most frequent elements in a stream. Which data structure do you use and why?",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [
+      "Is Elastic mostly Java?",
+      "Design a search system over 1B documents. Sharding (number of primary shards, replicas), routing, query coordination across shards, scoring (BM25), aggregations, refresh interval trade-offs, and the cost model for Elastic Cloud.",
+      "Design log ingestion at 1M events/second. Beats / Elastic Agent → Logstash or ingest pipeline → Elasticsearch indices. Hot/warm/cold tier strategy, ILM policies, and what to do when ingestion exceeds capacity.",
+      "Design alerting on log streams. Watcher / Kibana alerts, throttling, deduplication, and the integration with downstream paging (PagerDuty).",
+      "Design a service at Elastic scale that shortens URLs. Cover the API, storage, and hot-key handling."
+    ],
+    "values": [],
+    "other": [
+      "Do I need to know Lucene internally?",
+      "How does Elastic compare to Splunk or Datadog?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": [
+    "Mid: $140–180K base + $50–100K equity/year + bonus → $230–320K total",
+    "Senior: $180–230K base + $100–180K equity/year → $320–450K total",
+    "Staff: $230–290K base + $180–280K equity/year → $450–600K total"
+  ],
+  "rawSummary": "Elastic Interview Guide (2026): Process, Questions, Compensation\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 2, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Interview process\n\n- Common technical questions\n\n- Compensation (2026 estimates, US)\n\n- Sample interview questions in depth\n\n- Prep timeline (8 weeks)\n\n- What separates strong candidates\n\n- Frequently Asked Questions\n\n- Adjacent Observability and Search\n\nUpdated May 3, 2026 · techinterview.org\n\n⏱ 3 min read\n\nElastic\nelastic.co ↗\n\nElastic Interview Guide\n\nCompany overview: Elastic is the company behind Elasticsearch (now ES|QL and the Elastic Stack), serving search, observability (logs, metrics, APM), and security (SIEM, endpoint) use cases. Mountain View headquarters, fully remote-friendly engineering across the US, EU, Singapore. Engineering domains span the core Elasticsearch engine (Lucene-based), Kibana (visualization), Beats and Elastic Agent (ingestion), and the cloud-managed Elastic Cloud.\n\nInterview process\n\nTimeline: 4–6 weeks.\n\n- Recruiter screen (30 min).\n\n- Hiring manager screen (45 min).\n\n- Technical phone screen (60 min). One coding problem.\n\n- Onsite or virtual loop (4–5 rounds).\n\n2 coding rounds (medium-to-hard, Java-flavored for core engine roles)\n\n- 1 distributed systems / search architecture round\n\n- 1 domain-depth round (Lucene internals, query DSL, aggregations) for senior+\n\n- 1 behavioral round\n\n- Hiring committee or panel review.\n\nCommon technical questions\n\n- Java internals for core engine roles: GC tuning, off-heap memory management, NIO\n\n- Distributed search: sharding, replication, quorum reads/writes, eventual consistency\n\n- Lucene internals (senior+): inverted index, segment files, merge policies, scoring (BM25, TF-IDF)\n\n- Query DSL design: bool queries, aggregations, percolator, runtime fields\n\n- Observability use cases: log-shipping pipelines, metric aggregation, trace sampling\n\nCompensation (2026 estimates, US)\n\n- Mid: $140–180K base + $50–100K equity/year + bonus → $230–320K total\n\n- Senior: $180–230K base + $100–180K equity/year → $320–450K total\n\n- Staff: $230–290K base + $180–280K equity/year → $450–600K total\n\nBelow FAANG cash; equity has been volatile post-2020. Strong remote-friendly culture with location-based comp adjustments.\n\nSample interview questions in depth\n\nCoding (search-engine flavored)\n\n- Implement an inverted index — accept a list of documents, build a map from term to posting list with positions. Discuss term-frequency vs document-frequency, why posting lists are stored as deltas (gap encoding), and how merge-on-read works during querying.\n\n- Top-K terms in a stream — count-min sketch + heap, or HyperLogLog for cardinality. Tests whether the candidate has thought about approximate-data-structure trade-offs that show up in Elasticsearch's aggregation framework.\n\n- Fuzzy matching with edit distance — implement Levenshtein, then discuss how Lucene's automaton-based fuzzy matching works in practice. Senior+ candidates should be aware that brute-force edit-distance over an inverted index is too slow at scale.\n\nSystem design\n\n- Design a search system over 1B documents. Sharding (number of primary shards, replicas), routing, query coordination across shards, scoring (BM25), aggregations, refresh interval trade-offs, and the cost model for Elastic Cloud.\n\n- Design log ingestion at 1M events/second. Beats / Elastic Agent → Logstash or ingest pipeline → Elasticsearch indices. Hot/warm/cold tier strategy, ILM policies, and what to do when ingestion exceeds capacity.\n\n- Design alerting on log streams. Watcher / Kibana alerts, throttling, deduplication, and the integration with downstream paging (PagerDuty).\n\nLucene internals (senior+)\n\n- Segment file structure: terms dictionary, postings, stored fields, doc values, term vectors. Why Lucene segments are immutable and how merging works.\n\n- Scoring: BM25 vs TF-IDF, why BM25 became the default in Lucene 6, how custom similarity classes work.\n\n- Memory considerations: heap vs off-heap, why Elasticsearch defaults to a 50% heap split, the role of OS page cache.\n\nPrep timeline (8 weeks)\n\n- Weeks 1-2: LeetCode mediums (arrays, strings, hash maps). Aim for 3-5 problems/day.\n\n- Weeks 3-4: Distributed systems via Designing Data-Intensive Applications, focusing on consistency, replication, and search-engine architecture chapters.\n\n- Weeks 5-6: Lucene internals — read the official Lucene file format docs and at least 2 Elasticsearch blog posts on indexing internals. Practice 5-10 problems involving inverted indexes or trie structures.\n\n- Weeks 7-8: Elastic-specific: query DSL, aggregations, ILM. Read the Elastic blog for recent feature announcements.\n\nWhat separates strong candidates\n\nThe candidates who get senior+ offers at Elastic typically demonstrate three things: deep familiarity with at least one large-scale search or observability deployment they have worked on; the ability to reason about scoring and ranking trade-offs without reaching for memorized formulas; a"
+}

@@ -1,0 +1,88 @@
+{
+  "company": "Anthropic",
+  "slug": "anthropic",
+  "url": "https://www.techinterview.org/companies/anthropic",
+  "scrapedAt": "2026-07-02T07:32:22.777Z",
+  "interviewStages": [
+    "Onsite / virtual onsite (5–6 rounds)",
+    "Coding (2 rounds): one classic data-structures problem, one applied / practical systems problem (parse this log format, implement this cache, handle this streaming input). Interviewers weight clean, well-factored code heavily.",
+    "System design (1 round, engineering roles): classic distributed-systems questions (design a rate limiter, design a distributed KV store) or ML-inference-specific ones (design an LLM serving stack, handle tokenizer batching, multi-tenant GPU scheduling). They care about realistic operational concerns — cost, latency percentiles, failure modes.",
+    "ML / research depth (1–2 rounds, research roles): paper deep-dive, experiment design, debugging a failing training run. Expect to whiteboard gradient flow, talk through attention patterns, or reason about scaling laws.",
+    "Values / safety interview (1 round, all candidates): open-ended discussion about a concrete AI safety problem. Not a puzzle — they want to see how you think about trade-offs under uncertainty, how you update on new evidence, and whether you can hold nuance. This is the round that eliminates most FAANG-strong candidates who fly through technicals.",
+    "Behavioral / hiring manager (1 round): past projects, conflict, ownership, and a deep dive on ONE thing you've built or written. Bring a 1-page brag doc."
+  ],
+  "codingTopics": [
+    "Implement a data structure with specified operations and tight complexity requirements (LRU cache, frequency counter, range tree)",
+    "Parse and transform a structured stream (log lines, tokenized text, event stream)",
+    "Graph / tree problems with a systems flavor (shortest path with edge weights, topological sort of dependency DAG)",
+    "Applied string problems (tokenize by BPE rules, implement regex-like matcher)"
+  ],
+  "systemDesignTopics": [
+    "OpenAI — AI research and ChatGPT",
+    "Character.AI — consumer AI companion",
+    "Harvey — legal vertical AI",
+    "Glean — enterprise AI search",
+    "Weights & Biases — ML experiment tracking"
+  ],
+  "behavioralTopics": [
+    "\"Tell me about a time you changed your mind on something technical. What triggered it?\"",
+    "\"Describe a project where the initial framing was wrong. How did you notice? What did you do?\"",
+    "\"Walk me through a disagreement you had with someone senior. How did it resolve?\"",
+    "The safety round is not theater — it has real weight in calibration. People who pass technicals and fail here don't get offers.",
+    "Writing quality matters across all roles. If your brag doc or cover letter is sloppy, it shows up in the loop feedback.",
+    "The bar for research engineers is higher than for research scientists. Code needs to be production-grade AND you need research taste.",
+    "Compensation is negotiable at senior levels, less so at junior.",
+    "If you're asked to reason about a safety scenario and you default to \"it'll be fine because we have RLHF\" — that's a near-guaranteed down-level or no-hire.",
+    "Hand-waving on system design specifics. They will stop you and ask for numbers.",
+    "Conflicting the \"safety\" and \"alignment\" conversation with pure doomerism or pure dismissiveness. Both extremes signal bad fit."
+  ],
+  "sampleQuestions": {
+    "coding": [
+      "Implement a data structure with specified operations and tight complexity requirements (LRU cache, frequency counter, range tree). Talk through your approach, complexity, and edge cases.",
+      "Implement log lines, tokenized text, event stream. Talk through your approach, complexity, and edge cases.",
+      "Implement shortest path with edge weights, topological sort of dependency DAG. Talk through your approach, complexity, and edge cases.",
+      "Implement tokenize by BPE rules, implement regex-like matcher. Talk through your approach, complexity, and edge cases.",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases."
+    ],
+    "behavioral": [
+      "Tell me about a time you changed your mind on something technical. What triggered it?",
+      "Describe a project where the initial framing was wrong. How did you notice? What did you do?",
+      "Walk me through a disagreement you had with someone senior. How did it resolve?",
+      "How do you balance research exploration with engineering delivery? Give a concrete example.",
+      "It'll be fine because we have RLHF."
+    ],
+    "systemDesign": [
+      "Design Anthropic's cost platform — cover latency percentiles, failure modes. Walk through the architecture, trade-offs, and failure modes.",
+      "Design a service at Anthropic scale that shortens URLs. Cover the API, storage, and hot-key handling.",
+      "Design a rate limiter for a public API. Discuss algorithms, distributed coordination, and failure modes."
+    ],
+    "values": [
+      "What's the values/safety round actually looking for?"
+    ],
+    "other": [
+      "Do I need published AI research experience to get hired?",
+      "How does Anthropic's interview compare to OpenAI's?",
+      "Is remote work actually supported or is it \"remote-friendly\" theater?",
+      "How long does the whole process take?"
+    ]
+  },
+  "difficulty": 8.5,
+  "tips": [
+    "Engage genuinely with the mission. Not in a hero-worship way, but enough to have opinions.",
+    "Over-prepare for the values round. Most candidates under-prepare here; a well-thought-out answer stands out.",
+    "Bring examples, not slogans. \"We cut latency by 40%\" > \"We focused on performance.\"",
+    "Read one paper deeply. Know it well enough to answer \"why this design choice?\" for 20 minutes.",
+    "Ask good questions. \"What would make you regret hiring someone?\" is a classic; \"How does the alignment team decide priorities?\" is better for this company specifically.",
+    "Anthropic papers (Core Views, Constitutional AI, Responsible Scaling Policy, Interpretability publications)",
+    "The original Attention Is All You Need and GPT-3 papers for baseline literacy",
+    "Designing Data-Intensive Applications (Kleppmann) for systems depth",
+    "The AI Safety Fundamentals course (free, ~6 weeks) for values-round grounding",
+    "LeetCode top-200 medium set for coding practice"
+  ],
+  "compensation": [
+    "L4 / Engineer II: $180k–$220k base, $280k–$400k equity (4 years), 10–20% bonus. Total: ~$350k–$500k / year.",
+    "L5 / Senior Engineer: $230k–$290k base, $600k–$1M equity, similar bonus. Total: ~$500k–$800k / year.",
+    "L6 / Staff: $300k–$360k base, $1.5M–$3M equity. Total: ~$800k–$1.5M / year."
+  ],
+  "rawSummary": "Anthropic Interview Guide 2026: Claude, AI Safety Research, and Engineering at the Frontier\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 22, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Anthropic Interview Process: Complete 2026 Guide\n\n- Frequently Asked Questions\n\n- Adjacent AI / ML Tooling Companies\n\nUpdated May 2, 2026 · techinterview.org\n\n⏱ 8 min read\n\nAnthropic\nanthropic.com ↗\n\nAnthropic Interview Process: Complete 2026 Guide\n\nOverview\n\nAnthropic is the AI safety company behind Claude, founded in 2021 by former OpenAI researchers. Interviewing there is distinct from both classic FAANG and typical AI startups: the bar for written reasoning and alignment-research literacy is high, the coding bar is comparable to Google or Meta, and cultural fit (taking safety seriously without being a doomer) matters more than at most companies. As of 2026, Anthropic is hiring across research, engineering, product, and policy, with the majority of openings in the Bay Area, London, and remote-eligible engineering roles.\n\nInterview Structure\n\nRecruiter screen (30 min): conversation about your background, why Anthropic, and what you want to work on. They explicitly probe how you think about AI safety — vague, cheerleading answers (\"I love AI!\") hurt you.\n\nTechnical phone screen (60 min): one coding problem, usually medium-hard on the LeetCode scale. Expect to write runnable code in a shared editor (CoderPad or similar), with follow-ups on complexity, edge cases, and one \"what would change if&#8230;\" design question. Python is default; other languages accepted.\n\nTake-home exercise (role-dependent, 4–8 hours): research engineering roles often get a take-home involving a small ML experiment or data-analysis task. Product engineering roles typically skip this.\n\nOnsite / virtual onsite (5–6 rounds):\n\n- Coding (2 rounds): one classic data-structures problem, one applied / practical systems problem (parse this log format, implement this cache, handle this streaming input). Interviewers weight clean, well-factored code heavily.\n\n- System design (1 round, engineering roles): classic distributed-systems questions (design a rate limiter, design a distributed KV store) or ML-inference-specific ones (design an LLM serving stack, handle tokenizer batching, multi-tenant GPU scheduling). They care about realistic operational concerns — cost, latency percentiles, failure modes.\n\n- ML / research depth (1–2 rounds, research roles): paper deep-dive, experiment design, debugging a failing training run. Expect to whiteboard gradient flow, talk through attention patterns, or reason about scaling laws.\n\n- Values / safety interview (1 round, all candidates): open-ended discussion about a concrete AI safety problem. Not a puzzle — they want to see how you think about trade-offs under uncertainty, how you update on new evidence, and whether you can hold nuance. This is the round that eliminates most FAANG-strong candidates who fly through technicals.\n\n- Behavioral / hiring manager (1 round): past projects, conflict, ownership, and a deep dive on ONE thing you've built or written. Bring a 1-page brag doc.\n\nTechnical Focus Areas\n\nCoding: two pointers, sliding window, graph traversal, trie, priority-queue patterns. Less emphasis on obscure DP; more on whether you handle edge cases and write code someone would want to review. Favorite problem shapes: streaming input with bounded memory, parsing state machines, implementing a small interpreter or tokenizer.\n\nSystem design: rate limiting, sharded KV stores, pub/sub, log aggregation, inference serving (batching, KV-cache management, prefill/decode separation), multi-tenant isolation. If you're interviewing for a research-infra role, study training systems too: DDP, tensor parallelism, checkpointing.\n\nML / research: attention, positional encodings, tokenization tradeoffs, RLHF pipeline, Constitutional AI approach, evaluation methodology, red-teaming. Know the Anthropic publications — \"Training a Helpful and Harmless Assistant,\" \"Constitutional AI,\" \"Discovering Latent Knowledge,\" and the responsible scaling policy — well enough to discuss, not just cite.\n\nWriting: this is unusual for a tech interview but real. Anthropic's internal culture is document-heavy; many roles ask for a writing sample or give you a short written exercise during the process. Terse, structured prose beats dense, hedged prose.\n\nCoding Interview Details\n\nTwo coding rounds, 60 minutes each, one problem per round (occasionally two short ones). Difficulty is on par with Google L5 / Meta E5. Interviewers are active: they'll push back on naming, ask you to refactor mid-solution, or request you handle an edge case you skipped. Silence is costly — narrate.\n\nTypical problem types:\n\n- Implement a data structure with specified operations and tight complexity requirements (LRU cache, frequency counter, range tree)\n\n- Parse and transform a structured stream (log lines, tokenized text, event stream)\n\n- Graph / tree problems with a systems f"
+}

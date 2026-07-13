@@ -1,0 +1,35 @@
+{
+  "company": "CodeSandbox",
+  "slug": "codesandbox-interview-guide",
+  "url": "https://www.techinterview.org/companies/codesandbox-interview-guide",
+  "scrapedAt": "2026-07-02T07:21:25.994Z",
+  "interviewStages": [
+    "Behavioral: ownership, technical depth, written communication"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is CodeSandbox remote-friendly?",
+      "How does CodeSandbox compare to StackBlitz or Replit?",
+      "What is the engineering culture?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "CodeSandbox Interview Guide (2026): Cloud Dev Environment\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nCodeSandbox\ncodesandbox.io ↗\n\nCodeSandbox is the cloud development environment for web applications — used by 4M+ developers. The interview emphasizes browser-based execution, Docker/containers, and the unique scale challenges of running customer code at low cost.\n\nProcess\n\nRecruiter screen → 60-minute coding pair → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–5 weeks.\n\nWhat they actually ask\n\n- Design a cloud development environment with sub-second startup\n\n- Design real-time collaboration on shared sandboxes\n\n- Design free-tier resource limits and abuse prevention\n\n- Coding: practical TypeScript/Node, often with browser internals or container framing\n\n- Behavioral: ownership, technical depth, written communication\n\nLevels and comp (2026)\n\n- SE II: EUR 80K–100K total (Amsterdam)\n\n- Senior SE: EUR 110K–140K\n\n- Staff: EUR 150K–195K\n\n- Principal: EUR 210K+\n\nEuropean-tier comp; smaller team than larger competitors.\n\nPrep priorities\n\n- Be fluent in TypeScript / Node.js\n\n- Understand container runtimes (Firecracker, gVisor, Docker)\n\n- Brush up on browser-based code execution and dev tools internals\n\nFrequently Asked Questions\n\nIs CodeSandbox remote-friendly?\n\nYes. Distributed across Europe. Hub in Amsterdam.\n\nHow does CodeSandbox compare to StackBlitz or Replit?\n\nStackBlitz also uses WebContainers (in-browser execution). Replit dominates AI-agent space. CodeSandbox specializes in web app dev. Comp is European-tier.\n\nWhat is the engineering culture?\n\nSmall, technical, calm. Strong written communication. European work-life balance norms.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for CodeSandbox? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextDeduplication Service Low-Level Design: Content Hashing, Fingerprint Index, and Storage Savings⏱ 7 min readLow Level Design: Real-Time Traffic Routing Service⏱ 11 min readImage Processing Service Low-Level Design⏱ 5 min read"
+}

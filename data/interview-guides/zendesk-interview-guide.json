@@ -1,0 +1,35 @@
+{
+  "company": "Zendesk",
+  "slug": "zendesk-interview-guide",
+  "url": "https://www.techinterview.org/companies/zendesk-interview-guide",
+  "scrapedAt": "2026-07-02T07:27:43.131Z",
+  "interviewStages": [
+    "Behavioral: customer focus, ownership, navigating mature SaaS"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Zendesk remote-friendly?",
+      "How does Zendesk compare to Intercom or Freshworks?",
+      "How has private ownership changed engineering?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Zendesk Interview Guide (2026): Customer Service Platform\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nZendesk\nzendesk.com ↗\n\nZendesk is the dominant customer service platform — used by 100K+ companies including Uber, Airbnb, and Slack. Taken private by Hellman & Friedman in 2022. The interview emphasizes ticket management, multi-channel routing, and the realities of running a platform that supports billions of customer interactions yearly.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design a multi-channel ticket routing system (email, chat, voice, social)\n\n- Design SLA tracking with timezone-aware deadlines\n\n- Design Zendesk AI — assistant for support agents, ticket routing, summarization\n\n- Coding: medium DSA, often with state-machine or graph framing\n\n- Behavioral: customer focus, ownership, navigating mature SaaS\n\nLevels and comp (2026)\n\n- SE II: $145K–$180K total\n\n- Senior SE: $210K–$280K\n\n- Staff: $300K–$400K\n\n- Principal: $420K–$560K\n\nPrep priorities\n\n- Be fluent in Ruby on Rails (the bulk of the codebase)\n\n- Understand multi-tenant SaaS patterns and SOC2 compliance basics\n\n- Read about Zendesk's engineering blog and its multi-channel architecture\n\nFrequently Asked Questions\n\nIs Zendesk remote-friendly?\n\nHybrid in San Francisco (HQ), Madison WI, Dublin, Melbourne. Some engineering roles fully remote within supported countries.\n\nHow does Zendesk compare to Intercom or Freshworks?\n\nZendesk has the deepest enterprise traction. Intercom is more product-led. Freshworks competes on price. Zendesk pays comparably to Intercom.\n\nHow has private ownership changed engineering?\n\nMore focus on profitability, less expansive growth. Stable but less aggressive in hiring than peak-IPO era.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Zendesk? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextNLP Interview Questions: Tokenization, Embeddings, and BERT⏱ 6 min readLow Level Design: SMS Gateway⏱ 11 min readAI/ML Interview: Vector Databases — Embedding Search, FAISS, Pinecone, pgvector, ANN Algorithms (HNSW, IVF)⏱ 6 min read"
+}

@@ -1,0 +1,24 @@
+/* CareerVivid shadow + motion tokens. Shadows are thin and restrained. */
+
+:root {
+  --cv-shadow-card: 0 1px 2px rgba(16, 24, 40, 0.05);
+  --cv-shadow-card-hover: 0 8px 24px rgba(98, 91, 213, 0.08);
+  --cv-shadow-warm-card: 0 1px 2px rgba(139, 90, 22, 0.05);
+  --cv-shadow-extension-card: 0 8px 18px rgba(15, 23, 42, 0.04);
+  --cv-shadow-hover-lift: 0 12px 22px rgba(0, 0, 0, 0.07);
+  --cv-shadow-modal: 0 24px 70px rgba(17, 24, 39, 0.24);
+  --cv-shadow-input-focus: 0 1px 2px rgba(16, 24, 40, 0.05), 0 4px 14px rgba(16, 24, 40, 0.08);
+  --cv-shadow-segment-active: 0 1px 2px rgba(16, 24, 40, 0.06);
+
+  /* Motion — clarify state changes, never decorate. Hover lift ≈ -2px. */
+  --cv-duration-fast: 120ms; /* @kind other */
+  --cv-duration-normal: 200ms; /* @kind other */
+  --cv-duration-slow: 320ms; /* @kind other */
+  --cv-ease-standard: cubic-bezier(0.2, 0, 0, 1); /* @kind other */
+  --cv-ease-emphasized: cubic-bezier(0.34, 1.56, 0.64, 1); /* @kind other */
+}
+
+html.dark {
+  --cv-shadow-card: 0 1px 2px rgba(0, 0, 0, 0.2);
+  --cv-shadow-warm-card: 0 1px 2px rgba(0, 0, 0, 0.2);
+}

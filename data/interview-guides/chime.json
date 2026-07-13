@@ -1,0 +1,91 @@
+{
+  "company": "Chime",
+  "slug": "chime",
+  "url": "https://www.techinterview.org/companies/chime",
+  "scrapedAt": "2026-07-02T07:16:57.667Z",
+  "interviewStages": [
+    "System design (1 round): consumer-scale fintech prompts. \"Design the transfer system for 8M users with exactly-once semantics.\" \"Design a fraud-signal aggregation pipeline processing 10K events per second.\" \"Design SpotMe overdraft decisioning in the authorization path with a 100ms budget.\"",
+    "Behavioral / hiring manager (1 round): ownership, consumer empathy, cross-functional collaboration, regulated-environment awareness."
+  ],
+  "codingTopics": [
+    "Idempotent transfer handler: given this API request, implement the service handler with retry safety and correct error semantics",
+    "Duplicate-detection for direct deposits: identify same-deposit-across-sources without over-rejecting legitimate duplicates",
+    "Notification router: given this event stream, deliver notifications with per-user preferences and deduplication",
+    "Fraud feature calculator: given a stream of card events, compute rolling features for a real-time model with bounded memory",
+    "Classic algorithm problems (graphs, trees, dynamic programming) with practical financial twists"
+  ],
+  "systemDesignTopics": [
+    "\"Design the transfer system for 8M users handling 50K TPS at peak with exactly-once semantics.\"",
+    "\"Design a real-time fraud detection pipeline: 10K events/sec, <50ms scoring latency.\"",
+    "\"Design the notification system for deposits, transactions, and alerts across 20M devices.\"",
+    "\"Design SpotMe overdraft decisioning inline with the authorization path.\"",
+    "\"Tell me about a consumer-facing product you built. What did you learn about users from it?\"",
+    "\"What would you change about Chime's product if you joined?\"",
+    "\"Describe a time you pushed back against a product decision because of user impact.\""
+  ],
+  "behavioralTopics": [
+    "Consumer empathy: \"Describe a time you deeply understood your users. How did it change what you built?\"",
+    "Reliability ownership: \"Tell me about a production incident affecting consumers. How did you own it?\"",
+    "Regulated-environment collaboration: \"Have you worked with compliance / risk / legal? What was that like?\"",
+    "Post-IPO context: \"How do you think about shipping in a newly-public company vs a private-growth company?\""
+  ],
+  "sampleQuestions": {
+    "coding": [
+      "Given this API request, implement the service handler with retry safety and correct error semantics. Talk through your approach, complexity, and edge cases.",
+      "Given this event stream, deliver notifications with per-user preferences and deduplication. Talk through your approach, complexity, and edge cases.",
+      "Given a stream of card events, compute rolling features for a real-time model with bounded memory. Talk through your approach, complexity, and edge cases.",
+      "Implement a double-entry ledger that processes a stream of transactions and detects imbalances. How do you guarantee idempotency when a transaction is delivered twice?",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases."
+    ],
+    "behavioral": [
+      "Describe a time you deeply understood your users. How did it change what you built?",
+      "Tell me about a production incident affecting consumers. How did you own it?",
+      "Have you worked with compliance / risk / legal? What was that like?",
+      "How do you think about shipping in a newly-public company vs a private-growth company?",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
+    "systemDesign": [
+      "Design the transfer system for 8M users handling 50K TPS at peak with exactly-once semantics.",
+      "Design a real-time fraud detection pipeline: 10K events/sec, <50ms scoring latency. Cover the API, data model, and how it scales.",
+      "Design the notification system for deposits, transactions, and alerts across 20M devices. Cover the API, data model, and how it scales.",
+      "Design SpotMe overdraft decisioning inline with the authorization path. Cover the API, data model, and how it scales.",
+      "Design a service at Chime scale that shortens URLs. Cover the API, storage, and hot-key handling."
+    ],
+    "values": [],
+    "other": [
+      "Know the partner-bank architecture conceptually. Who holds the deposits? Who issues the cards? Where does Chime fit?",
+      "Is Chime a bank?",
+      "How does Chime compare to Brex on interviews?",
+      "Do I need consumer-fintech experience?",
+      "What's the post-IPO culture change?",
+      "Is remote work supported?"
+    ]
+  },
+  "difficulty": 7,
+  "tips": [
+    "Use the Chime app. Open an account, link a partner card, receive a deposit. Feel the product.",
+    "Engage with the mission. Underbanking, fees, early direct deposit &mdash; have opinions.",
+    "Ramp on Go if needed. Even 2 weeks of focused practice meaningfully helps.",
+    "Prepare product stories. Concrete projects where you learned something real about users and changed the product.",
+    "Chime engineering blog (posts on fraud, card-authorization, infrastructure)",
+    "Stripe engineering blog for payment-processing canon",
+    "The Go Programming Language (Donovan & Kernighan)",
+    "Designing Data-Intensive Applications (Kleppmann)",
+    "Chime's S-1 and post-IPO earnings reports for current business context",
+    "LeetCode medium set with focus on streams, state machines, and graph problems"
+  ],
+  "compensation": [
+    "Software Engineer: $165k&ndash;$205k base, $100k&ndash;$180k equity/yr, 10% bonus. Total: ~$250k&ndash;$380k / year.",
+    "Senior Software Engineer: $215k&ndash;$275k base, $180k&ndash;$350k equity/yr. Total: ~$350k&ndash;$550k / year.",
+    "Staff Engineer: $280k&ndash;$345k base, $380k&ndash;$700k equity/yr. Total: ~$500k&ndash;$830k / year.",
+    "Chime is built on top of partner banks (Bancorp, Stride); Chime itself is not a chartered bank. This shapes the system architecture &mdash; many flows have external dependencies you can't control.",
+    "The product / craft round weights real consumer empathy. Candidates who only think of fintech abstractly often stumble.",
+    "Go is dominant; Python-only candidates need to ramp.",
+    "Post-IPO, there's real pressure to balance growth velocity with public-company financial discipline.",
+    "Treating partner-bank dependencies as ignorable. They shape every payment-path decision.",
+    "No authentic opinions about Chime's product or target user.",
+    "Hand-waving on idempotency or consumer-UX failure modes.",
+    "Dismissing \"consumer finance\" as less technical than enterprise. The scale, fraud challenges, and compliance requirements are real."
+  ],
+  "rawSummary": "Chime Interview Guide 2026: Consumer Neobank Post-IPO, Go Microservices, and Partner-Bank Architecture\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 23, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\tUpdated April 23, 2026 · techinterview.org\n\n⏱ 8 min read\n\nChime\nchime.com ↗\n\nChime Interview Process: Complete 2026 Guide\n\nOverview\n\nChime is the consumer-facing neobank built on top of The Bancorp Bank and Stride Bank. Founded 2013, went public in June 2025 after years of anticipated IPO &mdash; ticker CHYM on Nasdaq. The company provides fee-free checking, savings, early direct-deposit access, and SpotMe overdraft protection, with ~8M active members and expanding product lines (Chime Credit Builder, MyPay early wages, marketplace features). ~1,600 employees in 2026, concentrated in San Francisco with offices in Chicago, New York, and remote roles across the US. Engineering reflects a consumer-fintech reality: Go is dominant for backend microservices; Python for data and ML (fraud, underwriting); TypeScript / React Native for client platforms. Interviews weight practical reliability, consumer UX empathy, and fraud / risk reasoning heavily.\n\nInterview Structure\n\nRecruiter screen (30 min): background, why Chime, consumer-product interest. Interviewers look for authentic engagement with the mission &mdash; Chime's user base skews toward underbanked and younger consumers, and candidates who don't connect with that profile often don't advance.\n\nTechnical phone screen (60 min): one coding problem, medium difficulty. Go is the preferred language for backend roles; Python accepted; TypeScript for mobile/web. Problems tend to be applied &mdash; idempotent handlers, state machines, stream processing.\n\nTake-home (some senior / staff roles): 4&ndash;6 hours, usually a realistic backend problem (transaction aggregator, notification router, fraud feature calculator). Tests and documentation quality matter.\n\nOnsite / virtual onsite (4&ndash;5 rounds):\n\n- Coding (1&ndash;2 rounds): one algorithms round, one applied backend round. Applied problems often involve consumer-fintech scenarios &mdash; idempotent transfer endpoints, card-authorization state machines, duplicate-detection for direct deposits.\n\n- System design (1 round): consumer-scale fintech prompts. \"Design the transfer system for 8M users with exactly-once semantics.\" \"Design a fraud-signal aggregation pipeline processing 10K events per second.\" \"Design SpotMe overdraft decisioning in the authorization path with a 100ms budget.\"\n\n- Backend / Go deep-dive (1 round): Go idioms, concurrency patterns, microservices design, gRPC vs REST trade-offs, observability patterns.\n\n- Product / craft (1 round): a conversation about a past product you built &mdash; why it mattered, what you'd change, what you learned about users. Chime weights this more than most fintechs.\n\n- Behavioral / hiring manager (1 round): ownership, consumer empathy, cross-functional collaboration, regulated-environment awareness.\n\nTechnical Focus Areas\n\nCoding: Go idioms (channels, context propagation, graceful shutdown, table-driven tests), state machines for authorization flows, idempotency keys, retry-with-backoff, rate limiting, structured concurrency.\n\nSystem design: consumer-scale microservices, payment / transfer orchestration, card-authorization networks, event-sourcing for ledger consistency, notification fan-out at scale, fraud-signal aggregation, ML-model serving in the authorization path.\n\nData & ML: feature stores for real-time fraud / underwriting, model serving with sub-50ms budgets, batch vs streaming trade-offs, model monitoring in production, A/B testing consumer experiences.\n\nMobile / React Native: for mobile-engineering roles &mdash; React Native performance, bridge layer, native module design, Android and iOS platform quirks, offline resilience, deeply network-sensitive UX.\n\nSecurity / compliance: KYC, CIP, BSA / AML programs, regulatory constraints on consumer-facing UX, data-residency and PII isolation patterns, partner-bank integration realities.\n\nCoding Interview Details\n\nTwo coding rounds, 60 minutes each. Difficulty is medium &mdash; below Google L5 on pure algorithms, higher on consumer-fintech correctness. Go is the language of choice; writing idiomatic Go signals real experience.\n\nTypical problem shapes:\n\n- Idempotent transfer handler: given this API request, implement the service handler with retry safety and correct error semantics\n\n- Duplicate-detection for direct deposits: identify same-deposit-across-sources without over-rejecting legitimate duplicates\n\n- Notification router: given this event stream, deliver notifications with per-user preferences and deduplication\n\n- Fraud feature calculator: given a stream of card events, compute rolling features for a real-time model with bounded memory\n\n- Classic algorithm problems (graphs, trees, dynamic programming) with practical financial twists\n\nSystem Design Interview\n\nOne round, 60 minutes. Prompts are consumer-fintech flavored:\n\n- \"Des"
+}

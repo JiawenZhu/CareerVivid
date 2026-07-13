@@ -1,0 +1,49 @@
+{
+  "company": "Uber",
+  "slug": "uber",
+  "url": "https://www.techinterview.org/companies/uber",
+  "scrapedAt": "2026-07-02T07:27:11.057Z",
+  "interviewStages": [
+    "Coding Rounds (2-3): Algorithm problems focusing on graphs, dynamic programming, and optimization. Uber likes questions related to maps, routing, and location-based services.",
+    "System Design (1 round): Design scalable systems like ride-matching, surge pricing, or real-time location tracking. Focus on handling high throughput and low latency.",
+    "Behavioral (1 round): Questions about handling pressure, working in ambiguous situations, and driving results quickly. Uber values \"bias for action\" and \"owner mentality.\""
+  ],
+  "codingTopics": [
+    "Graphs: Shortest path algorithms (Dijkstra), routing optimization",
+    "Trees: Binary trees, BST operations, tree traversals",
+    "Arrays/Strings: Two pointers, sliding window, frequency counting",
+    "Dynamic Programming: Optimization problems, memoization",
+    "System Design: Real-time systems, geospatial indexing, matching algorithms, surge pricing systems"
+  ],
+  "systemDesignTopics": [],
+  "behavioralTopics": [
+    "Grab &mdash; Southeast Asia super-app"
+  ],
+  "sampleQuestions": {
+    "coding": [
+      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph.",
+      "Serialize and deserialize a binary tree. Walk through your encoding choices, complexity, and edge cases.",
+      "Given an array of integers, find the longest contiguous subarray whose sum equals a target. Discuss complexity and edge cases.",
+      "Given a set of coin denominations, compute the minimum number of coins needed to reach a target amount. Compare the recursive and bottom-up approaches.",
+      "Implement a fixed-size ring buffer for sensor readings with O(1) reads and writes and no dynamic allocation. Walk through the concurrency considerations."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [],
+    "values": [],
+    "other": []
+  },
+  "difficulty": null,
+  "tips": [
+    "Study Graph Algorithms: Uber's core business involves routing and location. Master Dijkstra's, BFS, DFS, and graph representations.",
+    "Focus on Scalability: Practice designing systems that handle millions of requests. Think about data partitioning and caching.",
+    "Show Bias for Action: Demonstrate examples of moving quickly with incomplete information and delivering results under pressure.",
+    "Use the Uber App: Understand rider and driver experiences deeply. Be ready to discuss improvements.",
+    "Practice Time Complexity: Uber interviews often involve optimizing solutions from brute force to optimal."
+  ],
+  "compensation": null,
+  "rawSummary": "Uber\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  February 1, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\tUpdated May 2, 2026 · techinterview.org\n\n⏱ 1 min read\n\nUber\nuber.com ↗\n\nInterview Process Overview\n\nUber's interview process is fast-paced and practical, reflecting the company's operational focus. Interviews emphasize real-world problem-solving, scalability, and ability to move quickly in ambiguous situations.\n\nWhat to Expect\n\nRecruiter Screen: Brief call about your experience and interest in Uber. Quick turnaround – Uber moves fast in hiring.\n\nTechnical Phone Screen (1-2 rounds): 45-minute coding interviews. Medium difficulty problems with focus on efficiency and clean code. Use HackerRank or CoderPad.\n\nOnsite Interviews (4-5 rounds):\n\n- Coding Rounds (2-3): Algorithm problems focusing on graphs, dynamic programming, and optimization. Uber likes questions related to maps, routing, and location-based services.\n\n- System Design (1 round): Design scalable systems like ride-matching, surge pricing, or real-time location tracking. Focus on handling high throughput and low latency.\n\n- Behavioral (1 round): Questions about handling pressure, working in ambiguous situations, and driving results quickly. Uber values \"bias for action\" and \"owner mentality.\"\n\nCommon Question Topics\n\n- Graphs: Shortest path algorithms (Dijkstra), routing optimization\n\n- Trees: Binary trees, BST operations, tree traversals\n\n- Arrays/Strings: Two pointers, sliding window, frequency counting\n\n- Dynamic Programming: Optimization problems, memoization\n\n- System Design: Real-time systems, geospatial indexing, matching algorithms, surge pricing systems\n\nPreparation Tips\n\n- Study Graph Algorithms: Uber's core business involves routing and location. Master Dijkstra's, BFS, DFS, and graph representations.\n\n- Focus on Scalability: Practice designing systems that handle millions of requests. Think about data partitioning and caching.\n\n- Show Bias for Action: Demonstrate examples of moving quickly with incomplete information and delivering results under pressure.\n\n- Use the Uber App: Understand rider and driver experiences deeply. Be ready to discuss improvements.\n\n- Practice Time Complexity: Uber interviews often involve optimizing solutions from brute force to optimal.\n\nInterview Culture\n\nUber values speed, execution, and results. The company operates in a highly competitive market and seeks people who can move fast, make data-driven decisions, and handle ambiguity. Demonstrate hustle, ownership, and customer focus.\n\nLast Updated: February 2026\n\nAdjacent Transport / Marketplace\n\n- Grab &mdash; Southeast Asia super-app\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Uber? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextD. E. Shaw Interview Guide 2026: Quant Hedge Fund, Academic Culture, Background Deep-Dive⏱ 8 min readReddit Interview⏱ 5 min readAtlassian Interview Guide⏱ 29 min read"
+}

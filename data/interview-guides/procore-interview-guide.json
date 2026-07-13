@@ -1,0 +1,35 @@
+{
+  "company": "Procore",
+  "slug": "procore-interview-guide",
+  "url": "https://www.techinterview.org/companies/procore-interview-guide",
+  "scrapedAt": "2026-07-02T07:25:26.946Z",
+  "interviewStages": [
+    "Behavioral: customer empathy (construction industry has unique needs), collaboration"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Procore remote-friendly?",
+      "What is the construction industry like as a domain?",
+      "How does Procore compare to Autodesk Construction Cloud?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Procore Interview Guide (2026): Construction Tech Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nProcore\nprocore.com ↗\n\nProcore is the leading construction management platform — used by 16,000+ general contractors and subcontractors. The interview focuses on enterprise SaaS engineering, complex multi-tenant data modeling, and the realities of building software for an industry that values reliability over novelty.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral, 1 hiring manager. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design a multi-tenant project management system with role-based permissions\n\n- Design document management with version control, e-signatures, and audit trails\n\n- Design integrations with hundreds of third-party tools (Excel, Bluebeam, Sage)\n\n- Coding: medium DSA, often with data-modeling framing\n\n- Behavioral: customer empathy (construction industry has unique needs), collaboration\n\nLevels and comp (2026)\n\n- SE II: $145K–$180K total\n\n- Senior SE: $210K–$280K\n\n- Staff: $300K–$400K\n\n- Principal: $420K–$550K\n\nPrep priorities\n\n- Be fluent in Ruby on Rails (the bulk of the codebase)\n\n- Understand enterprise SaaS patterns: SSO, SCIM, audit logs, RBAC\n\n- Read about modular monolith architecture (Procore is a famous example)\n\nFrequently Asked Questions\n\nIs Procore remote-friendly?\n\nHybrid in Carpinteria (HQ), Austin, NYC, and others. Many engineering roles are fully remote within US.\n\nWhat is the construction industry like as a domain?\n\nFriendly, demanding, and conservative on tech adoption. Customers value reliability over novelty. Engineers benefit from understanding construction workflows.\n\nHow does Procore compare to Autodesk Construction Cloud?\n\nProcore is dedicated; Autodesk has BIM/design integration. Procore pays slightly less but moves faster on product features.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Procore? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextNetflix⏱ 1 min readAI/ML Interview: Neural Network Training — Backpropagation, Gradient Descent, Batch Normalization, Dropout, Regularization⏱ 6 min readLow Level Design: Online Status Service⏱ 5 min read"
+}

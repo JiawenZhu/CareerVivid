@@ -1,0 +1,4 @@
+/* CareerVivid webfonts.
+   The product loads Inter (body) + Plus Jakarta Sans (headings) from Google Fonts
+   — same source as careervivid/index.html. No self-hosted binaries exist in the repo. */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap');

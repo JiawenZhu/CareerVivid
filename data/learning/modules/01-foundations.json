@@ -1,0 +1,15 @@
+{
+  "id": "01-foundations",
+  "order": 1,
+  "title": "Foundations",
+  "objective": "Build a mental model of the AI/LLM/agent landscape before touching code — what a model is, what \"generative AI\" actually means, where agents fit.",
+  "topics": [
+    "What a language model is vs. a chatbot vs. an agent",
+    "The current landscape: base models, fine-tunes, hosted APIs, open-weights",
+    "Where CareerVivid-style products sit in this stack",
+    "Map of the rest of this curriculum"
+  ],
+  "exercise": "Draw (or fill in) a one-page map of the AI/LLM/agent landscape, placing 5 tools/products you already use into it.",
+  "project": null,
+  "sourceIds": ["microsoft-generative-ai-for-beginners"]
+}

@@ -1,0 +1,15 @@
+{
+  "id": "09-deployment",
+  "order": 9,
+  "title": "Deployment",
+  "objective": "Get an agent from \"works on my machine\" to something that runs reliably in production.",
+  "topics": [
+    "API design for agent-backed features (sync vs. streaming vs. async/queued)",
+    "Caching strategies to cut cost and latency",
+    "Cost controls: budgets, rate limits, fallback models",
+    "Basic deployment templates (containerized service, serverless function)"
+  ],
+  "exercise": "Add a response cache + a hard per-user rate limit to the module-06 project.",
+  "project": "Deploy one prior project (module 05, 06, or 07) behind a real API endpoint with basic cost controls.",
+  "sourceIds": ["anthropic-claude-quickstarts", "google-gemini-cookbook", "mlabonne-llm-course"]
+}

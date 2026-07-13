@@ -1,0 +1,56 @@
+{
+  "company": "Vanguard",
+  "slug": "vanguard-interview-guide",
+  "url": "https://www.techinterview.org/companies/vanguard-interview-guide",
+  "scrapedAt": "2026-07-02T07:18:52.411Z",
+  "interviewStages": [
+    "Coding (1–2 rounds) — practical engineering with clean correctness emphasis",
+    "System design (1 round) — financial systems with scale (millions of retail investor accounts, billions in AUM)",
+    "Domain depth (1 round) — depends on role: distributed systems, ML, security, data engineering",
+    "Behavioral / values fit (1–2 rounds) — Vanguard's culture round is rigorous; expect probing on integrity, long-term orientation, alignment with the mutual ownership ethos"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "A function intermittently fails in production. Walk me through how you would reproduce, isolate, and fix the bug.",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [
+      "Design one of Vanguard's core financial systems with scale — address millions of retail investor accounts, billions in AUM. Walk through the architecture, trade-offs, and failure modes.",
+      "Design a service at Vanguard scale that shortens URLs. Cover the API, storage, and hot-key handling.",
+      "Design a rate limiter for a public API. Discuss algorithms, distributed coordination, and failure modes."
+    ],
+    "values": [],
+    "other": [
+      "How does the mutual ownership structure actually work?",
+      "How real is the \"low-cost ethos\" in engineering?",
+      "How is the cloud migration going?",
+      "Will Vanguard ever IPO?",
+      "Is Vanguard a good place for early-career engineers?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": [
+    "New-grad SWE: $130k–$200k total comp first year",
+    "Mid-level (4–7 years): $180k–$320k",
+    "Senior (8+ years): $300k–$500k",
+    "Principal / VP-engineering: $450k–$750k",
+    "Senior leadership: $700k–$1.2M+",
+    "The mutual ownership structure is more substantial than candidates expect — it shapes long-term decisions and culture in genuine ways.",
+    "The Pennsylvania campus is the cultural heart of the firm; engineers in remote offices describe a less integrated experience.",
+    "The legacy technology footprint is real; engineers ramping into core systems take 6–9 months to be productive.",
+    "Compensation is below NYC peers; engineers optimizing for total comp end up at BlackRock, hedge funds, or tech.",
+    "The values culture is genuine, not marketing; \"do right by investors\" really does affect engineering decisions."
+  ],
+  "rawSummary": "Vanguard Interview Guide 2026: Mutual-Owned Index Pioneer, $9 Trillion AUM, Pennsylvania Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 29, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Vanguard Interview Guide 2026: Mutual-Owned Index Pioneer, $9 Trillion AUM, Pennsylvania Engineering, and the Bogle Legacy\n\n- What Vanguard Does\n\n- Roles Vanguard Hires For\n\n- Vanguard Interview Process\n\n- What Vanguard Tests For\n\n- Compensation\n\n- Working at Vanguard\n\n- Vanguard vs Alternatives\n\n- Things That Surprise Candidates\n\n- Frequently Asked Questions\n\nUpdated April 29, 2026 · techinterview.org\n\n⏱ 7 min read\n\nVanguard\nvanguard.com ↗\n\nVanguard Interview Guide 2026: Mutual-Owned Index Pioneer, $9 Trillion AUM, Pennsylvania Engineering, and the Bogle Legacy\n\nVanguard is the second-largest asset manager globally (~$9 trillion AUM in 2026), the dominant player in low-cost index investing, and structurally distinct from every other major asset manager — Vanguard is mutually owned by its fund investors rather than by external shareholders. Founded in 1975 by Jack Bogle, the firm pioneered low-cost index funds and has held its differentiating culture across five decades. The hiring process reflects Vanguard's distinctive identity: less aggressive than peer asset managers, more values-driven, with substantial engineering investment in fund operations and increasingly in retail-facing technology. This guide covers what Vanguard does, the engineering tracks, the interview process, and what makes Vanguard hiring distinctive in 2026.\n\nWhat Vanguard Does\n\nVanguard operates as a comprehensive asset manager and retail brokerage:\n\n- Index funds: the firm's flagship — Total Stock Market Index, S&P 500 Index, Total Bond Market Index, Total International, and dozens of others. Vanguard is the largest mutual fund company globally by index fund AUM.\n\n- Active funds: active equity and fixed income mutual funds. Smaller than the index fund business but a meaningful piece of the firm.\n\n- ETFs: Vanguard ETFs (e.g., VTI, VOO, VTSAX-equivalent ETFs). The fastest-growing part of the business.\n\n- Retail brokerage: Vanguard Personal Investor — competing with Fidelity, Schwab, Robinhood for retail investor accounts. Engineering investment substantial here.\n\n- Vanguard Personal Advisor Services: hybrid robo-advisor / human-advisor product for retail investors.\n\n- Institutional client business: serving pension funds, endowments, foundations, sovereign wealth funds.\n\n- International: substantial growing UK / Australia / Asia operations.\n\nDistinctive features:\n\n- Mutual ownership structure: Vanguard is owned by the funds it manages, which are owned by their investors. This is unique among major asset managers and means Vanguard has no external shareholders demanding dividend or stock-price growth. The structure shapes culture — engineers describe it as more long-term-oriented than competitors.\n\n- Low-cost ethos: Vanguard's competitive advantage is operating at scale at very low cost. Engineering decisions are scrutinized for cost-efficiency.\n\n- Pennsylvania headquarters: Vanguard's main campus is in Malvern, PA (suburban Philadelphia) — distinct from NYC-centric peers. Engineering culture is more sustainable, lower-intensity than NYC asset managers.\n\n- Bogle legacy: Jack Bogle (deceased 2019) is still culturally referenced as the moral foundation of the firm. The \"do right by investors\" framing is genuinely operative.\n\nRoles Vanguard Hires For\n\nSoftware engineer (retail brokerage / personal investor)\n\nBuilds the Vanguard Personal Investor platform — accounts, transactions, statements, investment workflows. Java and Python heavy; React + TypeScript on frontend. Substantial growth area as Vanguard competes for retail investor share.\n\nSoftware engineer (fund operations / institutional)\n\nOperations engineering for the asset management business — fund accounting, trading systems, reconciliation, regulatory reporting. Heavy on data integrity and audit trails.\n\nQuantitative analyst / fund manager support\n\nBuilds analytics, factor models, portfolio analysis tools used by fund managers. Less prestigious than at Two Sigma or AQR but real quant work.\n\nData engineer / data scientist\n\nPipeline engineering, ML for personalization, fraud detection, churn prediction in retail brokerage. Substantial growth area.\n\nSite reliability / cloud engineer\n\nVanguard has been migrating substantial workloads to AWS over 2020–2026. Cloud engineering investment is real; Kubernetes and serverless adoption ongoing.\n\nSecurity engineer\n\nSubstantial security investment given fiduciary responsibility for $9T AUM and millions of retail investor accounts. Application security, infrastructure security, threat detection.\n\nUX / design\n\nVanguard's retail experience has historically lagged competitors (Fidelity, Schwab, Robinhood); investment in UX and design has grown materially.\n\nVanguard Interview Process\n\nRound 1: Recruiter screen\n\n30 minutes. Background, motivation, role "
+}

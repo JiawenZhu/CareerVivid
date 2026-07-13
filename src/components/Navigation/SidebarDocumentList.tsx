@@ -131,14 +131,14 @@ const SidebarDocumentList: React.FC<SidebarDocumentListProps> = ({
         : `${scrollState.remainingRows} more files`;
 
     return (
-        <div className="flex h-full min-h-0 flex-col rounded-2xl border border-stone-200/70 bg-white/55 p-2 shadow-sm dark:border-slate-800/80 dark:bg-slate-950/35">
+        <div className="cv-design-card flex h-full min-h-0 flex-col p-2">
             <div className="mb-2 flex shrink-0 items-start justify-between gap-3 px-1.5">
                 <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-stone-500 dark:text-slate-400">Files</span>
-                        <span className="rounded-full bg-stone-100 px-2 py-0.5 text-[10px] font-bold text-stone-500 dark:bg-slate-800 dark:text-slate-300">{activeDocuments.length}</span>
+                        <span className="cv-design-eyebrow text-[10px]">Files</span>
+                        <span className="rounded-full bg-[var(--cv-surface-warm-muted)] px-2 py-0.5 text-[10px] font-bold text-[var(--cv-text-muted)]">{activeDocuments.length}</span>
                     </div>
-                    <p className="mt-1 truncate text-[11px] font-medium text-slate-500 dark:text-slate-400">
+                    <p className="mt-1 truncate text-[11px] font-medium text-[var(--cv-text-muted)]">
                         {filterLabel} / {sortLabel}
                     </p>
                 </div>
@@ -148,17 +148,17 @@ const SidebarDocumentList: React.FC<SidebarDocumentListProps> = ({
                             event.stopPropagation();
                             setIsFilterDropdownOpen(!isFilterDropdownOpen);
                         }}
-                        className={`flex items-center gap-1 rounded-xl border px-2.5 py-1.5 text-[11px] font-bold transition-all ${isFilterDropdownOpen || filterType !== 'all' ? 'border-indigo-200 bg-indigo-50 text-indigo-700 dark:border-indigo-900/60 dark:bg-indigo-950/40 dark:text-indigo-200' : 'border-stone-200 bg-white text-slate-500 hover:border-stone-300 hover:text-slate-800 dark:border-slate-800 dark:bg-slate-900/80 dark:text-slate-300 dark:hover:border-slate-700'}`}
+                        className={`flex items-center gap-1 rounded-xl border px-2.5 py-1.5 text-[11px] font-bold transition-all ${isFilterDropdownOpen || filterType !== 'all' ? 'border-[var(--cv-action-border)] bg-[var(--cv-action-soft-bg)] text-[var(--cv-action-primary)]' : 'border-[var(--cv-border-subtle)] bg-[var(--cv-surface-warm-card-strong)] text-[var(--cv-text-muted)] hover:border-[var(--cv-action-border)] hover:text-[var(--cv-text-heading)]'}`}
                         title="Filter & Sort"
                     >
                         <SlidersHorizontal size={12} />
                         <span>Filter</span>
-                        {filterType !== 'all' && <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-indigo-500"></span>}
+                        {filterType !== 'all' && <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--cv-action-primary)]"></span>}
                     </button>
 
                     {isFilterDropdownOpen && (
-                        <div className="absolute right-0 z-50 mt-2 w-52 rounded-2xl border border-stone-200 bg-white/95 py-2 text-[11px] font-semibold text-slate-600 shadow-xl backdrop-blur-2xl dark:border-slate-800 dark:bg-slate-950/95 dark:text-slate-300">
-                            <div className="mb-1 border-b border-stone-100 px-3.5 py-1.5 text-[9px] font-bold uppercase tracking-wider text-stone-400 dark:border-slate-800 dark:text-slate-500">Filter By Type</div>
+                        <div className="cv-design-card absolute right-0 z-50 mt-2 w-52 py-2 text-[11px] font-semibold text-[var(--cv-text-body)] shadow-xl backdrop-blur-2xl">
+                            <div className="mb-1 border-b border-[var(--cv-border-subtle)] px-3.5 py-1.5 text-[9px] font-bold uppercase tracking-wider text-[var(--cv-text-muted)]">Filter By Type</div>
                             {[
                                 { value: 'all', label: 'All Files' },
                                 { value: 'resume', label: 'Resumes' },
@@ -173,15 +173,15 @@ const SidebarDocumentList: React.FC<SidebarDocumentListProps> = ({
                                         setFilterType(option.value);
                                         savePreference('filterType', option.value);
                                     }}
-                                    className={`flex w-full items-center justify-between px-3.5 py-1.5 text-left transition-all hover:bg-indigo-50/60 hover:text-indigo-700 dark:hover:bg-indigo-500/10 dark:hover:text-indigo-300 ${filterType === option.value ? 'bg-indigo-50/60 font-bold text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-300' : ''}`}
+                                    className={`flex w-full items-center justify-between px-3.5 py-1.5 text-left transition-all hover:bg-[var(--cv-action-soft-bg)] hover:text-[var(--cv-action-primary)] ${filterType === option.value ? 'bg-[var(--cv-action-soft-bg)] font-bold text-[var(--cv-action-primary)]' : ''}`}
                                 >
                                     <span>{option.label}</span>
-                                    {filterType === option.value && <Check size={12} className="text-indigo-500 shrink-0" />}
+                                    {filterType === option.value && <Check size={12} className="shrink-0 text-[var(--cv-action-primary)]" />}
                                 </button>
                             ))}
 
-                            <div className="my-1 h-px bg-stone-100 dark:bg-slate-800"></div>
-                            <div className="mb-1 px-3.5 py-1.5 text-[9px] font-bold uppercase tracking-wider text-stone-400 dark:text-slate-500">Sort By</div>
+                            <div className="my-1 h-px bg-[var(--cv-border-subtle)]"></div>
+                            <div className="mb-1 px-3.5 py-1.5 text-[9px] font-bold uppercase tracking-wider text-[var(--cv-text-muted)]">Sort By</div>
                             {[
                                 { value: 'createdAt', label: 'Sequence of Events' },
                                 { value: 'updatedAt', label: 'Recently Modified' },
@@ -193,10 +193,10 @@ const SidebarDocumentList: React.FC<SidebarDocumentListProps> = ({
                                         setSortBy(option.value as 'createdAt' | 'updatedAt');
                                         savePreference('sortBy', option.value);
                                     }}
-                                    className={`flex w-full items-center justify-between px-3.5 py-1.5 text-left transition-all hover:bg-indigo-50/60 hover:text-indigo-700 dark:hover:bg-indigo-500/10 dark:hover:text-indigo-300 ${sortBy === option.value ? 'bg-indigo-50/60 font-bold text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-300' : ''}`}
+                                    className={`flex w-full items-center justify-between px-3.5 py-1.5 text-left transition-all hover:bg-[var(--cv-action-soft-bg)] hover:text-[var(--cv-action-primary)] ${sortBy === option.value ? 'bg-[var(--cv-action-soft-bg)] font-bold text-[var(--cv-action-primary)]' : ''}`}
                                 >
                                     <span>{option.label}</span>
-                                    {sortBy === option.value && <Check size={12} className="text-indigo-500 shrink-0" />}
+                                    {sortBy === option.value && <Check size={12} className="shrink-0 text-[var(--cv-action-primary)]" />}
                                 </button>
                             ))}
                         </div>
@@ -204,15 +204,15 @@ const SidebarDocumentList: React.FC<SidebarDocumentListProps> = ({
                 </div>
             </div>
 
-            <div className="relative min-h-0 flex-1">
+            <div className="flex min-h-0 flex-1 flex-col gap-1.5">
                 <div
                     ref={listRef}
-                    className="h-full space-y-1 overflow-y-auto pb-10 pr-1 [scrollbar-width:thin]"
+                    className="min-h-0 flex-1 space-y-1 overflow-y-auto pr-1 [scrollbar-width:thin]"
                 >
                     {activeDocuments.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-stone-200 px-4 py-6 text-center dark:border-slate-800/80">
-                            <span className="mb-1 text-[10px] font-extrabold uppercase tracking-wider text-stone-400 dark:text-slate-500">No Files Found</span>
-                            <span className="text-[9px] font-medium leading-normal text-stone-400 dark:text-slate-500">
+                        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-[var(--cv-border-subtle)] px-4 py-6 text-center">
+                            <span className="mb-1 text-[10px] font-extrabold uppercase tracking-wider text-[var(--cv-text-muted)]">No Files Found</span>
+                            <span className="text-[9px] font-medium leading-normal text-[var(--cv-text-muted)]">
                                 {filterType === 'all' ? 'Try creating a new document!' : `No items match the "${filterType}" filter.`}
                             </span>
                         </div>
@@ -228,9 +228,9 @@ const SidebarDocumentList: React.FC<SidebarDocumentListProps> = ({
                                     event.preventDefault();
                                     setContextMenu({ x: event.clientX, y: event.clientY, nodeId: doc.id, text: doc.text, type: doc.data?.type || 'file' });
                                 }}
-                                className={`group/doc flex cursor-pointer items-center gap-2 rounded-xl border px-2.5 py-2 text-xs transition-all ${activeNodeId === doc.id.toString() ? 'border-indigo-200 bg-indigo-50/80 font-bold text-indigo-700 shadow-sm dark:border-indigo-900/50 dark:bg-indigo-950/35 dark:text-indigo-200' : 'border-transparent font-semibold text-slate-600 hover:border-stone-200 hover:bg-white/80 hover:text-slate-950 dark:text-slate-400 dark:hover:border-slate-800 dark:hover:bg-slate-900/80 dark:hover:text-slate-100'}`}
+                                className={`group/doc flex cursor-pointer items-center gap-2 rounded-xl border px-2.5 py-2 text-xs transition-all ${activeNodeId === doc.id.toString() ? 'border-[var(--cv-action-border)] bg-[var(--cv-action-soft-bg)] font-bold text-[var(--cv-action-primary)] shadow-sm' : 'border-transparent font-semibold text-[var(--cv-text-body)] hover:border-[var(--cv-border-subtle)] hover:bg-[var(--cv-surface-warm-card-strong)] hover:text-[var(--cv-text-heading)]'}`}
                             >
-                                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-stone-50 dark:bg-slate-900">{getDocIcon(doc.data?.type || '')}</div>
+                                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-[var(--cv-surface-warm-muted)]">{getDocIcon(doc.data?.type || '')}</div>
 
                                 {editingNodeId === doc.id ? (
                                     <input
@@ -241,7 +241,7 @@ const SidebarDocumentList: React.FC<SidebarDocumentListProps> = ({
                                             if (event.key === 'Enter') saveRename(doc.id);
                                             if (event.key === 'Escape') setEditingNodeId(null);
                                         }}
-                                        className="flex-1 rounded border border-indigo-500 bg-white px-1.5 py-0.5 text-xs font-semibold text-gray-900 outline-none dark:bg-slate-900 dark:text-gray-100"
+                                        className="flex-1 rounded border border-[var(--cv-action-border)] bg-[var(--cv-surface-warm-card-strong)] px-1.5 py-0.5 text-xs font-semibold text-[var(--cv-text-heading)] outline-none"
                                         onClick={(event) => event.stopPropagation()}
                                         autoFocus
                                     />
@@ -255,7 +255,7 @@ const SidebarDocumentList: React.FC<SidebarDocumentListProps> = ({
                                         const rect = event.currentTarget.getBoundingClientRect();
                                         setContextMenu({ x: rect.left, y: rect.bottom, nodeId: doc.id, text: doc.text, type: doc.data?.type || 'file' });
                                     }}
-                                    className="rounded p-0.5 text-slate-400 opacity-0 transition-opacity hover:bg-stone-100 group-hover/doc:opacity-100 dark:hover:bg-slate-800"
+                                    className="rounded p-0.5 text-[var(--cv-text-muted)] opacity-0 transition-opacity hover:bg-[var(--cv-surface-warm-muted)] group-hover/doc:opacity-100"
                                 >
                                     <MoreVertical size={12} />
                                 </button>
@@ -265,16 +265,15 @@ const SidebarDocumentList: React.FC<SidebarDocumentListProps> = ({
                 </div>
 
                 {scrollState.canScroll && !scrollState.atBottom && (
-                    <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10">
-                        <div className="h-12 bg-gradient-to-t from-white via-white/90 to-white/0 dark:from-slate-950 dark:via-slate-950/90 dark:to-slate-950/0" />
+                    <div className="shrink-0 border-t border-[var(--cv-border-subtle)] px-1.5 pt-1.5">
                         <button
                             type="button"
                             onClick={scrollToMoreFiles}
                             aria-label="Show more files"
-                            className="pointer-events-auto absolute inset-x-2 bottom-2 flex items-center justify-center gap-1.5 rounded-full border border-stone-200 bg-white/95 px-3 py-1 text-[10px] font-extrabold text-slate-600 shadow-sm backdrop-blur transition hover:border-stone-300 hover:text-slate-950 dark:border-slate-800 dark:bg-slate-900/95 dark:text-slate-300 dark:hover:border-slate-700 dark:hover:text-white"
+                            className="flex min-h-[32px] w-full items-center justify-center gap-1.5 rounded-xl border border-[var(--cv-border-subtle)] bg-[var(--cv-surface-warm-card-strong)] px-3 py-1.5 text-[11px] font-extrabold text-[var(--cv-text-body)] shadow-[0_1px_2px_rgba(55,38,18,0.05)] transition hover:border-[var(--cv-action-border)] hover:bg-[var(--cv-action-soft-bg)] hover:text-[var(--cv-action-primary)]"
                         >
-                            <ChevronDown size={13} />
-                            {moreFilesLabel} below
+                            <ChevronDown size={13} className="shrink-0" />
+                            <span className="min-w-0 truncate">{moreFilesLabel} below</span>
                         </button>
                     </div>
                 )}

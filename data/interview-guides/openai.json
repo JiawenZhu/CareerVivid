@@ -1,0 +1,83 @@
+{
+  "company": "OpenAI",
+  "slug": "openai",
+  "url": "https://www.techinterview.org/companies/openai",
+  "scrapedAt": "2026-07-02T07:14:05.692Z",
+  "interviewStages": [
+    "System design (1 round, engineering roles): classic distributed systems OR inference-serving systems. Common prompts: \"Design the infrastructure for serving ChatGPT to 100M users,\" \"Design a feedback collection pipeline for RLHF,\" \"Design a multi-tenant fine-tuning service.\" They expect you to know tokens-per-second tradeoffs, KV-cache memory math, and continuous batching.",
+    "Hiring manager / values (1 round): less formally about \"values\" than Anthropic's safety round, but they do screen for people who take the mission seriously without grandstanding. Focus is on how you operate, prior projects you shipped, and how you handle ambiguity.",
+    "Behavioral / team fit (1 round): specific past projects, ownership, conflict, pace. \"Tell me about something you built in a weekend\" is a real favorite."
+  ],
+  "codingTopics": [
+    "Implement a specific data structure to meet tight complexity (LRU cache, token counter, rate limiter)",
+    "Streaming / parsing problems (process tokenized input with bounded memory, parse structured log lines)",
+    "Graph / tree problems with a practical flavor (dependency resolution, shortest path with weights)",
+    "\"Implement a simple tool\" prompts: a mini regex, a tokenizer, a retry policy"
+  ],
+  "systemDesignTopics": [],
+  "behavioralTopics": [
+    "\"Tell me about the most impactful thing you built in the last year.\"",
+    "\"Describe a time you shipped something despite ambiguity or resistance.\"",
+    "\"What's a decision you made that turned out to be wrong? How did you notice?\"",
+    "\"Walk me through a weekend or side project that excited you.\""
+  ],
+  "sampleQuestions": {
+    "coding": [
+      "Implement a specific data structure to meet tight complexity (LRU cache, token counter, rate limiter). Talk through your approach, complexity, and edge cases.",
+      "Implement process tokenized input with bounded memory, parse structured log lines. Talk through your approach, complexity, and edge cases.",
+      "Implement dependency resolution, shortest path with weights. Talk through your approach, complexity, and edge cases.",
+      "Implement a simple tool prompts: a mini regex, a tokenizer, a retry policy. Talk through your approach, complexity, and edge cases.",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases."
+    ],
+    "behavioral": [
+      "Tell me about the most impactful thing you built in the last year.",
+      "Describe a time you shipped something despite ambiguity or resistance.",
+      "What's a decision you made that turned out to be wrong? How did you notice?",
+      "Walk me through a weekend or side project that excited you.",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "How does OpenAI's interview compare to Anthropic's?",
+      "Do I need ML research experience to get hired as a non-research engineer?",
+      "What's the PPU compensation structure actually worth?",
+      "Is the interview process really 2&ndash;3 weeks?",
+      "What should I build as a portfolio project before applying?"
+    ]
+  },
+  "difficulty": 8,
+  "tips": [
+    "Have a builder's story. Concrete projects, ideally recent, with numbers or screenshots.",
+    "Go deep on one paper. For research-adjacent roles, this is non-negotiable.",
+    "Know the product. Use ChatGPT and the API actively before interviewing. Form opinions.",
+    "Be fast and loose in the right way. Propose, revise, don't get stuck in analysis paralysis.",
+    "Ask about the actual day-to-day. \"What's a typical week on this team look like?\" reveals fit better than mission questions.",
+    "OpenAI papers (GPT-3, InstructGPT, o1 system card, various technical reports)",
+    "The OpenAI engineering blog and research blog",
+    "Designing Data-Intensive Applications (Kleppmann) for systems background",
+    "The Illustrated Transformer + Attention Is All You Need for ML fundamentals",
+    "LeetCode top-200 medium set, with focus on applied/streaming problems",
+    "Build something small with the OpenAI API before interviewing &mdash; even a weekend project",
+    "Anthropic &mdash; AI research and Claude",
+    "Character.AI &mdash; consumer AI companion",
+    "Harvey &mdash; legal vertical AI",
+    "Glean &mdash; enterprise AI search",
+    "Weights & Biases &mdash; ML experiment tracking",
+    "Hugging Face &mdash; open-source ML hub"
+  ],
+  "compensation": [
+    "L4 / Member of Technical Staff: $200k&ndash;$250k base, $350k&ndash;$500k equity/PPU (4 years), 10% bonus. Total: ~$400k&ndash;$600k / year.",
+    "L5 / Senior MTS: $260k&ndash;$340k base, $700k&ndash;$1.2M equity, similar bonus. Total: ~$600k&ndash;$900k / year.",
+    "L6 / Staff: $340k&ndash;$430k base, $1.5M&ndash;$3M+ equity. Total: ~$900k&ndash;$1.8M / year.",
+    "The mission matters more in practice than in marketing &mdash; people really do choose to work there over higher comp elsewhere.",
+    "You'll be expected to understand the commercial product deeply, even if you're on infrastructure.",
+    "Internal tools and processes are less polished than people expect given the product polish.",
+    "Speed is weighted heavily in hiring and performance &mdash; slow, careful candidates often down-level.",
+    "Hand-wavy answers on system design get caught quickly. Come with numbers.",
+    "Trying to sound ideological about AI safety or AGI can backfire &mdash; the bar is pragmatic engagement, not recitation.",
+    "\"We were going to ship X but we didn't\" stories are a bad choice; pick ones where you actually shipped.",
+    "Not understanding your own resume deeply. Every project listed is fair game for 30 minutes of questions."
+  ],
+  "rawSummary": "OpenAI Interview Guide 2026: ChatGPT, GPT-4, Research Engineering, and PPU Compensation\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 22, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- OpenAI Interview Process: Complete 2026 Guide\n\n- Frequently Asked Questions\n\n- Adjacent AI / ML Tooling Companies\n\nUpdated May 2, 2026 · techinterview.org\n\n⏱ 9 min read\n\nOpenAI\nopenai.com ↗\n\nOpenAI Interview Process: Complete 2026 Guide\n\nOverview\n\nOpenAI is the AI research company behind ChatGPT, GPT-4, and the o-series reasoning models, founded in 2015 and restructured into a capped-profit entity in 2019. Interviewing there in 2026 is fast, high-variance, and technically demanding. The company has scaled from ~500 people in late 2022 to well over 3,000 in 2026, and the bar has tightened accordingly. Expect speed &mdash; loops close in 2&ndash;3 weeks when things move &mdash; and an emphasis on builders who ship, not analysts who deliberate. Roles span research, research engineering, applied AI, product, infrastructure, safety, and policy, concentrated in SF with some NYC and London presence.\n\nInterview Structure\n\nRecruiter screen (30 min): background, why OpenAI, and what you'd want to work on. They're screening for \"builder energy\" &mdash; concrete projects you've shipped, not a resume recitation.\n\nTechnical phone screen (60 min): coding problem in a collaborative editor. Medium-hard difficulty, Python default. Expect to write clean, idiomatic code and reason out loud about complexity and edge cases. Follow-ups push into \"what would you change to make this production-grade?\"\n\nTake-home (role-dependent): research-engineering and applied-AI roles often get a 4&ndash;8 hour take-home &mdash; usually a mini ML pipeline, a data pipeline, or a small end-to-end product feature. Quality of write-up matters as much as the code.\n\nOnsite / virtual onsite (4&ndash;5 rounds):\n\n- Coding (1&ndash;2 rounds): one classic algorithms round, one applied / systems round. The applied round is OpenAI-specific &mdash; parse a tokenizer output, implement streaming batching, write a retry-with-exponential-backoff wrapper for API calls. Less abstract puzzle-solving, more \"make this realistic thing work.\"\n\n- System design (1 round, engineering roles): classic distributed systems OR inference-serving systems. Common prompts: \"Design the infrastructure for serving ChatGPT to 100M users,\" \"Design a feedback collection pipeline for RLHF,\" \"Design a multi-tenant fine-tuning service.\" They expect you to know tokens-per-second tradeoffs, KV-cache memory math, and continuous batching.\n\n- ML / research depth (1&ndash;2 rounds, research roles): paper deep-dive, experiment design, debugging a training failure. Interviewers are typically actual researchers &mdash; expect high technical fluency and follow-ups that probe whether you really understand the mechanisms.\n\n- Hiring manager / values (1 round): less formally about \"values\" than Anthropic's safety round, but they do screen for people who take the mission seriously without grandstanding. Focus is on how you operate, prior projects you shipped, and how you handle ambiguity.\n\n- Behavioral / team fit (1 round): specific past projects, ownership, conflict, pace. \"Tell me about something you built in a weekend\" is a real favorite.\n\nTechnical Focus Areas\n\nCoding: two pointers, sliding window, graph traversal, priority queues, tries, applied string problems. Parsing and streaming problems show up often. Clean, fast-to-write code beats clever.\n\nSystem design: inference infrastructure (model serving, batching, KV cache, multi-model routing), RAG / retrieval systems, queue-backed pipelines, multi-tenant isolation. For classic roles: pub/sub, rate limiting, sharded KV stores, log pipelines.\n\nML / research: transformer internals, tokenization, attention variants (sparse, local, sliding window), scaling laws, RLHF pipeline, reward modeling, model evaluation, preference optimization (DPO, PPO). Know at least one OpenAI paper deeply &mdash; Language Models are Few-Shot Learners, Training Verifiers, or one of the reasoning / o1 publications.\n\nProduct sense: for product-engineering roles expect discussion of how you'd improve a specific ChatGPT or API feature. They test whether you can reason about real users, not just abstractly.\n\nCoding Interview Details\n\n1&ndash;2 coding rounds, 60 minutes each. Difficulty comparable to Meta E5 or Google L5. Interviewers are active &mdash; they'll push back, ask you to refactor, or pivot the problem mid-solution to test flexibility. Silence reads as stuck.\n\nTypical problem shapes:\n\n- Implement a specific data structure to meet tight complexity (LRU cache, token counter, rate limiter)\n\n- Streaming / parsing problems (process tokenized input with bounded memory, parse structured log lines)\n\n- Graph / tree problems with a practical flavor (dependency resolution, shortest path with weights)\n\n- \"Implement a simple tool\" prompts: a mini regex, a tokenizer, a retry policy\n\nPython dominate"
+}

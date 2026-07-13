@@ -1,0 +1,33 @@
+{
+  "company": "Fly.io",
+  "slug": "fly-io-interview-guide",
+  "url": "https://www.techinterview.org/companies/fly-io-interview-guide",
+  "scrapedAt": "2026-07-02T07:22:41.326Z",
+  "interviewStages": [],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Fly.io fully remote?",
+      "How does Fly.io compare to Vercel or Render?",
+      "What is the take-home like?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Fly.io Interview Guide (2026): Edge Application Platform\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nFly.io\nfly.io ↗\n\nFly.io ships full applications to 30+ regions worldwide with Anycast routing and Firecracker microVMs. The engineering culture is small-team, blog-heavy, and famously opinionated. The interview process is async-friendly and rewards writers as much as coders.\n\nProcess\n\nRecruiter screen → take-home async work sample (paid) → 60-minute pair-programming → 60-minute system design → 60-minute past-project deep dive → behavioral. Cycle: 3–5 weeks. Fly.io is famous for its detailed rejection feedback.\n\nWhat they actually ask\n\n- Design Anycast routing for global application deployment\n\n- Design Firecracker-based microVM scheduling and lifecycle\n\n- Design a distributed Postgres setup with regional read replicas\n\n- Coding: practical Go or Elixir, often involving network protocols\n\n- Past-project deep dive: must defend choices and tradeoffs\n\nLevels and comp (2026)\n\n- SE: $180K–$240K total\n\n- Senior SE: $260K–$340K\n\n- Staff: $360K–$470K\n\n- Principal: $490K–$640K\n\nPrep priorities\n\n- Read the Fly.io blog religiously — they hire people who already engage with their writing\n\n- Brush up on networking (Anycast, BGP, WireGuard, IPsec)\n\n- Be fluent in Go or Elixir (Fly.io uses both heavily)\n\nFrequently Asked Questions\n\nIs Fly.io fully remote?\n\nYes. Distributed globally with concentration in North America. ~50–80 employees.\n\nHow does Fly.io compare to Vercel or Render?\n\nFly.io is more infrastructure-flavored — bring your own container, deploy globally. Vercel is frontend-specialized; Render is broader PaaS.\n\nWhat is the take-home like?\n\nSmall but realistic — a few hours of work, paid. Quality matters more than completeness.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Fly.io? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextSystem Design Interview: Distributed Message Queue (Kafka / SQS)⏱ 7 min readWhen to Use RAG, Fine-Tuning, or Prompting: 2026 Decision Framework⏱ 2 min readClickstream Analytics Pipeline Low-Level Design: Event Ingestion, Stream Processing, and Session Stitching⏱ 5 min read"
+}

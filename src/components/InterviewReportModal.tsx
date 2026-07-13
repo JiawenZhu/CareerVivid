@@ -17,9 +17,11 @@ interface InterviewReportModalProps {
     jobHistoryEntry: PracticeHistoryEntry;
     onClose: () => void;
     isGuestMode?: boolean;
+    /** If provided, shows an "Improve my solution" button (coding quests only). */
+    onImprove?: () => void;
 }
 
-const InterviewReportModal: React.FC<InterviewReportModalProps> = ({ jobHistoryEntry, onClose, isGuestMode = false }) => {
+const InterviewReportModal: React.FC<InterviewReportModalProps> = ({ jobHistoryEntry, onClose, isGuestMode = false, onImprove }) => {
     const { currentUser } = useAuth();
     const [activeTab, setActiveTab] = useState<ReportTab>('feedback');
     const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
@@ -35,6 +37,7 @@ const InterviewReportModal: React.FC<InterviewReportModalProps> = ({ jobHistoryE
         isExportingDocument,
         handleDownloadTxt,
         handleDownloadPdf,
+        handleDownloadDocx,
         handleGoogleDocsExport,
     } = useInterviewReportExport({
         currentAnalysis,
@@ -73,7 +76,7 @@ const InterviewReportModal: React.FC<InterviewReportModalProps> = ({ jobHistoryE
     }, [currentAnalysis, jobHistoryEntry]);
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-0 md:p-4">
+        <div className="fixed inset-0 z-50 flex flex-col bg-white dark:bg-gray-800">
             {isFeedbackModalOpen && currentAnalysis && (
                 <FeedbackModal
                     isOpen={isFeedbackModalOpen}
@@ -87,7 +90,7 @@ const InterviewReportModal: React.FC<InterviewReportModalProps> = ({ jobHistoryE
                 />
             )}
 
-            <div className="flex h-full w-full flex-col rounded-none bg-white shadow-2xl dark:bg-gray-800 md:h-[90vh] md:max-w-6xl md:flex-row md:rounded-lg">
+            <div className="flex h-full w-full flex-col overflow-hidden bg-white dark:bg-gray-800 md:flex-row">
                 <SessionSelector sortedHistory={sortedHistory} currentAnalysis={currentAnalysis} onSelect={setCurrentAnalysis} variant="sidebar" />
 
                 <div className="flex min-w-0 flex-grow flex-col overflow-hidden">
@@ -124,9 +127,10 @@ const InterviewReportModal: React.FC<InterviewReportModalProps> = ({ jobHistoryE
                                 isExportingDocument={isExportingDocument}
                                 onDownloadTxt={handleDownloadTxt}
                                 onDownloadPdf={handleDownloadPdf}
-                                onExportGoogleDocs={() => handleGoogleDocsExport('google-docs')}
-                                onDownloadDocx={() => handleGoogleDocsExport('docx')}
+                                onExportGoogleDocs={handleGoogleDocsExport}
+                                onDownloadDocx={handleDownloadDocx}
                                 onRateReport={() => setIsFeedbackModalOpen(true)}
+                                onImprove={onImprove}
                             />
                         </>
                     ) : (

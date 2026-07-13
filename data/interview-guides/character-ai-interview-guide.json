@@ -1,0 +1,64 @@
+{
+  "company": "Character.AI",
+  "slug": "character-ai-interview-guide",
+  "url": "https://www.techinterview.org/companies/character-ai-interview-guide",
+  "scrapedAt": "2026-07-02T07:13:21.773Z",
+  "interviewStages": [
+    "Recruiter screen (30 min).",
+    "Hiring manager screen (45 min).",
+    "Technical phone screen (60 min). Coding problem plus discussion of ML inference or distributed systems.",
+    "Virtual onsite (4–5 rounds).",
+    "1 ML / inference round (model serving, latency, GPU economics)",
+    "1 system design round (high-throughput chat, conversation state management)",
+    "1 behavioral / culture round",
+    "Founder or CTO interview for senior+ roles.",
+    "Standard LeetCode mediums: Python-flavored for most roles",
+    "ML inference: KV-cache management, batching, GPU memory pressure, speculative decoding",
+    "System design: design a high-throughput chat with persistent conversation state, design a content-moderation pipeline for AI outputs",
+    "For ML-engineering roles: PyTorch internals, distributed training, evaluation infrastructure",
+    "Trust and safety for consumer-facing AI: detecting and preventing problematic conversations"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Character.AI still a viable employer post-2024 Google deal?",
+      "Do I need ML expertise?",
+      "How does Character.AI compare to Replika or Inflection?",
+      "Is the work mostly Python?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": [
+    "Mid: $180–220K base + meaningful equity → $280–400K total",
+    "Senior: $220–280K base + significant equity → $400–600K total",
+    "Staff: $280–360K base + substantial equity → $550–800K total",
+    "Optimize KV-cache management for LLM inference. When serving millions of concurrent conversations, KV-cache memory dominates GPU usage. Discuss paged attention, prefix caching for shared system prompts, and how to evict stale conversations.",
+    "Implement continuous batching. Naive batching forces all requests in a batch to complete together. Continuous batching swaps in new requests as old ones finish. Discuss the trade-offs and why this is essential for chat-style workloads.",
+    "Speculative decoding. Use a smaller draft model to propose tokens that the larger model verifies in a single forward pass. Discuss when this wins, when it loses, and how to choose the draft model.",
+    "Design a chat backend that stores millions of long-running conversations. Discuss how to compact conversation history without losing personality consistency, when to summarize vs keep verbatim, and how memory recall surfaces in the chat experience.",
+    "Multi-character interactions: when a user has conversations with dozens of characters, how do you make each conversation feel distinct? Per-character context isolation, shared user-context, and the role of explicit memory.",
+    "Content moderation pipelines: classifier-based filtering, rule-based filters, the role of human review for edge cases. Why classifier-only moderation has high false-positive and false-negative rates.",
+    "Age verification and minor protection: COPPA considerations, the difficulty of designing age-gates that actually work, the trade-off between friction and protection.",
+    "The 2023-2024 lawsuits and their engineering implications: changes to safety filters, mandatory disclosures, the role of crisis-detection patterns in conversations.",
+    "Glean &mdash; enterprise AI search",
+    "Weights & Biases &mdash; ML experiment tracking",
+    "Harvey &mdash; legal vertical AI",
+    "Hugging Face &mdash; open-source ML hub"
+  ],
+  "rawSummary": "Character.AI Interview Guide (2026): Process, Questions, Compensation\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 2, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Interview process\n\n- Common technical questions\n\n- Compensation (2026 estimates, San Francisco / Menlo Park)\n\n- Sample interview questions in depth\n\n- The post-Google-deal context\n\n- Compensation negotiation\n\n- Frequently Asked Questions\n\n- Adjacent AI / ML Tooling Companies\n\nUpdated May 3, 2026 · techinterview.org\n\n⏱ 4 min read\n\nCharacter.AI\ncharacter.ai ↗\n\nCharacter.AI Interview Guide\n\nCompany overview: Character.AI is the leading consumer AI companion platform, allowing users to chat with custom-built characters powered by large language models. Founded in 2021 by former Google Brain researchers (Noam Shazeer co-founder of the Transformer paper). Menlo Park headquarters with engineering across Menlo Park, San Francisco, and remote. The 2024 Google licensing deal that brought back Shazeer and Daniel De Freitas reshaped the company; the remaining product company has continued operating with a smaller team.\n\nInterview process\n\nTimeline: 3–5 weeks. Generally faster than FAANG.\n\n- Recruiter screen (30 min).\n\n- Hiring manager screen (45 min).\n\n- Technical phone screen (60 min). Coding problem plus discussion of ML inference or distributed systems.\n\n- Virtual onsite (4–5 rounds).\n\n1–2 coding rounds (medium-to-hard)\n\n- 1 ML / inference round (model serving, latency, GPU economics)\n\n- 1 system design round (high-throughput chat, conversation state management)\n\n- 1 behavioral / culture round\n\n- Founder or CTO interview for senior+ roles.\n\nCommon technical questions\n\n- Standard LeetCode mediums: Python-flavored for most roles\n\n- ML inference: KV-cache management, batching, GPU memory pressure, speculative decoding\n\n- System design: design a high-throughput chat with persistent conversation state, design a content-moderation pipeline for AI outputs\n\n- For ML-engineering roles: PyTorch internals, distributed training, evaluation infrastructure\n\n- Trust and safety for consumer-facing AI: detecting and preventing problematic conversations\n\nCompensation (2026 estimates, San Francisco / Menlo Park)\n\n- Mid: $180–220K base + meaningful equity → $280–400K total\n\n- Senior: $220–280K base + significant equity → $400–600K total\n\n- Staff: $280–360K base + substantial equity → $550–800K total\n\nThe 2024 Google deal complicated equity expectations — much of the prior equity was monetized as part of that arrangement. Current equity is in the form of post-deal grants with new vesting. Compensation for new hires is competitive with mid-tier AI labs.\n\nSample interview questions in depth\n\nML inference at scale (Python / CUDA)\n\n- Optimize KV-cache management for LLM inference. When serving millions of concurrent conversations, KV-cache memory dominates GPU usage. Discuss paged attention, prefix caching for shared system prompts, and how to evict stale conversations.\n\n- Implement continuous batching. Naive batching forces all requests in a batch to complete together. Continuous batching swaps in new requests as old ones finish. Discuss the trade-offs and why this is essential for chat-style workloads.\n\n- Speculative decoding. Use a smaller draft model to propose tokens that the larger model verifies in a single forward pass. Discuss when this wins, when it loses, and how to choose the draft model.\n\nConversation state and persistence\n\n- Design a chat backend that stores millions of long-running conversations. Discuss how to compact conversation history without losing personality consistency, when to summarize vs keep verbatim, and how memory recall surfaces in the chat experience.\n\n- Multi-character interactions: when a user has conversations with dozens of characters, how do you make each conversation feel distinct? Per-character context isolation, shared user-context, and the role of explicit memory.\n\nTrust and safety for consumer AI\n\n- Content moderation pipelines: classifier-based filtering, rule-based filters, the role of human review for edge cases. Why classifier-only moderation has high false-positive and false-negative rates.\n\n- Age verification and minor protection: COPPA considerations, the difficulty of designing age-gates that actually work, the trade-off between friction and protection.\n\n- The 2023-2024 lawsuits and their engineering implications: changes to safety filters, mandatory disclosures, the role of crisis-detection patterns in conversations.\n\nThe post-Google-deal context\n\nThe 2024 Google licensing deal that brought back Noam Shazeer and Daniel De Freitas reshaped the company. The product company that remained operates with a smaller team, modified equity structure, and tighter focus. Engineering work continues on the consumer AI companion platform; new hires should expect a smaller, more startup-feeling environment than peak Character.AI of 2022-2023.\n\nFor new candidates, the key questions during the loop are: What is the runway? What is the team "
+}

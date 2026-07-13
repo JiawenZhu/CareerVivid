@@ -1,6 +1,6 @@
 import React, { Suspense, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
-import { InterviewSessionDraft, Job, PracticeHistoryEntry, TranscriptEntry } from '../types';
+import { InterviewAnalysis, InterviewSessionDraft, Job, PracticeHistoryEntry, TranscriptEntry } from '../types';
 import {
   AnalyzingPanel,
   EncounterBriefPanel,
@@ -9,6 +9,7 @@ import {
   LiveObserverPanel,
   QuestionQueuePanel,
   SessionMapPanel,
+  SessionTimerPanel,
   StatusPanel,
   TranscriptLog,
 } from './aiInterviewAgent/AIInterviewAgentModalParts';
@@ -29,6 +30,8 @@ interface AIInterviewAgentModalProps {
   initialTranscript?: TranscriptEntry[];
   resumeFromQuestionIndex?: number;
   onDraftChange?: (draft: InterviewSessionDraft | null) => Promise<void> | void;
+  /** Called after an analysis is generated and saved (signed-in users only). */
+  onAnalysisComplete?: (analysis: InterviewAnalysis) => void;
 }
 
 const AIInterviewAgentModal: React.FC<AIInterviewAgentModalProps> = (props) => {
@@ -87,13 +90,13 @@ const AIInterviewAgentModal: React.FC<AIInterviewAgentModalProps> = (props) => {
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#171411]/70 p-2 backdrop-blur-sm sm:p-4">
+    <div className="fixed inset-0 z-50 bg-[#f7f1e7] dark:bg-[#1f1f1d]">
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="ai-interview-modal-title"
         aria-describedby="ai-interview-modal-description"
-        className="mx-auto flex h-[calc(100vh-1rem)] w-full max-w-7xl flex-col overflow-hidden rounded-2xl border border-[#e7d8c5] bg-[#f7f1e7] shadow-2xl dark:border-[#3b3730] dark:bg-[#1f1f1d] sm:h-[calc(100vh-2rem)]"
+        className="flex h-full w-full flex-col overflow-hidden bg-[#f7f1e7] dark:bg-[#1f1f1d]"
       >
         <InterviewHeader
           interviewPrompt={interviewPrompt}
@@ -101,19 +104,20 @@ const AIInterviewAgentModal: React.FC<AIInterviewAgentModalProps> = (props) => {
           jobCompany={jobCompany}
           onClose={handleClose}
         />
-        <div className="min-h-0 flex-1 overflow-y-auto p-3 sm:p-4">
-          <div className="grid min-h-full gap-3 lg:grid-cols-[280px_minmax(0,1fr)_280px] xl:grid-cols-[310px_minmax(0,1fr)_310px]">
-            <div className="space-y-3 lg:overflow-y-auto lg:pr-1">
+        <div className="min-h-0 flex-1 overflow-y-auto p-3 sm:p-5">
+          <div className="grid min-h-full gap-4 lg:grid-cols-[300px_minmax(0,1fr)_300px] xl:grid-cols-[350px_minmax(0,1fr)_350px]">
+            <div className="space-y-3 order-2 lg:order-1 lg:overflow-y-auto lg:pr-1">
               <EncounterBriefPanel
                 jobTitle={jobTitle}
                 jobCompany={jobCompany}
                 interviewPrompt={interviewPrompt}
                 questions={questions}
+                transcript={transcript}
               />
               <QuestionQueuePanel questions={questions} transcript={transcript} />
             </div>
 
-            <main className="flex min-h-[620px] flex-col overflow-hidden rounded-xl border border-[#e7d8c5] bg-white shadow-sm dark:border-[#3b3730] dark:bg-[#262522] lg:min-h-0">
+            <main className="flex min-h-[400px] sm:min-h-[500px] md:min-h-[550px] lg:min-h-0 flex-col order-1 lg:order-2 overflow-hidden rounded-xl border border-[#e7d8c5] bg-white shadow-sm dark:border-[#3b3730] dark:bg-[#262522]">
               <StatusPanel
                 status={status}
                 error={error}
@@ -143,7 +147,11 @@ const AIInterviewAgentModal: React.FC<AIInterviewAgentModalProps> = (props) => {
               />
             </main>
 
-            <div className="space-y-3 lg:overflow-y-auto lg:pl-1">
+            <div className="space-y-3 order-3 lg:overflow-y-auto lg:pl-1">
+              <SessionTimerPanel
+                status={status}
+                totalMinutes={Number(interviewPrompt.match(/target duration:\s*(\d+)\s*min/i)?.[1]) || 15}
+              />
               <LiveObserverPanel status={status} transcript={transcript} />
               <SessionMapPanel status={status} hasTranscript={transcript.length > 0} />
             </div>

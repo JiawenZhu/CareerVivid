@@ -1,0 +1,35 @@
+{
+  "company": "Lightspeed Commerce",
+  "slug": "lightspeed-interview-guide",
+  "url": "https://www.techinterview.org/companies/lightspeed-interview-guide",
+  "scrapedAt": "2026-07-02T07:23:51.539Z",
+  "interviewStages": [
+    "Behavioral: customer focus, ownership, working with diverse industry verticals"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Lightspeed remote-friendly?",
+      "How does Lightspeed compare to Square or Toast?",
+      "What is the engineering culture?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Lightspeed Commerce Interview Guide (2026): POS Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nLightspeed Commerce\nlightspeedhq.com ↗\n\nLightspeed Commerce is the leading POS for restaurants, retail, and golf — Canadian-headquartered, public since 2019. The interview emphasizes POS hardware integration, inventory management, and the unique multi-vertical SaaS challenges.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design a POS that works offline with sync on reconnect\n\n- Design a multi-location inventory system\n\n- Design payment processing with multiple processors\n\n- Coding: medium DSA, often with offline-first or sync framing\n\n- Behavioral: customer focus, ownership, working with diverse industry verticals\n\nLevels and comp (2026)\n\n- SE II: CAD$120K–$150K total (Montreal); $135K–$170K (US)\n\n- Senior SE: CAD$150K–$200K / $200K–$260K\n\n- Staff: CAD$210K–$280K / $290K–$380K\n\n- Principal: CAD$300K+ / $400K–$520K\n\nPrep priorities\n\n- Be fluent in PHP (legacy core) or Java (newer services)\n\n- Understand offline-first sync and conflict resolution\n\n- Brush up on payment processing and PCI compliance\n\nFrequently Asked Questions\n\nIs Lightspeed remote-friendly?\n\nHybrid in Montreal (HQ), Amsterdam, NYC. Some engineering roles remote within Canada/US.\n\nHow does Lightspeed compare to Square or Toast?\n\nSquare is the dominant SMB POS. Toast specializes in restaurants. Lightspeed competes on multi-vertical SaaS. Comp is comparable; Square pays slightly more.\n\nWhat is the engineering culture?\n\nCanadian / European tech: collaborative, calm pace, strong work-life balance.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Lightspeed Commerce? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextCoding Interview: Tree Data Structures — Binary Tree, BST, AVL, Trie, Segment Tree, Heap, Traversal Patterns⏱ 8 min readTypeahead / Autocomplete Service: Low-Level Design⏱ 7 min readWhy Are You Leaving Your Current Job? — The Politics of the Truthful Answer⏱ 8 min read"
+}

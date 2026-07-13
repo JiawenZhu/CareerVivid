@@ -1,0 +1,95 @@
+{
+  "company": "Cohere",
+  "slug": "cohere",
+  "url": "https://www.techinterview.org/companies/cohere",
+  "scrapedAt": "2026-07-02T07:13:24.389Z",
+  "interviewStages": [
+    "System design (1 round): enterprise-AI prompts. \"Design the on-premise deployment architecture for customers requiring full data isolation.\" \"Design the retrieval + rerank pipeline for enterprise knowledge bases with per-document access controls.\" \"Design the North AI agent platform's tool-call orchestration with enterprise-grade audit logging.\"",
+    "Behavioral / hiring manager: past projects, enterprise-customer empathy, Canadian / international culture adaptation."
+  ],
+  "codingTopics": [
+    "Implement a reranker: given candidate documents and a query, produce ranked output with a scoring function",
+    "Embedding pipeline: batch-encode a corpus efficiently with a given embedding model",
+    "Multi-step agent loop with tool-calling and state management",
+    "Retrieval evaluation: compute metrics (MRR, NDCG) over relevance judgments",
+    "Classic algorithm problems with ML-systems applied twists"
+  ],
+  "systemDesignTopics": [
+    "\"Design the on-premise deployment for a financial-services customer with regulatory requirements.\"",
+    "\"Design the retrieval + rerank pipeline for a healthcare customer's knowledge base with HIPAA compliance.\"",
+    "\"Design the North AI agent platform's execution layer supporting enterprise-grade audit and human-in-the-loop.\"",
+    "\"Design the multi-tenant serving system with strict per-customer isolation for Fortune 500 customers.\"",
+    "Walk through a Cohere research paper (retrieval-adjacent, multilingual, or efficient fine-tuning).",
+    "Discuss the trade-offs between dense retrieval, cross-encoder reranking, and LLM-as-judge for different retrieval scenarios.",
+    "Reason about multilingual training &mdash; data balance, evaluation, cross-lingual transfer.",
+    "Design an experiment to evaluate a new retrieval approach against production baselines."
+  ],
+  "behavioralTopics": [
+    "Enterprise-customer empathy: \"Tell me about working with a customer in a regulated industry.\"",
+    "Research / engineering balance: \"How do you balance research work with production shipping?\"",
+    "International collaboration: \"Describe working across Toronto, London, SF, and NY offices.\"",
+    "Customization depth: \"How do you think about balancing model generality with customer-specific fine-tuning?\""
+  ],
+  "sampleQuestions": {
+    "coding": [
+      "Given candidate documents and a query, produce ranked output with a scoring function. Talk through your approach, complexity, and edge cases.",
+      "Implement a streaming feature aggregator: given a stream of events, maintain rolling counts and averages per key with bounded memory. Discuss complexity and eviction.",
+      "Compute metrics (MRR, NDCG) over relevance judgments. Talk through your approach, complexity, and edge cases.",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution."
+    ],
+    "behavioral": [
+      "Tell me about working with a customer in a regulated industry.",
+      "How do you balance research work with production shipping?",
+      "Describe working across Toronto, London, SF, and NY offices.",
+      "How do you think about balancing model generality with customer-specific fine-tuning?",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
+    "systemDesign": [
+      "Design the on-premise deployment for a financial-services customer with regulatory requirements.",
+      "Design the retrieval + rerank pipeline for a healthcare customer's knowledge base with HIPAA compliance.",
+      "Design the North AI agent platform's execution layer supporting enterprise-grade audit and human-in-the-loop.",
+      "Design the multi-tenant serving system with strict per-customer isolation for Fortune 500 customers.",
+      "Design an experiment to evaluate a new retrieval approach against production baselines. Cover the API, data model, and how it scales."
+    ],
+    "values": [],
+    "other": [
+      "How does Cohere compare to OpenAI / Anthropic / Mistral on interviews?",
+      "What's North AI?",
+      "Is Toronto really the center of gravity?",
+      "What's the enterprise deployment work actually like?",
+      "Is remote work supported?"
+    ]
+  },
+  "difficulty": 7.5,
+  "tips": [
+    "Use Cohere's products. Command, Embed, Rerank, North. Form opinions about their quality and fit.",
+    "Read Cohere's research papers. Retrieval, multilingual, efficient fine-tuning.",
+    "Engage with enterprise AI thoughtfully. The trade-offs are real and differ from consumer frontier work.",
+    "Know retrieval literature. Dense retrieval, cross-encoders, hybrid search &mdash; vocabulary for interviews.",
+    "Prepare for international collaboration. Canadian, UK, and US offices mean real cross-border work.",
+    "Cohere research papers (retrieval, multilingual, Aya project, efficient fine-tuning)",
+    "Cohere's documentation for Command / Embed / Rerank / North",
+    "BEIR retrieval benchmark and evaluation literature",
+    "Aidan Gomez's talks and interviews for company context",
+    "Cohere itself &mdash; use the API for real workloads",
+    "Attention Is All You Need as foundational context (Aidan is a co-author)",
+    "Glean &mdash; enterprise AI search",
+    "Weights & Biases &mdash; ML experiment tracking",
+    "Harvey &mdash; legal vertical AI"
+  ],
+  "compensation": [
+    "Software Engineer: $180k&ndash;$225k base, $180k&ndash;$340k equity (4 years), modest bonus. Total: ~$300k&ndash;$480k / year.",
+    "Senior Software Engineer: $230k&ndash;$290k base, $380k&ndash;$700k equity. Total: ~$440k&ndash;$680k / year.",
+    "Staff Engineer: $295k&ndash;$365k base, $700k&ndash;$1.3M equity. Total: ~$620k&ndash;$1M / year.",
+    "The enterprise focus is genuinely differentiating &mdash; Cohere doesn't try to compete with OpenAI on consumer mindshare.",
+    "Retrieval and reranking are central products, not afterthoughts. Engineering investment is substantial.",
+    "Multilingual capabilities are real and differentiated &mdash; especially valuable for European and non-English enterprise customers.",
+    "Toronto is a real engineering hub, not a cost-optimized outpost.",
+    "Dismissing enterprise AI as \"less interesting\" than consumer frontier work.",
+    "Weak retrieval / RAG knowledge for retrieval-adjacent roles.",
+    "Expecting US-frontier-lab compensation; understand the Toronto-based bands.",
+    "Not engaging with Cohere's research literature for research roles."
+  ],
+  "rawSummary": "Cohere Interview Guide 2026: Enterprise AI, Command / Embed / Rerank, North Agent Platform, Toronto HQ\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 24, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Cohere Interview Process: Complete 2026 Guide\n\n- Frequently Asked Questions\n\n- Adjacent AI / ML Tooling Companies\n\n- What This Role Pays and How to Weigh the Equity\n\nUpdated June 30, 2026 · techinterview.org\n\n⏱ 10 min read\n\nCohere\ncohere.com ↗\n\nCohere Interview Process: Complete 2026 Guide\n\nOverview\n\nCohere is the enterprise-focused AI company building foundation models and retrieval-augmented applications specifically for business use cases &mdash; model customization, on-premise deployment, regulated-industry compliance, and specialized offerings like Command (instruction-tuned models), Embed (embedding models), and Rerank (reranking models for retrieval). Founded 2019 by Aidan Gomez (one of the authors of \"Attention Is All You Need\"), Ivan Zhang, and Nick Frosst (ex-Google Brain), private with valuations approaching $5.5B through 2024 and continued growth as enterprise AI adoption matured. ~500 employees in 2026. Headquartered in Toronto with offices in London, San Francisco, and New York. The company's distinctive position: rather than competing for consumer mindshare with OpenAI / Anthropic, Cohere targets enterprises (particularly in finance, healthcare, public sector) that require data privacy, custom deployment, and specific alignment for business domains. Command R / R+ / R7B and North AI agent platform are flagship products. Engineering is Python-heavy for ML, with Go / TypeScript for platform, and distinctive focus on retrieval / reranking engineering.\n\nInterview Structure\n\nRecruiter screen (30 min): background, why Cohere (especially in the enterprise-AI context), team interest. The engineering surface: foundation-model research, post-training / alignment, inference systems, retrieval / embedding / reranking, platform / API, enterprise deployment (on-premise, private cloud), and North AI agent platform.\n\nTechnical phone screen (60 min): one coding problem, medium-hard. Python for ML; TypeScript / Go for platform; C++ / CUDA for some inference work. Problems tilt applied ML-systems for research / inference roles, applied platform for infrastructure.\n\nTake-home (many research / senior roles): 4&ndash;8 hours on a realistic problem.\n\nOnsite / virtual onsite (4&ndash;6 rounds):\n\n- Coding (1&ndash;2 rounds): one algorithms round, one applied ML-systems or platform round. Difficulty varies by team.\n\n- System design (1 round): enterprise-AI prompts. \"Design the on-premise deployment architecture for customers requiring full data isolation.\" \"Design the retrieval + rerank pipeline for enterprise knowledge bases with per-document access controls.\" \"Design the North AI agent platform's tool-call orchestration with enterprise-grade audit logging.\"\n\n- ML / research round (1&ndash;2 for research roles): paper deep-dive (Cohere has published research on retrieval, multilingual, efficient fine-tuning), experiment design, model-architecture discussion.\n\n- Behavioral / hiring manager: past projects, enterprise-customer empathy, Canadian / international culture adaptation.\n\nTechnical Focus Areas\n\nCoding: Python fluency with ML-systems idioms (PyTorch, transformers library, distributed training patterns); TypeScript for platform; Go for some infrastructure; C++ / CUDA for inference-kernel work.\n\nRetrieval engineering: distinctive Cohere focus area. Topics: dense retrieval with embedding models, cross-encoder reranking (Rerank API), hybrid search combining lexical + semantic, multilingual retrieval, enterprise knowledge-base integration, evaluation methodology for retrieval quality.\n\nFine-tuning / alignment: instruction-tuning, RLHF, Constitutional-AI-adjacent approaches for business domains, parameter-efficient fine-tuning (LoRA, QLoRA) for customer-specific deployments.\n\nEnterprise deployment: on-premise and private-cloud deployments with full data isolation, air-gapped inference for regulated industries, deployment infrastructure for customer-managed Kubernetes clusters, bring-your-own-model support, compliance with financial / healthcare / government regulations.\n\nMultilingual capabilities: Cohere's models support 100+ languages with competitive quality. For relevant research roles, understanding multilingual-model training challenges (data balance, tokenizer design, cross-lingual transfer) matters.\n\nInference optimization: serving at scale for enterprise customers, quantization, tensor parallelism, latency optimization for API and on-premise.\n\nNorth AI platform: Cohere's agent platform for enterprise workflows. Tool-calling orchestration, multi-step reasoning, integration with enterprise systems, audit / compliance features.\n\nCoding Interview Details\n\nTwo coding rounds, 60 minutes each. Difficulty is medium-hard. Comparable to Mistral AI or mid-frontier-lab inference teams for ML-systems roles; comparable t"
+}

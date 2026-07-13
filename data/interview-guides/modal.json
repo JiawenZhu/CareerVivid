@@ -1,0 +1,94 @@
+{
+  "company": "Modal",
+  "slug": "modal",
+  "url": "https://www.techinterview.org/companies/modal",
+  "scrapedAt": "2026-07-02T07:14:00.251Z",
+  "interviewStages": [
+    "System design (1 round): compute-platform prompts. \"Design a serverless GPU platform with sub-second cold starts on H100s.\" \"Design a distributed filesystem for user code and datasets across compute nodes.\" \"Design the billing / metering system for fractional GPU-second usage.\"",
+    "Behavioral / hiring manager: past projects, early-stage comfort, technical depth across specialties, customer empathy."
+  ],
+  "codingTopics": [
+    "Scheduling primitive: implement a task queue with priority, fair-share, and preemption",
+    "Resource allocator: given GPU / CPU / memory constraints, allocate to incoming tasks with acceptance / rejection logic",
+    "Streaming processor with backpressure and bounded-memory constraints",
+    "Container / image primitive (implement a layer-cache with eviction, manage a small OCI-like image format)",
+    "Classic algorithm problems (graphs, intervals, DP) with systems-applied twists (dependency DAG execution, resource-constraint satisfaction)"
+  ],
+  "systemDesignTopics": [
+    "\"Design a serverless GPU platform with sub-second cold-start on H100 / Blackwell instances.\"",
+    "\"Design a distributed filesystem for user code and datasets with consistency across nodes.\"",
+    "\"Design the billing / metering system for fractional GPU-second usage with audit-grade correctness.\"",
+    "\"Design a fair-share scheduler for multi-tenant GPU workloads preventing noisy-neighbor issues.\"",
+    "Walk through what happens when you invoke a Modal function &mdash; from SDK call through scheduler to container creation to execution.",
+    "Explain why Modal doesn't use Kubernetes directly, and what Modal does instead.",
+    "Discuss how you'd handle GPU OOM mid-training in a fair-share multi-tenant environment.",
+    "Reason about container-image pull optimization for large AI images (multi-GB with CUDA / PyTorch).",
+    "Describe your approach to checkpoint / resume for long-running training jobs."
+  ],
+  "behavioralTopics": [
+    "Early-stage comfort: \"How do you handle ambiguity and wearing multiple hats?\"",
+    "Technical depth + breadth: \"Describe a hard technical problem that required you to learn a new area.\"",
+    "Customer empathy: \"Have you engaged directly with customers or users? How did it shape your engineering?\"",
+    "Ownership: \"Tell me about a production incident you owned.\""
+  ],
+  "sampleQuestions": {
+    "coding": [
+      "Implement a task queue with priority, fair-share, and preemption. Talk through your approach, complexity, and edge cases.",
+      "Given GPU / CPU / memory constraints, allocate to incoming tasks with acceptance / rejection logic. Talk through your approach, complexity, and edge cases.",
+      "Implement an LRU cache with O(1) get and put. Then explain how you would make it thread-safe without serializing all access.",
+      "Implement implement a layer-cache with eviction, manage a small OCI-like image format. Talk through your approach, complexity, and edge cases.",
+      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph."
+    ],
+    "behavioral": [
+      "How do you handle ambiguity and wearing multiple hats?",
+      "Describe a hard technical problem that required you to learn a new area.",
+      "Have you engaged directly with customers or users? How did it shape your engineering?",
+      "Tell me about a production incident you owned.",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
+    "systemDesign": [
+      "Design a serverless GPU platform with sub-second cold-start on H100 / Blackwell instances. Cover the API, data model, and how it scales.",
+      "Design a distributed filesystem for user code and datasets with consistency across nodes. Cover the API, data model, and how it scales.",
+      "Design the billing / metering system for fractional GPU-second usage with audit-grade correctness.",
+      "Design a fair-share scheduler for multi-tenant GPU workloads preventing noisy-neighbor issues.",
+      "Walk through what happens when you invoke a Modal function &mdash; from SDK call through scheduler to container creation to execution."
+    ],
+    "values": [],
+    "other": [
+      "Do I need GPU / ML infrastructure background to get hired?",
+      "Why doesn't Modal use Kubernetes?",
+      "How does Modal compare to other serverless GPU platforms?",
+      "Is Modal financially stable given competition?",
+      "What's the NYC headquarters reality?"
+    ]
+  },
+  "difficulty": 8,
+  "tips": [
+    "Use Modal for a real project. Deploy a small LLM inference endpoint or a batch data job. Understand the developer experience.",
+    "Know container / Linux internals. cgroups, namespaces, OCI &mdash; vocabulary for infrastructure interviews.",
+    "Engage with why-not-Kubernetes. Have a thoughtful position, not a rote one.",
+    "Know GPU infrastructure concepts. MIG, CUDA contexts, multi-tenancy trade-offs.",
+    "Read Erik Bernhardsson's blog. The engineering-philosophy context helps in craft rounds.",
+    "Modal engineering blog (posts on scheduler, cold-start, GPU infrastructure)",
+    "Erik Bernhardsson's blog (especially older posts on Spotify recommender engineering)",
+    "Julia Evans's container internals zines",
+    "Nvidia CUDA documentation and MIG technical overview",
+    "Designing Data-Intensive Applications (Kleppmann) for general systems context",
+    "The Rust Programming Language if targeting Rust infrastructure roles",
+    "Modal itself &mdash; deploy a small project before interviewing"
+  ],
+  "compensation": [
+    "Software Engineer: $185k&ndash;$230k base, $180k&ndash;$320k equity (4 years), modest bonus. Total: ~$300k&ndash;$470k / year.",
+    "Senior Software Engineer: $235k&ndash;$295k base, $350k&ndash;$650k equity. Total: ~$420k&ndash;$670k / year.",
+    "Staff Engineer: $300k&ndash;$370k base, $700k&ndash;$1.3M equity. Total: ~$610k&ndash;$1M / year.",
+    "Modal deliberately doesn't use Kubernetes. The custom scheduler is a strategic technical choice, not a default.",
+    "The engineering depth per headcount is high. 100 people ships what many 500-person companies do in infrastructure.",
+    "The Python SDK is treated as product-level craft &mdash; API design matters.",
+    "Cold-start optimization is a real competitive moat. Modal invests heavily here.",
+    "\"I'd use Kubernetes\" answers to system design. Engage with why Modal doesn't.",
+    "Weak container / cgroup fundamentals for infrastructure roles.",
+    "Not having used Modal before interviewing. Authentic product knowledge helps.",
+    "Dismissing the GPU-infrastructure specialty as \"just cloud scheduling.\""
+  ],
+  "rawSummary": "Modal Interview Guide 2026: Serverless GPU Compute, Custom Scheduler, and Python-First Infrastructure\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 23, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Modal Interview Process: Complete 2026 Guide\n\n- Frequently Asked Questions\n\n- What the Role Pays and How to Think About the Equity\n\nUpdated June 30, 2026 · techinterview.org\n\n⏱ 11 min read\n\nModal\nmodal.com ↗\n\nTL;DR &mdash; Modal interviews test how well you reason about the systems the company actually builds — serverless GPU compute, container scheduling, and Python-first developer tooling — mostly through coding and systems-design rounds rather than abstract puzzles. Expect to talk through how containers cold-start on demand, how a custom scheduler packs GPU workloads efficiently, and how that complexity gets hidden behind a clean Python API. Candidates who stand out show practical depth in distributed systems and a real feel for developer experience, not just algorithm trivia.\n\nModal Interview Process: Complete 2026 Guide\n\nOverview\n\nModal is the serverless compute platform purpose-built for AI and data-intensive Python workloads &mdash; GPU inference, distributed training, batch data processing, LLM fine-tuning, and increasingly agent-based pipelines. Founded 2021 by Erik Bernhardsson (ex-Spotify, creator of Luigi and Annoy) and Akshat Bubna, private with Series B valuation in 2024 and continued funding through 2025. ~100 employees in 2026 &mdash; distinctively small relative to product sophistication. Headquartered in New York City with San Francisco presence and remote hiring across the US and Europe. The product is a Python-first serverless platform that abstracts containers, GPUs, and scheduling into decorators and function calls. Infrastructure is C++ / Rust heavy underneath (custom container orchestration, GPU scheduling, fast cold-start on serverless GPU instances) with Python bindings and SDK. Interviews reflect the reality of running a modern infrastructure company: expect real systems depth, GPU / distributed-compute expertise, and a bar closer to Stripe or HashiCorp than to typical startups.\n\nInterview Structure\n\nRecruiter screen (30 min): background, why Modal, team preference. The engineering surface is small but specialized: container / scheduler infrastructure, GPU orchestration, storage systems, Python SDK, developer platform, billing / observability, and emerging AI-product integrations. Team fit matters &mdash; scheduler and GPU teams have different profiles.\n\nTechnical phone screen (60 min): one coding problem, medium-hard. Python for SDK and product work; Rust for infrastructure; Go for some services. Problems tilt systems-y &mdash; implement a scheduling primitive, build a small container-runtime interface, process a stream with backpressure.\n\nTake-home (most senior / staff roles): 4&ndash;8 hours on a realistic infrastructure engineering problem. Modal's take-home is known for being substantive and design-document-heavy.\n\nOnsite / virtual onsite (4&ndash;5 rounds):\n\n- Coding (1&ndash;2 rounds): one algorithms round, one applied systems round. The applied round often involves container / scheduler primitives &mdash; queue management, resource allocation under constraints, GPU-pool scheduling.\n\n- System design (1 round): compute-platform prompts. \"Design a serverless GPU platform with sub-second cold starts on H100s.\" \"Design a distributed filesystem for user code and datasets across compute nodes.\" \"Design the billing / metering system for fractional GPU-second usage.\"\n\n- Infrastructure / systems deep-dive (1 round): container runtimes (containerd, runc, gVisor), Linux primitives (cgroups, namespaces), Kubernetes internals or deliberate alternatives, network virtualization, storage systems (snapshot, COW, dedup).\n\n- Behavioral / hiring manager: past projects, early-stage comfort, technical depth across specialties, customer empathy.\n\nTechnical Focus Areas\n\nCoding: Python fluency (modern idioms, type hints, async / await, testing); Rust for infrastructure roles (ownership, async with tokio, systems-level patterns). Clean code with production-grade error handling.\n\nContainer runtime / scheduling: Linux namespaces and cgroups, containerd / runc / crun, OCI image format, layer caching, container snapshotting for fast cold start, cgroup v2 for resource isolation, gVisor and Kata for sandboxing untrusted code.\n\nGPU orchestration: GPU scheduling (MIG partitioning on H100 / Blackwell), CUDA context management, multi-tenancy on shared GPUs, GPU memory management, NVLink / NVSwitch topology awareness, GPU-driver version compatibility.\n\nDistributed systems: task scheduling at scale, consensus for coordination (Modal runs a custom scheduler), backpressure in multi-tenant environments, fair-share resource allocation, preemption.\n\nStorage: fast container-image distribution (Modal loads container images faster than typical Kubernetes), networked filesystems for user code, volume management, snaps"
+}

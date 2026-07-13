@@ -1,0 +1,35 @@
+{
+  "company": "Credit Karma",
+  "slug": "credit-karma-interview-guide",
+  "url": "https://www.techinterview.org/companies/credit-karma-interview-guide",
+  "scrapedAt": "2026-07-02T07:21:38.852Z",
+  "interviewStages": [
+    "Behavioral: customer focus, ownership, working in regulated environment"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Credit Karma remote-friendly?",
+      "How does Credit Karma compare to NerdWallet or Mint?",
+      "What is the engineering culture under Intuit?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Credit Karma Interview Guide (2026): FinTech and Personal Finance\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nCredit Karma\ncreditkarma.com ↗\n\nCredit Karma is the personal finance and credit-monitoring platform — owned by Intuit since 2020. 130M+ members in the US. The interview emphasizes financial recommendation systems, credit data integration, and the unique privacy considerations of consumer financial data.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design credit score monitoring with bureau integration\n\n- Design a financial recommendation engine (loans, cards, savings)\n\n- Design fraud detection for identity theft\n\n- Coding: medium DSA, often with data-pipeline framing\n\n- Behavioral: customer focus, ownership, working in regulated environment\n\nLevels and comp (2026)\n\n- SE II: $150K–$185K total\n\n- Senior SE: $215K–$285K\n\n- Staff: $310K–$410K\n\n- Principal: $430K–$570K\n\nIntuit comp bands apply post-acquisition.\n\nPrep priorities\n\n- Be fluent in Scala (legacy core) or Go (newer services); Python for ML\n\n- Understand credit data and bureau integrations (TransUnion, Equifax, Experian)\n\n- Brush up on ML for recommendations and fraud\n\nFrequently Asked Questions\n\nIs Credit Karma remote-friendly?\n\nHybrid in Oakland (HQ), Charlotte, others. Some engineering roles fully remote within US.\n\nHow does Credit Karma compare to NerdWallet or Mint?\n\nCredit Karma has the largest user base. NerdWallet is more affiliate-focused. Mint was discontinued by Intuit in 2024 (folded into Credit Karma). Credit Karma pays comparable to mid-tier SaaS.\n\nWhat is the engineering culture under Intuit?\n\nStable post-acquisition. Some integration with broader Intuit infrastructure. Less agile than peak independent days; reliable.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Credit Karma? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextCoding Interview: SQL Query Optimization — EXPLAIN ANALYZE, Indexes, Join Strategies, Query Planner, Slow Queries⏱ 9 min readReturning to Tech After Caring for an Aging Parent⏱ 3 min readLow Level Design: Thumbnail Generation Service⏱ 6 min read"
+}

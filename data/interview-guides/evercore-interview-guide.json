@@ -1,0 +1,52 @@
+{
+  "company": "Evercore",
+  "slug": "evercore-interview-guide",
+  "url": "https://www.techinterview.org/companies/evercore-interview-guide",
+  "scrapedAt": "2026-07-02T07:17:24.412Z",
+  "interviewStages": [
+    "Round 1: Recruiter screen / HireVue. 30 minutes.",
+    "Round 2: First-round interviews. 30–60 minutes each; mix of behavioral, technical (financial modeling, accounting), motivation. Usually 2 interviews.",
+    "Round 3: Superday. 4–6 30-minute interviews on a single day. Mix of behavioral, technical, fit. Senior banker interview common.",
+    "Round 4: Decision and offer."
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "How does Evercore compare to bulge-bracket banks for analysts?",
+      "What's the relationship between Evercore and Evercore ISI?",
+      "Should I do my MBA before joining Evercore?",
+      "How does the no-balance-sheet model affect work?",
+      "Is Evercore a good engineering destination?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": [
+    "1st-year analyst: $115k base + $50k–$80k signing bonus + ~$80k–$120k year-end bonus = ~$250k–$320k total comp first year",
+    "2nd–3rd year analyst: $130k–$160k base + ~$120k–$200k bonus = ~$250k–$360k total",
+    "Associate (post-MBA): $200k–$250k base + $250k–$400k bonus = ~$450k–$650k total",
+    "VP: $275k–$400k base + $500k–$1.2M bonus = ~$775k–$1.6M+ total",
+    "Director / SVP: $400k–$600k base + $1M–$2.5M bonus",
+    "Senior MD / Partner: $750k–$2M base + $2M–$10M+ bonus depending on origination",
+    "The compensation at MD level can be substantial — Evercore senior MDs / partners can earn substantially more than bulge-bracket MDs given the partnership-flavored economics.",
+    "The promotion pace is real — analysts who excel can reach VP in 4–5 years instead of 5–6 at bulge brackets.",
+    "The Evercore ISI research arm is more substantive than candidates expect — equity research analysts have substantial market influence.",
+    "The hours are real — Evercore is among the most intense boutiques despite the prestige and compensation.",
+    "The engineering organization is small; engineers don't have FAANG-scale infrastructure problems and don't have the central role in firm strategy that engineers at JPMorgan or Goldman have."
+  ],
+  "rawSummary": "Evercore Interview Guide 2026: Independent Advisory, M&A Dominance, Boutique That Took on Bulge Brackets\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 30, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Evercore Interview Guide 2026: Independent Advisory Powerhouse, M&A Dominance, Investment Management, and the Boutique That Took on the Bulge Brackets\n\n- What Evercore Does\n\n- Roles Evercore Hires For\n\n- Evercore Interview Process\n\n- What Evercore Tests For\n\n- Compensation\n\n- Working at Evercore\n\n- Evercore vs Alternatives\n\n- Things That Surprise Candidates\n\n- Frequently Asked Questions\n\nUpdated April 30, 2026 · techinterview.org\n\n⏱ 8 min read\n\nEvercore\nevercore.com ↗\n\nEvercore Interview Guide 2026: Independent Advisory Powerhouse, M&A Dominance, Investment Management, and the Boutique That Took on the Bulge Brackets\n\nEvercore (NYSE: EVR) is one of the most successful independent investment banks of the modern era — a pure-play advisory firm that has steadily taken M&A market share from bulge-bracket banks since its founding in 1995 by Roger Altman. Today Evercore consistently ranks in the top 10 globally for M&A advisory by deal value, despite being a fraction of the size of Goldman Sachs or JPMorgan. The hiring process reflects the firm's distinctive culture: meritocratic, deal-focused, and unencumbered by the conflicts that integrated banks navigate. This guide covers what Evercore does, the engineering tracks, the interview process, and what makes Evercore hiring distinctive in 2026.\n\nWhat Evercore Does\n\nEvercore operates two business segments:\n\n- Investment Banking (Advisory): the core business — M&A advisory, capital markets advisory, restructuring, equity research, secondary research. ~85% of revenue. Among the top 10 M&A advisors globally by deal value.\n\n- Investment Management: wealth management for high-net-worth families, institutional asset management, trust services. ~15% of revenue. Smaller than the IB business but consistent contributor.\n\nWithin Investment Banking, distinctive practices:\n\n- M&A advisory: Evercore's flagship business. Sell-side and buy-side mandates for large transactions. Strong franchise across technology, healthcare, financial services, energy, industrials, consumer, and special situations.\n\n- Capital markets advisory: capital structure advisory, equity capital markets, debt capital markets advisory. Doesn't underwrite securities.\n\n- Restructuring: bankruptcy and recapitalization advisory. Smaller than Lazard's restructuring practice but real franchise.\n\n- Equity research: Evercore ISI is a top-ranked independent research provider. Distinct from typical boutique IB; this research function gives Evercore broader market visibility.\n\n- Strategic Defense Group: takeover defense and shareholder activism response. Premium specialty practice.\n\nDistinctive features:\n\n- Pure-play advisory: no commercial banking, no sales-and-trading, no underwriting, no balance-sheet lending. Conflict-free advisory. Like Lazard but more M&A-weighted (Lazard has stronger restructuring; Evercore has stronger M&A).\n\n- Founded by Roger Altman: Altman was a former Lehman Brothers banker, Treasury official, and Wall Street fixture. The Altman heritage shapes the firm's culture — relationship-driven, intellectually rigorous, anti-bureaucratic.\n\n- Steady growth: Evercore has grown more consistently than peer boutiques. M&A market share has expanded steadily since 2010s; senior banker hiring has continued through market cycles.\n\n- Public company: NYSE: EVR since 2006 IPO. Substantial financial transparency.\n\n- Smaller than bulge brackets, larger than smaller boutiques: ~2,000 employees globally. Smaller than Lazard (~3,400) but more focused on US-flavored M&A; smaller than Moelis but with stronger established franchise.\n\nRoles Evercore Hires For\n\nInvestment banking analyst / associate\n\nThe largest hiring track. Standard IB analyst / associate work — financial modeling, presentation creation, transaction execution. Evercore is one of the most prestigious destinations for top-target-school undergraduates aiming at IB and for top-MBA-program associates.\n\nRestructuring analyst / associate\n\nSmaller specialty within IB. Restructuring work involves complex bankruptcy / recapitalization analysis. Less central than at Lazard but real franchise.\n\nEquity research analyst (Evercore ISI)\n\nSell-side equity research. Evercore ISI is highly ranked across sectors. Distinct from typical IB boutique; research function provides broader market intelligence.\n\nSoftware engineer\n\nSmaller engineering organization than bulge-bracket peers. Builds internal tools — financial modeling, deal tracking, client management. Java + Python heavy; some C# in legacy systems.\n\nQuantitative analyst (Investment Management)\n\nInvestment Management quant work — portfolio construction, risk analytics, performance reporting. Smaller-scale than top quant funds but real work.\n\nWealth management technology\n\nBuilds the wealth management platform — port"
+}

@@ -1,0 +1,86 @@
+{
+  "company": "Atlassian",
+  "slug": "atlassian",
+  "url": "https://www.techinterview.org/companies/atlassian",
+  "scrapedAt": "2026-07-02T07:20:23.678Z",
+  "interviewStages": [
+    "System design (1 round): product-flavored prompts. \"Design the permissions model for Jira at enterprise scale.\" \"Design a real-time collaborative editor for Confluence pages.\" \"Design the notification system across all Atlassian products with per-user deduplication.\" Atlassian favors practical answers over theoretical microservices-everywhere designs.",
+    "Hiring manager / team fit: past projects, collaboration style, remote-work practices, how you handle cross-timezone work."
+  ],
+  "codingTopics": [
+    "OO design: model a domain (e.g., booking system, permissions hierarchy, versioned document) with clean class design and tests",
+    "Implement a specific data structure with Java-idiomatic API design (concurrent queue with specific semantics, LRU cache, rate limiter)",
+    "Parse or transform data with correct handling of edge cases (invalid input, missing fields, unicode)",
+    "Extend an existing codebase: add a feature to a small starter project, handling existing patterns",
+    "Debug: fix a subtle bug in a small piece of code given failing test output"
+  ],
+  "systemDesignTopics": [
+    "\"Design the Jira issue permission model supporting 10K users, custom roles, and project-level overrides.\"",
+    "\"Design the real-time collaboration layer for a Confluence page with 50 simultaneous editors.\"",
+    "\"Design cross-product notifications with per-user preferences, batching, and delivery across email / Slack / in-product.\"",
+    "\"Design the search infrastructure for a single tenant with 10M issues and sub-second query latency.\"",
+    "Open company, no bullshit: \"Tell me about a time you shared bad news with a stakeholder. How did you handle it?\"",
+    "Build with heart and balance: \"Describe a tradeoff you made between feature completeness and shipping on time.\"",
+    "Don't #@!% the customer: \"Tell me about a time you pushed back on an internal request to protect the user experience.\"",
+    "Play, as a team: \"Describe how you've contributed to a team's success beyond your individual work.\"",
+    "Be the change you seek: \"Tell me about a process or practice you changed because you believed it was wrong.\""
+  ],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Implement e.g., booking system, permissions hierarchy, versioned document. Talk through your approach, complexity, and edge cases.",
+      "Implement a specific data structure with Java-idiomatic API design (concurrent queue with specific semantics, LRU cache, rate limiter). Talk through your approach, complexity, and edge cases.",
+      "Implement invalid input, missing fields, unicode. Talk through your approach, complexity, and edge cases.",
+      "Implement a streaming feature aggregator: given a stream of events, maintain rolling counts and averages per key with bounded memory. Discuss complexity and eviction.",
+      "A function intermittently fails in production. Walk me through how you would reproduce, isolate, and fix the bug."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [
+      "Design the Jira issue permission model supporting 10K users, custom roles, and project-level overrides.",
+      "Design the real-time collaboration layer for a Confluence page with 50 simultaneous editors.",
+      "Design cross-product notifications with per-user preferences, batching, and delivery across email / Slack / in-product.",
+      "Design the search infrastructure for a single tenant with 10M issues and sub-second query latency.",
+      "Design a service at Atlassian scale that shortens URLs. Cover the API, storage, and hot-key handling."
+    ],
+    "values": [],
+    "other": [
+      "Do I need Java / Kotlin to get hired at Atlassian?",
+      "Is the Team Anywhere program real?",
+      "How important is object-oriented design in coding rounds?",
+      "How does Atlassian compare to GitLab on interviews?",
+      "What's the best team to target for AI-related work?"
+    ]
+  },
+  "difficulty": 7,
+  "tips": [
+    "Use Jira or Confluence before the interview. Configure a board, build a Confluence space, try Automation rules. Form opinions about DX.",
+    "Prep OO design scenarios. \"Model a permissions system\" / \"Model a versioned document\" / \"Model a subscription billing engine\" &mdash; practice these until they feel natural.",
+    "Prepare five values stories. One per value, each with specifics and outcomes.",
+    "Demonstrate enterprise awareness. Mention audit logging, data residency, tenant isolation, or compliance in system design.",
+    "Write idiomatic Kotlin or modern Java. Your coding style is a signal.",
+    "Atlassian engineering blog (posts on service architecture, Compass, Rovo, CDN design)",
+    "Effective Java by Bloch (modern editions) for Java idiom fluency",
+    "Kotlin in Action by Isakova et al. for Kotlin depth",
+    "Designing Data-Intensive Applications (Kleppmann) for multi-tenant architecture background",
+    "LeetCode's OO design section (low-level design problems)",
+    "Atlassian's public values documentation (for behavioral prep)"
+  ],
+  "compensation": [
+    "P3 / Software Engineer: $160k&ndash;$200k base, $80k&ndash;$150k equity/yr, 10% bonus. Total: ~$240k&ndash;$370k / year.",
+    "P4 / Senior Software Engineer: $210k&ndash;$260k base, $130k&ndash;$230k equity/yr. Total: ~$340k&ndash;$510k / year.",
+    "P5 / Principal Engineer: $270k&ndash;$320k base, $200k&ndash;$380k equity/yr. Total: ~$470k&ndash;$700k / year.",
+    "The values are operational, not marketing. They show up in 1:1s, calibrations, and interview rubrics.",
+    "OO design carries more weight than at most FAANG loops. Expect explicit hierarchy / interface / composition questions.",
+    "Multi-tenant awareness distinguishes candidates. If you've only worked on single-tenant or single-customer software, spend time thinking about isolation patterns.",
+    "Remote work is genuinely supported &mdash; no hub-city bias in hiring or promotion that candidates typically report.",
+    "Hand-waving on OO design. \"We'd have classes\" isn't an answer; \"we'd model it as this interface with these three implementations because&#8230;\" is.",
+    "Ignoring multi-tenancy in system design. Atlassian's fundamental constraint is isolation and scale; not engaging with this is disqualifying.",
+    "Values stories without specifics. The rubric rewards concrete, not generic.",
+    "Java coding that reads like 2010 Java. Use modern idioms &mdash; streams, optionals, records, sealed classes, text blocks."
+  ],
+  "rawSummary": "Atlassian Interview Guide 2026: Jira, Confluence, Team Anywhere, and Enterprise Multi-Tenant Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 22, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\tUpdated April 22, 2026 · techinterview.org\n\n⏱ 9 min read\n\nAtlassian\natlassian.com ↗\n\nAtlassian Interview Process: Complete 2026 Guide\n\nOverview\n\nAtlassian is the company behind Jira, Confluence, Bitbucket, Trello, Jira Service Management, and a growing suite of AI-integrated collaboration products. Founded 2002 in Sydney, public since 2015, ~12,000 employees in 2026. The company is one of the largest fully-remote operations in tech &mdash; the \"Team Anywhere\" program went global in 2020 and persists. Engineering hubs in Sydney, San Francisco, Mountain View, Austin, New York, and Bengaluru, plus distributed hiring across most US states and several European countries. The product suite is used by 260K+ customers including most of the Fortune 500, which shapes the engineering culture: enterprise-grade rigor on security, uptime, and data residency, combined with a designed \"developer happiness\" value that comes through in internal tooling.\n\nInterview Structure\n\nRecruiter screen (30 min): background, why Atlassian, team preference. They triage carefully between cloud platform, product teams (Jira, Confluence, Bitbucket), AI, and Marketplace. The screens are deliberate &mdash; expect to discuss which product surface interests you.\n\nTechnical phone screen (60 min): one coding problem, medium difficulty. Languages: Java and Kotlin dominate the backend monolith and microservices; TypeScript for frontend; Python for data and AI work; Go for some platform services. Problems are applied &mdash; parse this data structure, implement this queue semantic, extend this class with a new feature.\n\nTake-home (some senior / staff roles): 4&ndash;6 hour focused project. Historically involves building a small feature on top of a starter codebase or implementing a well-defined module. Write-up quality and test coverage matter.\n\nOnsite / virtual onsite (4&ndash;5 rounds):\n\n- Coding (1&ndash;2 rounds): one classic algorithms round, one applied / object-oriented design round. The OO round often involves extending or refactoring a Java class hierarchy &mdash; model this domain, handle these edge cases, write the test plan.\n\n- System design (1 round): product-flavored prompts. \"Design the permissions model for Jira at enterprise scale.\" \"Design a real-time collaborative editor for Confluence pages.\" \"Design the notification system across all Atlassian products with per-user deduplication.\" Atlassian favors practical answers over theoretical microservices-everywhere designs.\n\n- Role-specific deep-dive (1 round): for backend, expect Java / JVM internals, GC tuning, microservices patterns. For frontend, React and build-tooling depth. For SRE, cloud architecture and reliability engineering.\n\n- Values / behavioral (1 round): the five Atlassian values (Open company, no bullshit / Build with heart and balance / Don't #@!% the customer / Play, as a team / Be the change you seek) come up concretely. Expect STAR-format behavioral questions that ladder up to specific values.\n\n- Hiring manager / team fit: past projects, collaboration style, remote-work practices, how you handle cross-timezone work.\n\nTechnical Focus Areas\n\nCoding: Java / Kotlin idioms (streams, optionals, sealed classes, coroutines), object-oriented design with real class hierarchies, collections depth (concurrent vs sequential, performance trade-offs), testing with JUnit / Mockito / Kotest.\n\nJVM / Java internals: garbage collection tuning (G1 vs ZGC), JIT compilation, memory model, concurrency primitives, Spring and Spring Boot patterns, transactional boundaries with JPA / Hibernate.\n\nSystem design: multi-tenant isolation (Atlassian serves 260K+ tenants; isolation patterns matter), permissions at scale, audit logging, search at scale (Lucene / Elasticsearch), cross-product notifications, real-time collaboration (CRDTs, OT) for Confluence and Jira whiteboards.\n\nData plane: PostgreSQL at scale, migrations, transaction isolation, read replicas, partitioning. Kafka for async events. Relevant S3-compatible object storage for attachments.\n\nCloud / infrastructure: AWS-heavy (Atlassian runs large AWS infrastructure), Kubernetes, service mesh, deployment pipelines, blue-green vs canary rollouts.\n\nAI / Rovo: for roles adjacent to Atlassian Intelligence / Rovo, knowledge of RAG, vector search, LLM integration patterns, and evaluation frameworks.\n\nCoding Interview Details\n\nTwo coding rounds, 60 minutes each. Difficulty is medium &mdash; below Google L5 on pure algorithms, higher on object-oriented design and testability. Comparable to Shopify or GitLab rounds.\n\nTypical problem shapes:\n\n- OO design: model a domain (e.g., booking system, permissions hierarchy, versioned document) with clean class design and tests\n\n- Implement a specific data structure with Java-idiomatic API design (concurrent queue with sp"
+}

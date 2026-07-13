@@ -1,0 +1,80 @@
+{
+  "company": "Blizzard/Activision",
+  "slug": "blizzard-activision-interview-guide",
+  "url": "https://www.techinterview.org/companies/blizzard-activision-interview-guide",
+  "scrapedAt": "2026-07-02T07:20:31.504Z",
+  "interviewStages": [
+    "Recruiter screen (30 min). Background, role fit, studio preference, gaming relevance.",
+    "Hiring manager screen (45 min). Past projects, why this studio, gaming domain familiarity.",
+    "Technical phone screen (60–90 min). Coding problem plus discussion of game-specific concepts.",
+    "Onsite or virtual loop (4–6 rounds).",
+    "1 game-systems design round (network architecture, gameplay systems, etc.)",
+    "1 domain-depth round (graphics, physics, AI, networking — track-dependent)",
+    "1 behavioral / culture round",
+    "Hiring panel review.",
+    "C++ depth: memory management, RAII, templates, performance optimization",
+    "Game-specific algorithms: spatial partitioning (octrees, BVH), pathfinding (A*, navigation meshes), animation blending",
+    "Networking for online games: lockstep vs client-server, lag compensation, anti-cheat",
+    "Graphics for rendering roles: shader programming, rendering pipeline, GPU optimization",
+    "For Battle.net / online services: distributed systems, matchmaking, leaderboards, telemetry",
+    "Blizzard Irvine — slower-paced, polish-focused, longer development cycles; legacy of \"when it's ready\" philosophy",
+    "Activision Santa Monica / Treyarch / Infinity Ward / Sledgehammer — annual Call of Duty cadence, more shipping-pace focus",
+    "King (Candy Crush) — mobile and live-ops focused, A/B testing heavy, more SaaS-like",
+    "Battle.net online services — distributed systems work that resembles tech-company backend more than game development"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Do I need game-development experience?",
+      "Is the work mostly C++?",
+      "How has Microsoft acquisition changed hiring?",
+      "What is work-life balance like?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": [
+    "Senior engineer: $160–220K base + RSU + bonus → $250–380K total",
+    "Staff engineer: $220–290K base + significant RSU → $380–550K total",
+    "Principal: $290–380K base + RSU → $550K–800K total",
+    "Design an entity-component system (ECS) for a large open-world game. Discuss memory layout (struct-of-arrays vs array-of-structs), iteration performance, and how to add and remove components without GC pauses. World of Warcraft's architecture has evolved through several iterations of this.",
+    "Spatial partitioning for an MMO with 5,000 players in a zone. Interest management — what each client needs to know about other entities. Aggregate updates, dead reckoning, and the trade-off between bandwidth and visual fidelity.",
+    "Implement a particle system on the GPU. Compute-shader-driven particles, simulation-vs-rendering separation, the role of indirect dispatch for variable particle counts.",
+    "Battle.net at scale: friend graphs, presence, voice chat, party invitations, cross-game shared state. Discuss how to architect a service used by 100M+ active accounts.",
+    "Anti-cheat for competitive games (Overwatch, Call of Duty). Client-side detection, server-side anomaly detection, the role of replay analysis. Discuss the constant arms race against cheat-makers and why this is fundamentally an unwinnable problem.",
+    "Matchmaking at scale. Skill-based matchmaking with rapid iteration, balancing match quality against queue time, the cold-start problem for new players. Discuss how Overwatch and CoD differ in matchmaking philosophy.",
+    "World of Warcraft expansions: how to design and ship 5-10GB of new content while preserving 20 years of legacy systems. The technical debt management story is itself an interview-worthy topic.",
+    "Diablo IV seasons: live-service-style cyclical content rotation, balance changes, and the engineering work to keep an aging codebase responsive.",
+    "Hearthstone card releases: the data-driven balance design, automated playtesting, and how mathematical sims complement human playtesting.",
+    "Blizzard Irvine: long development cycles, polish-focused, \"when it's ready\" philosophy. Best for engineers who value craft over shipping pace.",
+    "Treyarch / Infinity Ward / Sledgehammer (CoD studios): annual cadence, faster pace, more shipping-focused. The recent CoD studios are spread across multiple offices and have somewhat different cultures internally.",
+    "King (Candy Crush): mobile-first, A/B-testing-driven, more SaaS-like in engineering practices. Largely separate from the main Blizzard / Activision orgs.",
+    "Comp: aligned with Microsoft bands, generally improved over pre-acquisition Activision Blizzard. Microsoft RSU has been a strong tailwind.",
+    "Cultural integration: studio cultures have been largely preserved, but interview practices have aligned with Microsoft's process. Expect Microsoft-style behavioral rounds alongside studio-specific technical interviews.",
+    "Cross-game collaboration: Microsoft Gaming has pushed for more shared infrastructure across Activision Blizzard, Xbox Game Studios, and Bethesda properties. Engineers should expect more cross-org collaboration than at pre-acquisition Activision Blizzard.",
+    "Labor relations: Microsoft committed to neutrality on union organization. The Activision QA union is now the largest in US gaming. Engineering roles are not unionized and the culture has improved on documented prior issues.",
+    "WoW / Diablo (Blizzard Irvine) — long-tail live-service MMORPG and aging-but-active franchises",
+    "Overwatch (Blizzard Irvine) — competitive shooter, smaller team, live-ops focus",
+    "Call of Duty (multiple studios) — annual ship cadence, AAA shooter scale",
+    "King (Stockholm) — mobile, A/B testing, casual gaming",
+    "Riot Games &mdash; League and Valorant",
+    "Electronic Arts &mdash; sports franchises",
+    "Epic Games &mdash; Unreal Engine and Fortnite",
+    "Microsoft &mdash; parent company since 2023"
+  ],
+  "rawSummary": "Blizzard / Activision Interview Guide (2026): Process, Questions, Compensation\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 2, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Interview process\n\n- Common technical questions\n\n- The studio-track distinction\n\n- Compensation (2026 estimates, Los Angeles)\n\n- Sample interview questions in depth\n\n- The Microsoft acquisition reality\n\n- Picking the right studio\n\n- Frequently Asked Questions\n\n- Adjacent Gaming and Microsoft\n\nUpdated May 3, 2026 · techinterview.org\n\n⏱ 5 min read\n\nBlizzard / Activision\nactivisionblizzard.com ↗\n\nBlizzard / Activision Interview Guide\n\nCompany overview: Activision Blizzard is one of the largest game publishers, with major franchises including World of Warcraft, Diablo, Overwatch, StarCraft (Blizzard); Call of Duty, Tony Hawk, Crash Bandicoot (Activision); Candy Crush (King). Acquired by Microsoft in 2023 for $69B; now operates as part of Microsoft Gaming alongside Xbox Game Studios. Headquarters in Santa Monica (Activision) and Irvine (Blizzard); engineering across Santa Monica, Irvine, Austin, Boston, Albany NY, Stockholm, and other studios.\n\nInterview process\n\nTimeline: 4–8 weeks. Varies significantly by studio.\n\n- Recruiter screen (30 min). Background, role fit, studio preference, gaming relevance.\n\n- Hiring manager screen (45 min). Past projects, why this studio, gaming domain familiarity.\n\n- Technical phone screen (60–90 min). Coding problem plus discussion of game-specific concepts.\n\n- Onsite or virtual loop (4–6 rounds).\n\n2 coding rounds (C++ heavy for engine roles, more flexible for tools and online services)\n\n- 1 game-systems design round (network architecture, gameplay systems, etc.)\n\n- 1 domain-depth round (graphics, physics, AI, networking — track-dependent)\n\n- 1 behavioral / culture round\n\n- Hiring panel review.\n\nCommon technical questions\n\n- C++ depth: memory management, RAII, templates, performance optimization\n\n- Game-specific algorithms: spatial partitioning (octrees, BVH), pathfinding (A*, navigation meshes), animation blending\n\n- Networking for online games: lockstep vs client-server, lag compensation, anti-cheat\n\n- Graphics for rendering roles: shader programming, rendering pipeline, GPU optimization\n\n- For Battle.net / online services: distributed systems, matchmaking, leaderboards, telemetry\n\nThe studio-track distinction\n\nDifferent studios have different cultures and interview styles:\n\n- Blizzard Irvine — slower-paced, polish-focused, longer development cycles; legacy of \"when it's ready\" philosophy\n\n- Activision Santa Monica / Treyarch / Infinity Ward / Sledgehammer — annual Call of Duty cadence, more shipping-pace focus\n\n- King (Candy Crush) — mobile and live-ops focused, A/B testing heavy, more SaaS-like\n\n- Battle.net online services — distributed systems work that resembles tech-company backend more than game development\n\nCompensation (2026 estimates, Los Angeles)\n\n- Senior engineer: $160–220K base + RSU + bonus → $250–380K total\n\n- Staff engineer: $220–290K base + significant RSU → $380–550K total\n\n- Principal: $290–380K base + RSU → $550K–800K total\n\nPost-Microsoft acquisition, comp is now Microsoft-banded. Below pure FAANG SWE comp, particularly at the senior+ levels, but with strong RSU upside given Microsoft's stock performance.\n\nSample interview questions in depth\n\nC++ engine and gameplay\n\n- Design an entity-component system (ECS) for a large open-world game. Discuss memory layout (struct-of-arrays vs array-of-structs), iteration performance, and how to add and remove components without GC pauses. World of Warcraft's architecture has evolved through several iterations of this.\n\n- Spatial partitioning for an MMO with 5,000 players in a zone. Interest management — what each client needs to know about other entities. Aggregate updates, dead reckoning, and the trade-off between bandwidth and visual fidelity.\n\n- Implement a particle system on the GPU. Compute-shader-driven particles, simulation-vs-rendering separation, the role of indirect dispatch for variable particle counts.\n\nNetworking and online services\n\n- Battle.net at scale: friend graphs, presence, voice chat, party invitations, cross-game shared state. Discuss how to architect a service used by 100M+ active accounts.\n\n- Anti-cheat for competitive games (Overwatch, Call of Duty). Client-side detection, server-side anomaly detection, the role of replay analysis. Discuss the constant arms race against cheat-makers and why this is fundamentally an unwinnable problem.\n\n- Matchmaking at scale. Skill-based matchmaking with rapid iteration, balancing match quality against queue time, the cold-start problem for new players. Discuss how Overwatch and CoD differ in matchmaking philosophy.\n\nLive-ops and content\n\n- World of Warcraft expansions: how to design and ship 5-10GB of new content while preserving 20 years of legacy systems. The technical debt management story is itself an interview-worthy topic.\n\n- Diablo IV seasons: live-service-style cyclical content"
+}

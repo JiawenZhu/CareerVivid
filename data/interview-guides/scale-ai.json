@@ -1,0 +1,89 @@
+{
+  "company": "Scale AI",
+  "slug": "scale-ai",
+  "url": "https://www.techinterview.org/companies/scale-ai",
+  "scrapedAt": "2026-07-02T07:14:31.924Z",
+  "interviewStages": [
+    "System design (1 round): ML / data-heavy prompts. \"Design a data pipeline that ingests 100M labeled examples per day and routes them to training.\" \"Design an evaluation harness for LLM benchmarks with reproducibility guarantees.\" \"Design a task-distribution system for 10K human labelers with quality controls.\"",
+    "Behavioral / hiring manager: past projects, how you handle ambiguity and changing priorities, comfort with high-security / defense-adjacent work (for certain roles)."
+  ],
+  "codingTopics": [
+    "Data processing with quality constraints (given a stream of labeling tasks, route to labelers with agreement ≥ X, reject low-confidence submissions)",
+    "Fuzzy matching or deduplication (cluster near-duplicate text examples, detect overlapping bounding boxes)",
+    "Streaming aggregation with windowing (compute rolling inter-annotator agreement, detect drift)",
+    "API orchestration with rate limits and retries (call a labeling API for 10K items efficiently)",
+    "Classic algorithm problems with practical twists (graph traversal on a labeling workflow DAG, shortest path over task dependencies)"
+  ],
+  "systemDesignTopics": [
+    "\"Design an ingestion pipeline for 10TB/day of labeled data with deduplication and quality checks.\"",
+    "\"Design an LLM evaluation harness for 100 benchmarks across 20 models with reproducible results.\"",
+    "\"Design a labeling task-distribution system for 10K concurrent human labelers with fraud detection.\"",
+    "\"Design a RLHF preference-collection pipeline with quality sampling and stratified distribution.\""
+  ],
+  "behavioralTopics": [
+    "Ambiguity: \"Tell me about a project where the direction changed multiple times. How did you handle it?\"",
+    "Ownership: \"Describe a time you took something from 'broken' to 'reliable.'\"",
+    "Pace: \"What's the fastest you've shipped a material piece of functionality?\"",
+    "Mission alignment: \"Why Scale specifically, and why now?\""
+  ],
+  "sampleQuestions": {
+    "coding": [
+      "Implement given a stream of labeling tasks, route to labelers with agreement ≥ X, reject low-confidence submissions. Talk through your approach, complexity, and edge cases.",
+      "Implement cluster near-duplicate text examples, detect overlapping bounding boxes. Talk through your approach, complexity, and edge cases.",
+      "Implement compute rolling inter-annotator agreement, detect drift. Talk through your approach, complexity, and edge cases.",
+      "Implement call a labeling API for 10K items efficiently. Talk through your approach, complexity, and edge cases.",
+      "Implement graph traversal on a labeling workflow DAG, shortest path over task dependencies. Talk through your approach, complexity, and edge cases."
+    ],
+    "behavioral": [
+      "Tell me about a project where the direction changed multiple times. How did you handle it?",
+      "Describe a time you took something from 'broken' to 'reliable.",
+      "What's the fastest you've shipped a material piece of functionality?",
+      "Why Scale specifically, and why now?",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
+    "systemDesign": [
+      "RLHF: walk through the pipeline from preference collection through reward model training through policy optimization. What are the quality pitfalls at each stage? What does Constitutional AI change?",
+      "Evaluation methodology: how do you design a benchmark that's hard to game? How do you handle contamination? What are the tradeoffs of LLM-as-a-judge vs human eval vs automated metrics?",
+      "Data-quality reasoning: given this dataset and these quality signals, how do you improve label quality without increasing cost 10x?",
+      "Fine-tuning decisions: full fine-tune vs LoRA vs prompting &mdash; when does each make sense?",
+      "Design an ingestion pipeline for 10TB/day of labeled data with deduplication and quality checks."
+    ],
+    "values": [
+      "How is the equity valued post-deal?"
+    ],
+    "other": [
+      "How does the post-Meta-deal affect hiring?",
+      "Do I need ML research background?",
+      "What's the government / defense work about?",
+      "How does Scale compare to OpenAI / Anthropic on interviews?"
+    ]
+  },
+  "difficulty": 7.5,
+  "tips": [
+    "Understand the current direction. Read recent news, the company blog, and the CEO's public comments. Have a view.",
+    "Prep data-quality intuition. Read about inter-annotator agreement, active learning, adversarial labeling, and data contamination.",
+    "Have opinions on evaluation. Scale is deep in the LLM-evaluation space; engage with the methodology.",
+    "Show speed. In behavioral answers, emphasize what you shipped and how fast.",
+    "Ask about the team's roadmap. \"What's the 6-month roadmap for this team?\" signals you care about practical direction in a company that's evolving.",
+    "Scale AI engineering blog and evaluation research publications",
+    "Training language models to follow instructions with human feedback (InstructGPT paper)",
+    "Anthropic's Constitutional AI and Training a Helpful and Harmless Assistant",
+    "The Measuring Massive Multitask Language Understanding (MMLU) paper for benchmark design intuition",
+    "Recent Scale-authored papers on evaluation, red-teaming, and data quality",
+    "LeetCode medium set with focus on streams, data processing, and graph problems"
+  ],
+  "compensation": [
+    "L3 / Member of Technical Staff: $180k&ndash;$220k base, $250k&ndash;$400k equity (4 years), variable bonus. Total: ~$310k&ndash;$480k / year.",
+    "L4 / Senior MTS: $230k&ndash;$295k base, $500k&ndash;$900k equity. Total: ~$460k&ndash;$720k / year.",
+    "L5 / Staff: $300k&ndash;$370k base, $900k&ndash;$1.7M equity. Total: ~$700k&ndash;$1.1M / year.",
+    "The post-Meta-deal transition is a real context shift. Interviewers weight candidates' comfort with the new direction.",
+    "Data-quality reasoning is a distinctive skill that underperforms at most companies but is core at Scale.",
+    "Government / defense work is a real product line; some roles require US citizenship and security clearance eligibility.",
+    "The compensation is competitive, but equity value is harder to estimate than at public companies.",
+    "Hand-waving on data-quality constraints. \"We'd have quality checks\" isn't an answer.",
+    "Treating the Meta-deal as a blocker. Thoughtful engagement with the change is fine; hung-up-on-the-past is disqualifying.",
+    "Generic ML answers. At Scale, specifics about RLHF, evaluation, and data curation matter.",
+    "Uncomfortable with ambiguity. This environment is explicitly high-ambiguity."
+  ],
+  "rawSummary": "Scale AI Interview Guide 2026: Post-Meta Deal, LLM Evaluations, RLHF Data Pipelines\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 22, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\tUpdated April 22, 2026 · techinterview.org\n\n⏱ 9 min read\n\nScale AI\nscale.com ↗\n\nScale AI Interview Process: Complete 2026 Guide\n\nOverview\n\nScale AI is the data-and-evaluation company for frontier AI systems. Founded 2016 by Alexandr Wang, the business started in autonomous-vehicle labeling and expanded into generative-AI data curation, RLHF pipelines, model evaluations, and government / defense AI programs. In 2024&ndash;2025 Meta made a ~$14B investment and acqui-hired key leadership (including Wang), reshaping the company into a structurally different entity: the core operations continue with a new CEO and a tighter focus on enterprise data and generative-AI evaluations, while many senior researchers moved to Meta Superintelligence Labs. As of 2026, the company is ~1,000 engineers post-transition, headquartered in SF, with substantial remote hiring across the US.\n\nInterviewing at Scale in 2026 is shaped by that post-Meta-deal reality: faster hiring pace, narrower product focus, strong demand for engineers comfortable with high-ambiguity environments, and continued emphasis on rigorous ML systems and large-scale data engineering.\n\nInterview Structure\n\nRecruiter screen (30 min): background, why Scale (especially post-transition), team preference among data platform, evaluations, government programs, and applied research. The screen probes for comfort with the change in company direction &mdash; candidates hung up on the pre-deal era don't advance.\n\nTechnical phone screen (60 min): one coding problem, medium-hard. Languages: Python and TypeScript are most common; Go for infrastructure roles. Problems tilt applied &mdash; process this labeling stream, implement this quality-scoring system, handle this rate-limited API integration.\n\nTake-home (many senior and staff roles): 4&ndash;6 hour focused project. Historically involves a realistic data-pipeline or ML-infrastructure problem. Write-up quality and documentation are weighted heavily.\n\nOnsite / virtual onsite (4&ndash;5 rounds):\n\n- Coding (1&ndash;2 rounds): one algorithms round, one applied round. The applied round often involves data processing &mdash; parse this labeling-task format, compute this inter-annotator agreement metric, implement this sampling strategy.\n\n- System design (1 round): ML / data-heavy prompts. \"Design a data pipeline that ingests 100M labeled examples per day and routes them to training.\" \"Design an evaluation harness for LLM benchmarks with reproducibility guarantees.\" \"Design a task-distribution system for 10K human labelers with quality controls.\"\n\n- ML / research round (for ML-engineering and research roles): depth on RLHF, preference data, evaluation methodology, fine-tuning, or autonomous-driving perception depending on team. Expect to discuss papers, debug a training failure, or reason about data-quality tradeoffs.\n\n- Behavioral / hiring manager: past projects, how you handle ambiguity and changing priorities, comfort with high-security / defense-adjacent work (for certain roles).\n\n- Values / culture: less formally codified than at Anthropic or Atlassian, but interviewers probe for owner-mindset, speed, and comfort with a company in transition.\n\nTechnical Focus Areas\n\nCoding: data processing at scale, stream aggregation, fuzzy matching, deduplication, sampling with quality constraints, rate-limited API integration, file-format parsing.\n\nData engineering: batch vs streaming, quality metrics (inter-annotator agreement, label confidence, active learning), pipeline orchestration (Airflow, Prefect, Dagster, or custom), data versioning (DVC, LakeFS, or equivalents), schema evolution.\n\nML systems: RLHF pipeline components (preference data collection, reward model training, PPO / DPO), evaluation harnesses (reproducibility, sandboxing, grader models), red-teaming infrastructure, fine-tuning orchestration. For autonomous-driving teams: perception data pipelines, sensor fusion, scene graph construction.\n\nInfrastructure: Kubernetes, cloud-native deployments, GPU scheduling for eval workloads, storage tiering for multi-petabyte data stores, blob-storage access patterns.\n\nSecurity & compliance (for government programs): FedRAMP, IL-5, air-gapped deployments, classified-adjacent workflows. These are niche but specific teams care about them.\n\nCoding Interview Details\n\nTwo coding rounds, 60 minutes each. Difficulty is medium-hard. Comparable to OpenAI or mid-tier FAANG on pure algorithms, with a noticeable applied tilt. Interviewers push for clean, idiomatic Python or TypeScript and care about realistic edge-case handling.\n\nTypical problem types:\n\n- Data processing with quality constraints (given a stream of labeling tasks, route to labelers with agreement ≥ X, reject low-confidence submissions)\n\n- Fuzzy matching or deduplication (cluster near-duplicate text examples, detect"
+}
