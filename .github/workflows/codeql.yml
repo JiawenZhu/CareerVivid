@@ -18,7 +18,8 @@ on:
     branches: [ "main" ]
   workflow_dispatch:
   schedule:
-    - cron: '29 4 * * *'
+    # Weekly security heartbeat. Push, PR, and manual scans remain immediate.
+    - cron: '0 16 * * 1'
 
 jobs:
   analyze:
