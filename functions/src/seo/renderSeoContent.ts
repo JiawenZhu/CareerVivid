@@ -2,6 +2,7 @@ import { onRequest } from "firebase-functions/v2/https";
 import * as admin from "firebase-admin";
 import { isbot } from "isbot";
 import { algoliasearch } from "algoliasearch";
+import { getLearningSeoPage } from "./learningSeo";
 
 const db = admin.firestore();
 
@@ -45,6 +46,7 @@ const buildHtml = ({
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>${esc(title)} | ${esc(siteSuffix)}</title>
   <meta name="description" content="${esc(description)}" />
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
   <link rel="canonical" href="${canonicalUrl}" />
   <link rel="icon" href="${LOGO_URL}" />
 
@@ -252,6 +254,104 @@ async function handleWhiteboard(parts: string[]): Promise<string> {
     return buildHtml({ title, description, canonicalUrl, imageUrl, structuredData, bodyContent, siteSuffix: "CareerVivid Whiteboard" });
 }
 
+function handleLearningPage(slug?: string): string {
+    const page = getLearningSeoPage(slug);
+    if (!page) throw new Error("not_found");
+
+    const canonicalUrl = `${BASE_URL}${page.path}`;
+    const isCatalog = !slug;
+    const courseSchema = isCatalog
+        ? {
+            "@type": "ItemList",
+            name: "CareerVivid interactive courses",
+            numberOfItems: 2,
+            itemListElement: [
+                { "@type": "ListItem", position: 1, name: "AI Agent Builder Curriculum", url: `${BASE_URL}/learning/ai-agent-curriculum` },
+                { "@type": "ListItem", position: 2, name: "Coding Interview Patterns", url: `${BASE_URL}/learning/coding-interview-patterns` },
+            ],
+        }
+        : {
+            "@type": "Course",
+            "@id": `${canonicalUrl}#course`,
+            name: page.heading,
+            description: page.description,
+            url: canonicalUrl,
+            provider: { "@type": "Organization", name: "CareerVivid", url: `${BASE_URL}/` },
+            educationalLevel: page.level,
+            isAccessibleForFree: slug === "coding-interview-patterns",
+            hasCourseInstance: { "@type": "CourseInstance", courseMode: "online" },
+            teaches: page.topics,
+            ...(slug === "coding-interview-patterns"
+                ? { offers: { "@type": "Offer", price: "0", priceCurrency: "USD", category: "Free" } }
+                : {}),
+        };
+    const structuredData: Record<string, unknown> = {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": isCatalog ? "CollectionPage" : "WebPage",
+                "@id": `${canonicalUrl}#webpage`,
+                name: page.title,
+                description: page.description,
+                url: canonicalUrl,
+                isPartOf: { "@type": "WebSite", name: "CareerVivid", url: `${BASE_URL}/` },
+            },
+            courseSchema,
+            ...(isCatalog ? [] : [{
+                "@type": "BreadcrumbList",
+                itemListElement: [
+                    { "@type": "ListItem", position: 1, name: "CareerVivid", item: `${BASE_URL}/` },
+                    { "@type": "ListItem", position: 2, name: "Learning", item: `${BASE_URL}/learning` },
+                    { "@type": "ListItem", position: 3, name: page.heading, item: canonicalUrl },
+                ],
+            }]),
+            ...(page.faqs.length === 0 ? [] : [{
+                "@type": "FAQPage",
+                mainEntity: page.faqs.map(({ question, answer }) => ({
+                    "@type": "Question",
+                    name: question,
+                    acceptedAnswer: { "@type": "Answer", text: answer },
+                })),
+            }]),
+        ],
+    };
+
+    const topicList = page.topics.map((topic) => `<li>${esc(topic)}</li>`).join("");
+    const faqList = page.faqs.map(({ question, answer }) => `
+        <section>
+          <h3 style="font-size:1rem;font-weight:700;margin:16px 0 4px;">${esc(question)}</h3>
+          <p style="color:#555;line-height:1.6;margin:0;">${esc(answer)}</p>
+        </section>`).join("");
+    const courseLinks = isCatalog ? `
+        <section style="margin-top:32px;">
+          <h2 style="font-size:1.35rem;font-weight:800;">Available courses</h2>
+          <article style="padding:16px 0;border-bottom:1px solid #eee;">
+            <h3 style="font-size:1.05rem;margin:0 0 6px;"><a href="${BASE_URL}/learning/ai-agent-curriculum" style="color:#4f46e5;">AI Agent Builder Curriculum</a></h3>
+            <p style="color:#555;line-height:1.6;margin:0;">10 modules and 58 lessons from LLM foundations to a shipped AI agent portfolio project. The Foundations module is free to start.</p>
+          </article>
+          <article style="padding:16px 0;">
+            <h3 style="font-size:1.05rem;margin:0 0 6px;"><a href="${BASE_URL}/learning/coding-interview-patterns" style="color:#4f46e5;">Coding Interview Patterns</a></h3>
+            <p style="color:#555;line-height:1.6;margin:0;">20 algorithm patterns, 60 lessons, visual step-through animations, and runnable JavaScript code labs. Currently free to access.</p>
+          </article>
+        </section>` : "";
+    const bodyContent = `
+        <nav aria-label="Breadcrumb" style="font-size:0.9rem;margin-bottom:20px;"><a href="${BASE_URL}/learning" style="color:#4f46e5;">Learning</a>${isCatalog ? "" : ` / ${esc(page.heading)}`}</nav>
+        <h1 style="font-size:2.2rem;font-weight:800;line-height:1.2;margin:0 0 12px;">${esc(page.heading)}</h1>
+        <p style="font-size:1.1rem;color:#555;line-height:1.7;margin:0;">${esc(page.introduction)}</p>
+        <dl style="display:grid;grid-template-columns:max-content 1fr;gap:8px 18px;margin:28px 0;padding:16px;background:#f8fafc;border-radius:8px;">
+          <dt style="font-weight:700;">Format</dt><dd style="margin:0;">Self-paced online learning</dd>
+          <dt style="font-weight:700;">Duration</dt><dd style="margin:0;">${esc(page.duration)}</dd>
+          <dt style="font-weight:700;">Level</dt><dd style="margin:0;">${esc(page.level)}</dd>
+          <dt style="font-weight:700;">Access</dt><dd style="margin:0;">${esc(page.access)}</dd>
+        </dl>
+        ${isCatalog ? "" : `<section><h2 style="font-size:1.35rem;font-weight:800;">What you will learn</h2><ul style="padding-left:20px;line-height:1.8;">${topicList}</ul></section>`}
+        ${courseLinks}
+        ${faqList ? `<section style="margin-top:32px;"><h2 style="font-size:1.35rem;font-weight:800;">Frequently asked questions</h2>${faqList}</section>` : ""}
+        <p style="margin-top:32px;"><a href="${canonicalUrl}" style="color:#4f46e5;font-weight:700;">Open this interactive course on CareerVivid</a></p>`;
+
+    return buildHtml({ title: page.title, description: page.description, canonicalUrl, imageUrl: DEFAULT_OG_IMAGE, structuredData, bodyContent, siteSuffix: "CareerVivid" });
+}
+
 // ── Community feed handler — serves a semantic article list to AI bots ────────
 async function handleCommunityFeed(): Promise<string> {
     const appId = process.env.ALGOLIA_APP_ID;
@@ -375,6 +475,8 @@ export const renderSeoContent = onRequest(
                 html = await handleArticle(routeParts[2]);
             } else if (routeType === "community" && !routeParts[1]) {
                 html = await handleCommunityFeed();
+            } else if (routeType === "learning" && (!routeParts[1] || routeParts[1] === "ai-agent-curriculum" || routeParts[1] === "coding-interview-patterns")) {
+                html = handleLearningPage(routeParts[1]);
             } else if (routeType === "shared" && routeParts[1] && routeParts[2]) {
                 html = await handleResume(routeParts[1], routeParts[2]);
             } else if (routeType === "portfolio" && routeParts[1]) {

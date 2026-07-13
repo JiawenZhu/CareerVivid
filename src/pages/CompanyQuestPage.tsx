@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect, useMemo, useState } from 'react';
+import React, { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import {
     ArrowLeft,
@@ -39,6 +39,7 @@ import {
     buildSystemDesignBrief,
     getStageFallbackQuestions,
     getStageQuestionPool,
+    getSystemDesignPatternById,
     getSystemDesignPool,
     isStageCleared,
     selectNextSystemDesignChallenge,
@@ -168,6 +169,10 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
     const [lastOutcome, setLastOutcome] = useState<(StageAttemptOutcome & { stageTitle: string }) | null>(null);
     const [error, setError] = useState('');
     const [showAuthGate, setShowAuthGate] = useState(false);
+    const requestedPracticeRef = useRef<string | null>(null);
+    const requestedSystemDesignChallenge = typeof window === 'undefined'
+        ? null
+        : new URLSearchParams(window.location.search).get('systemDesignChallenge');
 
     useEffect(() => {
         let cancelled = false;
@@ -407,6 +412,22 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
             setStartingStageId(null);
         }
     };
+
+    // Course practice links select a canonical SystemDesignBrief directly.
+    // This deliberately bypasses getStageQuestionPool(), whose technical mode
+    // mixes coding and system-design prompts.
+    useEffect(() => {
+        if (!guide || !requestedSystemDesignChallenge || requestedPracticeRef.current === requestedSystemDesignChallenge) return;
+        const stage = stages.find((candidate) => candidate.id === 'system_design');
+        const challenge = getSystemDesignPatternById(requestedSystemDesignChallenge)
+            ?? systemDesignPool.find((candidate) => candidate.id === requestedSystemDesignChallenge);
+        if (!stage || !challenge) return;
+        requestedPracticeRef.current = requestedSystemDesignChallenge;
+        void handleStartStage(stage, challenge);
+    // The requested id is stable for a mounted quest route. Re-running after a
+    // pool refresh is guarded by the ref above.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [guide, requestedSystemDesignChallenge, stages, systemDesignPool]);
 
     const handleStageAnalysis = (stage: QuestStage, analysis: InterviewAnalysis) => {
         void recordStageAttempt(stage, stages, analysis)

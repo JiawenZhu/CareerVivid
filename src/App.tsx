@@ -29,8 +29,10 @@ const AgentPage = React.lazy(() => import('./pages/AgentPage'));
 const GenerationHub = React.lazy(() => import('./pages/GenerationHub')); // Protected
 const InterviewStudio = lazyWithPreload(() => import('./pages/InterviewStudio')); // Protected
 const CompanyQuestPage = React.lazy(() => import('./pages/CompanyQuestPage')); // Protected
+const SystemDesignCoursePracticePage = React.lazy(() => import('./pages/SystemDesignCoursePracticePage'));
 const CoursePage = React.lazy(() => import('./pages/CoursePage')); // Protected
 const InteractiveLessonPage = React.lazy(() => import('./pages/InteractiveLessonPage')); // Protected
+const CourseResumePage = React.lazy(() => import('./pages/CourseResumePage'));
 const ProfilePage = React.lazy(() => import('./pages/ProfilePage')); // Protected
 const ChatBot = React.lazy(() => import('./components/ChatBot'));
 const AuthPage = React.lazy(() => import('./pages/AuthPage'));
@@ -116,7 +118,6 @@ const DndWorkspaceProvider = React.lazy(() => import('./components/DndWorkspaceP
 
 // Navigation utility
 import { navigate, getPathFromUrl } from './utils/navigation';
-import { getFirstExerciseId } from './lib/interactiveCourses';
 import { isCourseFreeForGuests } from './config/accessPolicy';
 
 
@@ -203,6 +204,7 @@ const AppContent: React.FC = () => {
 
   // SEO Helper runs on every render to update canonical tags
   // Since App.tsx re-renders on path changes (due to setPath), this works perfectly.
+  const isLearningRoute = path === '/learning' || path.startsWith('/learning/');
 
   useEffect(() => {
     const onPathChange = () => {
@@ -530,13 +532,22 @@ const AppContent: React.FC = () => {
     else if (path.startsWith('/learn/')) {
       const parts = path.split('/');
       const courseId = parts[2];
-      const exerciseId = parts[3] || getFirstExerciseId(courseId) || '';
+      const exerciseId = parts[3] || '';
+      if (!exerciseId) {
+        const resume = <CourseResumePage courseId={courseId} />;
+        content = isCourseFreeForGuests(courseId) ? resume : <ProtectedRoute>{resume}</ProtectedRoute>;
+      }
+      else if (parts[4] === 'mock') {
+        const practice = <SystemDesignCoursePracticePage courseId={courseId} exerciseId={exerciseId} />;
+        content = isCourseFreeForGuests(courseId) ? practice : <ProtectedRoute>{practice}</ProtectedRoute>;
+      } else {
       const lesson = (
         <InteractiveLessonPage key={`${courseId}/${exerciseId}`} courseId={courseId} exerciseId={exerciseId} />
       );
       content = isCourseFreeForGuests(courseId) ? lesson : (
         <ProtectedRoute>{lesson}</ProtectedRoute>
       );
+      }
     }
 
     // Portfolio Hub (Main Dashboard for Portfolios)
@@ -822,29 +833,31 @@ const AppContent: React.FC = () => {
               titleTemplate="%s | CareerVivid"
               defaultTitle="CareerVivid | The AI That Gets You Hired"
             />
-            <SEOHelper
-              isRobotsAllowed={![
-                '/dashboard',
-                '/onboarding',
-                '/quick-start',
-                '/profile',
-                '/billing',
-                '/subscription',
-                '/developer',
-                '/my-posts',
-                '/commerce',
-                '/checkout',
-                '/newresume',
-                '/job-tracker',
-                '/interview-studio',
-                '/portfolio',
-                '/whiteboard',
-                '/folder',
-                '/edit',
-                '/referrals',
-                '/extension-auth-complete',
-              ].some(p => path.startsWith(p))}
-            />
+            {!isLearningRoute && (
+              <SEOHelper
+                isRobotsAllowed={![
+                  '/dashboard',
+                  '/onboarding',
+                  '/quick-start',
+                  '/profile',
+                  '/billing',
+                  '/subscription',
+                  '/developer',
+                  '/my-posts',
+                  '/commerce',
+                  '/checkout',
+                  '/newresume',
+                  '/job-tracker',
+                  '/interview-studio',
+                  '/portfolio',
+                  '/whiteboard',
+                  '/folder',
+                  '/edit',
+                  '/referrals',
+                  '/extension-auth-complete',
+                ].some(p => path.startsWith(p))}
+              />
+            )}
             <RouteSuspense routeKey={path}>
               {content}
               {showChatbot && <ChatBot />}

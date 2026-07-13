@@ -10,7 +10,13 @@
       "commercialUse": true,
       "downloadable": true,
       "localPath": "third_party/learning-sources/microsoft-generative-ai-for-beginners",
-      "moduleIds": ["01-foundations", "02-llm-basics", "03-prompt-engineering", "04-rag", "05-agent-architecture"]
+      "moduleIds": [
+        "01-foundations",
+        "02-llm-basics",
+        "03-prompt-engineering",
+        "04-rag",
+        "05-agent-architecture"
+      ]
     },
     {
       "id": "microsoft-ai-agents-for-beginners",
@@ -21,7 +27,11 @@
       "commercialUse": true,
       "downloadable": true,
       "localPath": "third_party/learning-sources/microsoft-ai-agents-for-beginners",
-      "moduleIds": ["05-agent-architecture", "06-multi-agent", "08-security"]
+      "moduleIds": [
+        "05-agent-architecture",
+        "06-multi-agent",
+        "08-security"
+      ]
     },
     {
       "id": "openai-cookbook",
@@ -32,7 +42,12 @@
       "commercialUse": true,
       "downloadable": true,
       "localPath": "third_party/learning-sources/openai-cookbook",
-      "moduleIds": ["03-prompt-engineering", "04-rag", "07-evaluation-observability", "10-capstone-projects"]
+      "moduleIds": [
+        "03-prompt-engineering",
+        "04-rag",
+        "07-evaluation-observability",
+        "10-capstone-projects"
+      ]
     },
     {
       "id": "google-gemini-cookbook",
@@ -44,7 +59,11 @@
       "attributionRequired": true,
       "downloadable": true,
       "localPath": "third_party/learning-sources/google-gemini-cookbook",
-      "moduleIds": ["04-rag", "09-deployment", "10-capstone-projects"]
+      "moduleIds": [
+        "04-rag",
+        "09-deployment",
+        "10-capstone-projects"
+      ]
     },
     {
       "id": "anthropic-claude-cookbooks",
@@ -55,7 +74,12 @@
       "commercialUse": true,
       "downloadable": true,
       "localPath": "third_party/learning-sources/anthropic-claude-cookbooks",
-      "moduleIds": ["03-prompt-engineering", "04-rag", "05-agent-architecture", "07-evaluation-observability"]
+      "moduleIds": [
+        "03-prompt-engineering",
+        "04-rag",
+        "05-agent-architecture",
+        "07-evaluation-observability"
+      ]
     },
     {
       "id": "anthropic-claude-quickstarts",
@@ -66,7 +90,10 @@
       "commercialUse": true,
       "downloadable": true,
       "localPath": "third_party/learning-sources/anthropic-claude-quickstarts",
-      "moduleIds": ["09-deployment", "10-capstone-projects"]
+      "moduleIds": [
+        "09-deployment",
+        "10-capstone-projects"
+      ]
     },
     {
       "id": "huggingface-agents-course",
@@ -78,7 +105,11 @@
       "attributionRequired": true,
       "downloadable": true,
       "localPath": "third_party/learning-sources/huggingface-agents-course",
-      "moduleIds": ["05-agent-architecture", "06-multi-agent", "07-evaluation-observability"]
+      "moduleIds": [
+        "05-agent-architecture",
+        "06-multi-agent",
+        "07-evaluation-observability"
+      ]
     },
     {
       "id": "mlabonne-llm-course",
@@ -90,7 +121,10 @@
       "attributionRequired": true,
       "downloadable": true,
       "localPath": "third_party/learning-sources/mlabonne-llm-course",
-      "moduleIds": ["02-llm-basics", "09-deployment"]
+      "moduleIds": [
+        "02-llm-basics",
+        "09-deployment"
+      ]
     },
     {
       "id": "dair-prompt-engineering-guide",
@@ -101,7 +135,10 @@
       "commercialUse": true,
       "downloadable": true,
       "localPath": "third_party/learning-sources/dair-prompt-engineering-guide",
-      "moduleIds": ["03-prompt-engineering", "04-rag"]
+      "moduleIds": [
+        "03-prompt-engineering",
+        "04-rag"
+      ]
     },
     {
       "id": "nirdiamant-rag-techniques",
@@ -112,7 +149,9 @@
       "commercialUse": false,
       "downloadable": false,
       "localPath": null,
-      "moduleIds": ["04-rag"],
+      "moduleIds": [
+        "04-rag"
+      ],
       "notes": "License explicitly forbids commercial use, distribution, and sublicensing without the author's written permission. Link out only; do not clone."
     },
     {
@@ -124,7 +163,9 @@
       "commercialUse": false,
       "downloadable": false,
       "localPath": null,
-      "moduleIds": ["04-rag"],
+      "moduleIds": [
+        "04-rag"
+      ],
       "notes": "No LICENSE file found in the repo. Under GitHub ToS this defaults to all-rights-reserved. Link out only; do not clone or copy."
     },
     {
@@ -136,7 +177,10 @@
       "commercialUse": false,
       "downloadable": false,
       "localPath": null,
-      "moduleIds": ["06-multi-agent", "08-security"],
+      "moduleIds": [
+        "06-multi-agent",
+        "08-security"
+      ],
       "notes": "Reference only. Curriculum content referencing Claude Code is written original by CareerVivid, not scraped."
     },
     {
@@ -150,6 +194,44 @@
       "localPath": null,
       "moduleIds": [],
       "notes": "Structure/sequencing inspiration only. Never copy transcripts, slides, or screenshots."
+    },
+    {
+      "id": "system-design-primer",
+      "title": "The System Design Primer",
+      "org": "Donne Martin",
+      "repoUrl": "https://github.com/donnemartin/system-design-primer",
+      "license": "CC BY 4.0",
+      "commercialUse": true,
+      "downloadable": true,
+      "localPath": "third_party/learning-sources/system-design-primer",
+      "moduleIds": [
+        "system-design-interview"
+      ]
+    },
+    {
+      "id": "tech-interview-handbook",
+      "title": "Tech Interview Handbook",
+      "org": "Yangshun Tay",
+      "repoUrl": "https://github.com/yangshun/tech-interview-handbook",
+      "license": "MIT",
+      "commercialUse": true,
+      "downloadable": true,
+      "localPath": "third_party/learning-sources/tech-interview-handbook",
+      "moduleIds": [
+        "coding-interview-patterns"
+      ]
+    },
+    {
+      "id": "karanpratapsingh-system-design",
+      "title": "System Design (karanpratapsingh)",
+      "org": "Karan Pratap Singh",
+      "repoUrl": "https://github.com/karanpratapsingh/system-design",
+      "license": "CC BY-NC-ND 4.0",
+      "commercialUse": false,
+      "downloadable": true,
+      "localPath": "third_party/learning-sources/system-design",
+      "moduleIds": [],
+      "note": "NonCommercial + NoDerivatives: DO NOT derive course content from this repo. External reference links only."
     }
   ]
 }

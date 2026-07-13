@@ -41,6 +41,8 @@ interface SystemDesignBattleProps {
     company: string;
     stageTitle: string;
     brief: SystemDesignBrief;
+    /** Course practice reuses the battle UI but owns an independent result record. */
+    practiceContext?: 'quest' | 'course';
     /** Guest mode never calls Gemini or persists progress. */
     isGuestPractice?: boolean;
     initialArtifact?: QuestSystemDesignArtifact;
@@ -113,6 +115,7 @@ const SystemDesignBattle: React.FC<SystemDesignBattleProps> = ({
     company,
     stageTitle,
     brief,
+    practiceContext = 'quest',
     isGuestPractice = false,
     initialArtifact,
     saveAnalysis,
@@ -391,7 +394,7 @@ const SystemDesignBattle: React.FC<SystemDesignBattleProps> = ({
             id: reportEntry.id,
             job: {
                 id: reportEntry.id,
-                title: `${company} quest — ${stageTitle}`,
+                title: practiceContext === 'course' ? `${company} course practice — ${stageTitle}` : `${company} quest — ${stageTitle}`,
                 company,
                 location: '',
                 description: brief.prompt,

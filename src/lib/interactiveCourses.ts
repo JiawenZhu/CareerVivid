@@ -22,6 +22,10 @@ export type {
   LessonKind,
   LessonLanguage,
   QuizQuestion,
+  SystemDesignAnswerDrill,
+  SystemDesignDecision,
+  SystemDesignModuleMetadata,
+  SystemDesignPracticeVariant,
   WhiteboardBrief,
 } from '../types/course';
 
@@ -63,7 +67,9 @@ const localizeCourse = (course: InteractiveCourse): InteractiveCourse => {
     title: translate(`${courseKey}.title`, course.title),
     tagline: translate(`${courseKey}.tagline`, course.tagline),
     description: translate(`${courseKey}.description`, course.description),
-    difficulty: translate(`${courseKey}.difficulty`, course.difficulty),
+    // difficulty stays untranslated: it's a typed enum used in logic/filters;
+    // UI layers translate it at render time instead.
+    difficulty: course.difficulty,
     chapters: course.chapters.map((chapter) => {
       const chapterKey = `${courseKey}.chapters.${chapter.id}`;
       return {
@@ -75,8 +81,6 @@ const localizeCourse = (course: InteractiveCourse): InteractiveCourse => {
             ...exercise,
             title: translate(`${exerciseKey}.title`, exercise.title),
             content: translate(`${exerciseKey}.content`, exercise.content),
-            instructions: exercise.instructions ? translate(`${exerciseKey}.instructions`, exercise.instructions) : undefined,
-            reading: exercise.reading ? translate(`${exerciseKey}.reading`, exercise.reading) : undefined,
             hint: exercise.hint ? translate(`${exerciseKey}.hint`, exercise.hint) : undefined,
             whiteboardBrief: exercise.whiteboardBrief ? {
               requirements: exercise.whiteboardBrief.requirements.map((req, idx) =>

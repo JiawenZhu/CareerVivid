@@ -347,7 +347,14 @@ const InteractiveLessonPage: React.FC<InteractiveLessonPageProps> = ({ courseId,
                                     }
                                     return (
                                         <Suspense fallback={<div className="flex h-40 items-center justify-center"><Loader2 className="animate-spin text-[var(--cv-text-muted)]" size={20} /></div>}>
-                                            <Widget completed={isCompleted} onComplete={() => { void markComplete(); }} />
+                                            <Widget
+                                                completed={isCompleted}
+                                                onComplete={() => { void markComplete(); }}
+                                                course={course}
+                                                chapter={chapter}
+                                                exercise={exercise}
+                                                completedExerciseIds={completedIds}
+                                            />
                                         </Suspense>
                                     );
                                 })()}

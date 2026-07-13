@@ -12,6 +12,7 @@ import {
     Layers3,
     Loader2,
     Lock,
+    Network,
     Play,
     Rocket,
     ShieldCheck,
@@ -20,6 +21,8 @@ import {
     Zap,
 } from 'lucide-react';
 import AppLayout from '../components/Layout/AppLayout';
+import CodingInterviewRoadmap from '../components/Course/CodingInterviewRoadmap';
+import SystemDesignInterviewRoadmap from '../components/Course/SystemDesignInterviewRoadmap';
 import { navigate } from '../utils/navigation';
 import {
     getInteractiveCourses,
@@ -27,6 +30,7 @@ import {
     getInteractiveCourse,
     getCourseExerciseCount,
     getCourseExercises,
+    firstIncompleteExerciseId,
     type InteractiveCourse,
 } from '../lib/interactiveCourses';
 import { useTranslation } from 'react-i18next';
@@ -34,7 +38,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useUserProgress } from '../hooks/useUserProgress';
 import { useCourseProgress } from '../hooks/useCourseProgress';
 import { useAllCourseProgress } from '../hooks/useAllCourseProgress';
-import { Helmet } from 'react-helmet-async';
+import SEOHelper from '../components/SEOHelper';
 import AuthGateModal, { AuthGateModalProps } from '../components/AuthGateModal';
 import { canAccessCourse, isCourseFreeForGuests } from '../config/accessPolicy';
 import { stripLanguagePrefix } from '../utils/languagePreference';
@@ -44,6 +48,7 @@ import {
     getCourseTotalCount,
     getLearningSourceById,
 } from '../lib/courseCurriculum';
+import { getLearningSeoKey, getLearningSeoPage } from '../lib/learningSeo';
 
 const STATE_ICON_WELL: Record<CourseModuleWithState['state'], string> = {
     completed: 'bg-[var(--cv-success-50)] text-[var(--cv-success-600)] border border-[var(--cv-success-600)]/30',
@@ -62,33 +67,13 @@ const CoursePage: React.FC = () => {
     const { currentUser, isPremium } = useAuth();
     const [authGate, setAuthGate] = useState<Pick<AuthGateModalProps, 'title' | 'message' | 'variant'> | null>(null);
 
-    /**
-     * Gate for opening a course's lessons:
-     *  - free course → always allowed (guests included)
-     *  - guest → sign-in gate
-     *  - signed-in without premium → upgrade gate
-     */
-    const openCourse = (courseId: string) => {
-        if (canAccessCourse(courseId, { isSignedIn: Boolean(currentUser), isPremium: Boolean(isPremium) })) {
-            navigate(`/learn/${courseId}`);
-            return;
-        }
-        if (!currentUser) {
-            setAuthGate({
-                title: 'Sign in to open this course',
-                message: `The Foundations course is free for everyone — create an account to unlock the rest of the curriculum and save your progress.`,
-                variant: 'signin',
-            });
-            return;
-        }
-        setAuthGate({ variant: 'upgrade' });
-    };
     const { levelInfo, isLoading: isLoadingLevel } = useUserProgress();
     const { progress, isLoading: isLoadingCourse, complete } = useCourseProgress('ai-agent-curriculum', getCourseTotalCount());
     const { progressByCourse } = useAllCourseProgress();
     const currentPath = stripLanguagePrefix(window.location.pathname);
     const parts = currentPath.split('/');
     const selectedCourseId = parts[2] || null;
+    const seoPage = getLearningSeoPage(getLearningSeoKey(selectedCourseId));
     const [expandedId, setExpandedId] = useState<string | null>(null);
     const [completingId, setCompletingId] = useState<string | null>(null);
 
@@ -97,6 +82,7 @@ const CoursePage: React.FC = () => {
     // other courses (e.g. Coding Interview Patterns) live in separate tracks.
     const curriculumCourses = useMemo(() => getCurriculumCourses(), [i18n.language]);
     const patternsCourse = useMemo(() => getInteractiveCourse('coding-interview-patterns'), [i18n.language]);
+    const systemDesignCourse = useMemo(() => getInteractiveCourse('system-design-interview'), [i18n.language]);
     const labByModuleOrder = useMemo(
         () => new Map(curriculumCourses.map((course, index) => [index + 1, course])),
         [curriculumCourses],
@@ -135,6 +121,29 @@ const CoursePage: React.FC = () => {
     const curriculumMinutes = curriculumCourses.reduce((t, c) => t + (c.estimatedMinutes ?? 0), 0);
     const patternsLessonTotal = patternsCourse ? getCourseExerciseCount(patternsCourse) : 0;
     const patternsLessonsDone = patternsCourse ? lessonsDoneFor(patternsCourse) : 0;
+    const systemDesignLessonTotal = systemDesignCourse ? getCourseExerciseCount(systemDesignCourse) : 0;
+    const systemDesignLessonsDone = systemDesignCourse ? lessonsDoneFor(systemDesignCourse) : 0;
+
+    /** Opens the saved next lesson when callers do not name a specific lesson. */
+    const openCourse = (courseId: string, destination = `/learn/${courseId}`) => {
+        if (canAccessCourse(courseId, { isSignedIn: Boolean(currentUser), isPremium: Boolean(isPremium) })) {
+            const course = getInteractiveCourse(courseId);
+            const resumeDestination = course && destination === `/learn/${courseId}`
+                ? `/learn/${courseId}/${firstIncompleteExerciseId(course, progressByCourse[courseId]?.completedModuleIds ?? [])}`
+                : destination;
+            navigate(resumeDestination);
+            return;
+        }
+        if (!currentUser) {
+            setAuthGate({
+                title: 'Sign in to open this course',
+                message: 'The Foundations course is free for everyone — create an account to unlock the rest of the curriculum and save your progress.',
+                variant: 'signin',
+            });
+            return;
+        }
+        setAuthGate({ variant: 'upgrade' });
+    };
 
     const toggleExpand = (module: CourseModuleWithState) => {
         if (module.state === 'locked') {
@@ -170,47 +179,13 @@ const CoursePage: React.FC = () => {
 
     return (
         <AppLayout>
-            <Helmet>
-                <title>Interactive Courses — AI Agents & Coding Interview Patterns | CareerVivid</title>
-                <meta name="description" content="Learn by doing: a 10-module AI Agent Builder Curriculum and a Coding Interview Patterns course where every algorithm has its own step-through animation. Free to start, no account needed." />
-                <link rel="canonical" href="https://careervivid.app/learning" />
-                <script type="application/ld+json">{JSON.stringify({
-                    '@context': 'https://schema.org',
-                    '@type': 'ItemList',
-                    name: 'CareerVivid interactive courses',
-                    numberOfItems: 2,
-                    itemListElement: [
-                        {
-                            name: 'AI Agent Builder Curriculum',
-                            description: `${curriculumCourses.length} modules from LLM foundations to a shipped agent portfolio project — readings, animated playgrounds, quizzes, and code labs.`,
-                            minutes: curriculumMinutes,
-                            free: true,
-                        },
-                        {
-                            name: 'Coding Interview Patterns',
-                            description: patternsCourse?.description ?? 'Every algorithm gets its own animation — master the nine patterns behind most coding interview questions.',
-                            minutes: patternsCourse?.estimatedMinutes ?? 240,
-                            free: true,
-                        },
-                    ].map((course, index) => ({
-                        '@type': 'ListItem',
-                        position: index + 1,
-                        item: {
-                            '@type': 'Course',
-                            name: course.name,
-                            description: course.description,
-                            provider: { '@type': 'Organization', name: 'CareerVivid', url: 'https://careervivid.app/' },
-                            isAccessibleForFree: course.free,
-                            hasCourseInstance: {
-                                '@type': 'CourseInstance',
-                                courseMode: 'online',
-                                courseWorkload: `PT${course.minutes}M`,
-                            },
-                            offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD', category: 'Free' },
-                        },
-                    })),
-                })}</script>
-            </Helmet>
+            <SEOHelper
+                title={seoPage.title}
+                description={seoPage.description}
+                keywords={seoPage.keywords}
+                url={`https://careervivid.app${seoPage.path}`}
+                schemaData={seoPage.schemaData}
+            />
             {authGate && <AuthGateModal {...authGate} onClose={() => setAuthGate(null)} />}
             {/* Same warm background as every other page — the catalog no longer swaps design systems. */}
             <div className="cv-design-page cv-design-grid relative min-h-screen pb-16 text-left">
@@ -301,7 +276,7 @@ const CoursePage: React.FC = () => {
                                 {patternsCourse && (
                                     <button
                                         type="button"
-                                        onClick={() => openCourse(patternsCourse.id)}
+                                        onClick={() => openCourse(patternsCourse.id, `/learning/${patternsCourse.id}`)}
                                         className="cv-design-card cv-design-card-hover group flex flex-col p-6 text-left transition-all hover:-translate-y-1"
                                     >
                                         <div className="flex items-start justify-between gap-3">
@@ -352,6 +327,24 @@ const CoursePage: React.FC = () => {
                                     </button>
                                 )}
 
+                                {systemDesignCourse && (
+                                    <button
+                                        type="button"
+                                        onClick={() => openCourse(systemDesignCourse.id, `/learning/${systemDesignCourse.id}`)}
+                                        className="cv-design-card cv-design-card-hover group flex flex-col p-6 text-left transition-all hover:-translate-y-1"
+                                    >
+                                        <div className="flex items-start justify-between gap-3">
+                                            <span className="cv-design-icon-well flex h-11 w-11 shrink-0 items-center justify-center rounded-xl"><Network size={20} /></span>
+                                            <span className="rounded-full border border-[var(--cv-border-warm)] bg-[var(--cv-surface-warm-card-strong,transparent)] px-2.5 py-0.5 text-[10px] font-bold uppercase text-[var(--cv-text-muted)]">0-1 → 5+ years</span>
+                                        </div>
+                                        <h2 className="cv-design-title mt-4 text-xl leading-snug">System Design Interview</h2>
+                                        <p className="cv-design-body mt-1.5 flex-1 text-sm">{systemDesignCourse.tagline}</p>
+                                        <p className="mt-2 inline-flex items-center gap-1.5 text-xs font-bold text-[var(--cv-action-primary)]"><Sparkles size={13} /> 12 modules with deterministic simulations and Company Quest practice</p>
+                                        <div className="mt-4 flex flex-wrap items-center gap-3 border-t border-[var(--cv-border-warm)] pt-3 text-xs font-bold text-[var(--cv-text-muted)]"><span className="inline-flex items-center gap-1.5"><Layers3 size={13} /> 12 modules</span><span className="inline-flex items-center gap-1.5"><BookOpen size={13} /> {systemDesignLessonTotal} lessons</span><span className="inline-flex items-center gap-1.5"><Clock3 size={13} /> ~12 h</span><span className="ml-auto inline-flex items-center gap-1 text-[var(--cv-action-primary)] transition-all group-hover:gap-2">{systemDesignLessonsDone ? 'Continue' : 'Start'} <ArrowRight size={13} /></span></div>
+                                        <div className="mt-3 flex items-center gap-2"><div className="h-1.5 flex-1 overflow-hidden rounded-full bg-[var(--cv-border-warm)]"><div className="h-full rounded-full bg-[var(--cv-action-primary)] transition-[width] duration-500" style={{ width: `${Math.max(systemDesignLessonTotal ? Math.round((systemDesignLessonsDone / systemDesignLessonTotal) * 100) : 0, systemDesignLessonsDone > 0 ? 6 : 0)}%` }} /></div><span className="text-[10px] font-bold tabular-nums text-[var(--cv-text-muted)]">{systemDesignLessonsDone}/{systemDesignLessonTotal}</span></div>
+                                    </button>
+                                )}
+
                                 {/* Coming soon */}
                                 {[
                                     { id: 'advanced-rag', icon: Layers3, title: 'Advanced RAG & Vector Databases', tagline: 'Chunking strategies, hybrid search, re-ranking, and production retrieval pipelines.' },
@@ -375,6 +368,22 @@ const CoursePage: React.FC = () => {
                                 ))}
                             </div>
                         </div>
+                    ) : selectedCourseId === patternsCourse?.id && patternsCourse ? (
+                        <CodingInterviewRoadmap
+                            course={patternsCourse}
+                            progress={progressByCourse[patternsCourse.id]}
+                            onBack={() => navigate('/learning')}
+                            onResume={() => openCourse(patternsCourse.id)}
+                            onOpenExercise={(exerciseId) => openCourse(patternsCourse.id, `/learn/${patternsCourse.id}/${exerciseId}`)}
+                        />
+                    ) : selectedCourseId === systemDesignCourse?.id && systemDesignCourse ? (
+                        <SystemDesignInterviewRoadmap
+                            course={systemDesignCourse}
+                            progress={progressByCourse[systemDesignCourse.id]}
+                            onBack={() => navigate('/learning')}
+                            onResume={() => openCourse(systemDesignCourse.id)}
+                            onOpenExercise={(exerciseId) => openCourse(systemDesignCourse.id, `/learn/${systemDesignCourse.id}/${exerciseId}`)}
+                        />
                     ) : (
                         <div className="space-y-4">
                             {/* Back Button */}

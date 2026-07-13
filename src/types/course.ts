@@ -62,6 +62,22 @@ export interface QuizQuestion {
   explanation?: string;
 }
 
+/** A single design decision the learner must make in a guided simulation. */
+export interface SystemDesignDecision {
+  situation: string;
+  decision: string;
+  options: string[];
+  correctIndex: number;
+  explanation: string;
+}
+
+/** A written interview answer drill with an explicit self-review rubric. */
+export interface SystemDesignAnswerDrill {
+  prompt: string;
+  requiredTradeoffs: string[];
+  minimumCharacters: number;
+}
+
 /**
  * What kind of workspace a lesson opens:
  * - `code`        split view with the in-browser code runner (default)
@@ -100,12 +116,44 @@ export interface InteractiveExercise {
   hint?: string;
   solutionCode?: string;
   walkthroughVideoUrl?: string;
+  /** Data for the reusable system-design scenario-decision widget. */
+  systemDesignDecision?: SystemDesignDecision;
+  /** Data for the reusable system-design trade-off answer-drill widget. */
+  systemDesignAnswerDrill?: SystemDesignAnswerDrill;
+}
+
+/**
+ * A company-specific entry point into the canonical Company Quest practice
+ * surface. Course content never owns a second copy of the interview prompt.
+ */
+export interface SystemDesignPracticeVariant {
+  company: string;
+  slug: string;
+  /** Optional guide-owned challenge id. Omit to open the company's next best brief. */
+  challengeId?: string;
+}
+
+/**
+ * Metadata for a system-design teaching module. The lesson content remains
+ * generic; this only describes the handoff to existing mock-interview briefs.
+ */
+export interface SystemDesignModuleMetadata {
+  roadmap: 'foundations' | 'product-scale' | 'senior-systems';
+  primaryChallengeId: string;
+  companyVariants?: SystemDesignPracticeVariant[];
+  expectedRequirements: string[];
+  requiredArchitectureComponents: string[];
+  tradeoffs: string[];
+  failureModeFollowUp: string;
+  animationWidgetId: string;
 }
 
 export interface InteractiveChapter {
   id: string;
   title: string;
   exercises: InteractiveExercise[];
+  /** Present only on the System Design Interview course's teaching modules. */
+  systemDesign?: SystemDesignModuleMetadata;
 }
 
 /**
@@ -187,6 +235,25 @@ export const validateCourseDefinition = (course: CourseDefinition): string[] => 
   const seenIds = new Set<string>();
   for (const chapter of course.chapters) {
     if (!isNonEmptyString(chapter.id)) at('chapter missing id');
+    if (chapter.systemDesign) {
+      const metadata = chapter.systemDesign;
+      if (!['foundations', 'product-scale', 'senior-systems'].includes(metadata.roadmap)) {
+        at(`system-design chapter ${chapter.id} has an invalid roadmap`);
+      }
+      if (!isNonEmptyString(metadata.primaryChallengeId)) {
+        at(`system-design chapter ${chapter.id} missing primaryChallengeId`);
+      }
+      if (!metadata.expectedRequirements?.length) at(`system-design chapter ${chapter.id} missing expectedRequirements`);
+      if (!metadata.requiredArchitectureComponents?.length) at(`system-design chapter ${chapter.id} missing requiredArchitectureComponents`);
+      if (!metadata.tradeoffs?.length) at(`system-design chapter ${chapter.id} missing tradeoffs`);
+      if (!isNonEmptyString(metadata.failureModeFollowUp)) at(`system-design chapter ${chapter.id} missing failureModeFollowUp`);
+      if (!isNonEmptyString(metadata.animationWidgetId)) at(`system-design chapter ${chapter.id} missing animationWidgetId`);
+      for (const variant of metadata.companyVariants ?? []) {
+        if (!isNonEmptyString(variant.company) || !isNonEmptyString(variant.slug)) {
+          at(`system-design chapter ${chapter.id} has an invalid company practice variant`);
+        }
+      }
+    }
     if (!Array.isArray(chapter.exercises) || chapter.exercises.length === 0) {
       at(`chapter ${chapter.id} has no exercises`);
       continue;
@@ -237,6 +304,12 @@ export const validateCourseDefinition = (course: CourseDefinition): string[] => 
         case 'interactive':
           expectCheck('widget');
           if (!isNonEmptyString(exercise.widgetId)) at(`interactive exercise ${exercise.id} missing widgetId`);
+          if (exercise.widgetId === 'system-design-decision' && !exercise.systemDesignDecision) {
+            at(`system-design decision ${exercise.id} missing systemDesignDecision`);
+          }
+          if (exercise.widgetId === 'system-design-answer-drill' && !exercise.systemDesignAnswerDrill) {
+            at(`system-design answer drill ${exercise.id} missing systemDesignAnswerDrill`);
+          }
           break;
         default: {
           expectCheck('run', 'output', 'tests');

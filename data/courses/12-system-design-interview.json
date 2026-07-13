@@ -1,0 +1,2041 @@
+{
+  "schemaVersion": 1,
+  "id": "system-design-interview",
+  "track": "system-design",
+  "order": 2,
+  "title": "System Design Interview",
+  "language": "javascript",
+  "category": "Computer Science",
+  "difficulty": "Advanced",
+  "tagline": "Learn to design scalable systems — from first sketch to a diagram you can defend.",
+  "description": "Read the principle, watch a real request flow under load, choose between caches, queues, and partitions, draw the architecture, and explain every trade-off. Twelve modules, each system harder than the last.",
+  "status": "published",
+  "tags": [
+    "system-design",
+    "distributed-systems",
+    "interview-prep",
+    "architecture"
+  ],
+  "estimatedMinutes": 900,
+  "chapters": [
+    {
+      "id": "sd-interview-framework",
+      "title": "01. Interview Framework",
+      "systemDesign": {
+        "roadmap": "foundations",
+        "primaryChallengeId": "url-shortener",
+        "companyVariants": [
+          {
+            "company": "Stripe",
+            "slug": "stripe"
+          },
+          {
+            "company": "Figma",
+            "slug": "figma"
+          }
+        ],
+        "expectedRequirements": [
+          "functional scope",
+          "peak traffic and latency",
+          "consistency and durability",
+          "out-of-scope boundaries"
+        ],
+        "requiredArchitectureComponents": [
+          "client/API boundary",
+          "stateless service",
+          "source of truth",
+          "failure path"
+        ],
+        "tradeoffs": [
+          "scope depth versus time",
+          "synchronous versus asynchronous work",
+          "strong versus eventual consistency"
+        ],
+        "failureModeFollowUp": "The primary store times out after the API has accepted the request. What does the caller see and what can be retried safely?",
+        "animationWidgetId": "system-design-framework-viz"
+      },
+      "exercises": [
+        {
+          "id": "sd01-reading",
+          "title": "Read: a repeatable interview loop",
+          "xp": 15,
+          "kind": "reading",
+          "content": "# Start with constraints, not boxes\n\n**Recognition signals:** an open-ended prompt, an ambiguous scale target, or a request to design a familiar product.\n\nUse this loop: clarify functional and non-functional requirements; estimate the peak; trace one happy-path request; name the data source; add only the components that remove a stated bottleneck; finish with failure modes and trade-offs.\n\n**Invariant:** every component has one responsibility and every arrow carries a concrete operation.\n\n**Cost and complexity:** a small, defensible design beats an unbounded diagram. Complexity is paid in operational ownership, tail latency, and recovery work.",
+          "check": {
+            "type": "read"
+          }
+        },
+        {
+          "id": "sd01-animation",
+          "title": "Animation: request flow under an interview clock",
+          "xp": 25,
+          "kind": "interactive",
+          "widgetId": "system-design-framework-viz",
+          "content": "# Watch the request path\n\nChange peak traffic, then step through clarification, the happy path, scaling, and a failure follow-up. Notice how each component is justified by a constraint.",
+          "check": {
+            "type": "widget"
+          }
+        },
+        {
+          "id": "sd-ordering-phases",
+          "title": "Drill: order the interview",
+          "kind": "interactive",
+          "xp": 15,
+          "widgetId": "sd-ordering-interview-phases",
+          "content": "# Order the interview\n\nYou watched the 45-minute clock — now prove you own the sequence. Tap the five phases in the order a strong candidate runs them.\n\nDesigning before clarifying is the single most common failure mode. Make the order reflexive.",
+          "check": {
+            "type": "widget"
+          }
+        },
+        {
+          "id": "sd01-scenario",
+          "title": "Scenario: choose the first design move",
+          "xp": 20,
+          "kind": "interactive",
+          "widgetId": "system-design-decision",
+          "content": "# Guided scenario\n\nMake the design decision before you draw a detailed architecture.",
+          "systemDesignDecision": {
+            "situation": "You are asked to design a URL shortener for an unknown scale. The interviewer has not stated latency, retention, or write volume.",
+            "decision": "What should you do before selecting a database?",
+            "options": [
+              "Ask for traffic, read/write ratio, durability, latency, and retention requirements.",
+              "Choose a globally replicated SQL database because it is safest.",
+              "Draw cache, queue, and CDN boxes to show scale."
+            ],
+            "correctIndex": 0,
+            "explanation": "The first job is to turn an open prompt into constraints. A technology choice before traffic and consistency requirements is a guess, not a design."
+          },
+          "check": {
+            "type": "widget"
+          }
+        },
+        {
+          "id": "sd01-quiz",
+          "title": "Quiz: requirements and invariants",
+          "xp": 15,
+          "kind": "quiz",
+          "content": "# Check the framework\n\nChoose the answer that keeps the design tied to the requirement.",
+          "quiz": [
+            {
+              "id": "q1",
+              "prompt": "Which statement is a useful invariant for a redirect service?",
+              "options": [
+                "Every successful create returns a stable short code for the same idempotency key.",
+                "Every service should use the same database.",
+                "Every request must go through a queue."
+              ],
+              "correctIndex": 0,
+              "explanation": "An invariant is a property the system preserves, independent of the implementation details."
+            },
+            {
+              "id": "q2",
+              "prompt": "When should you introduce a cache?",
+              "options": [
+                "When a measured or stated read path needs lower latency or lower primary-store load.",
+                "At the beginning of every diagram.",
+                "Only after deploying to production."
+              ],
+              "correctIndex": 0,
+              "explanation": "Caching is a response to an access pattern and a freshness contract."
+            }
+          ],
+          "check": {
+            "type": "quiz",
+            "minCorrect": 2
+          }
+        },
+        {
+          "id": "sd01-whiteboard",
+          "title": "Whiteboard: frame a URL shortener",
+          "xp": 30,
+          "kind": "whiteboard",
+          "content": "# Draw the first five minutes\n\nShow the scoped design, not every optional optimization.",
+          "whiteboardBrief": {
+            "requirements": [
+              "Label the client, API boundary, and create versus redirect paths.",
+              "Show the authoritative mapping from short code to destination.",
+              "Write the scale assumption and one latency target on the board.",
+              "Include an idempotency or collision-handling decision.",
+              "Annotate one dependency failure and the user-visible behavior."
+            ]
+          },
+          "check": {
+            "type": "diagram",
+            "passThreshold": 6
+          }
+        },
+        {
+          "id": "sd01-answer",
+          "title": "Answer drill: defend your first architecture",
+          "xp": 25,
+          "kind": "interactive",
+          "widgetId": "system-design-answer-drill",
+          "content": "# Explain the trade-off aloud\n\nWrite a compact interview answer, then self-review it before completing.",
+          "systemDesignAnswerDrill": {
+            "prompt": "In two minutes, explain how you would scope a URL shortener before proposing components.",
+            "requiredTradeoffs": [
+              "I stated a concrete traffic or latency assumption.",
+              "I named the authoritative data and an invariant.",
+              "I identified one trade-off and one follow-up measurement."
+            ],
+            "minimumCharacters": 220
+          },
+          "check": {
+            "type": "widget"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sd-capacity-estimation",
+      "title": "02. Capacity Estimation",
+      "systemDesign": {
+        "roadmap": "foundations",
+        "primaryChallengeId": "url-shortener",
+        "companyVariants": [
+          {
+            "company": "Vercel",
+            "slug": "vercel"
+          }
+        ],
+        "expectedRequirements": [
+          "daily active users",
+          "actions per user",
+          "peak multiplier",
+          "payload size and retention"
+        ],
+        "requiredArchitectureComponents": [
+          "capacity worksheet",
+          "API fleet",
+          "storage tier",
+          "capacity alert"
+        ],
+        "tradeoffs": [
+          "headroom versus cost",
+          "peak versus average sizing",
+          "retention versus queryability"
+        ],
+        "failureModeFollowUp": "Traffic doubles during a launch while a deployment removes half the API fleet. Which metric triggers protection first?",
+        "animationWidgetId": "system-design-capacity-viz"
+      },
+      "exercises": [
+        {
+          "id": "sd02-reading",
+          "title": "Read: estimate enough to decide",
+          "xp": 15,
+          "kind": "reading",
+          "content": "# Use back-of-the-envelope math\n\n**Recognition signals:** DAU, request volume, media size, retention, or a p95 target appears in the prompt.\n\nConvert daily behavior to average QPS, apply a stated peak multiplier, estimate write volume and storage separately, then reserve operational headroom.\n\n**Invariant:** every estimate has a unit and an assumption.\n\n**Cost implications:** compute follows peak concurrency; storage follows payload, replication, indexes, and retention. Do not let a precise-looking number hide an unmeasured assumption.",
+          "check": {
+            "type": "read"
+          }
+        },
+        {
+          "id": "sd02-animation",
+          "title": "Animation: QPS, storage, and headroom",
+          "xp": 25,
+          "kind": "interactive",
+          "widgetId": "system-design-capacity-viz",
+          "content": "# Turn DAU into capacity\n\nAdjust daily active users. The state player exposes average and peak QPS, raw storage, and the extra margin required to survive a rollout or burst.",
+          "check": {
+            "type": "widget"
+          }
+        },
+        {
+          "id": "sd-latency-cards",
+          "title": "Flashcards: latency numbers",
+          "kind": "interactive",
+          "xp": 20,
+          "widgetId": "sd-latency-flashcards",
+          "content": "# Latency numbers every engineer should know\n\nThese magnitudes are the physics behind every design decision: why caches exist, why cross-region sync calls are banned, why sequential beats random.\n\nPick the right magnitude for each operation — being within the right power of ten is what matters.",
+          "check": {
+            "type": "widget"
+          },
+          "attribution": "Content basis: The System Design Primer (github.com/donnemartin/system-design-primer), CC BY 4.0."
+        },
+        {
+          "id": "sd-capacity-quickfire",
+          "title": "Drill: capacity quick-fire",
+          "kind": "interactive",
+          "xp": 25,
+          "widgetId": "sd-capacity-quickfire",
+          "content": "# Capacity quick-fire\n\nSix conversions you must do on autopilot: requests/day → QPS, records × size → GB, bits → bytes, average → peak.\n\nAnswers within tolerance count. Say the assumption, round hard, move on.",
+          "check": {
+            "type": "widget"
+          }
+        },
+        {
+          "id": "sd02-scenario",
+          "title": "Scenario: reserve capacity",
+          "xp": 20,
+          "kind": "interactive",
+          "widgetId": "system-design-decision",
+          "content": "# Guided scenario\n\nChoose an operationally safe capacity rule.",
+          "systemDesignDecision": {
+            "situation": "Your average load is 400 RPS, but a campaign can produce a four-times peak and deployments remove 25% of capacity.",
+            "decision": "What fleet target is most defensible?",
+            "options": [
+              "Size for the 1,600 RPS peak with spare capacity after one quarter of the fleet is unavailable.",
+              "Size exactly for 400 RPS because autoscaling will react.",
+              "Use the average and put every request in a queue."
+            ],
+            "correctIndex": 0,
+            "explanation": "The estimate must survive the stated burst and a realistic degradation. A queue can absorb some work, but it cannot make a synchronous API latency target disappear."
+          },
+          "check": {
+            "type": "widget"
+          }
+        },
+        {
+          "id": "sd02-quiz",
+          "title": "Quiz: capacity units",
+          "xp": 15,
+          "kind": "quiz",
+          "content": "# Check the math\n\nReason in units before calculating.",
+          "quiz": [
+            {
+              "id": "q1",
+              "prompt": "Which input most directly affects one-year storage?",
+              "options": [
+                "Payload size, writes per day, replication, and retention.",
+                "API instance count alone.",
+                "The HTTP status code."
+              ],
+              "correctIndex": 0,
+              "explanation": "Storage is a data-volume calculation; replication and indexes multiply the raw payload."
+            },
+            {
+              "id": "q2",
+              "prompt": "Why state a peak multiplier?",
+              "options": [
+                "Average rate hides burst concurrency and tail behavior.",
+                "It makes every estimate exact.",
+                "It removes the need for monitoring."
+              ],
+              "correctIndex": 0,
+              "explanation": "A peak multiplier is an explicit uncertainty bound that drives capacity and protection decisions."
+            }
+          ],
+          "check": {
+            "type": "quiz",
+            "minCorrect": 2
+          }
+        },
+        {
+          "id": "sd02-whiteboard",
+          "title": "Whiteboard: estimate a notification service",
+          "xp": 30,
+          "kind": "whiteboard",
+          "content": "# Put the numbers on the architecture\n\nEstimate before adding optional services.",
+          "whiteboardBrief": {
+            "requirements": [
+              "State DAU, notifications per user, and a peak multiplier.",
+              "Calculate or annotate peak ingress QPS.",
+              "Show which path is synchronous and which is queued.",
+              "Annotate payload size, retention, and replication effect on storage.",
+              "Add a capacity alarm tied to utilization or queue age."
+            ]
+          },
+          "check": {
+            "type": "diagram",
+            "passThreshold": 6
+          }
+        },
+        {
+          "id": "sd02-answer",
+          "title": "Answer drill: narrate an estimate",
+          "xp": 25,
+          "kind": "interactive",
+          "widgetId": "system-design-answer-drill",
+          "content": "# Explain the estimate without false precision",
+          "systemDesignAnswerDrill": {
+            "prompt": "Estimate capacity for a service with 200k DAU and explain the assumption that could change your design most.",
+            "requiredTradeoffs": [
+              "I converted a user behavior into a rate with units.",
+              "I included a peak and failure headroom assumption.",
+              "I identified a cost driver and a metric to validate it."
+            ],
+            "minimumCharacters": 220
+          },
+          "check": {
+            "type": "widget"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sd-api-data-models",
+      "title": "03. APIs and Data Models",
+      "systemDesign": {
+        "roadmap": "foundations",
+        "primaryChallengeId": "url-shortener",
+        "companyVariants": [
+          {
+            "company": "Stripe",
+            "slug": "stripe"
+          }
+        ],
+        "expectedRequirements": [
+          "read and write operations",
+          "idempotency semantics",
+          "ownership boundaries",
+          "read consistency"
+        ],
+        "requiredArchitectureComponents": [
+          "versioned API",
+          "primary data store",
+          "idempotency record",
+          "derived read model"
+        ],
+        "tradeoffs": [
+          "normalization versus read latency",
+          "read-your-write versus replica reads",
+          "schema evolution versus client compatibility"
+        ],
+        "failureModeFollowUp": "A client retries after a network timeout but the first write may have committed. How do you return a safe response?",
+        "animationWidgetId": "system-design-api-data-viz"
+      },
+      "exercises": [
+        {
+          "id": "sd03-reading",
+          "title": "Read: contracts before tables",
+          "xp": 15,
+          "kind": "reading",
+          "content": "# Make ownership explicit\n\n**Recognition signals:** the prompt asks for create, update, cancel, search, or status APIs.\n\nStart with nouns, keys, and operations. Define idempotency for mutations, select the source of truth, and make indexes or projections rebuildable.\n\n**Invariant:** an acknowledged mutation has one durable identity and a replay does not create a second side effect.\n\n**Cost implications:** normalized writes reduce duplication; read models reduce request joins but introduce propagation and repair work.",
+          "check": {
+            "type": "read"
+          }
+        },
+        {
+          "id": "sd03-animation",
+          "title": "Animation: idempotent write and read model",
+          "xp": 25,
+          "kind": "interactive",
+          "widgetId": "system-design-api-data-viz",
+          "content": "# Trace data ownership\n\nAdjust write throughput and watch the mutation contract, source of truth, read path, and compatible evolution state.",
+          "check": {
+            "type": "widget"
+          }
+        },
+        {
+          "id": "sd-ordering-deploy",
+          "title": "Drill: order a safe schema change",
+          "kind": "interactive",
+          "xp": 15,
+          "widgetId": "sd-ordering-safe-deploy",
+          "content": "# Expand / contract, in order\n\nSchema changes on a live system follow a strict order so every step is backward-compatible and rollback stays possible. Tap the five steps in order.",
+          "check": {
+            "type": "widget"
+          }
+        },
+        {
+          "id": "sd03-scenario",
+          "title": "Scenario: retry a payment create",
+          "xp": 20,
+          "kind": "interactive",
+          "widgetId": "system-design-decision",
+          "content": "# Guided scenario\n\nProtect an external side effect from a client retry.",
+          "systemDesignDecision": {
+            "situation": "A client times out while creating a payment and retries with the same request body.",
+            "decision": "Which API contract prevents a duplicate charge?",
+            "options": [
+              "Require an idempotency key and store the first completed result against that key.",
+              "Reject every retry after a timeout.",
+              "Create a new payment and rely on reconciliation."
+            ],
+            "correctIndex": 0,
+            "explanation": "The idempotency key lets the server return the original result even when the client cannot tell whether the first attempt committed."
+          },
+          "check": {
+            "type": "widget"
+          }
+        },
+        {
+          "id": "sd03-quiz",
+          "title": "Quiz: ownership and consistency",
+          "xp": 15,
+          "kind": "quiz",
+          "content": "# Check the data contract",
+          "quiz": [
+            {
+              "id": "q1",
+              "prompt": "What is the source of truth for a derived search index?",
+              "options": [
+                "The durable primary record or event log used to rebuild it.",
+                "The current search response.",
+                "The browser cache."
+              ],
+              "correctIndex": 0,
+              "explanation": "A derived index must be rebuildable from an owned durable source."
+            },
+            {
+              "id": "q2",
+              "prompt": "When is a replica read risky immediately after a write?",
+              "options": [
+                "When the user expects read-your-write but replication may lag.",
+                "When the record has an id.",
+                "When the API is versioned."
+              ],
+              "correctIndex": 0,
+              "explanation": "Replica lag is acceptable only when the product accepts staleness."
+            }
+          ],
+          "check": {
+            "type": "quiz",
+            "minCorrect": 2
+          }
+        },
+        {
+          "id": "sd03-whiteboard",
+          "title": "Whiteboard: model notification preferences",
+          "xp": 30,
+          "kind": "whiteboard",
+          "content": "# Draw ownership and a safe mutation",
+          "whiteboardBrief": {
+            "requirements": [
+              "Define create/update and read APIs with stable identifiers.",
+              "Show the preference record as the source of truth.",
+              "Include an idempotency key or version check for mutation retries.",
+              "Show a derived delivery/read model and how it is updated.",
+              "Annotate a read-your-write choice and one schema-evolution rule."
+            ]
+          },
+          "check": {
+            "type": "diagram",
+            "passThreshold": 6
+          }
+        },
+        {
+          "id": "sd03-answer",
+          "title": "Answer drill: explain an idempotent API",
+          "xp": 25,
+          "kind": "interactive",
+          "widgetId": "system-design-answer-drill",
+          "content": "# Explain your mutation semantics",
+          "systemDesignAnswerDrill": {
+            "prompt": "Defend an idempotent create API for a system with external side effects.",
+            "requiredTradeoffs": [
+              "I named the idempotency key and its retention window.",
+              "I explained the source of truth and duplicate response behavior.",
+              "I addressed a stale read or schema-evolution trade-off."
+            ],
+            "minimumCharacters": 220
+          },
+          "check": {
+            "type": "widget"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sd-core-building-blocks",
+      "title": "04. Core Building Blocks",
+      "systemDesign": {
+        "roadmap": "foundations",
+        "primaryChallengeId": "url-shortener",
+        "companyVariants": [
+          {
+            "company": "Vercel",
+            "slug": "vercel"
+          }
+        ],
+        "expectedRequirements": [
+          "latency target",
+          "durability level",
+          "synchronous response need",
+          "operational ownership"
+        ],
+        "requiredArchitectureComponents": [
+          "load balancer",
+          "stateless API",
+          "durable store",
+          "queue and worker"
+        ],
+        "tradeoffs": [
+          "request latency versus asynchronous completion",
+          "managed service versus control",
+          "simple path versus resilience"
+        ],
+        "failureModeFollowUp": "The worker backlog grows while API latency remains healthy. Which service-level objective reveals the real user impact?",
+        "animationWidgetId": "system-design-building-blocks-viz"
+      },
+      "exercises": [
+        {
+          "id": "sd04-reading",
+          "title": "Read: primitives earn their place",
+          "xp": 15,
+          "kind": "reading",
+          "content": "# Pick building blocks by access pattern\n\n**Recognition signals:** a design needs traffic distribution, durable lookup, large blobs, or work that outlives one request.\n\nUse stateless APIs behind health-aware routing. Choose a store by its access pattern. Queue work only when the user can tolerate eventual completion.\n\n**Invariant:** a successful acknowledgement means the promised durable boundary has been crossed.\n\n**Cost implications:** every primitive adds latency, operational ownership, and failure modes. A queue shifts work; it does not erase it.",
+          "check": {
+            "type": "read"
+          }
+        },
+        {
+          "id": "sd04-animation",
+          "title": "Animation: route, persist, and defer work",
+          "xp": 25,
+          "kind": "interactive",
+          "widgetId": "system-design-building-blocks-viz",
+          "content": "# Follow the primitives\n\nAdjust the p95 target and see how routing, storage, and asynchronous work fit together without putting slow work in the request path.",
+          "check": {
+            "type": "widget"
+          }
+        },
+        {
+          "id": "sd-spot-flaw",
+          "title": "Game: spot the flaw",
+          "kind": "interactive",
+          "xp": 25,
+          "widgetId": "sd-spot-the-flaw",
+          "content": "# Spot the flaw\n\nFour architectures, each with exactly ONE design mistake — the same four mistakes behind most real-world outages: statefulness, SPOFs, stale caches, poison messages.\n\nClick the flawed component in each scene.",
+          "check": {
+            "type": "widget"
+          }
+        },
+        {
+          "id": "sd04-scenario",
+          "title": "Scenario: return a job id",
+          "xp": 20,
+          "kind": "interactive",
+          "widgetId": "system-design-decision",
+          "content": "# Guided scenario\n\nKeep a slow operation out of a low-latency API.",
+          "systemDesignDecision": {
+            "situation": "Generating a large export takes several minutes, while the create API has a 200 ms p95 target.",
+            "decision": "What should the API return?",
+            "options": [
+              "Persist a job, enqueue work durably, and return a job id with a status path.",
+              "Hold the HTTP connection open until the export completes.",
+              "Return success before persisting any job state."
+            ],
+            "correctIndex": 0,
+            "explanation": "The durable job record makes completion observable and recoverable while protecting the synchronous latency budget."
+          },
+          "check": {
+            "type": "widget"
+          }
+        },
+        {
+          "id": "sd04-quiz",
+          "title": "Quiz: choose the primitive",
+          "xp": 15,
+          "kind": "quiz",
+          "content": "# Check the building blocks",
+          "quiz": [
+            {
+              "id": "q1",
+              "prompt": "What should a load balancer own?",
+              "options": [
+                "Health-aware request routing.",
+                "The only copy of application session state.",
+                "Business transaction history."
+              ],
+              "correctIndex": 0,
+              "explanation": "The load balancer routes to healthy stateless handlers; durable business state belongs elsewhere."
+            },
+            {
+              "id": "q2",
+              "prompt": "What is a useful asynchronous SLA?",
+              "options": [
+                "Age of the oldest queued job.",
+                "The color of the worker dashboard.",
+                "The API's average CPU alone."
+              ],
+              "correctIndex": 0,
+              "explanation": "Queue age measures how long a user-visible job has waited."
+            }
+          ],
+          "check": {
+            "type": "quiz",
+            "minCorrect": 2
+          }
+        },
+        {
+          "id": "sd04-whiteboard",
+          "title": "Whiteboard: file-processing service",
+          "xp": 30,
+          "kind": "whiteboard",
+          "content": "# Separate the immediate response from the slow work",
+          "whiteboardBrief": {
+            "requirements": [
+              "Show upload ingress and durable object storage.",
+              "Draw the synchronous API response and a durable job record.",
+              "Include a queue, worker, and status/result path.",
+              "Annotate the user-visible latency target and asynchronous completion SLA.",
+              "Show how a failed worker resumes without losing a job."
+            ]
+          },
+          "check": {
+            "type": "diagram",
+            "passThreshold": 6
+          }
+        },
+        {
+          "id": "sd04-answer",
+          "title": "Answer drill: justify a queue",
+          "xp": 25,
+          "kind": "interactive",
+          "widgetId": "system-design-answer-drill",
+          "content": "# Explain what the queue buys and costs",
+          "systemDesignAnswerDrill": {
+            "prompt": "Explain why you would use a queue for file processing and what guarantees it does not provide by itself.",
+            "requiredTradeoffs": [
+              "I separated the synchronous and asynchronous user contracts.",
+              "I stated the durable acknowledgement boundary.",
+              "I named a queue-age or retry failure mode."
+            ],
+            "minimumCharacters": 220
+          },
+          "check": {
+            "type": "widget"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sd-cache-rate-limiting",
+      "title": "05. Caching and Rate Limiting",
+      "systemDesign": {
+        "roadmap": "product-scale",
+        "primaryChallengeId": "rate-limiter",
+        "companyVariants": [
+          {
+            "company": "Stripe",
+            "slug": "stripe"
+          },
+          {
+            "company": "Vercel",
+            "slug": "vercel"
+          }
+        ],
+        "expectedRequirements": [
+          "freshness tolerance",
+          "keying strategy",
+          "fairness policy",
+          "burst and abuse model"
+        ],
+        "requiredArchitectureComponents": [
+          "cache",
+          "authoritative store",
+          "invalidation path",
+          "distributed token bucket"
+        ],
+        "tradeoffs": [
+          "hit rate versus staleness",
+          "local versus global limiting",
+          "strictness versus availability"
+        ],
+        "failureModeFollowUp": "The limiter datastore is unavailable during an abuse event. Do you fail open, fail closed, or use a bounded local fallback?",
+        "animationWidgetId": "system-design-cache-rate-viz"
+      },
+      "exercises": [
+        {
+          "id": "sd05-reading",
+          "title": "Read: protect the expensive path",
+          "xp": 15,
+          "kind": "reading",
+          "content": "# Cache and limit with a contract\n\n**Recognition signals:** a read-heavy hot key, expensive downstream work, public APIs, or bursty traffic.\n\nDefine cache key, source of truth, TTL, invalidation, and tolerated staleness. Define limiter key, algorithm, refill policy, and behavior when coordination fails.\n\n**Invariant:** cache values are disposable; the authoritative store is not. Limiter decisions are bounded and observable.\n\n**Cost implications:** larger TTL lowers load but expands stale reads; global coordination improves fairness but adds latency and availability dependency.",
+          "check": {
+            "type": "read"
+          }
+        },
+        {
+          "id": "sd05-animation",
+          "title": "Animation: cache hit/miss, TTL, and token bucket",
+          "xp": 25,
+          "kind": "interactive",
+          "widgetId": "system-design-cache-rate-viz",
+          "content": "# Protect the primary path\n\nAdjust TTL, then walk through a cache hit, a miss, a distributed token-bucket check, and invalidation after a write.",
+          "check": {
+            "type": "widget"
+          }
+        },
+        {
+          "id": "sd-ordering-read",
+          "title": "Drill: order a cached read",
+          "kind": "interactive",
+          "xp": 15,
+          "widgetId": "sd-ordering-read-path",
+          "content": "# One cached read, in order\n\nTap the steps a read request takes through DNS, the load balancer, auth, cache, and database — in the exact order they happen.",
+          "check": {
+            "type": "widget"
+          }
+        },
+        {
+          "id": "sd05-scenario",
+          "title": "Scenario: limiter outage policy",
+          "xp": 20,
+          "kind": "interactive",
+          "widgetId": "system-design-decision",
+          "content": "# Guided scenario\n\nDecide what happens when admission control loses coordination.",
+          "systemDesignDecision": {
+            "situation": "A public API is under abuse and its shared rate-limit store becomes unavailable.",
+            "decision": "Which policy is best for a costly write endpoint?",
+            "options": [
+              "Fail closed or use a small bounded local allowance, and alert on the degraded policy.",
+              "Fail open for all traffic because availability always wins.",
+              "Disable authentication so healthy users can retry faster."
+            ],
+            "correctIndex": 0,
+            "explanation": "For an expensive or abusive write path, unbounded fail-open can overload the entire system. The policy must be endpoint-specific and observable."
+          },
+          "check": {
+            "type": "widget"
+          }
+        },
+        {
+          "id": "sd05-quiz",
+          "title": "Quiz: cache and limiter contracts",
+          "xp": 15,
+          "kind": "quiz",
+          "content": "# Check the protection path",
+          "quiz": [
+            {
+              "id": "q1",
+              "prompt": "What should invalidate a cache after a successful write?",
+              "options": [
+                "A write-driven invalidation event for the affected key, with TTL as a fallback bound.",
+                "A random cache eviction.",
+                "Only a browser refresh."
+              ],
+              "correctIndex": 0,
+              "explanation": "Write-driven invalidation reduces staleness; TTL bounds it when events fail."
+            },
+            {
+              "id": "q2",
+              "prompt": "Why key a rate limiter by user and route?",
+              "options": [
+                "It protects fairness and lets policies match the cost of an operation.",
+                "It eliminates all retries.",
+                "It makes the database strongly consistent."
+              ],
+              "correctIndex": 0,
+              "explanation": "The key determines who shares a budget and how abuse is isolated."
+            }
+          ],
+          "check": {
+            "type": "quiz",
+            "minCorrect": 2
+          }
+        },
+        {
+          "id": "sd05-whiteboard",
+          "title": "Whiteboard: public API rate limiter",
+          "xp": 30,
+          "kind": "whiteboard",
+          "content": "# Draw a limiter that survives a real request path",
+          "whiteboardBrief": {
+            "requirements": [
+              "Show the admission point before expensive API work.",
+              "Define the limiter key and token-bucket or sliding-window state.",
+              "Show cache/source-of-truth relationship and one TTL or invalidation policy.",
+              "Annotate burst, refill, and 429 response behavior.",
+              "Add a limiter-store outage policy and monitoring signal."
+            ]
+          },
+          "check": {
+            "type": "diagram",
+            "passThreshold": 6
+          }
+        },
+        {
+          "id": "sd05-answer",
+          "title": "Answer drill: defend a cache policy",
+          "xp": 25,
+          "kind": "interactive",
+          "widgetId": "system-design-answer-drill",
+          "content": "# Explain freshness and fairness",
+          "systemDesignAnswerDrill": {
+            "prompt": "Defend a cache TTL and distributed rate-limiter policy for a high-traffic public endpoint.",
+            "requiredTradeoffs": [
+              "I named the cache key, freshness bound, and invalidation path.",
+              "I explained the limiter algorithm, key, and burst policy.",
+              "I chose an outage policy and its product consequence."
+            ],
+            "minimumCharacters": 240
+          },
+          "check": {
+            "type": "widget"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sd-data-at-scale",
+      "title": "06. Data at Scale",
+      "systemDesign": {
+        "roadmap": "product-scale",
+        "primaryChallengeId": "url-shortener",
+        "companyVariants": [
+          {
+            "company": "Stripe",
+            "slug": "stripe"
+          }
+        ],
+        "expectedRequirements": [
+          "partition key",
+          "skew tolerance",
+          "read consistency",
+          "migration window"
+        ],
+        "requiredArchitectureComponents": [
+          "shard router",
+          "primary shards",
+          "replicas",
+          "rebalancing workflow"
+        ],
+        "tradeoffs": [
+          "range versus hash partitioning",
+          "replica lag versus read latency",
+          "online migration versus operational complexity"
+        ],
+        "failureModeFollowUp": "One tenant is ten times larger than all others and saturates a shard. How do you split it without losing routing correctness?",
+        "animationWidgetId": "system-design-data-scale-viz"
+      },
+      "exercises": [
+        {
+          "id": "sd06-reading",
+          "title": "Read: partition data without hiding skew",
+          "xp": 15,
+          "kind": "reading",
+          "content": "# Scaling storage is an ownership problem\n\n**Recognition signals:** data or write traffic no longer fits one primary, tenants have uneven sizes, or replicas serve reads.\n\nChoose a partition key from access patterns, measure per-partition load, define an epoch or routing map for movement, and state which reads may be stale.\n\n**Invariant:** one key range has one write owner at a time.\n\n**Cost implications:** more shards increase parallelism and operational overhead; replicas lower read latency but introduce lag and repair.",
+          "check": {
+            "type": "read"
+          }
+        },
+        {
+          "id": "sd06-animation",
+          "title": "Animation: sharding, rebalance, and replica lag",
+          "xp": 25,
+          "kind": "interactive",
+          "widgetId": "system-design-data-scale-viz",
+          "content": "# Follow a partition move\n\nChange shard count and trace routing, skew detection, dual reads during rebalancing, and a replica-read consistency decision.",
+          "check": {
+            "type": "widget"
+          }
+        },
+        {
+          "id": "sd06-scenario",
+          "title": "Scenario: read after write",
+          "xp": 20,
+          "kind": "interactive",
+          "widgetId": "system-design-decision",
+          "content": "# Guided scenario\n\nChoose the read route that matches the user promise.",
+          "systemDesignDecision": {
+            "situation": "A user updates a profile and immediately opens the profile page. Replicas can lag by 200 ms.",
+            "decision": "Where should this immediate read go?",
+            "options": [
+              "Route this read to the primary or a session-consistent path.",
+              "Always route to the nearest replica.",
+              "Disable replication during profile updates."
+            ],
+            "correctIndex": 0,
+            "explanation": "Read-your-write is a product promise. A primary or session-consistent path preserves it while ordinary tolerant reads can still use replicas."
+          },
+          "check": {
+            "type": "widget"
+          }
+        },
+        {
+          "id": "sd06-quiz",
+          "title": "Quiz: partition and replication",
+          "xp": 15,
+          "kind": "quiz",
+          "content": "# Check the data plane",
+          "quiz": [
+            {
+              "id": "q1",
+              "prompt": "What is a safe cutover condition in a shard move?",
+              "options": [
+                "The target has caught up, routing is fenced by an ownership epoch, and reads can resolve the move.",
+                "The target process started.",
+                "A dashboard shows lower CPU."
+              ],
+              "correctIndex": 0,
+              "explanation": "Cutover needs correctness evidence, not just a running process."
+            },
+            {
+              "id": "q2",
+              "prompt": "What does a replica lag metric tell you?",
+              "options": [
+                "How stale a replica-backed read may be.",
+                "The total size of a user profile.",
+                "Whether a cache key exists."
+              ],
+              "correctIndex": 0,
+              "explanation": "Lag is a staleness signal that must be matched to product tolerance."
+            }
+          ],
+          "check": {
+            "type": "quiz",
+            "minCorrect": 2
+          }
+        },
+        {
+          "id": "sd06-whiteboard",
+          "title": "Whiteboard: shard a multi-tenant file index",
+          "xp": 30,
+          "kind": "whiteboard",
+          "content": "# Draw the ownership map",
+          "whiteboardBrief": {
+            "requirements": [
+              "Choose and label a partition key.",
+              "Show router, primary shard, and replica roles.",
+              "Annotate how a read chooses primary versus replica.",
+              "Show an online move or rebalancing phase with a routing epoch.",
+              "Include a hot-tenant skew detection and mitigation path."
+            ]
+          },
+          "check": {
+            "type": "diagram",
+            "passThreshold": 6
+          }
+        },
+        {
+          "id": "sd06-answer",
+          "title": "Answer drill: explain a reshard",
+          "xp": 25,
+          "kind": "interactive",
+          "widgetId": "system-design-answer-drill",
+          "content": "# Narrate an online data move",
+          "systemDesignAnswerDrill": {
+            "prompt": "Explain how you would rebalance a hot shard without losing writes or returning contradictory reads.",
+            "requiredTradeoffs": [
+              "I defined the partition key and skew signal.",
+              "I explained dual routing or a write fence during movement.",
+              "I addressed replica lag and read consistency."
+            ],
+            "minimumCharacters": 240
+          },
+          "check": {
+            "type": "widget"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sd-async-event-processing",
+      "title": "07. Async and Event Processing",
+      "systemDesign": {
+        "roadmap": "product-scale",
+        "primaryChallengeId": "discord",
+        "companyVariants": [
+          {
+            "company": "Stripe",
+            "slug": "stripe"
+          }
+        ],
+        "expectedRequirements": [
+          "ordering scope",
+          "delivery semantics",
+          "latency SLA",
+          "replay and audit needs"
+        ],
+        "requiredArchitectureComponents": [
+          "producer",
+          "partitioned log",
+          "consumer group",
+          "retry topic and DLQ"
+        ],
+        "tradeoffs": [
+          "at-least-once versus exactly-once effect",
+          "throughput versus ordering",
+          "retry persistence versus latency"
+        ],
+        "failureModeFollowUp": "A consumer processes the side effect but dies before committing its offset. How does the next attempt stay safe?",
+        "animationWidgetId": "system-design-async-viz"
+      },
+      "exercises": [
+        {
+          "id": "sd07-reading",
+          "title": "Read: make async work observable",
+          "xp": 15,
+          "kind": "reading",
+          "content": "# Queues are temporal contracts\n\n**Recognition signals:** bursts, independent consumers, slow side effects, event replay, or delivery to many destinations.\n\nSet ordering scope, partition key, delivery semantics, idempotency key, retry schedule, DLQ policy, and queue-age objective.\n\n**Invariant:** a handler can observe the same event more than once without duplicating the external effect.\n\n**Cost implications:** partitions cap consumer parallelism; long retention and retries cost storage; strict ordering limits throughput.",
+          "check": {
+            "type": "read"
+          }
+        },
+        {
+          "id": "sd07-animation",
+          "title": "Animation: partitions, lag, retry, and DLQ",
+          "xp": 25,
+          "kind": "interactive",
+          "widgetId": "system-design-async-viz",
+          "content": "# Watch queue state change\n\nAdjust consumer throughput and trace partitioning, lag growth, idempotent retry, and poison-event isolation in a DLQ.",
+          "check": {
+            "type": "widget"
+          }
+        },
+        {
+          "id": "sd07-scenario",
+          "title": "Scenario: process a duplicate event",
+          "xp": 20,
+          "kind": "interactive",
+          "widgetId": "system-design-decision",
+          "content": "# Guided scenario\n\nKeep an at-least-once handler safe.",
+          "systemDesignDecision": {
+            "situation": "A notification worker sends an email but crashes before committing its queue offset. The event is delivered again.",
+            "decision": "What makes the second attempt safe?",
+            "options": [
+              "Record an idempotency key for the delivery effect and treat the duplicate as the same operation.",
+              "Disable retries for email events.",
+              "Commit the offset before attempting the email."
+            ],
+            "correctIndex": 0,
+            "explanation": "Committing first risks losing the event; retrying without idempotency risks duplicate delivery. The effect needs a durable dedupe key."
+          },
+          "check": {
+            "type": "widget"
+          }
+        },
+        {
+          "id": "sd07-quiz",
+          "title": "Quiz: delivery semantics",
+          "xp": 15,
+          "kind": "quiz",
+          "content": "# Check the event contract",
+          "quiz": [
+            {
+              "id": "q1",
+              "prompt": "What does consumer lag measure best?",
+              "options": [
+                "How long work is waiting relative to the incoming stream.",
+                "How many API routes exist.",
+                "Whether the producer uses JSON."
+              ],
+              "correctIndex": 0,
+              "explanation": "Lag and oldest-event age reveal whether consumers keep up with the product SLA."
+            },
+            {
+              "id": "q2",
+              "prompt": "When should an event move to a DLQ?",
+              "options": [
+                "After bounded retries with preserved failure context.",
+                "Immediately after its first failure.",
+                "Only when a database is empty."
+              ],
+              "correctIndex": 0,
+              "explanation": "Bounded retries handle transient faults; DLQ isolates poison events for explicit repair."
+            }
+          ],
+          "check": {
+            "type": "quiz",
+            "minCorrect": 2
+          }
+        },
+        {
+          "id": "sd07-whiteboard",
+          "title": "Whiteboard: notification delivery pipeline",
+          "xp": 30,
+          "kind": "whiteboard",
+          "content": "# Draw a retryable delivery system",
+          "whiteboardBrief": {
+            "requirements": [
+              "Show producer, partitioned event stream, and consumer group.",
+              "Define an ordering or partition key.",
+              "Show idempotency at the side-effect boundary.",
+              "Include retry timing, DLQ, and replay path.",
+              "Annotate queue-age or delivery-latency monitoring."
+            ]
+          },
+          "check": {
+            "type": "diagram",
+            "passThreshold": 6
+          }
+        },
+        {
+          "id": "sd07-answer",
+          "title": "Answer drill: defend at-least-once delivery",
+          "xp": 25,
+          "kind": "interactive",
+          "widgetId": "system-design-answer-drill",
+          "content": "# Explain duplication and repair",
+          "systemDesignAnswerDrill": {
+            "prompt": "Explain why at-least-once delivery can be correct for notifications and how you protect the side effect.",
+            "requiredTradeoffs": [
+              "I defined the ordering scope and delivery semantics.",
+              "I named the idempotency boundary and retry policy.",
+              "I explained DLQ handling and a queue-age objective."
+            ],
+            "minimumCharacters": 240
+          },
+          "check": {
+            "type": "widget"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sd-reliability-multi-region",
+      "title": "08. Reliability and Multi-Region",
+      "systemDesign": {
+        "roadmap": "product-scale",
+        "primaryChallengeId": "rate-limiter",
+        "companyVariants": [
+          {
+            "company": "Vercel",
+            "slug": "vercel"
+          },
+          {
+            "company": "Stripe",
+            "slug": "stripe"
+          }
+        ],
+        "expectedRequirements": [
+          "availability target",
+          "RTO and RPO",
+          "degraded-mode behavior",
+          "durability acknowledgement"
+        ],
+        "requiredArchitectureComponents": [
+          "backpressure boundary",
+          "circuit breaker",
+          "health checks",
+          "traffic manager and replicas"
+        ],
+        "tradeoffs": [
+          "availability versus consistency",
+          "regional quorum versus write latency",
+          "fail open versus fail closed"
+        ],
+        "failureModeFollowUp": "A region is healthy enough to accept reads but replication is partitioned. What writes, if any, can it accept?",
+        "animationWidgetId": "system-design-reliability-viz"
+      },
+      "exercises": [
+        {
+          "id": "sd08-reading",
+          "title": "Read: design for controlled degradation",
+          "xp": 15,
+          "kind": "reading",
+          "content": "# Reliability is a user contract\n\n**Recognition signals:** availability target, outage, multi-region, dependency timeout, retry storm, or recovery objective.\n\nBound concurrency and queues, isolate failing dependencies with circuit breakers, state RTO/RPO, and decide what operations degrade or stop.\n\n**Invariant:** a failure in one dependency cannot consume unbounded resources in its callers.\n\n**Cost implications:** additional regions and synchronous quorum improve survival but increase latency, replication cost, and operational coordination.",
+          "check": {
+            "type": "read"
+          }
+        },
+        {
+          "id": "sd08-animation",
+          "title": "Animation: backpressure, breakers, and failover",
+          "xp": 25,
+          "kind": "interactive",
+          "widgetId": "system-design-reliability-viz",
+          "content": "# Fail safely\n\nChange replication factor, then step through backpressure, an open circuit breaker, quorum acknowledgment, and regional traffic failover.",
+          "check": {
+            "type": "widget"
+          }
+        },
+        {
+          "id": "sd08-scenario",
+          "title": "Scenario: choose a degraded write policy",
+          "xp": 20,
+          "kind": "interactive",
+          "widgetId": "system-design-decision",
+          "content": "# Guided scenario\n\nState the consistency consequence instead of hiding it.",
+          "systemDesignDecision": {
+            "situation": "One region is isolated from the other replicas. Your product stores financial transfers that must not be duplicated or lost.",
+            "decision": "What write policy is most defensible?",
+            "options": [
+              "Require the configured quorum and reject or queue writes that cannot meet it.",
+              "Accept all local writes and merge transfer conflicts later.",
+              "Route every request to the isolated region to reduce latency."
+            ],
+            "correctIndex": 0,
+            "explanation": "For irreversible financial transfers, a quorum-based durability boundary is more important than accepting an ambiguous local write during a partition."
+          },
+          "check": {
+            "type": "widget"
+          }
+        },
+        {
+          "id": "sd08-quiz",
+          "title": "Quiz: recovery and isolation",
+          "xp": 15,
+          "kind": "quiz",
+          "content": "# Check the resilience model",
+          "quiz": [
+            {
+              "id": "q1",
+              "prompt": "What does a circuit breaker do after repeated timeouts?",
+              "options": [
+                "Stops more calls temporarily and serves a bounded fallback or error.",
+                "Retries every call forever.",
+                "Replicates the dependency database."
+              ],
+              "correctIndex": 0,
+              "explanation": "A circuit breaker contains cascading failure and gives the dependency room to recover."
+            },
+            {
+              "id": "q2",
+              "prompt": "What is RPO?",
+              "options": [
+                "Maximum tolerated data loss measured in time or acknowledged work.",
+                "The average API response time.",
+                "The number of load balancers."
+              ],
+              "correctIndex": 0,
+              "explanation": "RPO defines how much committed data the recovery plan can lose."
+            }
+          ],
+          "check": {
+            "type": "quiz",
+            "minCorrect": 2
+          }
+        },
+        {
+          "id": "sd08-whiteboard",
+          "title": "Whiteboard: regional notification control plane",
+          "xp": 30,
+          "kind": "whiteboard",
+          "content": "# Show the failure path as clearly as the happy path",
+          "whiteboardBrief": {
+            "requirements": [
+              "Show regional ingress and health-aware traffic steering.",
+              "Include a bounded queue or concurrency limit for backpressure.",
+              "Draw a circuit breaker and user-visible fallback for a failing dependency.",
+              "State replica/quorum acknowledgement and RTO/RPO targets.",
+              "Show a regional failover and recovery or reconciliation path."
+            ]
+          },
+          "check": {
+            "type": "diagram",
+            "passThreshold": 6
+          }
+        },
+        {
+          "id": "sd08-answer",
+          "title": "Answer drill: explain a regional outage",
+          "xp": 25,
+          "kind": "interactive",
+          "widgetId": "system-design-answer-drill",
+          "content": "# Make the degraded mode explicit",
+          "systemDesignAnswerDrill": {
+            "prompt": "Explain how your system behaves when one region fails and a dependency in another region starts timing out.",
+            "requiredTradeoffs": [
+              "I stated an availability, RTO, or RPO target.",
+              "I explained backpressure or circuit-breaker behavior.",
+              "I chose a consistency and write policy for the partition."
+            ],
+            "minimumCharacters": 240
+          },
+          "check": {
+            "type": "widget"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sd-real-time-systems",
+      "title": "09. Real-Time Systems",
+      "systemDesign": {
+        "roadmap": "senior-systems",
+        "primaryChallengeId": "discord",
+        "companyVariants": [
+          {
+            "company": "Figma",
+            "slug": "figma"
+          }
+        ],
+        "expectedRequirements": [
+          "delivery latency",
+          "ordering scope",
+          "presence freshness",
+          "offline catch-up"
+        ],
+        "requiredArchitectureComponents": [
+          "connection gateway",
+          "room router",
+          "durable message log",
+          "presence store"
+        ],
+        "tradeoffs": [
+          "connection affinity versus mobility",
+          "per-room ordering versus global ordering",
+          "presence accuracy versus availability"
+        ],
+        "failureModeFollowUp": "A gateway loses a user's socket after the message was persisted but before fan-out. How does the user reconnect without a gap?",
+        "animationWidgetId": "system-design-realtime-viz"
+      },
+      "exercises": [
+        {
+          "id": "sd09-reading",
+          "title": "Read: durable events, ephemeral presence",
+          "xp": 15,
+          "kind": "reading",
+          "content": "# Real-time is two different systems\n\n**Recognition signals:** chat, presence, collaboration, WebSockets, rooms, fan-out, reconnect, or low delivery latency.\n\nKeep connection state at gateways, persist messages before fan-out, define ordering scope, and let offline clients catch up from a cursorable log. Treat presence as best-effort TTL state.\n\n**Invariant:** a persisted message can be replayed after a reconnect.\n\n**Cost implications:** fan-out work grows with room membership; connection affinity lowers routing cost but complicates balancing and failover.",
+          "check": {
+            "type": "read"
+          }
+        },
+        {
+          "id": "sd09-animation",
+          "title": "Animation: chat fan-out and presence",
+          "xp": 25,
+          "kind": "interactive",
+          "widgetId": "system-design-realtime-viz",
+          "content": "# Trace a real-time message\n\nAdjust active-room membership, then follow connection handling, durable append, fan-out, and presence expiry without confusing presence with message durability.",
+          "check": {
+            "type": "widget"
+          }
+        },
+        {
+          "id": "sd09-scenario",
+          "title": "Scenario: reconnect after a gateway loss",
+          "xp": 20,
+          "kind": "interactive",
+          "widgetId": "system-design-decision",
+          "content": "# Guided scenario\n\nRecover a user without replaying the entire room.",
+          "systemDesignDecision": {
+            "situation": "A user's WebSocket disconnects after several messages were written to the room log.",
+            "decision": "How should the client catch up after reconnecting?",
+            "options": [
+              "Reconnect with the last acknowledged message cursor and replay later durable messages.",
+              "Assume any missing messages are presence events.",
+              "Send the full room history on every reconnect."
+            ],
+            "correctIndex": 0,
+            "explanation": "A durable cursor makes recovery bounded, ordered at the room scope, and independent of transient gateway state."
+          },
+          "check": {
+            "type": "widget"
+          }
+        },
+        {
+          "id": "sd09-quiz",
+          "title": "Quiz: real-time contracts",
+          "xp": 15,
+          "kind": "quiz",
+          "content": "# Check the message path",
+          "quiz": [
+            {
+              "id": "q1",
+              "prompt": "Why persist a chat message before fan-out?",
+              "options": [
+                "Reconnects and offline clients can replay a durable source.",
+                "It makes presence strongly consistent.",
+                "It removes all network latency."
+              ],
+              "correctIndex": 0,
+              "explanation": "Durable append separates correctness from the best-effort socket delivery path."
+            },
+            {
+              "id": "q2",
+              "prompt": "What is a practical presence model?",
+              "options": [
+                "TTL-based best-effort state refreshed by heartbeats.",
+                "A globally serializable transaction for every cursor movement.",
+                "A permanent record for every connection ping."
+              ],
+              "correctIndex": 0,
+              "explanation": "Presence changes often and can tolerate expiry; message history cannot."
+            }
+          ],
+          "check": {
+            "type": "quiz",
+            "minCorrect": 2
+          }
+        },
+        {
+          "id": "sd09-whiteboard",
+          "title": "Whiteboard: real-time chat room",
+          "xp": 30,
+          "kind": "whiteboard",
+          "content": "# Draw durable delivery and ephemeral presence",
+          "whiteboardBrief": {
+            "requirements": [
+              "Show WebSocket client, gateway, and room routing.",
+              "Persist a message before fan-out and label the ordering scope.",
+              "Show connected fan-out and offline replay from a cursor.",
+              "Include presence storage with heartbeat or TTL semantics.",
+              "Annotate a gateway failure/reconnect path and delivery-latency objective."
+            ]
+          },
+          "check": {
+            "type": "diagram",
+            "passThreshold": 6
+          }
+        },
+        {
+          "id": "sd09-answer",
+          "title": "Answer drill: defend a chat design",
+          "xp": 25,
+          "kind": "interactive",
+          "widgetId": "system-design-answer-drill",
+          "content": "# Separate what must be durable from what may be stale",
+          "systemDesignAnswerDrill": {
+            "prompt": "Explain how you would design a large chat room with reconnects, presence, and bounded fan-out cost.",
+            "requiredTradeoffs": [
+              "I stated message ordering and delivery semantics.",
+              "I separated durable log, gateways, and best-effort presence.",
+              "I addressed fan-out scale and reconnect recovery."
+            ],
+            "minimumCharacters": 240
+          },
+          "check": {
+            "type": "widget"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sd-feeds-search-analytics",
+      "title": "10. Feeds, Search, and Analytics",
+      "systemDesign": {
+        "roadmap": "senior-systems",
+        "primaryChallengeId": "news-feed",
+        "companyVariants": [
+          {
+            "company": "Vercel",
+            "slug": "vercel"
+          }
+        ],
+        "expectedRequirements": [
+          "freshness",
+          "ranking quality",
+          "query latency",
+          "analytics cardinality and retention"
+        ],
+        "requiredArchitectureComponents": [
+          "event stream",
+          "fan-out workers",
+          "prefix/search index",
+          "metrics aggregator"
+        ],
+        "tradeoffs": [
+          "fan-out on write versus read",
+          "index freshness versus compute",
+          "metric fidelity versus cardinality cost"
+        ],
+        "failureModeFollowUp": "A celebrity account posts to 50M followers. How do you preserve freshness without creating a write storm?",
+        "animationWidgetId": "system-design-feeds-search-viz"
+      },
+      "exercises": [
+        {
+          "id": "sd10-reading",
+          "title": "Read: separate serving from computation",
+          "xp": 15,
+          "kind": "reading",
+          "content": "# Precompute only what the product needs\n\n**Recognition signals:** feed, ranking, autocomplete, search, telemetry, analytics, many followers, high-cardinality labels.\n\nUse hybrid fan-out for feeds, memory-resident prefix indexes for autocomplete, and a partitioned aggregation path for metrics. Put expensive ranking and compaction off the serving path.\n\n**Invariant:** serving reads never depend on a full historical scan.\n\n**Cost implications:** fan-out on write amplifies write work; fan-out on read raises tail latency; unbounded metric cardinality can overwhelm storage and query systems.",
+          "check": {
+            "type": "read"
+          }
+        },
+        {
+          "id": "sd10-animation",
+          "title": "Animation: hybrid fan-out, autocomplete, and metrics",
+          "xp": 25,
+          "kind": "interactive",
+          "widgetId": "system-design-feeds-search-viz",
+          "content": "# Serve fast, compute asynchronously\n\nAdjust query load and walk through a hybrid feed, memory autocomplete, and a partitioned metrics aggregation pipeline.",
+          "check": {
+            "type": "widget"
+          }
+        },
+        {
+          "id": "sd10-scenario",
+          "title": "Scenario: celebrity feed fan-out",
+          "xp": 20,
+          "kind": "interactive",
+          "widgetId": "system-design-decision",
+          "content": "# Guided scenario\n\nAvoid an unbounded write storm.",
+          "systemDesignDecision": {
+            "situation": "A celebrity with 50M followers posts content. Ordinary users expect a fresh home feed quickly.",
+            "decision": "Which feed policy is most defensible?",
+            "options": [
+              "Use hybrid fan-out: precompute ordinary accounts and merge celebrity content at read time.",
+              "Push 50M writes synchronously before acknowledging the post.",
+              "Remove celebrities from all feeds."
+            ],
+            "correctIndex": 0,
+            "explanation": "Hybrid fan-out concentrates expensive large-account work on readers while retaining low-latency precomputed feeds for the common case."
+          },
+          "check": {
+            "type": "widget"
+          }
+        },
+        {
+          "id": "sd10-quiz",
+          "title": "Quiz: serving and aggregation",
+          "xp": 15,
+          "kind": "quiz",
+          "content": "# Check the derived systems",
+          "quiz": [
+            {
+              "id": "q1",
+              "prompt": "Why is autocomplete often served from an in-memory prefix index?",
+              "options": [
+                "Small ranked prefix lookups need low predictable latency.",
+                "It makes documents immutable.",
+                "It removes the need to update an index."
+              ],
+              "correctIndex": 0,
+              "explanation": "The serving index is optimized for prefix lookup; updates can arrive asynchronously."
+            },
+            {
+              "id": "q2",
+              "prompt": "What protects a metrics pipeline from cardinality explosion?",
+              "options": [
+                "Label validation, aggregation, retention tiers, and sampling policy.",
+                "A larger dashboard.",
+                "Adding all raw events to the request response."
+              ],
+              "correctIndex": 0,
+              "explanation": "Cardinality must be bounded at ingestion and storage, not discovered after an outage."
+            }
+          ],
+          "check": {
+            "type": "quiz",
+            "minCorrect": 2
+          }
+        },
+        {
+          "id": "sd10-whiteboard",
+          "title": "Whiteboard: news feed with autocomplete",
+          "xp": 30,
+          "kind": "whiteboard",
+          "content": "# Draw both the write and read paths",
+          "whiteboardBrief": {
+            "requirements": [
+              "Show post event, fan-out worker, and follower feed storage.",
+              "State a hybrid policy for ordinary versus celebrity accounts.",
+              "Include a read-time ranking or merge step.",
+              "Draw a separate autocomplete prefix index and asynchronous update path.",
+              "Add freshness, query-latency, or cardinality guardrail metrics."
+            ]
+          },
+          "check": {
+            "type": "diagram",
+            "passThreshold": 6
+          }
+        },
+        {
+          "id": "sd10-answer",
+          "title": "Answer drill: defend hybrid fan-out",
+          "xp": 25,
+          "kind": "interactive",
+          "widgetId": "system-design-answer-drill",
+          "content": "# Explain the cost curve",
+          "systemDesignAnswerDrill": {
+            "prompt": "Defend a hybrid feed fan-out strategy and explain how you would keep autocomplete and metrics off the request critical path.",
+            "requiredTradeoffs": [
+              "I compared fan-out on write with fan-out on read.",
+              "I stated a freshness or p95 serving target.",
+              "I addressed index/metrics update cost and a guardrail."
+            ],
+            "minimumCharacters": 240
+          },
+          "check": {
+            "type": "widget"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sd-distributed-kv",
+      "title": "11. Distributed-System Deep Dives",
+      "systemDesign": {
+        "roadmap": "senior-systems",
+        "primaryChallengeId": "url-shortener",
+        "companyVariants": [
+          {
+            "company": "Stripe",
+            "slug": "stripe"
+          },
+          {
+            "company": "Figma",
+            "slug": "figma"
+          }
+        ],
+        "expectedRequirements": [
+          "consistency model",
+          "replication factor",
+          "read/write quorum",
+          "partition behavior"
+        ],
+        "requiredArchitectureComponents": [
+          "hash ring",
+          "coordinator",
+          "replica set",
+          "version/repair process"
+        ],
+        "tradeoffs": [
+          "quorum latency versus durability",
+          "availability versus consistency during partition",
+          "repair cost versus staleness"
+        ],
+        "failureModeFollowUp": "Two replicas accept conflicting versions during a partition. How do clients and background repair resolve the outcome?",
+        "animationWidgetId": "system-design-kv-viz"
+      },
+      "exercises": [
+        {
+          "id": "sd11-reading",
+          "title": "Read: consistency is a chosen contract",
+          "xp": 15,
+          "kind": "reading",
+          "content": "# Design the distributed KV contract\n\n**Recognition signals:** replicas, quorum, hash ring, regional writes, partition, stale read, conflict, repair.\n\nDefine partitioning, replication factor, acknowledgement quorum, read mode, versioning, and anti-entropy. State what the system does during a network partition.\n\n**Invariant:** an acknowledged write meets the declared durability rule, not an implied stronger one.\n\n**Cost implications:** larger quorums and more replicas improve survival but increase tail latency, bandwidth, and reconciliation work.",
+          "check": {
+            "type": "read"
+          }
+        },
+        {
+          "id": "sd11-animation",
+          "title": "Animation: KV routing, quorum, and repair",
+          "xp": 25,
+          "kind": "interactive",
+          "widgetId": "system-design-kv-viz",
+          "content": "# Step through distributed state\n\nChange replication factor and follow hash routing, quorum acknowledgement, read consistency, and background repair after divergence.",
+          "check": {
+            "type": "widget"
+          }
+        },
+        {
+          "id": "sd11-scenario",
+          "title": "Scenario: choose a read quorum",
+          "xp": 20,
+          "kind": "interactive",
+          "widgetId": "system-design-decision",
+          "content": "# Guided scenario\n\nMake the consistency cost visible.",
+          "systemDesignDecision": {
+            "situation": "A permissions system must not show a revoked account as active immediately after a successful revoke.",
+            "decision": "Which read policy best matches the requirement?",
+            "options": [
+              "Use a primary/session-consistent read or a quorum read for the immediate verification path.",
+              "Use the nearest single replica for every read.",
+              "Use a cache with an unbounded TTL."
+            ],
+            "correctIndex": 0,
+            "explanation": "The immediate authorization check has a strong freshness requirement; lower-latency replica reads can remain available for tolerant paths."
+          },
+          "check": {
+            "type": "widget"
+          }
+        },
+        {
+          "id": "sd11-quiz",
+          "title": "Quiz: quorum and repair",
+          "xp": 15,
+          "kind": "quiz",
+          "content": "# Check the distributed contract",
+          "quiz": [
+            {
+              "id": "q1",
+              "prompt": "Why use virtual nodes on a hash ring?",
+              "options": [
+                "They smooth ownership and data movement across uneven physical nodes.",
+                "They remove the need for replication.",
+                "They make every read strongly consistent."
+              ],
+              "correctIndex": 0,
+              "explanation": "Virtual nodes distribute ranges more evenly and make node changes less disruptive."
+            },
+            {
+              "id": "q2",
+              "prompt": "What is anti-entropy for?",
+              "options": [
+                "Reconciling replica divergence in the background.",
+                "Reducing HTTP header size.",
+                "Replacing the write quorum."
+              ],
+              "correctIndex": 0,
+              "explanation": "Repair converges copies that missed writes or resolved conflicts differently."
+            }
+          ],
+          "check": {
+            "type": "quiz",
+            "minCorrect": 2
+          }
+        },
+        {
+          "id": "sd11-whiteboard",
+          "title": "Whiteboard: distributed permission KV",
+          "xp": 30,
+          "kind": "whiteboard",
+          "content": "# Draw the consistency decision",
+          "whiteboardBrief": {
+            "requirements": [
+              "Show key routing and a replica set.",
+              "State replication factor and read/write quorum.",
+              "Define the immediate authorization read path versus tolerant reads.",
+              "Show versioning or conflict-resolution logic.",
+              "Include a partition policy and anti-entropy/read-repair process."
+            ]
+          },
+          "check": {
+            "type": "diagram",
+            "passThreshold": 6
+          }
+        },
+        {
+          "id": "sd11-answer",
+          "title": "Answer drill: defend a consistency model",
+          "xp": 25,
+          "kind": "interactive",
+          "widgetId": "system-design-answer-drill",
+          "content": "# State what the system guarantees",
+          "systemDesignAnswerDrill": {
+            "prompt": "Explain a replicated key-value design for data that has one strongly consistent path and one eventually consistent path.",
+            "requiredTradeoffs": [
+              "I named replication and quorum values.",
+              "I explained the partition and conflict-resolution policy.",
+              "I connected the consistency choice to a product path and latency cost."
+            ],
+            "minimumCharacters": 240
+          },
+          "check": {
+            "type": "widget"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sd-senior-capstone",
+      "title": "12. Senior Capstone",
+      "systemDesign": {
+        "roadmap": "senior-systems",
+        "primaryChallengeId": "news-feed",
+        "companyVariants": [
+          {
+            "company": "Stripe",
+            "slug": "stripe"
+          },
+          {
+            "company": "Figma",
+            "slug": "figma"
+          },
+          {
+            "company": "Vercel",
+            "slug": "vercel"
+          }
+        ],
+        "expectedRequirements": [
+          "initial scope",
+          "changing requirement",
+          "durability and execution semantics",
+          "operational plan"
+        ],
+        "requiredArchitectureComponents": [
+          "scheduler API",
+          "durable schedule store",
+          "lease/dispatcher",
+          "execution queue and reconciler"
+        ],
+        "tradeoffs": [
+          "at-least-once versus exactly-once side effect",
+          "time-zone correctness versus scheduling simplicity",
+          "throughput versus auditability"
+        ],
+        "failureModeFollowUp": "A worker performs an external action and crashes before acknowledgement during a daylight-saving transition. How do you reconcile execution and billing?",
+        "animationWidgetId": "system-design-capstone-viz"
+      },
+      "exercises": [
+        {
+          "id": "sd12-reading",
+          "title": "Read: lead the evolving design",
+          "xp": 15,
+          "kind": "reading",
+          "content": "# Senior interviews test adaptation\n\n**Recognition signals:** changing requirements, multiple teams, regional correctness, auditability, an irreversible side effect, or a request to compare options.\n\nStart with a tractable initial design. When a new constraint arrives, isolate the affected boundary, name what stays true, and revise only the necessary contract.\n\n**Invariant:** a schedule run has a stable identity; external side effects can be audited and reconciled.\n\n**Cost implications:** exactly-once effects require idempotent ledgers and reconciliation; time zones introduce calendar-rule complexity; operational evidence costs storage but makes recovery possible.",
+          "check": {
+            "type": "read"
+          }
+        },
+        {
+          "id": "sd12-animation",
+          "title": "Animation: scheduler with a changing requirement",
+          "xp": 25,
+          "kind": "interactive",
+          "widgetId": "system-design-capstone-viz",
+          "content": "# Adapt without restarting the design\n\nChange scheduled-job throughput and trace initial scheduling, leased dispatch, the new billing/time-zone requirement, and recovery after an uncertain external side effect.",
+          "check": {
+            "type": "widget"
+          }
+        },
+        {
+          "id": "sd12-scenario",
+          "title": "Scenario: recover an uncertain execution",
+          "xp": 20,
+          "kind": "interactive",
+          "widgetId": "system-design-decision",
+          "content": "# Guided scenario\n\nResolve an ambiguous external effect with evidence.",
+          "systemDesignDecision": {
+            "situation": "A worker calls an external billing provider, then crashes before acknowledging the scheduled job. The provider may have charged the customer.",
+            "decision": "What recovery path is safest?",
+            "options": [
+              "Retry with a stable idempotency key and reconcile provider/ledger state before any manual repair.",
+              "Mark the job complete to avoid a duplicate charge.",
+              "Charge again and refund only if the customer complains."
+            ],
+            "correctIndex": 0,
+            "explanation": "An idempotency key plus an auditable ledger makes retry safe and exposes the evidence needed to reconcile uncertain outcomes."
+          },
+          "check": {
+            "type": "widget"
+          }
+        },
+        {
+          "id": "sd12-quiz",
+          "title": "Quiz: senior-level trade-offs",
+          "xp": 15,
+          "kind": "quiz",
+          "content": "# Check the capstone reasoning",
+          "quiz": [
+            {
+              "id": "q1",
+              "prompt": "Why use a lease when dispatching scheduled work?",
+              "options": [
+                "It bounds concurrent ownership of a due job and expires after worker failure.",
+                "It guarantees an external action happened exactly once.",
+                "It removes the need for clocks."
+              ],
+              "correctIndex": 0,
+              "explanation": "A lease coordinates work ownership; idempotency and reconciliation still protect the side effect."
+            },
+            {
+              "id": "q2",
+              "prompt": "What changes when schedules are expressed in local time?",
+              "options": [
+                "The system must apply IANA time-zone and daylight-saving rules to compute each run.",
+                "All schedules can use the same fixed offset forever.",
+                "The execution queue no longer needs retries."
+              ],
+              "correctIndex": 0,
+              "explanation": "Local civil time changes; a fixed offset produces incorrect runs around daylight-saving transitions."
+            }
+          ],
+          "check": {
+            "type": "quiz",
+            "minCorrect": 2
+          }
+        },
+        {
+          "id": "sd12-whiteboard",
+          "title": "Whiteboard: resilient job scheduler capstone",
+          "xp": 35,
+          "kind": "whiteboard",
+          "content": "# Present the design, then adapt it\n\nMidway through your drawing, add exactly-once billing and tenant-local schedules.",
+          "whiteboardBrief": {
+            "requirements": [
+              "Show scheduler API, durable schedule store, due-work query, and dispatch lease.",
+              "Include execution queue, idempotent worker, and user-visible status path.",
+              "Annotate ordering, retry, and reconciliation behavior.",
+              "Add the changing requirement: exactly-once billing via idempotency/ledger plus IANA time zones.",
+              "Show an uncertain-execution recovery path and operational metrics for lateness or queue age."
+            ]
+          },
+          "check": {
+            "type": "diagram",
+            "passThreshold": 7
+          }
+        },
+        {
+          "id": "sd12-answer",
+          "title": "Answer drill: lead the capstone discussion",
+          "xp": 30,
+          "kind": "interactive",
+          "widgetId": "system-design-answer-drill",
+          "content": "# Explain the revision under pressure",
+          "systemDesignAnswerDrill": {
+            "prompt": "Lead a two-minute explanation of a job scheduler after the interviewer adds exactly-once billing and local time-zone requirements.",
+            "requiredTradeoffs": [
+              "I separated scheduling, execution, and irreversible billing boundaries.",
+              "I explained idempotency, retries, and reconciliation after a crash.",
+              "I stated how time zones, observability, and capacity affect the final design."
+            ],
+            "minimumCharacters": 300
+          },
+          "check": {
+            "type": "widget"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sd-classic-questions",
+      "title": "13. Classic Questions Arena",
+      "exercises": [
+        {
+          "id": "sd-arena-intro",
+          "title": "How the arena works",
+          "kind": "reading",
+          "xp": 10,
+          "content": "# Classic Questions Arena\n\nSix of the most-asked system design questions, each as a four-phase drill that mirrors a real interview:\n\n1. **Clarify** — pick the 3 questions you must ask before designing. Wrong picks show you why.\n2. **Estimate** — napkin math with tolerance grading. Method over decimals.\n3. **Design** — the 2 decisions that decide the interview, with the trade-off spelled out.\n4. **Follow-up** — the requirement change the interviewer springs on you.\n\nClear all four phases to clear a question. Do one question per sitting and say your answers OUT LOUD — the arena grades your choices, but interviews grade your narration.\n\n### The six questions\nBit.ly/Pastebin · Twitter timeline · Web crawler · WhatsApp · API rate limiter · Dropbox sync\n\nThey cover the whole toolbox: caching, fan-out, politeness/dedupe, ordering & sockets, admission control, and chunked sync.",
+          "check": {
+            "type": "read"
+          },
+          "attribution": "Content basis: The System Design Primer (github.com/donnemartin/system-design-primer), CC BY 4.0."
+        },
+        {
+          "id": "sd-case-url-shortener",
+          "title": "Case: Design Bit.ly / Pastebin",
+          "kind": "interactive",
+          "xp": 30,
+          "widgetId": "sd-case-url-shortener",
+          "content": "# Design Bit.ly / Pastebin\n\nRun the four phases like a real interview: clarify → estimate → design → follow-up. Narrate your reasoning out loud as you click — the narration is what interviewers actually grade.",
+          "check": {
+            "type": "widget"
+          },
+          "attribution": "Content basis: The System Design Primer (github.com/donnemartin/system-design-primer), CC BY 4.0."
+        },
+        {
+          "id": "sd-case-twitter",
+          "title": "Case: Design the Twitter timeline",
+          "kind": "interactive",
+          "xp": 30,
+          "widgetId": "sd-case-twitter-timeline",
+          "content": "# Design the Twitter timeline\n\nRun the four phases like a real interview: clarify → estimate → design → follow-up. Narrate your reasoning out loud as you click — the narration is what interviewers actually grade.",
+          "check": {
+            "type": "widget"
+          },
+          "attribution": "Content basis: The System Design Primer (github.com/donnemartin/system-design-primer), CC BY 4.0."
+        },
+        {
+          "id": "sd-case-crawler",
+          "title": "Case: Design a web crawler",
+          "kind": "interactive",
+          "xp": 30,
+          "widgetId": "sd-case-web-crawler",
+          "content": "# Design a web crawler\n\nRun the four phases like a real interview: clarify → estimate → design → follow-up. Narrate your reasoning out loud as you click — the narration is what interviewers actually grade.",
+          "check": {
+            "type": "widget"
+          },
+          "attribution": "Content basis: The System Design Primer (github.com/donnemartin/system-design-primer), CC BY 4.0."
+        },
+        {
+          "id": "sd-case-chat",
+          "title": "Case: Design WhatsApp",
+          "kind": "interactive",
+          "xp": 30,
+          "widgetId": "sd-case-chat-app",
+          "content": "# Design WhatsApp\n\nRun the four phases like a real interview: clarify → estimate → design → follow-up. Narrate your reasoning out loud as you click — the narration is what interviewers actually grade.",
+          "check": {
+            "type": "widget"
+          },
+          "attribution": "Content basis: The System Design Primer (github.com/donnemartin/system-design-primer), CC BY 4.0."
+        },
+        {
+          "id": "sd-case-limiter",
+          "title": "Case: Design an API rate limiter",
+          "kind": "interactive",
+          "xp": 30,
+          "widgetId": "sd-case-rate-limiter",
+          "content": "# Design an API rate limiter\n\nRun the four phases like a real interview: clarify → estimate → design → follow-up. Narrate your reasoning out loud as you click — the narration is what interviewers actually grade.",
+          "check": {
+            "type": "widget"
+          },
+          "attribution": "Content basis: The System Design Primer (github.com/donnemartin/system-design-primer), CC BY 4.0."
+        },
+        {
+          "id": "sd-case-dropbox",
+          "title": "Case: Design Dropbox sync",
+          "kind": "interactive",
+          "xp": 30,
+          "widgetId": "sd-case-file-sync",
+          "content": "# Design Dropbox sync\n\nRun the four phases like a real interview: clarify → estimate → design → follow-up. Narrate your reasoning out loud as you click — the narration is what interviewers actually grade.",
+          "check": {
+            "type": "widget"
+          },
+          "attribution": "Content basis: The System Design Primer (github.com/donnemartin/system-design-primer), CC BY 4.0."
+        }
+      ]
+    }
+  ],
+  "sourceIds": [
+    "system-design-primer"
+  ]
+}

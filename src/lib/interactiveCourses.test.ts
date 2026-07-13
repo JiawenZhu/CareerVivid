@@ -7,8 +7,13 @@ import {
   getCurriculumCourses,
   getInteractiveCourse,
   getInteractiveCourses,
+  firstIncompleteExerciseId,
 } from './interactiveCourses';
 import { validateCourseDefinition } from '../types/course';
+import { getCourseWidget } from '../components/CourseWidgets';
+import { buildSystemDesignSteps, SYSTEM_DESIGN_SCENARIOS } from './systemDesignSimulations';
+import { getSystemDesignPatternById } from './companyQuests';
+import { getCourseSystemDesignPractice, getCourseSystemDesignResultId } from './systemDesignCoursePractice';
 
 describe('interactiveCourses', () => {
   it('provides one AI lab for each module in the 10-step curriculum', () => {
@@ -46,7 +51,19 @@ describe('interactiveCourses', () => {
       expect(kinds).toContain('interactive');
       expect(kinds).toContain('reading');
     }
-    expect(patterns.chapters.length).toBeGreaterThanOrEqual(9);
+    expect(patterns.chapters.length).toBeGreaterThanOrEqual(20);
+  });
+
+  it('teaches DFS with a registered animation and runnable preorder lab', () => {
+    const patterns = getInteractiveCourse('coding-interview-patterns')!;
+    const dfs = patterns.chapters.find((chapter) => chapter.id === 'ch-dfs');
+
+    expect(dfs).toBeTruthy();
+    expect(dfs?.exercises.some((exercise) => exercise.widgetId === 'dfs-tree-viz')).toBe(true);
+    const codeLab = dfs?.exercises.find((exercise) => exercise.id === 'dfs-code');
+    expect(codeLab?.kind).toBe('code');
+    expect(codeLab?.check.type).toBe('tests');
+    expect(codeLab?.check.type === 'tests' && codeLab.check.functionName).toBe('preorderValues');
   });
 
   it('does not expose the old placeholder coding and system-design demos', () => {
@@ -54,6 +71,80 @@ describe('interactiveCourses', () => {
 
     expect(ids).not.toContain('javascript-console');
     expect(ids).not.toContain('system-design-fundamentals');
+  });
+
+  it('ships a complete System Design Interview course with three experience roadmaps', () => {
+    const course = getInteractiveCourse('system-design-interview')!;
+    expect(course.track).toBe('system-design');
+    expect(getCoursesByTrack('system-design')).toContain(course);
+    // 12 roadmap chapters + the Classic Questions Arena (chapter 13).
+    expect(course.chapters).toHaveLength(13);
+    expect(getCourseExerciseCount(course)).toBe(85);
+
+    const arena = course.chapters.find((chapter) => chapter.id === 'sd-classic-questions')!;
+    expect(arena).toBeTruthy();
+    const caseExercises = arena.exercises.filter((exercise) => exercise.widgetId?.startsWith('sd-case-'));
+    expect(caseExercises).toHaveLength(6);
+
+    const roadmapChapters = course.chapters.filter((chapter) => chapter.id !== 'sd-classic-questions');
+    expect(roadmapChapters).toHaveLength(12);
+    const roadmaps = new Set(roadmapChapters.map((chapter) => chapter.systemDesign?.roadmap));
+    expect(roadmaps).toEqual(new Set(['foundations', 'product-scale', 'senior-systems']));
+    expect(roadmapChapters.filter((chapter) => chapter.systemDesign?.roadmap === 'foundations')).toHaveLength(4);
+    expect(roadmapChapters.filter((chapter) => chapter.systemDesign?.roadmap === 'product-scale')).toHaveLength(4);
+    expect(roadmapChapters.filter((chapter) => chapter.systemDesign?.roadmap === 'senior-systems')).toHaveLength(4);
+
+    for (const chapter of roadmapChapters) {
+      expect(chapter.exercises.length).toBeGreaterThanOrEqual(6);
+      expect(chapter.systemDesign?.primaryChallengeId).toBeTruthy();
+      expect(getSystemDesignPatternById(chapter.systemDesign!.primaryChallengeId)).toBeTruthy();
+      expect(chapter.systemDesign?.expectedRequirements.length).toBeGreaterThanOrEqual(3);
+      expect(chapter.systemDesign?.requiredArchitectureComponents.length).toBeGreaterThanOrEqual(3);
+      expect(chapter.systemDesign?.tradeoffs.length).toBeGreaterThanOrEqual(3);
+      expect(chapter.exercises.some((exercise) => exercise.widgetId === chapter.systemDesign?.animationWidgetId)).toBe(true);
+      expect(chapter.exercises.some((exercise) => exercise.widgetId === 'system-design-decision')).toBe(true);
+      expect(chapter.exercises.some((exercise) => exercise.widgetId === 'system-design-answer-drill')).toBe(true);
+    }
+  });
+
+  it('registers all System Design Interview simulation and practice widgets', () => {
+    const course = getInteractiveCourse('system-design-interview')!;
+    for (const exercise of getCourseExercises(course).filter((item) => item.kind === 'interactive')) {
+      expect(getCourseWidget(exercise.widgetId)).toBeTruthy();
+    }
+  });
+
+  it('keeps simulation state deterministic while inputs change meaningful metrics', () => {
+    for (const scenario of Object.values(SYSTEM_DESIGN_SCENARIOS)) {
+      const first = buildSystemDesignSteps(scenario.id, scenario.input.initial);
+      const repeat = buildSystemDesignSteps(scenario.id, scenario.input.initial);
+      expect(first).toEqual(repeat);
+      expect(first.length).toBeGreaterThanOrEqual(4);
+      expect(first.every((step) => step.nodes.length >= 3 && step.metrics.length >= 3 && step.ariaDescription.length > 30)).toBe(true);
+    }
+    const baseline = buildSystemDesignSteps('cache-rate-limiting', 60);
+    const changed = buildSystemDesignSteps('cache-rate-limiting', 180);
+    expect(changed[0].metrics).not.toEqual(baseline[0].metrics);
+  });
+
+  it('uses the existing course progress contract to advance System Design lessons', () => {
+    const course = getInteractiveCourse('system-design-interview')!;
+    const firstModule = course.chapters[0].exercises.map((exercise) => exercise.id);
+    expect(firstIncompleteExerciseId(course, new Set(firstModule))).toBe(course.chapters[1].exercises[0].id);
+  });
+
+  it('resumes a partially completed module at its next lesson', () => {
+    const course = getInteractiveCourse('coding-interview-patterns')!;
+    const completed = course.chapters[0].exercises.slice(0, 2).map((exercise) => exercise.id);
+    expect(firstIncompleteExerciseId(course, completed)).toBe(course.chapters[0].exercises[2].id);
+  });
+
+  it('reuses canonical questions in a course-owned mock session and result key', () => {
+    const practice = getCourseSystemDesignPractice('system-design-interview', 'sd01-answer');
+    expect(practice?.brief.challengeId).toBe('url-shortener');
+    expect(practice?.brief.prompt).toContain('Clarify and satisfy these course requirements');
+    expect(practice?.stageTitle).toContain('course mock');
+    expect(getCourseSystemDesignResultId('system-design-interview', 'sd01-answer')).toBe('system-design-interview__sd01-answer');
   });
 
   it('every course definition passes schema validation', () => {
@@ -65,7 +156,7 @@ describe('interactiveCourses', () => {
   it('pairs each lesson kind with the right check type', () => {
     const exercises = getInteractiveCourses().flatMap(getCourseExercises);
 
-    expect(exercises.filter((exercise) => exercise.kind === 'whiteboard')).toHaveLength(1);
+    expect(exercises.filter((exercise) => exercise.kind === 'whiteboard').length).toBeGreaterThanOrEqual(1);
 
     for (const exercise of exercises) {
       const kind = exercise.kind ?? 'code';
