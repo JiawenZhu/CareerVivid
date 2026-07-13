@@ -15,9 +15,9 @@ import {
 const trustSignalKeys = ['direct_links', 'resume_prep', 'chrome_extension'];
 
 const heroStoryAvatars = [
-    { label: 'career-switcher', src: '/avatars/careervivid-rabbit-bow.jpg', fallback: 'M', tone: 'bg-[#f3f2ff] text-[#625bd5]' },
-    { label: 'new-grad', src: '/avatars/careervivid-rabbit-glasses.jpg', fallback: 'A', tone: 'bg-[#f7fff8] text-[#15803d]' },
-    { label: 'busy-applicant', src: '', fallback: 'J', tone: 'bg-[#fff7e8] text-[#a16207]' },
+    { label: 'career-switcher', src: '/avatars/persona-maya.jpg', fallback: 'M', tone: 'bg-[#f3f2ff] text-[#625bd5]' },
+    { label: 'new-grad', src: '/avatars/persona-alex.jpg', fallback: 'A', tone: 'bg-[#f7fff8] text-[#15803d]' },
+    { label: 'busy-applicant', src: '/avatars/persona-jordan.jpg', fallback: 'J', tone: 'bg-[#fff7e8] text-[#a16207]' },
 ];
 
 const ROTATION_MS = 7000;

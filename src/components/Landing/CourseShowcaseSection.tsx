@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowRight, Clock3, GraduationCap, Layers, Swords } from 'lucide-react';
+import { ArrowRight, Clock3, GraduationCap, Layers } from 'lucide-react';
 import { getInteractiveCourses, getCourseExerciseCount } from '../../lib/interactiveCourses';
 
 /**
@@ -21,21 +21,6 @@ const CourseShowcaseSection: React.FC = () => {
     return (
         <section className="bg-[#fffaf1] py-16 dark:bg-[#262522] sm:py-20" aria-labelledby="courses-heading">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <a
-                    href="/interview-studio"
-                    className="mb-10 flex items-center justify-between gap-4 rounded-2xl border border-[#e4d3bc] bg-[#f7f1e7] px-5 py-4 transition hover:bg-[#f0e8d6] dark:border-[#37332d] dark:bg-[#2e2a25] dark:hover:bg-[#363028] sm:px-6"
-                >
-                    <div className="flex items-center gap-3">
-                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#211b16] text-[#f4e8d4] dark:bg-[#f4f1e9] dark:text-[#211b16]">
-                            <Swords size={18} />
-                        </span>
-                        <p className="text-base font-bold tracking-tight text-[#211b16] dark:text-[#f4f1e9] sm:text-lg">
-                            Practice the exact loop — 301+ companies.
-                        </p>
-                    </div>
-                    <ArrowRight size={18} className="shrink-0 text-[#a97935]" />
-                </a>
-
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                     <div>
                         <p className="inline-flex items-center gap-2 rounded-full border border-[#e4d3bc] bg-[#f7f1e7] px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-[#a97935]">
