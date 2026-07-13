@@ -6,6 +6,7 @@
  */
 
 import fs from 'fs';
+import { DomUtils, parseDocument } from 'htmlparser2';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -14,42 +15,19 @@ const OUTPUT_DIR = path.join(__dirname, '..', 'data', 'interview-guides');
 const INDEX_FILE = path.join(OUTPUT_DIR, '_index.json');
 const DELAY_MS = 1500; // be respectful — 1.5s between requests
 
-const HTML_ENTITIES = {
-  amp: '&',
-  apos: "'",
-  gt: '>',
-  hellip: '...',
-  lt: '<',
-  mdash: '—',
-  nbsp: ' ',
-  ndash: '–',
-  quot: '"',
-};
-
-const decodeHtmlEntities = (value) => value.replace(
-  /&(?:(#x[0-9a-f]+)|(#\d+)|([a-z]+));/gi,
-  (entity, hex, decimal, named) => {
-    if (hex) return String.fromCodePoint(Number.parseInt(hex.slice(2), 16));
-    if (decimal) return String.fromCodePoint(Number.parseInt(decimal.slice(1), 10));
-    return HTML_ENTITIES[named?.toLowerCase()] ?? entity;
-  },
-);
-
 const htmlToPlainText = (value) => {
-  let text = value;
-  for (let pass = 0; pass < 2 && /&(lt|gt|amp|quot|apos|nbsp|#\d+);/i.test(text); pass += 1) {
-    text = decodeHtmlEntities(text);
-  }
+  const omittedTags = new Set(['noscript', 'script', 'style', 'template']);
+  const blockTags = new Set(['article', 'br', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'p', 'section']);
+  const collectText = (nodes) => nodes.map((node) => {
+    if (DomUtils.isText(node)) return node.data;
+    if (!DomUtils.hasChildren(node)) return '';
+    if (DomUtils.isTag(node) && omittedTags.has(node.name.toLowerCase())) return '';
 
-  return text
-    .replace(/<script\b[^>]*>[\s\S]*?<\/\s*script\s*>/gi, '')
-    .replace(/<style\b[^>]*>[\s\S]*?<\/\s*style\s*>/gi, '')
-    .replace(/<h[1-6][^>]*>([\s\S]*?)<\/\s*h[1-6]\s*>/gi, '\n\n$1\n')
-    .replace(/<li[^>]*>([\s\S]*?)<\/\s*li\s*>/gi, '\n- $1')
-    .replace(/<\/\s*p\s*>/gi, '\n')
-    .replace(/<br\s*\/?>/gi, '\n')
-    .replace(/<[^>]*>/g, '')
-    .replace(/[<>]/g, '');
+    const text = collectText(node.children);
+    return DomUtils.isTag(node) && blockTags.has(node.name.toLowerCase()) ? `\n${text}\n` : text;
+  }).join('');
+
+  return collectText(parseDocument(value || '').children);
 };
 
 // All 323 companies mapped: display name -> slug

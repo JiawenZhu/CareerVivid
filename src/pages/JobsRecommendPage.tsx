@@ -267,34 +267,10 @@ const mergeRecommendationPrepFields = (
  * &lt;div&gt;). Decode entities first, then strip real tags, so summaries
  * read as prose instead of markup soup.
  */
-const HTML_ENTITIES: Record<string, string> = {
-    amp: '&',
-    apos: "'",
-    gt: '>',
-    lt: '<',
-    nbsp: ' ',
-    quot: '"',
-};
-
-const decodeHtmlEntities = (value: string): string => value.replace(
-    /&(?:(#x[0-9a-f]+)|(#\d+)|([a-z]+));/gi,
-    (entity: string, hex: string | undefined, decimal: string | undefined, named: string | undefined) => {
-        if (hex) return String.fromCodePoint(Number.parseInt(hex.slice(2), 16));
-        if (decimal) return String.fromCodePoint(Number.parseInt(decimal.slice(1), 10));
-        return HTML_ENTITIES[named?.toLowerCase() || ''] ?? entity;
-    }
-);
-
 const stripEscapedHtml = (value: string): string => {
-    let text = value;
-    for (let pass = 0; pass < 2 && /&(lt|gt|amp|quot|apos|nbsp|#\d+);/i.test(text); pass += 1) {
-        text = decodeHtmlEntities(text);
-    }
-    return text
-        .replace(/<style\b[^>]*>[\s\S]*?<\/\s*style\s*>/gi, ' ')
-        .replace(/<script\b[^>]*>[\s\S]*?<\/\s*script\s*>/gi, ' ')
-        .replace(/<[^>]*>/g, ' ')
-        .replace(/[<>]/g, ' ');
+    // DOMParser returns text nodes only. React renders that result as text, not HTML.
+    const document = new DOMParser().parseFromString(value, 'text/html');
+    return document.body.textContent?.replace(/\s+/g, ' ').trim() || '';
 };
 
 const summarizeDescription = (value: string | undefined, fallback: string): string => {

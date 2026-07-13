@@ -1,5 +1,6 @@
 import * as functions from "firebase-functions/v1";
 import { google } from "googleapis";
+import { DomUtils, parseDocument } from "htmlparser2";
 import { ResumeData } from "./types";
 
 type ExportDocumentData = {
@@ -193,20 +194,18 @@ export const exportToGoogleDocs = functions
 // Convert editor HTML to text before it is sent to Google Docs. This is not an
 // HTML sanitizer: the export contract is text-only, so no markup is retained.
 function stripHtml(html: string): string {
-    if (!html) return "";
-    const decoded = html.replace(/&(?:(#x[0-9a-f]+)|(#\d+)|([a-z]+));/gi, (entity, hex, decimal, named) => {
-        if (hex) return String.fromCodePoint(Number.parseInt(hex.slice(2), 16));
-        if (decimal) return String.fromCodePoint(Number.parseInt(decimal.slice(1), 10));
-        return ({ amp: "&", apos: "'", gt: ">", lt: "<", nbsp: " ", quot: "\"" } as Record<string, string>)[named?.toLowerCase()] ?? entity;
-    });
+    const omittedTags = new Set(["noscript", "script", "style", "template"]);
+    const blockTags = new Set(["br", "div", "li", "p"]);
+    const collectText = (nodes: ReturnType<typeof parseDocument>["children"]): string => nodes.map((node) => {
+        if (DomUtils.isText(node)) return node.data;
+        if (!DomUtils.hasChildren(node)) return "";
+        if (DomUtils.isTag(node) && omittedTags.has(node.name.toLowerCase())) return "";
 
-    return decoded
-        .replace(/<style\b[^>]*>[\s\S]*?<\/\s*style\s*>/gi, " ")
-        .replace(/<script\b[^>]*>[\s\S]*?<\/\s*script\s*>/gi, " ")
-        .replace(/<[^>]*>/g, " ")
-        .replace(/[<>]/g, " ")
-        .replace(/\s+/g, " ")
-        .trim();
+        const text = collectText(node.children);
+        return DomUtils.isTag(node) && blockTags.has(node.name.toLowerCase()) ? ` ${text} ` : text;
+    }).join("");
+
+    return collectText(parseDocument(html || "").children).replace(/\s+/g, " ").trim();
 }
 
 function escapeDriveQuery(value: string): string {

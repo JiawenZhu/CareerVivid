@@ -114,6 +114,7 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.5",
     "fast-xml-parser": "^5.8.0",
+    "htmlparser2": "^10.1.0",
     "jsdom": "^28.1.0",
     "lighthouse": "^12.6.1",
     "playwright": "^1.60.0",

@@ -1,6 +1,7 @@
 import * as functions from "firebase-functions/v1";
 import { onSchedule } from "firebase-functions/v2/scheduler";
 import * as admin from "firebase-admin";
+import { DomUtils, parseDocument } from "htmlparser2";
 import { lookup } from "dns/promises";
 import { isIP } from "net";
 import { GENERATED_ATS_SOURCES } from "./atsBoards.generated";
@@ -219,39 +220,20 @@ const SEARCH_STOP_WORDS = new Set([
     "with",
 ]);
 
-const HTML_ENTITIES: Record<string, string> = {
-    amp: "&",
-    apos: "'",
-    gt: ">",
-    lt: "<",
-    nbsp: " ",
-    quot: "\"",
-};
-
-const decodeHtmlEntities = (value: string): string => value.replace(
-    /&(?:(#x[0-9a-f]+)|(#\d+)|([a-z]+));/gi,
-    (entity: string, hex: string | undefined, decimal: string | undefined, named: string | undefined) => {
-        if (hex) return String.fromCodePoint(Number.parseInt(hex.slice(2), 16));
-        if (decimal) return String.fromCodePoint(Number.parseInt(decimal.slice(1), 10));
-        return HTML_ENTITIES[named?.toLowerCase() || ''] ?? entity;
-    }
-);
+const OMITTED_TEXT_TAGS = new Set(["noscript", "script", "style", "template"]);
+const BLOCK_TEXT_TAGS = new Set(["article", "br", "div", "h1", "h2", "h3", "h4", "h5", "h6", "li", "p", "section"]);
 
 const stripHtml = (value: string): string => {
-    let text = value || "";
-    // Greenhouse (and some Lever) boards return HTML-escaped HTML: tags arrive
-    // as &lt;div&gt;. Decode entities FIRST (up to two passes for the
-    // double-escaped case) so the tag stripper actually sees the tags.
-    for (let pass = 0; pass < 2 && /&(lt|gt|amp|quot|apos|nbsp|#\d+);/i.test(text); pass += 1) {
-        text = decodeHtmlEntities(text);
-    }
-    return text
-        .replace(/<style\b[^>]*>[\s\S]*?<\/\s*style\s*>/gi, " ")
-        .replace(/<script\b[^>]*>[\s\S]*?<\/\s*script\s*>/gi, " ")
-        .replace(/<[^>]*>/g, " ")
-        .replace(/[<>]/g, " ")
-        .replace(/\s+/g, " ")
-        .trim();
+    const collectText = (nodes: ReturnType<typeof parseDocument>["children"]): string => nodes.map((node) => {
+        if (DomUtils.isText(node)) return node.data;
+        if (!DomUtils.hasChildren(node)) return "";
+        if (DomUtils.isTag(node) && OMITTED_TEXT_TAGS.has(node.name.toLowerCase())) return "";
+
+        const text = collectText(node.children);
+        return DomUtils.isTag(node) && BLOCK_TEXT_TAGS.has(node.name.toLowerCase()) ? ` ${text} ` : text;
+    }).join("");
+
+    return collectText(parseDocument(value || "").children).replace(/\s+/g, " ").trim();
 };
 
 const stableId = (parts: string[]): string => {

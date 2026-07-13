@@ -8,6 +8,7 @@
  */
 
 import fs from 'fs';
+import { DomUtils, parseDocument } from 'htmlparser2';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -22,32 +23,16 @@ const specificSlug = args.find((a, i) => args[i-1] === '--company');
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-const HTML_ENTITIES = {
-  amp: '&',
-  apos: "'",
-  gt: '>',
-  lt: '<',
-  mdash: '–',
-  nbsp: ' ',
-  ndash: '–',
-  quot: '"',
-};
-
 const htmlToPlainText = (value) => {
-  let text = value;
-  for (let pass = 0; pass < 2 && /&(lt|gt|amp|quot|apos|nbsp|#\d+);/i.test(text); pass += 1) {
-    text = text.replace(/&(?:(#x[0-9a-f]+)|(#\d+)|([a-z]+));/gi, (entity, hex, decimal, named) => {
-      if (hex) return String.fromCodePoint(Number.parseInt(hex.slice(2), 16));
-      if (decimal) return String.fromCodePoint(Number.parseInt(decimal.slice(1), 10));
-      return HTML_ENTITIES[named?.toLowerCase()] ?? entity;
-    });
-  }
+  const omittedTags = new Set(['noscript', 'script', 'style', 'template']);
+  const collectText = (nodes) => nodes.map((node) => {
+    if (DomUtils.isText(node)) return node.data;
+    if (!DomUtils.hasChildren(node)) return '';
+    if (DomUtils.isTag(node) && omittedTags.has(node.name.toLowerCase())) return '';
+    return collectText(node.children);
+  }).join('');
 
-  return text
-    .replace(/<script\b[^>]*>[\s\S]*?<\/\s*script\s*>/gi, ' ')
-    .replace(/<style\b[^>]*>[\s\S]*?<\/\s*style\s*>/gi, ' ')
-    .replace(/<[^>]*>/g, ' ')
-    .replace(/[<>]/g, ' ');
+  return collectText(parseDocument(value || '').children);
 };
 
 async function fetchRawText(slug) {
