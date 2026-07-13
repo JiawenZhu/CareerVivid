@@ -187,7 +187,7 @@ const codingFromTopic = (topic) => {
   // 1. "Tax-lot matching: given a sell order and a set of lots, select lots..."
   const labeled = cleaned.match(/^([^:]{3,60}):\s*(.+)$/);
   if (labeled && IMPERATIVE.test(labeled[2].trim())) {
-    return `${ensureEnd(sentenceCase(labeled[2].trim())).replace(/\.$/, '.')}${SUFFIX}`;
+    return `${ensureEnd(sentenceCase(labeled[2].trim()))}${SUFFIX}`;
   }
 
   // 2. "Simulation problems (Monte Carlo simulation of portfolio outcomes...)"
@@ -203,7 +203,7 @@ const codingFromTopic = (topic) => {
 
   // 3. "Implement a text-buffer primitive with efficient edit operations"
   if (IMPERATIVE.test(cleaned)) {
-    return `${ensureEnd(sentenceCase(firstSentence(cleaned))).replace(/\.$/, '.')}${SUFFIX}`;
+    return `${ensureEnd(sentenceCase(firstSentence(cleaned)))}${SUFFIX}`;
   }
 
   // 4. Topic keyword → curated classic

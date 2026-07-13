@@ -22,6 +22,34 @@ const specificSlug = args.find((a, i) => args[i-1] === '--company');
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
+const HTML_ENTITIES = {
+  amp: '&',
+  apos: "'",
+  gt: '>',
+  lt: '<',
+  mdash: '–',
+  nbsp: ' ',
+  ndash: '–',
+  quot: '"',
+};
+
+const htmlToPlainText = (value) => {
+  let text = value;
+  for (let pass = 0; pass < 2 && /&(lt|gt|amp|quot|apos|nbsp|#\d+);/i.test(text); pass += 1) {
+    text = text.replace(/&(?:(#x[0-9a-f]+)|(#\d+)|([a-z]+));/gi, (entity, hex, decimal, named) => {
+      if (hex) return String.fromCodePoint(Number.parseInt(hex.slice(2), 16));
+      if (decimal) return String.fromCodePoint(Number.parseInt(decimal.slice(1), 10));
+      return HTML_ENTITIES[named?.toLowerCase()] ?? entity;
+    });
+  }
+
+  return text
+    .replace(/<script\b[^>]*>[\s\S]*?<\/\s*script\s*>/gi, ' ')
+    .replace(/<style\b[^>]*>[\s\S]*?<\/\s*style\s*>/gi, ' ')
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/[<>]/g, ' ');
+};
+
 async function fetchRawText(slug) {
   const r = await fetch(`${BASE_URL}/${slug}`, {
     headers: { 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36' },
@@ -29,10 +57,7 @@ async function fetchRawText(slug) {
   if (!r.ok) return null;
   const html = await r.text();
   const m = html.match(/<article[^>]*>([\s\S]*?)<\/article>/i);
-  return (m ? m[0] : html)
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/&amp;/g, '&').replace(/&nbsp;/g, ' ').replace(/&#8217;/g, "'")
-    .replace(/&ndash;/g, '–').replace(/&#8211;/g, '–').replace(/&#8220;/g, '"').replace(/&#8221;/g, '"')
+  return htmlToPlainText(m ? m[0] : html)
     .replace(/\s+/g, ' ')
     .toLowerCase();
 }

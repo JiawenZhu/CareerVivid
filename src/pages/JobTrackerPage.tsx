@@ -18,6 +18,49 @@ import { useNavigation } from '../contexts/NavigationContext';
 import { db } from '../firebase';
 import { doc, getDoc, deleteDoc } from 'firebase/firestore';
 
+type TrackerTransitData = {
+    scrapeId?: string;
+    localTransitId?: string;
+    fallbackDescription?: string;
+    url?: string;
+    title?: string;
+    company?: string;
+    location?: string;
+    salary?: string;
+    stage?: string;
+    resumeId?: string;
+    resumeTitle?: string;
+};
+
+const trackerTransitFields = [
+    'scrapeId',
+    'localTransitId',
+    'fallbackDescription',
+    'url',
+    'title',
+    'company',
+    'location',
+    'salary',
+    'stage',
+    'resumeId',
+    'resumeTitle',
+] as const;
+
+const readTrackerTransit = (value: unknown): TrackerTransitData | null => {
+    if (!value || typeof value !== 'object') return null;
+
+    const record = value as Record<string, unknown>;
+    const transit = trackerTransitFields.reduce<TrackerTransitData>((result, field) => {
+        const fieldValue = record[field];
+        if (typeof fieldValue === 'string') result[field] = fieldValue;
+        return result;
+    }, {});
+
+    return transit.localTransitId || transit.scrapeId || transit.url || transit.title || transit.company
+        ? transit
+        : null;
+};
+
 
 const JobTrackerPage: React.FC = () => {
     const { currentUser } = useAuth();
@@ -40,54 +83,34 @@ const JobTrackerPage: React.FC = () => {
     const [initialJobPostUrl, setInitialJobPostUrl] = useState('');
     const [initialJobData, setInitialJobData] = useState<InitialJobData | undefined>(undefined);
     const [autoSubmit, setAutoSubmit] = useState(false);
-
-    // Auto-clear transit data from session storage after the modal is successfully opened/stabilized
-    useEffect(() => {
-        if (isAddModalOpen) {
-            const timer = setTimeout(() => {
-                sessionStorage.removeItem('transit_job_tracker');
-                sessionStorage.removeItem('transit_job_tracker_data');
-            }, 1000);
-            return () => clearTimeout(timer);
-        }
-    }, [isAddModalOpen]);
+    const pendingTrackerTransitRef = useRef<TrackerTransitData | null>(null);
+    const handledTrackerTransitsRef = useRef(new Set<string>());
 
     useEffect(() => {
-        // 1. Intercept URL search params and move them to sessionStorage if matching the tracker transition source
+        // The extension supplies this payload over a same-origin message. Do not persist
+        // job descriptions, compensation, or contact details in web storage.
         const params = new URLSearchParams(window.location.search);
         const source = params.get('source');
         if (source === 'extension_tracker') {
-            const scrapeId = params.get('scrapeId') || '';
-            const fallbackDescription = params.get('fallbackDescription') || '';
-            const url = params.get('url') || '';
-            const title = params.get('title') || '';
-            const company = params.get('company') || '';
-            const location = params.get('location') || '';
-            const salary = params.get('salary') || '';
-            const stage = params.get('stage') || '';
-            const resumeId = params.get('resumeId') || '';
-            const resumeTitle = params.get('resumeTitle') || '';
-            const localTransitId = params.get('localTransitId') || '';
-            sessionStorage.setItem('transit_job_tracker', JSON.stringify({
-                scrapeId,
-                localTransitId,
-                fallbackDescription,
-                url,
-                title,
-                company,
-                location,
-                salary,
-                stage,
-                resumeId,
-                resumeTitle,
-            }));
+            pendingTrackerTransitRef.current = {
+                scrapeId: params.get('scrapeId') || '',
+                localTransitId: params.get('localTransitId') || '',
+                fallbackDescription: params.get('fallbackDescription') || '',
+                url: params.get('url') || '',
+                title: params.get('title') || '',
+                company: params.get('company') || '',
+                location: params.get('location') || '',
+                salary: params.get('salary') || '',
+                stage: params.get('stage') || '',
+                resumeId: params.get('resumeId') || '',
+                resumeTitle: params.get('resumeTitle') || '',
+            };
 
-            // Cleanse URL immediately to keep query parameters clean and avoid double-triggering
+            // Remove sensitive fields from the address bar immediately.
             const newUrl = window.location.pathname;
             window.history.replaceState({}, document.title, newUrl);
         }
 
-        // 2. Consume from sessionStorage
         const acknowledgeExtensionTransit = (transitId?: string) => {
             if (!transitId) return;
             window.postMessage({
@@ -96,96 +119,68 @@ const JobTrackerPage: React.FC = () => {
             }, window.location.origin);
         };
 
-        const syncTransitJob = async () => {
-            const transitStr = sessionStorage.getItem('transit_job_tracker');
-            if (!transitStr) return;
+        const syncTransitJob = async (transitData: TrackerTransitData | null = pendingTrackerTransitRef.current) => {
+            if (!transitData) return;
 
-            try {
-                const transitData = JSON.parse(transitStr);
-                const { scrapeId, localTransitId, fallbackDescription, url, title, company, location, salary, stage, resumeId: fallbackResumeId, resumeTitle: fallbackResumeTitle } = transitData;
+            const { scrapeId = '', localTransitId = '', fallbackDescription = '', url = '', title = '', company = '', location = '', salary = '', stage = '', resumeId: fallbackResumeId = '', resumeTitle: fallbackResumeTitle = '' } = transitData;
+            const transitKey = localTransitId || scrapeId || `${url}:${title}:${company}`;
+            if (!transitKey || handledTrackerTransitsRef.current.has(transitKey)) return;
 
-                // If cached parsed data already exists in sessionStorage, use it directly (resolves StrictMode double-fetch/early-delete)
-                const cachedDataStr = sessionStorage.getItem('transit_job_tracker_data');
-                if (cachedDataStr) {
-                    const cachedData = JSON.parse(cachedDataStr);
-                    const cachedTransitId = cachedData.transitId || '';
-                    if (!localTransitId || !cachedTransitId || cachedTransitId === localTransitId) {
-                        setInitialJobDescription(cachedData.description || '');
-                        setInitialJobPostUrl(cachedData.url || '');
-                        setInitialJobData(cachedData.initialJobData);
-                        setAutoSubmit(true);
-                        setIsAddModalOpen(true);
-                        acknowledgeExtensionTransit(cachedTransitId || localTransitId);
-                        if (scrapeId && currentUser?.uid) {
-                            const docRef = doc(db, 'users', currentUser.uid, 'temporaryScrapes', scrapeId);
-                            deleteDoc(docRef).catch(error => {
-                                console.debug('Skipped cleanup of already-consumed tracker transit doc:', error);
-                            });
-                        }
-                        return;
-                    }
-                    sessionStorage.removeItem('transit_job_tracker_data');
-                }
+            const finishTransit = (transitId = localTransitId) => {
+                handledTrackerTransitsRef.current.add(transitKey);
+                pendingTrackerTransitRef.current = null;
+                acknowledgeExtensionTransit(transitId);
+            };
 
-                if (scrapeId) {
-                    if (currentUser?.uid) {
+            if (scrapeId) {
+                if (!currentUser?.uid) return;
+
+                try {
+                    const docRef = doc(db, 'users', currentUser.uid, 'temporaryScrapes', scrapeId);
+                    const docSnap = await getDoc(docRef);
+                    if (!docSnap.exists()) return;
+
+                    const data = docSnap.data();
+                    const jd = data.description || '';
+                    const jobUrl = data.url || data.jobPostURL || '';
+                    const resumeId = data.resumeId || '';
+                    const resumeTitle = data.resumeTitle || '';
+                    const resolvedTransitId = data.localTransitId || localTransitId;
+                    let matchAnalyses: InitialJobData['matchAnalyses'] | undefined;
+
+                    if (resumeId && data.matchAnalysisJson) {
                         try {
-                            const docRef = doc(db, 'users', currentUser.uid, 'temporaryScrapes', scrapeId);
-                            const docSnap = await getDoc(docRef);
-
-                            if (docSnap.exists()) {
-                                const data = docSnap.data();
-                                const jd = data.description || '';
-                                const jobUrl = data.url || data.jobPostURL || '';
-                                const resumeId = data.resumeId || '';
-                                const resumeTitle = data.resumeTitle || '';
-                                const resolvedTransitId = data.localTransitId || localTransitId || '';
-                                let matchAnalyses: InitialJobData['matchAnalyses'] | undefined;
-
-                                if (resumeId && data.matchAnalysisJson) {
-                                    try {
-                                        matchAnalyses = { [resumeId]: JSON.parse(data.matchAnalysisJson) };
-                                    } catch (parseError) {
-                                        console.warn('Unable to parse extension match analysis transit payload:', parseError);
-                                    }
-                                }
-
-                                const structuredJob: InitialJobData = {
-                                    jobTitle: data.title || '',
-                                    companyName: data.company || '',
-                                    location: data.location || '',
-                                    salaryRange: data.salary || '',
-                                    jobPostURL: jobUrl,
-                                    applicationURL: jobUrl,
-                                    jobDescription: jd,
-                                    stage: data.stage || '',
-                                    resumeId,
-                                    resumeTitle,
-                                    matchAnalyses,
-                                };
-
-                                // Cache the fetched results in sessionStorage first
-                                sessionStorage.setItem(
-                                    'transit_job_tracker_data',
-                                    JSON.stringify({ transitId: resolvedTransitId, description: jd, url: jobUrl, initialJobData: structuredJob })
-                                );
-
-                                setInitialJobDescription(jd);
-                                setInitialJobPostUrl(jobUrl);
-                                setInitialJobData(structuredJob);
-                                setAutoSubmit(true);
-                                setIsAddModalOpen(true);
-                                acknowledgeExtensionTransit(resolvedTransitId);
-
-                                // Delete transit document from Firestore
-                                await deleteDoc(docRef);
-                            }
-                        } catch (error) {
-                            console.error('Error syncing transit job in JobTrackerPage:', error);
+                            matchAnalyses = { [resumeId]: JSON.parse(data.matchAnalysisJson) };
+                        } catch (parseError) {
+                            console.warn('Unable to parse extension match analysis transit payload:', parseError);
                         }
                     }
-                    // Wait for currentUser?.uid if not loaded yet
-                } else if (fallbackDescription) {
+
+                    const structuredJob: InitialJobData = {
+                        jobTitle: data.title || '',
+                        companyName: data.company || '',
+                        location: data.location || '',
+                        salaryRange: data.salary || '',
+                        jobPostURL: jobUrl,
+                        applicationURL: jobUrl,
+                        jobDescription: jd,
+                        stage: data.stage || '',
+                        resumeId,
+                        resumeTitle,
+                        matchAnalyses,
+                    };
+
+                    setInitialJobDescription(jd);
+                    setInitialJobPostUrl(jobUrl);
+                    setInitialJobData(structuredJob);
+                    setAutoSubmit(true);
+                    setIsAddModalOpen(true);
+                    finishTransit(resolvedTransitId);
+                    await deleteDoc(docRef);
+                } catch (error) {
+                    console.error('Error syncing transit job in JobTrackerPage:', error);
+                }
+            } else if (fallbackDescription) {
                     const structuredJob: InitialJobData = {
                         jobTitle: title || '',
                         companyName: company || '',
@@ -203,8 +198,8 @@ const JobTrackerPage: React.FC = () => {
                     setInitialJobData(structuredJob);
                     setAutoSubmit(true);
                     setIsAddModalOpen(true);
-                    acknowledgeExtensionTransit(localTransitId);
-                } else if (title || company || location || salary) {
+                    finishTransit();
+            } else if (title || company || location || salary) {
                     const structuredJob: InitialJobData = {
                         jobTitle: title || '',
                         companyName: company || '',
@@ -221,26 +216,25 @@ const JobTrackerPage: React.FC = () => {
                     setInitialJobData(structuredJob);
                     setAutoSubmit(false);
                     setIsAddModalOpen(true);
-                    acknowledgeExtensionTransit(localTransitId);
-                }
-            } catch (e) {
-                console.error('Error parsing transit job tracker from sessionStorage:', e);
-                sessionStorage.removeItem('transit_job_tracker');
-                sessionStorage.removeItem('transit_job_tracker_data');
+                    finishTransit();
             }
         };
 
-        const handleExtensionTransitReady = (event: MessageEvent) => {
-            if (event.source !== window) return;
-            if (event.data?.type !== 'CAREERVIVID_EXTENSION_TRACKER_TRANSIT_READY') return;
-            syncTransitJob();
+        const handleExtensionTransit = (event: MessageEvent) => {
+            if (event.source !== window || event.origin !== window.location.origin) return;
+            if (event.data?.type !== 'CAREERVIVID_EXTENSION_TRACKER_TRANSIT_PAYLOAD') return;
+            const transit = readTrackerTransit(event.data?.transit);
+            if (!transit) return;
+            pendingTrackerTransitRef.current = transit;
+            void syncTransitJob(transit);
         };
 
-        window.addEventListener('message', handleExtensionTransitReady);
-        syncTransitJob();
+        window.addEventListener('message', handleExtensionTransit);
+        window.postMessage({ type: 'CAREERVIVID_WEB_TRACKER_TRANSIT_REQUEST' }, window.location.origin);
+        void syncTransitJob();
 
         return () => {
-            window.removeEventListener('message', handleExtensionTransitReady);
+            window.removeEventListener('message', handleExtensionTransit);
         };
     }, [currentUser?.uid]);
 

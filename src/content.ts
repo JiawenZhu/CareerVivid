@@ -1754,72 +1754,26 @@ function isFreshTrackerTransitPayload(value: unknown): value is TrackerTransitPa
   return Boolean(payload.title || payload.company || payload.fallbackDescription);
 }
 
-function writeTrackerTransitToPageSession(payload: TrackerTransitPayload): void {
-  const description = payload.fallbackDescription || '';
-  const transitId = payload.transitId || '';
-  const transitData = {
-    scrapeId: '',
-    localTransitId: transitId,
-    fallbackDescription: description,
-    url: payload.url || '',
-    title: payload.title || '',
-    company: payload.company || '',
-    location: payload.location || '',
-    salary: payload.salary || '',
-    stage: payload.stage || '',
-    resumeId: payload.resumeId || '',
-    resumeTitle: payload.resumeTitle || '',
-  };
-  const initialJobData = {
-    jobTitle: payload.title || '',
-    companyName: payload.company || '',
-    location: payload.location || '',
-    salaryRange: payload.salary || '',
-    jobPostURL: payload.url || '',
-    applicationURL: payload.url || '',
-    jobDescription: description,
-    stage: payload.stage || '',
-    resumeId: payload.resumeId || '',
-    resumeTitle: payload.resumeTitle || '',
-  };
-
-  try {
-    sessionStorage.setItem('transit_job_tracker', JSON.stringify(transitData));
-    sessionStorage.setItem('transit_job_tracker_data', JSON.stringify({
-      transitId,
-      description,
+function publishTrackerTransitToPage(payload: TrackerTransitPayload): void {
+  // Keep the one-time job payload in extension storage until the web app
+  // acknowledges it. The web page receives it over a same-origin message and
+  // never writes the description, salary, or contact details to sessionStorage.
+  window.postMessage({
+    type: 'CAREERVIVID_EXTENSION_TRACKER_TRANSIT_PAYLOAD',
+    transit: {
+      scrapeId: '',
+      localTransitId: payload.transitId || '',
+      fallbackDescription: payload.fallbackDescription || '',
       url: payload.url || '',
-      initialJobData,
-    }));
-    window.postMessage({
-      type: 'CAREERVIVID_EXTENSION_TRACKER_TRANSIT_READY',
-      transitId,
-    }, window.location.origin);
-
-    window.setTimeout(() => {
-      if (!transitId || !window.location.pathname.includes('/job-tracker')) return;
-
-      chrome.storage.local.get([TRACKER_TRANSIT_STORAGE_KEY], (stored: Record<string, unknown>) => {
-        const pending = stored[TRACKER_TRANSIT_STORAGE_KEY] as TrackerTransitPayload | undefined;
-        if (pending?.transitId !== transitId) return;
-
-        // Older deployed tracker pages clear the session payload after opening
-        // the modal but do not send an explicit acknowledgement.
-        if (!sessionStorage.getItem('transit_job_tracker')) {
-          chrome.storage.local.remove(TRACKER_TRANSIT_STORAGE_KEY);
-          return;
-        }
-
-        const reloadKey = `cv_tracker_transit_reload_${transitId}`;
-        if (!sessionStorage.getItem(reloadKey)) {
-          sessionStorage.setItem(reloadKey, '1');
-          window.location.reload();
-        }
-      });
-    }, 1200);
-  } catch (error) {
-    console.warn('[CareerVivid] Unable to publish tracker transit payload to page session.', error);
-  }
+      title: payload.title || '',
+      company: payload.company || '',
+      location: payload.location || '',
+      salary: payload.salary || '',
+      stage: payload.stage || '',
+      resumeId: payload.resumeId || '',
+      resumeTitle: payload.resumeTitle || '',
+    },
+  }, window.location.origin);
 }
 
 function publishPendingTrackerTransit(): void {
@@ -1835,7 +1789,7 @@ function publishPendingTrackerTransit(): void {
       return;
     }
 
-    writeTrackerTransitToPageSession(payload);
+    publishTrackerTransitToPage(payload);
   });
 }
 
@@ -1852,6 +1806,11 @@ function startTrackerTransitBridge(): void {
 
   window.addEventListener('message', (event) => {
     if (event.source !== window) return;
+    if (event.origin !== window.location.origin) return;
+    if (event.data?.type === 'CAREERVIVID_WEB_TRACKER_TRANSIT_REQUEST') {
+      publishPendingTrackerTransit();
+      return;
+    }
     if (event.data?.type !== 'CAREERVIVID_WEB_TRACKER_TRANSIT_CONSUMED') return;
     const consumedTransitId = event.data?.transitId;
     if (!consumedTransitId) return;

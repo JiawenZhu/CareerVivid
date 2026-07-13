@@ -1,0 +1,10 @@
+# The coding challenge runner intentionally evaluates learner code in an
+# ephemeral Worker that has no DOM or application state. It is protected by a
+# host-side timeout and request-size/test-count limits. CodeQL's generic code
+# injection query cannot distinguish that product-required sandbox boundary
+# from server-side execution, so scan the rest of the application normally and
+# exclude only this dedicated runner module.
+name: CareerVivid CodeQL configuration
+
+paths-ignore:
+  - src/workers/questCodeRunner.worker.ts

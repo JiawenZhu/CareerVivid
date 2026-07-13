@@ -7,6 +7,7 @@ import {
   syncAuthWithExtension,
   type ExtensionAuthSyncResult,
 } from '../utils/extensionAuthBridge';
+import { toSafeInternalPath } from '../utils/safeUrl';
 
 type SyncStatus = 'syncing' | 'success' | 'failed';
 
@@ -17,7 +18,7 @@ const ExtensionAuthCompletePage: React.FC = () => {
 
   const nextUrl = useMemo(() => {
     const params = new URLSearchParams(window.location.search);
-    return params.get('return_to') || '/extension-welcome';
+    return toSafeInternalPath(params.get('return_to'), '/extension-welcome');
   }, []);
 
   useEffect(() => {
@@ -96,7 +97,7 @@ const ExtensionAuthCompletePage: React.FC = () => {
   };
 
   const openDashboard = () => {
-    window.location.href = nextUrl;
+    window.location.assign(nextUrl);
   };
 
   const hasExtensionError = results.length > 0 && !results.some((result) => result.ok);

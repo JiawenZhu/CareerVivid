@@ -267,8 +267,9 @@ export const resolveSignedInWorkspace = functions
       throw new functions.https.HttpsError("failed-precondition", "Current account is missing an email address.");
     }
 
-    const providerIds = currentAuthUser.providerData.map((provider) => provider.providerId);
-    const isVerifiedGoogleAccount = providerIds.includes("google.com") && currentAuthUser.emailVerified;
+    const isVerifiedGoogleAccount = currentAuthUser.providerData.some(
+      (provider) => provider.providerId === "google.com"
+    ) && currentAuthUser.emailVerified;
     if (!currentAuthUser.emailVerified && !isVerifiedGoogleAccount) {
       return {
         canonicalUid: context.auth.uid,

@@ -190,10 +190,23 @@ export const exportToGoogleDocs = functions
         }
     });
 
-// Helper to strip simple HTML tags (since editor might output HTML)
+// Convert editor HTML to text before it is sent to Google Docs. This is not an
+// HTML sanitizer: the export contract is text-only, so no markup is retained.
 function stripHtml(html: string): string {
     if (!html) return "";
-    return html.replace(/<[^>]*>?/gm, "").replace(/&nbsp;/g, " ");
+    const decoded = html.replace(/&(?:(#x[0-9a-f]+)|(#\d+)|([a-z]+));/gi, (entity, hex, decimal, named) => {
+        if (hex) return String.fromCodePoint(Number.parseInt(hex.slice(2), 16));
+        if (decimal) return String.fromCodePoint(Number.parseInt(decimal.slice(1), 10));
+        return ({ amp: "&", apos: "'", gt: ">", lt: "<", nbsp: " ", quot: "\"" } as Record<string, string>)[named?.toLowerCase()] ?? entity;
+    });
+
+    return decoded
+        .replace(/<style\b[^>]*>[\s\S]*?<\/\s*style\s*>/gi, " ")
+        .replace(/<script\b[^>]*>[\s\S]*?<\/\s*script\s*>/gi, " ")
+        .replace(/<[^>]*>/g, " ")
+        .replace(/[<>]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
 }
 
 function escapeDriveQuery(value: string): string {

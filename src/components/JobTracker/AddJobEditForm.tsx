@@ -13,6 +13,7 @@ import {
 } from '../../types';
 import AddJobEditHeader from './AddJobEditHeader';
 import type { InitialJobData } from './AddJobUrlModal';
+import { toSafeExternalUrl } from '../../utils/safeUrl';
 
 interface AddJobEditFormProps {
     initialJobData?: InitialJobData;
@@ -48,8 +49,6 @@ interface AddJobEditFormProps {
     onBackToPaste: () => void;
     onSubmit: (event: React.FormEvent) => void;
 }
-
-const canOpenUrl = (value: string) => value.startsWith('http://') || value.startsWith('https://');
 
 const fieldClass = 'w-full bg-transparent border-b border-gray-300 dark:border-[#2e2b38] py-2 text-gray-900 dark:text-white focus:outline-none focus:border-indigo-500 transition-colors font-medium text-sm focus:ring-0';
 const selectClass = `${fieldClass} dark:bg-[#201e27] cursor-pointer`;
@@ -90,6 +89,8 @@ const AddJobEditForm: React.FC<AddJobEditFormProps> = ({
     onSubmit,
 }) => {
     const { t } = useTranslation();
+    const safeJobPostUrl = toSafeExternalUrl(jobPostURL);
+    const safeDirectApplicationUrl = toSafeExternalUrl(directApplicationURL);
 
     return (
         <form onSubmit={onSubmit}>
@@ -181,8 +182,8 @@ const AddJobEditForm: React.FC<AddJobEditFormProps> = ({
                         <div>
                             <div className="mb-1 flex items-center justify-between">
                                 <label className="block text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">{t('job_tracker.modal.job_post_url')}</label>
-                                {canOpenUrl(jobPostURL) && (
-                                    <a href={jobPostURL} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-xs font-semibold text-indigo-500 transition-colors hover:text-indigo-600 dark:hover:text-indigo-400">
+                                {safeJobPostUrl && (
+                                    <a href={safeJobPostUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-xs font-semibold text-indigo-500 transition-colors hover:text-indigo-600 dark:hover:text-indigo-400">
                                         <span>Open URL</span>
                                         <ExternalLink size={12} />
                                     </a>
@@ -194,8 +195,8 @@ const AddJobEditForm: React.FC<AddJobEditFormProps> = ({
                         <div>
                             <div className="mb-1 flex items-center justify-between">
                                 <label className="block text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">{t('job_tracker.modal.direct_app_url')}</label>
-                                {canOpenUrl(directApplicationURL) && (
-                                    <a href={directApplicationURL} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-xs font-semibold text-indigo-500 transition-colors hover:text-indigo-600 dark:hover:text-indigo-400">
+                                {safeDirectApplicationUrl && (
+                                    <a href={safeDirectApplicationUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-xs font-semibold text-indigo-500 transition-colors hover:text-indigo-600 dark:hover:text-indigo-400">
                                         <span>Open URL</span>
                                         <ExternalLink size={12} />
                                     </a>

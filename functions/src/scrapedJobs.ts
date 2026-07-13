@@ -219,17 +219,23 @@ const SEARCH_STOP_WORDS = new Set([
     "with",
 ]);
 
-const decodeHtmlEntities = (value: string): string => {
-    return value
-        .replace(/&nbsp;/gi, " ")
-        .replace(/&quot;/gi, "\"")
-        .replace(/&#0?39;/g, "'")
-        .replace(/&apos;/gi, "'")
-        .replace(/&lt;/gi, "<")
-        .replace(/&gt;/gi, ">")
-        .replace(/&#(\d+);/g, (_, code: string) => String.fromCharCode(Number(code)))
-        .replace(/&amp;/gi, "&");
+const HTML_ENTITIES: Record<string, string> = {
+    amp: "&",
+    apos: "'",
+    gt: ">",
+    lt: "<",
+    nbsp: " ",
+    quot: "\"",
 };
+
+const decodeHtmlEntities = (value: string): string => value.replace(
+    /&(?:(#x[0-9a-f]+)|(#\d+)|([a-z]+));/gi,
+    (entity: string, hex: string | undefined, decimal: string | undefined, named: string | undefined) => {
+        if (hex) return String.fromCodePoint(Number.parseInt(hex.slice(2), 16));
+        if (decimal) return String.fromCodePoint(Number.parseInt(decimal.slice(1), 10));
+        return HTML_ENTITIES[named?.toLowerCase() || ''] ?? entity;
+    }
+);
 
 const stripHtml = (value: string): string => {
     let text = value || "";
@@ -240,9 +246,10 @@ const stripHtml = (value: string): string => {
         text = decodeHtmlEntities(text);
     }
     return text
-        .replace(/<style[\s\S]*?<\/style>/gi, " ")
-        .replace(/<script[\s\S]*?<\/script>/gi, " ")
-        .replace(/<[^>]+>/g, " ")
+        .replace(/<style\b[^>]*>[\s\S]*?<\/\s*style\s*>/gi, " ")
+        .replace(/<script\b[^>]*>[\s\S]*?<\/\s*script\s*>/gi, " ")
+        .replace(/<[^>]*>/g, " ")
+        .replace(/[<>]/g, " ")
         .replace(/\s+/g, " ")
         .trim();
 };
@@ -747,6 +754,15 @@ const pageLooksRelevantToExternalJob = (job: JobLinkValidationTarget, pageText: 
     return matchedTitleTokens >= Math.min(3, titleTokens.length) && !finalUrlLooksGenericCareerHub(finalUrl);
 };
 
+const hasExpectedHost = (value: string, expectedHost: string): boolean => {
+    try {
+        const hostname = new URL(value).hostname.toLowerCase();
+        return hostname === expectedHost || hostname.endsWith(`.${expectedHost}`);
+    } catch {
+        return false;
+    }
+};
+
 const finalUrlLooksJobSpecific = (job: JobLinkValidationTarget, finalUrl: string): boolean => {
     const lowerUrl = finalUrl.toLowerCase();
     const sourceJobId = (job.sourceJobId || "").toLowerCase();
@@ -767,7 +783,7 @@ const finalUrlLooksJobSpecific = (job: JobLinkValidationTarget, finalUrl: string
     if (job.provider === "ashby") {
         return Boolean(sourceJobId)
             && lowerUrl.includes(sourceJobId)
-            && (lowerUrl.includes("/application") || lowerUrl.includes("jobs.ashbyhq.com"));
+            && (lowerUrl.includes("/application") || hasExpectedHost(finalUrl, "jobs.ashbyhq.com"));
     }
 
     return false;

@@ -52,6 +52,9 @@ export interface RunnerResponse {
 
 const PYODIDE_VERSION = 'v314.0.2'; // Pyodide now versions after CPython (3.14)
 const PYODIDE_URL = `https://cdn.jsdelivr.net/pyodide/${PYODIDE_VERSION}/full/pyodide.mjs`;
+const MAX_CODE_LENGTH = 64_000;
+const MAX_TEST_COUNT = 100;
+const FUNCTION_NAME_PATTERN = /^[A-Za-z_$][\w$]*$/;
 
 const stringify = (value: unknown): string => {
   try {
@@ -63,6 +66,19 @@ const stringify = (value: unknown): string => {
 
 /** JSON-level deep equality — all challenge outputs are JSON-comparable. */
 const deepEqual = (a: unknown, b: unknown): boolean => stringify(a) === stringify(b);
+
+const assertRunnerRequest = (req: RunnerRequest): void => {
+  if (!Number.isSafeInteger(req.id)) throw new Error('Invalid runner request.');
+  if (typeof req.code !== 'string' || req.code.length > MAX_CODE_LENGTH) {
+    throw new Error(`Code must be at most ${MAX_CODE_LENGTH.toLocaleString()} characters.`);
+  }
+  if (!FUNCTION_NAME_PATTERN.test(req.functionName)) {
+    throw new Error('Invalid function name.');
+  }
+  if (!Array.isArray(req.tests) || req.tests.length > MAX_TEST_COUNT) {
+    throw new Error(`A challenge can run at most ${MAX_TEST_COUNT} tests at once.`);
+  }
+};
 
 // ---------------------------------------------------------------------------
 // JavaScript runner
@@ -257,6 +273,7 @@ self.onmessage = async (event: MessageEvent<RunnerRequest>) => {
   const started = performance.now();
 
   try {
+    assertRunnerRequest(req);
     let results: RunnerTestOutcome[];
     if (req.mode === 'script') {
       if (req.language === 'python') await runPythonScript(req, logs);

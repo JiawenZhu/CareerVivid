@@ -14,6 +14,44 @@ const OUTPUT_DIR = path.join(__dirname, '..', 'data', 'interview-guides');
 const INDEX_FILE = path.join(OUTPUT_DIR, '_index.json');
 const DELAY_MS = 1500; // be respectful — 1.5s between requests
 
+const HTML_ENTITIES = {
+  amp: '&',
+  apos: "'",
+  gt: '>',
+  hellip: '...',
+  lt: '<',
+  mdash: '—',
+  nbsp: ' ',
+  ndash: '–',
+  quot: '"',
+};
+
+const decodeHtmlEntities = (value) => value.replace(
+  /&(?:(#x[0-9a-f]+)|(#\d+)|([a-z]+));/gi,
+  (entity, hex, decimal, named) => {
+    if (hex) return String.fromCodePoint(Number.parseInt(hex.slice(2), 16));
+    if (decimal) return String.fromCodePoint(Number.parseInt(decimal.slice(1), 10));
+    return HTML_ENTITIES[named?.toLowerCase()] ?? entity;
+  },
+);
+
+const htmlToPlainText = (value) => {
+  let text = value;
+  for (let pass = 0; pass < 2 && /&(lt|gt|amp|quot|apos|nbsp|#\d+);/i.test(text); pass += 1) {
+    text = decodeHtmlEntities(text);
+  }
+
+  return text
+    .replace(/<script\b[^>]*>[\s\S]*?<\/\s*script\s*>/gi, '')
+    .replace(/<style\b[^>]*>[\s\S]*?<\/\s*style\s*>/gi, '')
+    .replace(/<h[1-6][^>]*>([\s\S]*?)<\/\s*h[1-6]\s*>/gi, '\n\n$1\n')
+    .replace(/<li[^>]*>([\s\S]*?)<\/\s*li\s*>/gi, '\n- $1')
+    .replace(/<\/\s*p\s*>/gi, '\n')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<[^>]*>/g, '')
+    .replace(/[<>]/g, '');
+};
+
 // All 323 companies mapped: display name -> slug
 const COMPANIES = {
   // Big Tech
@@ -605,29 +643,7 @@ async function fetchCompanyPage(slug) {
   if (articleMatch) content = articleMatch[0];
 
   // Convert HTML structure to readable text preserving hierarchy
-  const text = content
-    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
-    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
-    // Headings → plain text with newline
-    .replace(/<h[1-6][^>]*>([\s\S]*?)<\/h[1-6]>/gi, '\n\n$1\n')
-    // List items → bullet points
-    .replace(/<li[^>]*>([\s\S]*?)<\/li>/gi, '\n- $1')
-    // Paragraphs → newlines
-    .replace(/<\/p>/gi, '\n')
-    .replace(/<br\s*\/?>/gi, '\n')
-    // Strip remaining tags
-    .replace(/<[^>]+>/g, '')
-    // Decode HTML entities
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&ndash;/g, '–')
-    .replace(/&mdash;/g, '—')
-    .replace(/&hellip;/g, '...')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&#39;/g, "'")
-    .replace(/&quot;/g, '"')
-    .replace(/&#8211;/g, '–')
+  const text = htmlToPlainText(content)
     .replace(/&#8212;/g, '—')
     .replace(/&#8216;/g, "'")
     .replace(/&#8217;/g, "'")
