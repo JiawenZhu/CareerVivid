@@ -1,155 +1,113 @@
-<div align="center">
-  <video width="100%" autoplay loop muted playsinline>
-    <source src="https://firebasestorage.googleapis.com/v0/b/jastalk-firebase.firebasestorage.app/o/public%2Fcommunity_assets%2Fcommunity_github_video%2F0301.mp4?alt=media&token=311ccb2d-c95f-4c7c-871b-66a4da08fc71" type="video/mp4">
-    Your browser does not support the video tag.
-  </video>
-  
-  # CareerVivid
-  
-  **Personal Brand Building & Career Growth Platform**
-  
-  [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-  [![Status](https://img.shields.io/badge/Status-Active-success.svg)]()
-  [![Firebase](https://img.shields.io/badge/Firebase-Firestore%20%2B%20Auth-orange.svg)]()
-  [![AI](https://img.shields.io/badge/AI-Gemini%202.5%20%26%203.0-blue.svg)]()
-</div>
+# CareerVivid
 
-## About
+> An AI career workspace that turns a candidate's resume, job search, interview
+> practice, and learning plan into one continuous application workflow.
 
-**CareerVivid** is an all-in-one AI-powered platform for building your personal brand, accelerating your career growth, and landing your next opportunity faster. From AI-generated resumes and portfolios to mock interview coaching and a collaborative whiteboard — we give you every tool you need in one seamless workspace.
+## Competition Submission
 
-## Features
+- **Submission branch:** [`competition-2026`](https://github.com/JiawenZhu/CareerVivid/tree/competition-2026)
+- **Eligibility marker:** [`competition-start`](https://github.com/JiawenZhu/CareerVivid/tree/competition-start)
+- **Competition window:** May 19, 2026 at 10:00 AM PDT to August 17, 2026 at 1:00 PM PDT
+- **Detailed record:** [COMPETITION.md](COMPETITION.md)
 
-### ✨ AI Whiteboard & Diagram Generator
-A full collaborative canvas powered by Excalidraw with built-in AI generation.
-- **AI Diagram Generator**: Describe any system in plain English — the AI generates a professional architecture diagram directly on your canvas (flowcharts, system designs, service maps).
-- **Full Excalidraw Editor**: Freehand drawing, shapes, arrows, text, sticky notes & more.
-- **Auto-Save**: Changes persist to Firestore automatically with debounced saves.
-- **Thumbnail Previews**: Visual card previews generated from your canvas content.
+The `competition-start` annotated tag points to
+[`42320189`](https://github.com/JiawenZhu/CareerVivid/commit/423201899f3717876c8f3645eaaffed57c5028b8),
+the first qualifying commit after the competition opened. This branch preserves
+the repository's actual history; no timestamps or prior commits have been rewritten.
 
-### 📄 AI Resume Builder
-Create professional, ATS-optimized resumes in minutes.
-- **Smart Templates**: Multiple professional designs with real-time preview.
-- **AI Content Generation**: Intelligent suggestions for summaries and bullet points.
-- **PDF Export**: Download publication-ready resumes in one click.
-- **Shareable Links**: Share your resume with a unique public URL.
+## What To Review
 
-### 🎙️ AI Interview Coach (Interview Studio)
-Practice with a real-time AI voice coach that simulates actual interviews.
-- **Role-Tailored Questions**: AI generates questions based on your target job and industry.
-- **Voice Sessions**: Full real-time AI voice interaction via Cloud Run microservice.
-- **Session History**: Review past practice sessions and performance reports.
+CareerVivid is designed around the candidate's complete preparation loop:
 
-### 🌐 Portfolio & Personal Brand Builder
-Build a beautiful personal website from your resume in minutes.
-- **Multiple Modes**: Portfolio sites and link-in-bio pages.
-- **Drag-and-Drop Editor**: Fully customizable with live preview.
-- **Custom Domain Ready**: Shareable URLs for recruiters and clients.
+1. **Choose a target resume and application profile.**
+2. **Discover and rank verified job opportunities** against that candidate's
+   experience, skills, and location preferences.
+3. **Tailor application materials and track progress** through an application
+   pipeline.
+4. **Practice interviews with company-specific challenges, a whiteboard, AI
+   diagram review, and Socratic coaching.**
+5. **Build durable skills through interactive courses,** then return to a
+   course-owned timed mock without losing progress or mixing results with the
+   Company Quest experience.
 
-### 📊 Job Application Tracker
-Organize your entire job search with a Kanban-style board.
-- **Status Tracking**: Applied → Interviewing → Offer → Rejected pipeline.
-- **Detailed Records**: Notes, links, contacts and follow-up dates per application.
-- **Statistics**: Visualize your conversion rates at a glance.
+## Competition Highlights
 
-### 🏢 Job Marketplace
-Discover and apply to jobs powered by AI search.
-- **Real-Time AI Search**: Gemini Grounding with live web results.
-- **Smart Caching**: 2-week TTL indexed job cache for instant searches.
-- **Direct Apply**: Apply with your CareerVivid profile and tailored resume.
+### Resume-Grounded Job Recommendations
 
-### 🤝 Business Partner Portal
-A dedicated space for HR teams and recruiters.
-- **Job Posting Manager**: Create and publish listings directly to the marketplace.
-- **ATS Dashboard**: AI-assisted resume screening and candidate tracking.
-- **Status Sync**: HR updates automatically sync to candidates' personal trackers.
+Recommendations are driven by the selected target resume and application
+preferences rather than a fixed technical profile. The product prioritizes
+location and country preferences, identifies missing skills, and keeps direct
+apply links validated before jobs are surfaced.
 
-### 🎛️ Smart Dashboard
-A fully customizable home for all your CareerVivid tools.
-- **Drag & Drop Sections**: Reorder sections to your workflow preference.
-- **Editable Section Names**: Double-click any section header to rename it.
-- **Grid / Row View Toggle**: Switch between compact and card views.
+### Interactive Learning That Resumes
 
-## Tech Stack
+The AI Agent Builder Curriculum, Coding Interview Patterns, and System Design
+Interview courses use persisted per-lesson progress. A learner who returns to a
+course starts at the next incomplete lesson, including after a refresh or a
+saved course URL.
 
-| Layer | Technology |
-|-------|-----------|
-| Frontend | React + TypeScript + Vite |
-| Styling | Tailwind CSS |
-| Auth & Database | Firebase Auth + Firestore |
-| Storage | Firebase Storage |
-| AI | Google Gemini 2.5 & 3.0 (via Cloud Run proxy) |
-| Canvas | Excalidraw |
-| Drag & Drop | @dnd-kit |
-| PDF Export | jsPDF + html2canvas |
+### System Design Interview Course
 
-## Recent Updates
+The System Design Interview course has twelve modules across three experience
+roadmaps:
 
-### February 2026
-- **AI Diagram Generator**: Generate professional Excalidraw diagrams from plain-English prompts — direct JSON generation bypasses Mermaid for higher reliability.
-- **Whiteboard List Page**: Dedicated `/whiteboard` page listing all boards with grid view, thumbnail previews, and CRUD actions.
-- **Editable Dashboard Section Names**: Double-click any dashboard section header to rename it; names persist via localStorage.
-- **Security Hardening**: Fixed stored XSS in SVG thumbnail rendering; added AI response element-type whitelisting and prompt length caps.
-- **AI Button Visibility Fix**: Resolved Excalidraw z-index layering issue so the AI Generate button always renders above the canvas.
+- **Foundations:** interview framing, estimation, APIs/data models, and core
+  building blocks.
+- **Product Scale:** caching, rate limiting, data at scale, event processing,
+  and reliability.
+- **Senior Systems:** real-time systems, feeds/search/analytics, distributed
+  systems, and a changing-requirements capstone.
 
-### December 2024
-- **SEO Overhaul**: Updated all metadata and Open Graph tags to reflect personal brand positioning.
-- **LLM Standardization**: Unified Gemini model usage across frontend and backend.
-- **JobMarketPage Refactoring**: Modular architecture with smart job caching (2-week TTL).
-- **Job Link Validation**: Server-side URL validation with automated fallbacks.
+Each module moves from concept recognition to a deterministic simulation,
+scenario decision, quiz, architecture exercise, answer drill, and a separate
+course-owned timed mock. The course reuses canonical system-design prompts but
+keeps its navigation and saved results separate from Company Quest.
 
-## Getting Started
+### Simulation-Led Practice
 
-### Prerequisites
-- [Node.js](https://nodejs.org/) (v18 or higher)
-- [npm](https://www.npmjs.com/)
-- Firebase project with Firestore, Auth, and Storage enabled
-- Google Gemini API key
+Interactive lessons model real, visible state transitions such as request flow,
+capacity, caching, rate limiting, partitioning, replication lag, consumer lag,
+backpressure, circuit breakers, and regional failover. Learners can change a
+meaningful constraint and inspect the resulting behavior instead of viewing a
+static diagram.
 
-### Installation
+## Architecture
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/Jastalk/CareerVivid.git
-   cd careervivid
-   ```
+| Area | Implementation |
+| --- | --- |
+| Frontend | React, TypeScript, Vite, Tailwind CSS |
+| Authentication and persistence | Firebase Auth and Firestore |
+| AI capabilities | Gemini through a controlled application proxy |
+| Interactive course content | JSON course definitions rendered by React widgets |
+| Whiteboard practice | Excalidraw with AI diagram review and voice coaching |
+| Production build | Vite and Firebase Hosting |
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
+## Reproduce The Submission
 
-3. **Configure Environment**
-   Create a `.env` file in the root and add your credentials:
-   ```env
-   VITE_FIREBASE_API_KEY=your_firebase_api_key
-   VITE_FIREBASE_PROJECT_ID=your_project_id
-   VITE_GEMINI_PROXY_URL=your_gemini_proxy_url
-   ```
+```bash
+git clone --branch competition-2026 https://github.com/JiawenZhu/CareerVivid.git
+cd CareerVivid
+npm ci
+npm test -- --run src/lib/interactiveCourses.test.ts src/lib/codingInterviewRoadmap.test.ts src/lib/learningSeo.test.ts src/lib/systemDesignQuestionBank.test.ts
+npm run build:vite
+```
 
-4. **Seed Database Templates (Required for Generation)**
-   CareerVivid uses a hybrid generation approach. To ensure local templates are uploaded to your Firestore database:
-   ```bash
-   FIREBASE_SERVICE_ACCOUNT_KEY=./path/to/your-service-account.json npm run seed:templates
-   ```
-   *Note: You must generate a private key from Firebase Console > Project Settings > Service Accounts.*
+For local development, provide the Firebase and AI proxy configuration through
+your normal environment file, then run:
 
-5. **Run the App**
-   ```bash
-   npm run dev
-   ```
+```bash
+npm run dev
+```
+
+## Repository Guide
+
+- [COMPETITION.md](COMPETITION.md): eligibility and submission timeline
+- `data/courses/`: data-driven course definitions
+- `src/components/CourseWidgets/`: interactive lesson and simulation widgets
+- `src/components/Quest/`: Company Quest and system-design practice surfaces
+- `src/pages/`: application routes and course experiences
+- `functions/`: Firebase Functions, SEO generation, and backend services
 
 ## License
 
-This project is licensed under the GNU General Public License v3.0 — see the [LICENSE](LICENSE) file for details.
-
-## Star History
-
-<a href="https://www.star-history.com/?repos=JiawenZhu/CareerVivid&type=date&legend=top-left">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=JiawenZhu/CareerVivid&type=date&theme=dark&legend=top-left" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=JiawenZhu/CareerVivid&type=date&legend=top-left" />
-   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=JiawenZhu/CareerVivid&type=date&legend=top-left" />
- </picture>
-</a>
-
+Licensed under the [GNU General Public License v3.0](LICENSE).
