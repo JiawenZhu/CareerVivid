@@ -71,6 +71,115 @@ backpressure, circuit breakers, and regional failover. Learners can change a
 meaningful constraint and inspect the resulting behavior instead of viewing a
 static diagram.
 
+## Product Walkthrough
+
+### 1. Turn a target role into an actionable plan
+
+The dashboard makes the candidate's job search state visible in one place: the
+selected resume, target role, readiness, interview progress, application plan,
+and the next action to take.
+
+![CareerVivid dashboard showing the job-search setup map, readiness score, target role, resume, and interview progress](docs/screenshots/dashboard.png)
+
+### 2. Find jobs that fit the selected resume
+
+The recommendation feed evaluates a job against the selected target resume and
+application profile. The result explains its match, identifies gaps to review,
+prioritizes the candidate's location, and provides verified apply actions.
+
+![Resume-grounded job recommendations with match reasons, gaps to review, salary, location, and apply actions](docs/screenshots/job-recommendations.png)
+
+### 3. Practice the interview a company is likely to run
+
+The Interview Studio brings company-specific preparation, career paths, saved
+sessions, difficulty, mode, and duration into one starting point.
+
+![Interview Studio with company-specific interview quests, search, filters, recent sessions, and career paths](docs/screenshots/interview-studio.png)
+
+### 4. Follow a complete company interview loop
+
+Each Company Quest breaks a realistic interview into recruiter screen, coding,
+system design, behavioral, and final-round stages. Candidates can resume an
+unfinished stage, review results, and earn progress for clearing a stage.
+
+![SAP Company Quest showing five interview stages, quest progress, badges, and resume actions](docs/screenshots/company-quest-overview.png)
+
+### 5. Run an adaptive live voice interview
+
+The live voice workspace maintains the interview brief, queued questions,
+transcript, session path, and real-time signals together so the candidate can
+practice speaking under interview conditions.
+
+![Live SAP recruiter-screen voice interview with transcript, question queue, task requirements, and session metrics](docs/screenshots/live-voice-interview.png)
+
+### 6. Resume the exact coding problem that needs work
+
+After a coding stage, the candidate can select a specific problem to improve
+instead of restarting the entire interview loop.
+
+![Company Quest coding stage with a problem picker for targeted practice](docs/screenshots/quest-coding-picker.png)
+
+### 7. Code, test, and submit inside the interview workflow
+
+The coding workspace provides the problem brief, requirements, language-aware
+editor, test runner, and review submission in a focused interview surface.
+
+![Coding workspace for the Climbing Stairs problem with Python editor, requirements, tests, and submit-for-review action](docs/screenshots/coding-workspace.png)
+
+### 8. Get an AI coaching hint without leaving the editor
+
+The code coach converts a spoken or typed question into an editable draft and
+returns a focused next step, helping the candidate improve reasoning rather
+than merely revealing an answer.
+
+![AI Code Coach in the coding workspace with an optimization hint and suggested test cases](docs/screenshots/ai-code-coach.png)
+
+### 9. Practice system design on an editable whiteboard
+
+The system-design stage supplies a concrete design brief and acceptance
+criteria, then lets the candidate construct and review an architecture diagram
+with AI feedback and voice coaching available from the same workspace.
+
+![System-design whiteboard workspace with requirements, drawing guidance, AI generation, coaching, and submit-for-review action](docs/screenshots/system-design-whiteboard.png)
+
+### 10. Turn each attempt into a clear practice plan
+
+Interview reports combine overall score, metric breakdowns, strengths, and
+specific next-practice guidance. Candidates can inspect transcripts and export
+their feedback.
+
+![Interview report with overall score, communication confidence and relevance metrics, strengths, practice recommendations, and export actions](docs/screenshots/interview-report.png)
+
+### 11. Learn by doing between interviews
+
+The course catalog links interview readiness to skill-building. Progress across
+AI agents, coding patterns, and system design remains visible at the course
+level and each course resumes at the next incomplete lesson.
+
+![Course catalog showing AI Agent Builder, Coding Interview Patterns, System Design Interview, progress bars, and upcoming courses](docs/screenshots/course-catalog.png)
+
+### 12. Make LLM concepts tangible with interactive playgrounds
+
+The AI Agent Builder Curriculum uses hands-on widgets instead of passive
+reading. Learners can change inputs, observe state changes, and complete an
+explicit learning objective.
+
+#### Tokenization and cost intuition
+
+![Tokenizer playground showing editable text, token segmentation, token count, characters per token, and estimated usage costs](docs/screenshots/tokenizer-playground.png)
+
+#### Context-window behavior
+
+![Context-window visualizer showing model context capacity, message types, and the effect of a pasted document](docs/screenshots/context-window-playground.png)
+
+#### Curated video in the learning flow
+
+![AI course video lesson with course progress, lesson framing, learning objectives, and previous-next navigation](docs/screenshots/video-lesson.png)
+
+#### Retrieval-Augmented Generation
+
+![RAG playground showing a selected query, ranked retrieved chunks, similarity scores, and a grounded answer with citation](docs/screenshots/rag-playground.png)
+
 ## Architecture
 
 | Area | Implementation |
