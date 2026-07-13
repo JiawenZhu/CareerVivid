@@ -54,14 +54,26 @@ output/
 .playwright-cli/
 experiments/
 
-# Environment Variables
+# Environment variables and local credential files. Only intentionally
+# non-sensitive templates belong in source control.
 .env
-.env.local
-.env.*.local
+.env.*
+!.env.example
+!.env.*.example
 
 # Service Account Keys
 *-adminsdk-*.json
 *-service-account*.json
+*service-account*.json
+*credentials*.json
+secrets/
+credentials/
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
 
 # Standalone lottery engine repo (has own git)
 megamillions-engine/

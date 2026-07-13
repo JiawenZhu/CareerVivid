@@ -14,3 +14,20 @@
 .gitignore
 
 node_modules
+
+# Runtime credentials are injected by Cloud Functions or Secret Manager. Never
+# package local environment files or service-account keys into a deployment.
+.env
+.env.*
+*-adminsdk-*.json
+*-service-account*.json
+*service-account*.json
+*credentials*.json
+secrets/
+credentials/
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
