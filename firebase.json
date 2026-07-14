@@ -1,5 +1,8 @@
 {
   "hosting": {
+    "predeploy": [
+      "node scripts/sync-questions-to-firebase.mjs"
+    ],
     "public": "dist",
     "ignore": [
       "firebase.json",

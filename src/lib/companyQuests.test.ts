@@ -5,6 +5,7 @@ import {
   buildQuestStagePrompt,
   buildSystemDesignBrief,
   getStageFallbackQuestions,
+  getStageQuestionPool,
   getSystemDesignPool,
   isStageCleared,
   selectNextSystemDesignChallenge,
@@ -94,6 +95,69 @@ describe('getStageFallbackQuestions', () => {
     const screening = buildQuestLine(guide)[0];
     const questions = getStageFallbackQuestions('Stripe', screening);
     expect(questions.some((q) => q.includes('Stripe'))).toBe(true);
+  });
+});
+
+describe('getStageQuestionPool — screening is light + difficulty tiers', () => {
+  const stageByIdFor = (guide: LocalInterviewGuide, id: string) =>
+    buildQuestLine(guide).find((s) => s.id === id)!;
+
+  it('leads the screening round with light rapport, not deep guide behavioral', () => {
+    const guide = makeGuide({
+      company: 'Acme',
+      difficulty: 9, // high-difficulty company
+      sampleQuestions: {
+        coding: [], systemDesign: [],
+        behavioral: ['Tell me about a time you disagreed with your manager and how it resolved.'],
+        values: [], other: [],
+      },
+    });
+    const screening = stageByIdFor(guide, 'screening');
+    const pool = getStageQuestionPool(guide, screening);
+    // the deep behavioral question must NOT lead the recruiter screen
+    expect(pool[0]).not.toContain('disagreed with your manager');
+    // first screening question should be a light/get-to-know-you rapport prompt
+    expect(pool[0].toLowerCase()).toMatch(
+      /about yourself|new opportunities|looking for|what do you know about|draws you to|prompting you|day to day/,
+    );
+  });
+
+  it('screening never surfaces the guide behavioral question in the top 5', () => {
+    const guide = makeGuide({
+      difficulty: 10,
+      sampleQuestions: {
+        coding: [], systemDesign: [],
+        behavioral: ['Describe the hardest architectural decision you have ever made.'],
+        values: [], other: [],
+      },
+    });
+    const pool = getStageQuestionPool(guide, stageByIdFor(guide, 'screening')).slice(0, 5);
+    expect(pool.join(' ')).not.toContain('hardest architectural decision');
+  });
+
+  it('behavioral leads with company questions, then scales category difficulty', () => {
+    const guide = makeGuide({
+      difficulty: 9, // -> hard tier for the category behavioral bank
+      sampleQuestions: {
+        coding: [], systemDesign: [],
+        behavioral: ['Company-specific behavioral question.'],
+        values: [], other: [],
+      },
+    });
+    const pool = getStageQuestionPool(guide, buildQuestLine(guide).find((s) => s.id === 'behavioral')!);
+    // the company's own behavioral question leads
+    expect(pool[0]).toBe('Company-specific behavioral question.');
+    // a hard-tier category behavioral question is layered in
+    expect(pool.join(' ').toLowerCase()).toContain('biggest professional failure');
+  });
+
+  it('scales values/final difficulty with the company rating', () => {
+    const easyCo = makeGuide({ company: 'EasyCo', slug: 'unknown-easyco', difficulty: 3 });
+    const hardCo = makeGuide({ company: 'HardCo', slug: 'unknown-hardco', difficulty: 9 });
+    const finalOf = (g: LocalInterviewGuide) =>
+      getStageQuestionPool(g, buildQuestLine(g).find((s) => s.id === 'final')!)[0];
+    // easy vs hard companies get a different leading final-round question
+    expect(finalOf(easyCo)).not.toBe(finalOf(hardCo));
   });
 });
 

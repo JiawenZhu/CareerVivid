@@ -1,0 +1,1825 @@
+{
+  "_comment": "Single source of truth for CareerVivid quest category taxonomy + tailored question banks. questionBanks[category][stage] = {easy, medium, hard} for screening/values/final; the quest picks a tier from the company's difficulty rating. Screening is intentionally light (rapport). Edited by the twice-weekly research task; read by src/lib/companyCategories.ts. Keep {company} tokens intact.",
+  "companyCategory": {
+    "1password-interview-guide": "cybersecurity",
+    "23andme-interview-guide": "healthcare",
+    "adobe": "big-tech",
+    "adyen-interview-guide": "fintech",
+    "affirm-interview-guide": "fintech",
+    "airbnb": "marketplace",
+    "airbyte-interview-guide": "dev-infra",
+    "airtable-interview-guide": "enterprise-saas",
+    "akamai-interview-guide": "dev-infra",
+    "akuna-capital-interview-guide": "quant-trading",
+    "algolia-interview-guide": "dev-infra",
+    "alibaba-interview-guide": "big-tech",
+    "amazon": "big-tech",
+    "amd-interview-guide": "hardware",
+    "american-express-interview-guide": "finance",
+    "amplitude-interview-guide": "enterprise-saas",
+    "anduril-interview-guide": "deep-tech",
+    "anthropic": "ai-lab",
+    "anyscale-interview-guide": "dev-infra",
+    "apollo-io-interview-guide": "enterprise-saas",
+    "apple": "big-tech",
+    "apple-silicon-team-interview-guide": "hardware",
+    "applovin-interview-guide": "consumer",
+    "aqr-capital-management-interview-guide": "quant-trading",
+    "asana": "enterprise-saas",
+    "astronomer-interview-guide": "dev-infra",
+    "atlassian": "enterprise-saas",
+    "bank-of-america-bofa-securities-interview-guide": "finance",
+    "beehiiv-interview-guide": "consumer",
+    "bigcommerce-interview-guide": "marketplace",
+    "black-forest-labs-interview-guide": "ai-lab",
+    "blackrock-interview-guide": "finance",
+    "blizzard-activision-interview-guide": "gaming",
+    "block": "fintech",
+    "bloomberg": "finance",
+    "blue-origin-interview-guide": "deep-tech",
+    "bluesky-interview-guide": "consumer",
+    "booking-com-interview-guide": "marketplace",
+    "box-interview-guide": "enterprise-saas",
+    "braze-interview-guide": "enterprise-saas",
+    "brex": "fintech",
+    "bridgewater-associates-interview-guide": "quant-trading",
+    "broadcom-interview-guide": "hardware",
+    "bumble-interview-guide": "consumer",
+    "bytedance-tiktok-interview-guide": "big-tech",
+    "calm-interview-guide": "consumer",
+    "canva": "enterprise-saas",
+    "capital-one-interview-guide": "fintech",
+    "cargurus-interview-guide": "marketplace",
+    "carta-interview-guide": "fintech",
+    "carvana-interview-guide": "marketplace",
+    "character-ai-interview-guide": "ai-lab",
+    "chime": "fintech",
+    "chronosphere-interview-guide": "dev-infra",
+    "circleci-interview-guide": "dev-infra",
+    "cisco": "big-tech",
+    "citadel-hedge-fund-interview-guide": "quant-trading",
+    "citadel-securities": "quant-trading",
+    "citi-interview-guide": "finance",
+    "clerk-interview-guide": "dev-infra",
+    "clickhouse-interview-guide": "dev-infra",
+    "clickup-interview-guide": "enterprise-saas",
+    "cloudera-interview-guide": "dev-infra",
+    "cloudflare": "dev-infra",
+    "cockroach-labs-interview-guide": "dev-infra",
+    "coda-interview-guide": "enterprise-saas",
+    "codecademy-interview-guide": "consumer",
+    "codesandbox-interview-guide": "dev-infra",
+    "cohere": "ai-lab",
+    "coinbase": "crypto",
+    "confluent-interview-guide": "dev-infra",
+    "convertkit-interview-guide": "enterprise-saas",
+    "coreweave-interview-guide": "dev-infra",
+    "coursera-interview-guide": "consumer",
+    "credit-karma-interview-guide": "fintech",
+    "cribl-interview-guide": "dev-infra",
+    "crowdstrike-interview-guide": "cybersecurity",
+    "crypto-trio-circle-ripple-chainalysis-interview-guide": "crypto",
+    "cursor": "ai-lab",
+    "databricks": "dev-infra",
+    "datadog": "dev-infra",
+    "datastax-interview-guide": "dev-infra",
+    "dbt-labs-interview-guide": "dev-infra",
+    "de-shaw": "quant-trading",
+    "decagon-interview-guide": "ai-lab",
+    "deel": "fintech",
+    "deepgram-interview-guide": "ai-lab",
+    "defense-primes-lockheed-northrop-raytheon-interview-guide": "deep-tech",
+    "deutsche-bank-interview-guide": "finance",
+    "discord": "consumer",
+    "docusign": "enterprise-saas",
+    "doppler-interview-guide": "dev-infra",
+    "drata-interview-guide": "cybersecurity",
+    "dropbox-interview-guide": "enterprise-saas",
+    "drw-interview-guide": "quant-trading",
+    "duckdb-labs-interview-guide": "dev-infra",
+    "duolingo-interview-guide": "consumer",
+    "elastic-interview-guide": "dev-infra",
+    "electronic-arts-ea-interview-guide": "gaming",
+    "elevenlabs-interview-guide": "ai-lab",
+    "epic-games-interview-guide": "gaming",
+    "epic-systems-interview-guide": "healthcare",
+    "etsy-interview-guide": "marketplace",
+    "eventbrite-interview-guide": "marketplace",
+    "evercore-interview-guide": "finance",
+    "faire-interview-guide": "marketplace",
+    "fastly-interview-guide": "dev-infra",
+    "fidelity-investments-interview-guide": "finance",
+    "figma": "enterprise-saas",
+    "fireworks-ai": "ai-lab",
+    "five9-interview-guide": "enterprise-saas",
+    "fivetran-interview-guide": "dev-infra",
+    "flow-traders-interview-guide": "quant-trading",
+    "fly-io-interview-guide": "dev-infra",
+    "framer-interview-guide": "dev-infra",
+    "gainsight-interview-guide": "enterprise-saas",
+    "galaxy-digital-interview-guide": "crypto",
+    "gitlab": "dev-infra",
+    "glassdoor-interview-guide": "marketplace",
+    "glean-interview-guide": "ai-lab",
+    "goldman-sachs-strats-engineering-interview-guide": "finance",
+    "gong-interview-guide": "enterprise-saas",
+    "google": "big-tech",
+    "grab-interview-guide": "marketplace",
+    "grafana-labs-interview-guide": "dev-infra",
+    "greenhouse-interview-guide": "enterprise-saas",
+    "grubhub-interview-guide": "marketplace",
+    "gusto-interview-guide": "fintech",
+    "hackerrank-interview-guide": "consumer",
+    "harvey-interview-guide": "ai-lab",
+    "hashicorp": "dev-infra",
+    "headspace-interview-guide": "consumer",
+    "heroku-interview-guide": "dev-infra",
+    "hex": "dev-infra",
+    "hightouch-interview-guide": "dev-infra",
+    "hippocratic-ai-interview-guide": "ai-lab",
+    "honeycomb-interview-guide": "dev-infra",
+    "hopper-interview-guide": "marketplace",
+    "hubspot": "enterprise-saas",
+    "hudson-river-trading": "quant-trading",
+    "hugging-face-interview-guide": "ai-lab",
+    "imc-trading-interview-guide": "quant-trading",
+    "indeed-interview-guide": "marketplace",
+    "instacart-interview-guide": "marketplace",
+    "intel-interview-guide": "hardware",
+    "intercom-interview-guide": "enterprise-saas",
+    "iterable-interview-guide": "enterprise-saas",
+    "jane-street": "quant-trading",
+    "jetbrains-interview-guide": "dev-infra",
+    "jpmorgan-tech-quant-interview-guide": "finance",
+    "jump-trading": "quant-trading",
+    "klarna-interview-guide": "fintech",
+    "klaviyo-interview-guide": "enterprise-saas",
+    "kraken-interview-guide": "crypto",
+    "lambda-labs-interview-guide": "dev-infra",
+    "langchain": "ai-lab",
+    "lattice-interview-guide": "enterprise-saas",
+    "launchdarkly-interview-guide": "dev-infra",
+    "lazard-interview-guide": "finance",
+    "leetcode-interview-guide": "consumer",
+    "lightspeed-interview-guide": "marketplace",
+    "linear": "enterprise-saas",
+    "linkedin": "big-tech",
+    "llamaindex-interview-guide": "ai-lab",
+    "lyft-interview-guide": "marketplace",
+    "mailchimp-interview-guide": "enterprise-saas",
+    "man-group-interview-guide": "quant-trading",
+    "marqeta-interview-guide": "fintech",
+    "match-group-interview-guide": "consumer",
+    "materialize-interview-guide": "dev-infra",
+    "medium-interview-guide": "consumer",
+    "mercury": "fintech",
+    "meta-facebook": "big-tech",
+    "microsoft": "big-tech",
+    "millennium-management-interview-guide": "quant-trading",
+    "mistral-ai-interview-guide": "ai-lab",
+    "mixpanel-interview-guide": "enterprise-saas",
+    "modal": "dev-infra",
+    "monday-com-interview-guide": "enterprise-saas",
+    "mongodb": "dev-infra",
+    "morgan-stanley-tech-quant-interview-guide": "finance",
+    "motherduck": "dev-infra",
+    "neon": "dev-infra",
+    "netflix": "big-tech",
+    "new-relic-interview-guide": "dev-infra",
+    "niantic-interview-guide": "gaming",
+    "notion": "enterprise-saas",
+    "nvidia": "hardware",
+    "okta-interview-guide": "enterprise-saas",
+    "openai": "ai-lab",
+    "opendoor-interview-guide": "marketplace",
+    "optiver-interview-guide": "quant-trading",
+    "oracle-interview": "big-tech",
+    "orca-security-interview-guide": "cybersecurity",
+    "outreach-interview-guide": "enterprise-saas",
+    "pagerduty-interview-guide": "enterprise-saas",
+    "palantir": "deep-tech",
+    "palo-alto-networks-interview-guide": "cybersecurity",
+    "patreon-interview-guide": "consumer",
+    "paypal": "fintech",
+    "peloton-interview-guide": "consumer",
+    "pendo-interview-guide": "enterprise-saas",
+    "perplexity": "ai-lab",
+    "pika-labs-interview-guide": "ai-lab",
+    "pinecone-interview-guide": "dev-infra",
+    "pinterest-interview": "consumer",
+    "plaid": "fintech",
+    "planetscale": "dev-infra",
+    "point72-interview-guide": "quant-trading",
+    "posthog-interview-guide": "dev-infra",
+    "postman": "dev-infra",
+    "procore-interview-guide": "enterprise-saas",
+    "pulumi-interview-guide": "dev-infra",
+    "qdrant-interview-guide": "dev-infra",
+    "qualcomm-interview-guide": "hardware",
+    "quora-interview-guide": "consumer",
+    "ramp": "fintech",
+    "rapid7-interview-guide": "cybersecurity",
+    "reddit-interview": "consumer",
+    "redfin-interview-guide": "marketplace",
+    "reka-ai-interview-guide": "ai-lab",
+    "renaissance-technologies-interview-guide": "quant-trading",
+    "render-interview-guide": "dev-infra",
+    "replicate": "ai-lab",
+    "replit-interview-guide": "dev-infra",
+    "resend-interview-guide": "dev-infra",
+    "retool": "dev-infra",
+    "ringcentral-interview-guide": "enterprise-saas",
+    "riot-games-interview-guide": "gaming",
+    "rippling": "fintech",
+    "robinhood": "fintech",
+    "roblox": "gaming",
+    "rubrik-interview-guide": "cybersecurity",
+    "runpod-interview-guide": "dev-infra",
+    "runway-interview-guide": "ai-lab",
+    "sakana-ai-interview-guide": "ai-lab",
+    "salesforce": "big-tech",
+    "salesloft-interview-guide": "enterprise-saas",
+    "samsung-electronics-interview-guide": "hardware",
+    "sap": "big-tech",
+    "scale-ai": "ai-lab",
+    "sentinelone-interview-guide": "cybersecurity",
+    "sentry-interview-guide": "dev-infra",
+    "servicenow": "big-tech",
+    "shopify": "marketplace",
+    "sierra-interview-guide": "ai-lab",
+    "sig-susquehanna-interview-guide": "quant-trading",
+    "singlestore-interview-guide": "dev-infra",
+    "skyscanner-interview-guide": "marketplace",
+    "smartsheet-interview-guide": "enterprise-saas",
+    "snap": "consumer",
+    "snowflake": "dev-infra",
+    "snyk-interview-guide": "cybersecurity",
+    "sofi-interview-guide": "fintech",
+    "sony-interview-guide": "hardware",
+    "soundcloud-interview-guide": "consumer",
+    "sourcegraph": "dev-infra",
+    "spacex-interview-guide": "deep-tech",
+    "splunk-interview-guide": "dev-infra",
+    "spotify": "consumer",
+    "squarespace-interview-guide": "marketplace",
+    "stability-ai-interview-guide": "ai-lab",
+    "state-street-interview-guide": "finance",
+    "stripe": "fintech",
+    "substack-interview-guide": "consumer",
+    "suno-interview-guide": "ai-lab",
+    "supabase": "dev-infra",
+    "sysdig-interview-guide": "cybersecurity",
+    "tailscale": "dev-infra",
+    "temporal-interview-guide": "dev-infra",
+    "tempus-ai-interview-guide": "ai-lab",
+    "tesla": "hardware",
+    "toast-interview-guide": "fintech",
+    "together-ai": "ai-lab",
+    "tower-research-capital-interview-guide": "quant-trading",
+    "turso": "dev-infra",
+    "twilio-interview-guide": "enterprise-saas",
+    "two-sigma": "quant-trading",
+    "uber": "marketplace",
+    "ubs-interview-guide": "finance",
+    "unity-interview-guide": "gaming",
+    "vanguard-interview-guide": "finance",
+    "veeva-systems-interview-guide": "enterprise-saas",
+    "vercel": "dev-infra",
+    "virtu-financial-interview-guide": "quant-trading",
+    "wealthfront": "fintech",
+    "weaviate-interview-guide": "dev-infra",
+    "webflow-interview-guide": "dev-infra",
+    "wells-fargo-interview-guide": "finance",
+    "wintermute-interview-guide": "quant-trading",
+    "wise-interview-guide": "fintech",
+    "workday": "enterprise-saas",
+    "workos-interview-guide": "dev-infra",
+    "xai": "ai-lab",
+    "xtx-markets-interview-guide": "quant-trading",
+    "yelp-interview-guide": "marketplace",
+    "zendesk-interview-guide": "enterprise-saas",
+    "zillow-interview-guide": "marketplace",
+    "zoom": "enterprise-saas",
+    "zoominfo-interview-guide": "enterprise-saas",
+    "zscaler-interview-guide": "cybersecurity"
+  },
+  "questionBanks": {
+    "big-tech": {
+      "screening": {
+        "easy": [
+          "Thanks for making the time. To start, tell me a little about yourself and what you are working on these days.",
+          "What is prompting you to look at new opportunities right now?",
+          "What are you hoping to find in your next role or team?",
+          "What kind of work do you enjoy most day to day?",
+          "How did you first get into this field?"
+        ],
+        "medium": [
+          "What do you know about {company}, and what caught your interest?",
+          "What draws you to working at big-tech scale?",
+          "What would make a next role feel like a real step up for you?",
+          "Is there anything about {company} you were hoping to learn more about today?",
+          "What kind of team environment helps you do your best work?"
+        ],
+        "hard": [
+          "Give me the short version of your background — just the parts most relevant to this role.",
+          "What is your timeline, and are you in process anywhere else?",
+          "Are there any logistics we should cover — location, work authorization, or start date?",
+          "What are you looking for in terms of scope or level next?",
+          "What would need to be true for you to say yes to a role like this?"
+        ]
+      },
+      "behavioral": {
+        "easy": [
+          "Tell me about a project or piece of work you really enjoyed. What made it satisfying?",
+          "How do you like to work with a team day to day?",
+          "Tell me about something you built or shipped that you are proud of.",
+          "What drew you to working at big-tech scale in your past work?",
+          "Describe a time you picked up something new quickly to get a job done."
+        ],
+        "medium": [
+          "Tell me about a time you disagreed with a teammate. How did it resolve?",
+          "Describe a time you had to deliver under a tight deadline. What did you trade off?",
+          "Tell me about a time you got hard feedback. What did you do with it?",
+          "Describe a time you took ownership of something outside your role.",
+          "Tell me about a time a project did not go as planned. What did you do?"
+        ],
+        "hard": [
+          "Tell me about your biggest professional failure — what happened, and what did you change afterward?",
+          "Describe a time you drove a difficult decision through real resistance.",
+          "Tell me about the hardest conflict you have navigated on a team. How did you handle it?",
+          "Describe a time you made a high-stakes call with incomplete information.",
+          "Tell me about a time you had to influence people over whom you had no authority."
+        ]
+      },
+      "values": {
+        "easy": [
+          "What kind of mission or environment brings out your best work?",
+          "Why {company} specifically, rather than others in working at big-tech scale?",
+          "What do you care about most in the teams you join?",
+          "What does a good team culture look like to you?",
+          "What motivates you beyond the day-to-day work?"
+        ],
+        "medium": [
+          "Tell me about a time your work reflected raising the quality bar and thinking long-term for customers.",
+          "How do you make sure you keep a high bar when the org is moving fast?",
+          "Tell me about a time you disagreed with a decision — how did you handle it?",
+          "Describe a time you took ownership of something outside your immediate job.",
+          "When have you had to balance moving fast with doing things carefully?"
+        ],
+        "hard": [
+          "You find a shortcut that ships faster but adds long-term complexity for other teams. How do you decide?",
+          "Tell me about a time the right thing and the easy thing were different — what did you do?",
+          "Describe a decision you made that you knew would be unpopular. How did you handle the fallout?",
+          "When have you pushed back on leadership or a strong stakeholder? What happened?",
+          "Tell me about a principle you will not compromise on, even under pressure."
+        ]
+      },
+      "final": {
+        "easy": [
+          "What questions do you have for us — about the team, the role, or how we work?",
+          "Is there anything you did not get to share that you would like us to know?",
+          "What is your impression of the process so far?",
+          "What are you most excited about in a role like this?",
+          "How can we help you make a good decision from here?"
+        ],
+        "medium": [
+          "Looking at your first few months at {company}, what would you want to focus on?",
+          "What would make this role a great fit for you — or not?",
+          "What do you need from a manager to do your best work?",
+          "Where do you want to grow over the next couple of years?",
+          "What would make you turn down an offer from us?"
+        ],
+        "hard": [
+          "Tell me about the hardest technical trade-off you have owned at scale — would you make the same call again?",
+          "Tell me about the hardest decision you have made in your work. Would you make it again?",
+          "If you joined and found things were not as described, how would you handle it?",
+          "What is a risk you took in your career that shaped how you work today?",
+          "Six months in, how would you want your teammates to describe your impact?"
+        ]
+      }
+    },
+    "quant-trading": {
+      "screening": {
+        "easy": [
+          "Thanks for making the time. To start, tell me a little about yourself and what you are working on these days.",
+          "What is prompting you to look at new opportunities right now?",
+          "What are you hoping to find in your next role or team?",
+          "What kind of work do you enjoy most day to day?",
+          "How did you first get into this field?"
+        ],
+        "medium": [
+          "What do you know about {company}, and what caught your interest?",
+          "What draws you to quantitative and trading work?",
+          "What would make a next role feel like a real step up for you?",
+          "Is there anything about {company} you were hoping to learn more about today?",
+          "What kind of team environment helps you do your best work?"
+        ],
+        "hard": [
+          "Give me the short version of your background — just the parts most relevant to this role.",
+          "What is your timeline, and are you in process anywhere else?",
+          "Are there any logistics we should cover — location, work authorization, or start date?",
+          "What are you looking for in terms of scope or level next?",
+          "What would need to be true for you to say yes to a role like this?"
+        ]
+      },
+      "behavioral": {
+        "easy": [
+          "Tell me about a project or piece of work you really enjoyed. What made it satisfying?",
+          "How do you like to work with a team day to day?",
+          "Tell me about something you built or shipped that you are proud of.",
+          "What drew you to quantitative and trading work in your past work?",
+          "Describe a time you picked up something new quickly to get a job done."
+        ],
+        "medium": [
+          "Tell me about a time you disagreed with a teammate. How did it resolve?",
+          "Describe a time you had to deliver under a tight deadline. What did you trade off?",
+          "Tell me about a time you got hard feedback. What did you do with it?",
+          "Describe a time you took ownership of something outside your role.",
+          "Tell me about a time a project did not go as planned. What did you do?"
+        ],
+        "hard": [
+          "Tell me about your biggest professional failure — what happened, and what did you change afterward?",
+          "Describe a time you drove a difficult decision through real resistance.",
+          "Tell me about the hardest conflict you have navigated on a team. How did you handle it?",
+          "Describe a time you made a high-stakes call with incomplete information.",
+          "Tell me about a time you had to influence people over whom you had no authority."
+        ]
+      },
+      "values": {
+        "easy": [
+          "What kind of mission or environment brings out your best work?",
+          "Why {company} specifically, rather than others in quantitative and trading work?",
+          "What do you care about most in the teams you join?",
+          "What does a good team culture look like to you?",
+          "What motivates you beyond the day-to-day work?"
+        ],
+        "medium": [
+          "Tell me about a time your work reflected precision, speed, and intellectual honesty.",
+          "How do you make sure you stay exactly correct under time pressure?",
+          "Tell me about a time you disagreed with a decision — how did you handle it?",
+          "Describe a time you took ownership of something outside your immediate job.",
+          "When have you had to balance moving fast with doing things carefully?"
+        ],
+        "hard": [
+          "You spot a bug that has quietly been making the firm money. What do you do, and how fast?",
+          "Tell me about a time the right thing and the easy thing were different — what did you do?",
+          "Describe a decision you made that you knew would be unpopular. How did you handle the fallout?",
+          "When have you pushed back on leadership or a strong stakeholder? What happened?",
+          "Tell me about a principle you will not compromise on, even under pressure."
+        ]
+      },
+      "final": {
+        "easy": [
+          "What questions do you have for us — about the team, the role, or how we work?",
+          "Is there anything you did not get to share that you would like us to know?",
+          "What is your impression of the process so far?",
+          "What are you most excited about in a role like this?",
+          "How can we help you make a good decision from here?"
+        ],
+        "medium": [
+          "Looking at your first few months at {company}, what would you want to focus on?",
+          "What would make this role a great fit for you — or not?",
+          "What do you need from a manager to do your best work?",
+          "Where do you want to grow over the next couple of years?",
+          "What would make you turn down an offer from us?"
+        ],
+        "hard": [
+          "Tell me about a decision you made under uncertainty that did not pay off — how had you sized the risk?",
+          "Tell me about the hardest decision you have made in your work. Would you make it again?",
+          "If you joined and found things were not as described, how would you handle it?",
+          "What is a risk you took in your career that shaped how you work today?",
+          "Six months in, how would you want your teammates to describe your impact?"
+        ]
+      }
+    },
+    "finance": {
+      "screening": {
+        "easy": [
+          "Thanks for making the time. To start, tell me a little about yourself and what you are working on these days.",
+          "What is prompting you to look at new opportunities right now?",
+          "What are you hoping to find in your next role or team?",
+          "What kind of work do you enjoy most day to day?",
+          "How did you first get into this field?"
+        ],
+        "medium": [
+          "What do you know about {company}, and what caught your interest?",
+          "What draws you to the intersection of technology and finance?",
+          "What would make a next role feel like a real step up for you?",
+          "Is there anything about {company} you were hoping to learn more about today?",
+          "What kind of team environment helps you do your best work?"
+        ],
+        "hard": [
+          "Give me the short version of your background — just the parts most relevant to this role.",
+          "What is your timeline, and are you in process anywhere else?",
+          "Are there any logistics we should cover — location, work authorization, or start date?",
+          "What are you looking for in terms of scope or level next?",
+          "What would need to be true for you to say yes to a role like this?"
+        ]
+      },
+      "behavioral": {
+        "easy": [
+          "Tell me about a project or piece of work you really enjoyed. What made it satisfying?",
+          "How do you like to work with a team day to day?",
+          "Tell me about something you built or shipped that you are proud of.",
+          "What drew you to the intersection of technology and finance in your past work?",
+          "Describe a time you picked up something new quickly to get a job done."
+        ],
+        "medium": [
+          "Tell me about a time you disagreed with a teammate. How did it resolve?",
+          "Describe a time you had to deliver under a tight deadline. What did you trade off?",
+          "Tell me about a time you got hard feedback. What did you do with it?",
+          "Describe a time you took ownership of something outside your role.",
+          "Tell me about a time a project did not go as planned. What did you do?"
+        ],
+        "hard": [
+          "Tell me about your biggest professional failure — what happened, and what did you change afterward?",
+          "Describe a time you drove a difficult decision through real resistance.",
+          "Tell me about the hardest conflict you have navigated on a team. How did you handle it?",
+          "Describe a time you made a high-stakes call with incomplete information.",
+          "Tell me about a time you had to influence people over whom you had no authority."
+        ]
+      },
+      "values": {
+        "easy": [
+          "What kind of mission or environment brings out your best work?",
+          "Why {company} specifically, rather than others in the intersection of technology and finance?",
+          "What do you care about most in the teams you join?",
+          "What does a good team culture look like to you?",
+          "What motivates you beyond the day-to-day work?"
+        ],
+        "medium": [
+          "Tell me about a time your work reflected rigor, prudence, and earning trust.",
+          "How do you make sure you stay meticulous about controls and correctness?",
+          "Tell me about a time you disagreed with a decision — how did you handle it?",
+          "Describe a time you took ownership of something outside your immediate job.",
+          "When have you had to balance moving fast with doing things carefully?"
+        ],
+        "hard": [
+          "You are asked to ship something fast that skips a control step. How do you handle it?",
+          "Tell me about a time the right thing and the easy thing were different — what did you do?",
+          "Describe a decision you made that you knew would be unpopular. How did you handle the fallout?",
+          "When have you pushed back on leadership or a strong stakeholder? What happened?",
+          "Tell me about a principle you will not compromise on, even under pressure."
+        ]
+      },
+      "final": {
+        "easy": [
+          "What questions do you have for us — about the team, the role, or how we work?",
+          "Is there anything you did not get to share that you would like us to know?",
+          "What is your impression of the process so far?",
+          "What are you most excited about in a role like this?",
+          "How can we help you make a good decision from here?"
+        ],
+        "medium": [
+          "Looking at your first few months at {company}, what would you want to focus on?",
+          "What would make this role a great fit for you — or not?",
+          "What do you need from a manager to do your best work?",
+          "Where do you want to grow over the next couple of years?",
+          "What would make you turn down an offer from us?"
+        ],
+        "hard": [
+          "Tell me about the most high-stakes system you have owned — how did you keep it reliable and trusted?",
+          "Tell me about the hardest decision you have made in your work. Would you make it again?",
+          "If you joined and found things were not as described, how would you handle it?",
+          "What is a risk you took in your career that shaped how you work today?",
+          "Six months in, how would you want your teammates to describe your impact?"
+        ]
+      }
+    },
+    "fintech": {
+      "screening": {
+        "easy": [
+          "Thanks for making the time. To start, tell me a little about yourself and what you are working on these days.",
+          "What is prompting you to look at new opportunities right now?",
+          "What are you hoping to find in your next role or team?",
+          "What kind of work do you enjoy most day to day?",
+          "How did you first get into this field?"
+        ],
+        "medium": [
+          "What do you know about {company}, and what caught your interest?",
+          "What draws you to building financial products?",
+          "What would make a next role feel like a real step up for you?",
+          "Is there anything about {company} you were hoping to learn more about today?",
+          "What kind of team environment helps you do your best work?"
+        ],
+        "hard": [
+          "Give me the short version of your background — just the parts most relevant to this role.",
+          "What is your timeline, and are you in process anywhere else?",
+          "Are there any logistics we should cover — location, work authorization, or start date?",
+          "What are you looking for in terms of scope or level next?",
+          "What would need to be true for you to say yes to a role like this?"
+        ]
+      },
+      "behavioral": {
+        "easy": [
+          "Tell me about a project or piece of work you really enjoyed. What made it satisfying?",
+          "How do you like to work with a team day to day?",
+          "Tell me about something you built or shipped that you are proud of.",
+          "What drew you to building financial products in your past work?",
+          "Describe a time you picked up something new quickly to get a job done."
+        ],
+        "medium": [
+          "Tell me about a time you disagreed with a teammate. How did it resolve?",
+          "Describe a time you had to deliver under a tight deadline. What did you trade off?",
+          "Tell me about a time you got hard feedback. What did you do with it?",
+          "Describe a time you took ownership of something outside your role.",
+          "Tell me about a time a project did not go as planned. What did you do?"
+        ],
+        "hard": [
+          "Tell me about your biggest professional failure — what happened, and what did you change afterward?",
+          "Describe a time you drove a difficult decision through real resistance.",
+          "Tell me about the hardest conflict you have navigated on a team. How did you handle it?",
+          "Describe a time you made a high-stakes call with incomplete information.",
+          "Tell me about a time you had to influence people over whom you had no authority."
+        ]
+      },
+      "values": {
+        "easy": [
+          "What kind of mission or environment brings out your best work?",
+          "Why {company} specifically, rather than others in building financial products?",
+          "What do you care about most in the teams you join?",
+          "What does a good team culture look like to you?",
+          "What motivates you beyond the day-to-day work?"
+        ],
+        "medium": [
+          "Tell me about a time your work reflected protecting users' money and earning trust.",
+          "How do you make sure you design for correctness when money is involved?",
+          "Tell me about a time you disagreed with a decision — how did you handle it?",
+          "Describe a time you took ownership of something outside your immediate job.",
+          "When have you had to balance moving fast with doing things carefully?"
+        ],
+        "hard": [
+          "A growth feature would boost conversion but slightly increases fraud risk. How do you weigh it?",
+          "Tell me about a time the right thing and the easy thing were different — what did you do?",
+          "Describe a decision you made that you knew would be unpopular. How did you handle the fallout?",
+          "When have you pushed back on leadership or a strong stakeholder? What happened?",
+          "Tell me about a principle you will not compromise on, even under pressure."
+        ]
+      },
+      "final": {
+        "easy": [
+          "What questions do you have for us — about the team, the role, or how we work?",
+          "Is there anything you did not get to share that you would like us to know?",
+          "What is your impression of the process so far?",
+          "What are you most excited about in a role like this?",
+          "How can we help you make a good decision from here?"
+        ],
+        "medium": [
+          "Looking at your first few months at {company}, what would you want to focus on?",
+          "What would make this role a great fit for you — or not?",
+          "What do you need from a manager to do your best work?",
+          "Where do you want to grow over the next couple of years?",
+          "What would make you turn down an offer from us?"
+        ],
+        "hard": [
+          "Tell me about the hardest correctness or consistency problem you have solved — what was at stake?",
+          "Tell me about the hardest decision you have made in your work. Would you make it again?",
+          "If you joined and found things were not as described, how would you handle it?",
+          "What is a risk you took in your career that shaped how you work today?",
+          "Six months in, how would you want your teammates to describe your impact?"
+        ]
+      }
+    },
+    "crypto": {
+      "screening": {
+        "easy": [
+          "Thanks for making the time. To start, tell me a little about yourself and what you are working on these days.",
+          "What is prompting you to look at new opportunities right now?",
+          "What are you hoping to find in your next role or team?",
+          "What kind of work do you enjoy most day to day?",
+          "How did you first get into this field?"
+        ],
+        "medium": [
+          "What do you know about {company}, and what caught your interest?",
+          "What draws you to crypto and on-chain products?",
+          "What would make a next role feel like a real step up for you?",
+          "Is there anything about {company} you were hoping to learn more about today?",
+          "What kind of team environment helps you do your best work?"
+        ],
+        "hard": [
+          "Give me the short version of your background — just the parts most relevant to this role.",
+          "What is your timeline, and are you in process anywhere else?",
+          "Are there any logistics we should cover — location, work authorization, or start date?",
+          "What are you looking for in terms of scope or level next?",
+          "What would need to be true for you to say yes to a role like this?"
+        ]
+      },
+      "behavioral": {
+        "easy": [
+          "Tell me about a project or piece of work you really enjoyed. What made it satisfying?",
+          "How do you like to work with a team day to day?",
+          "Tell me about something you built or shipped that you are proud of.",
+          "What drew you to crypto and on-chain products in your past work?",
+          "Describe a time you picked up something new quickly to get a job done."
+        ],
+        "medium": [
+          "Tell me about a time you disagreed with a teammate. How did it resolve?",
+          "Describe a time you had to deliver under a tight deadline. What did you trade off?",
+          "Tell me about a time you got hard feedback. What did you do with it?",
+          "Describe a time you took ownership of something outside your role.",
+          "Tell me about a time a project did not go as planned. What did you do?"
+        ],
+        "hard": [
+          "Tell me about your biggest professional failure — what happened, and what did you change afterward?",
+          "Describe a time you drove a difficult decision through real resistance.",
+          "Tell me about the hardest conflict you have navigated on a team. How did you handle it?",
+          "Describe a time you made a high-stakes call with incomplete information.",
+          "Tell me about a time you had to influence people over whom you had no authority."
+        ]
+      },
+      "values": {
+        "easy": [
+          "What kind of mission or environment brings out your best work?",
+          "Why {company} specifically, rather than others in crypto and on-chain products?",
+          "What do you care about most in the teams you join?",
+          "What does a good team culture look like to you?",
+          "What motivates you beyond the day-to-day work?"
+        ],
+        "medium": [
+          "Tell me about a time your work reflected security-first thinking and resilience.",
+          "How do you make sure you protect against irreversible, public failures?",
+          "Tell me about a time you disagreed with a decision — how did you handle it?",
+          "Describe a time you took ownership of something outside your immediate job.",
+          "When have you had to balance moving fast with doing things carefully?"
+        ],
+        "hard": [
+          "You could ship faster by deferring a security review, and the market is hot. What do you do?",
+          "Tell me about a time the right thing and the easy thing were different — what did you do?",
+          "Describe a decision you made that you knew would be unpopular. How did you handle the fallout?",
+          "When have you pushed back on leadership or a strong stakeholder? What happened?",
+          "Tell me about a principle you will not compromise on, even under pressure."
+        ]
+      },
+      "final": {
+        "easy": [
+          "What questions do you have for us — about the team, the role, or how we work?",
+          "Is there anything you did not get to share that you would like us to know?",
+          "What is your impression of the process so far?",
+          "What are you most excited about in a role like this?",
+          "How can we help you make a good decision from here?"
+        ],
+        "medium": [
+          "Looking at your first few months at {company}, what would you want to focus on?",
+          "What would make this role a great fit for you — or not?",
+          "What do you need from a manager to do your best work?",
+          "Where do you want to grow over the next couple of years?",
+          "What would make you turn down an offer from us?"
+        ],
+        "hard": [
+          "Tell me about the most adversarial system you have built for — how did you make it safe?",
+          "Tell me about the hardest decision you have made in your work. Would you make it again?",
+          "If you joined and found things were not as described, how would you handle it?",
+          "What is a risk you took in your career that shaped how you work today?",
+          "Six months in, how would you want your teammates to describe your impact?"
+        ]
+      }
+    },
+    "ai-lab": {
+      "screening": {
+        "easy": [
+          "Thanks for making the time. To start, tell me a little about yourself and what you are working on these days.",
+          "What is prompting you to look at new opportunities right now?",
+          "What are you hoping to find in your next role or team?",
+          "What kind of work do you enjoy most day to day?",
+          "How did you first get into this field?"
+        ],
+        "medium": [
+          "What do you know about {company}, and what caught your interest?",
+          "What draws you to frontier and applied AI?",
+          "What would make a next role feel like a real step up for you?",
+          "Is there anything about {company} you were hoping to learn more about today?",
+          "What kind of team environment helps you do your best work?"
+        ],
+        "hard": [
+          "Give me the short version of your background — just the parts most relevant to this role.",
+          "What is your timeline, and are you in process anywhere else?",
+          "Are there any logistics we should cover — location, work authorization, or start date?",
+          "What are you looking for in terms of scope or level next?",
+          "What would need to be true for you to say yes to a role like this?"
+        ]
+      },
+      "behavioral": {
+        "easy": [
+          "Tell me about a project or piece of work you really enjoyed. What made it satisfying?",
+          "How do you like to work with a team day to day?",
+          "Tell me about something you built or shipped that you are proud of.",
+          "What drew you to frontier and applied AI in your past work?",
+          "Describe a time you picked up something new quickly to get a job done."
+        ],
+        "medium": [
+          "Tell me about a time you disagreed with a teammate. How did it resolve?",
+          "Describe a time you had to deliver under a tight deadline. What did you trade off?",
+          "Tell me about a time you got hard feedback. What did you do with it?",
+          "Describe a time you took ownership of something outside your role.",
+          "Tell me about a time a project did not go as planned. What did you do?"
+        ],
+        "hard": [
+          "Tell me about your biggest professional failure — what happened, and what did you change afterward?",
+          "Describe a time you drove a difficult decision through real resistance.",
+          "Tell me about the hardest conflict you have navigated on a team. How did you handle it?",
+          "Describe a time you made a high-stakes call with incomplete information.",
+          "Tell me about a time you had to influence people over whom you had no authority."
+        ]
+      },
+      "values": {
+        "easy": [
+          "What kind of mission or environment brings out your best work?",
+          "Why {company} specifically, rather than others in frontier and applied AI?",
+          "What do you care about most in the teams you join?",
+          "What does a good team culture look like to you?",
+          "What motivates you beyond the day-to-day work?"
+        ],
+        "medium": [
+          "Tell me about a time your work reflected ambition balanced with responsibility.",
+          "How do you make sure you deploy powerful capabilities responsibly?",
+          "Tell me about a time you disagreed with a decision — how did you handle it?",
+          "Describe a time you took ownership of something outside your immediate job.",
+          "When have you had to balance moving fast with doing things carefully?"
+        ],
+        "hard": [
+          "A model behavior is impressive in demos but risky at scale. How do you decide whether to ship?",
+          "Tell me about a time the right thing and the easy thing were different — what did you do?",
+          "Describe a decision you made that you knew would be unpopular. How did you handle the fallout?",
+          "When have you pushed back on leadership or a strong stakeholder? What happened?",
+          "Tell me about a principle you will not compromise on, even under pressure."
+        ]
+      },
+      "final": {
+        "easy": [
+          "What questions do you have for us — about the team, the role, or how we work?",
+          "Is there anything you did not get to share that you would like us to know?",
+          "What is your impression of the process so far?",
+          "What are you most excited about in a role like this?",
+          "How can we help you make a good decision from here?"
+        ],
+        "medium": [
+          "Looking at your first few months at {company}, what would you want to focus on?",
+          "What would make this role a great fit for you — or not?",
+          "What do you need from a manager to do your best work?",
+          "Where do you want to grow over the next couple of years?",
+          "What would make you turn down an offer from us?"
+        ],
+        "hard": [
+          "What is a strong view you hold about where AI is heading — and what would change your mind?",
+          "Tell me about the hardest decision you have made in your work. Would you make it again?",
+          "If you joined and found things were not as described, how would you handle it?",
+          "What is a risk you took in your career that shaped how you work today?",
+          "Six months in, how would you want your teammates to describe your impact?"
+        ]
+      }
+    },
+    "dev-infra": {
+      "screening": {
+        "easy": [
+          "Thanks for making the time. To start, tell me a little about yourself and what you are working on these days.",
+          "What is prompting you to look at new opportunities right now?",
+          "What are you hoping to find in your next role or team?",
+          "What kind of work do you enjoy most day to day?",
+          "How did you first get into this field?"
+        ],
+        "medium": [
+          "What do you know about {company}, and what caught your interest?",
+          "What draws you to developer tools and infrastructure?",
+          "What would make a next role feel like a real step up for you?",
+          "Is there anything about {company} you were hoping to learn more about today?",
+          "What kind of team environment helps you do your best work?"
+        ],
+        "hard": [
+          "Give me the short version of your background — just the parts most relevant to this role.",
+          "What is your timeline, and are you in process anywhere else?",
+          "Are there any logistics we should cover — location, work authorization, or start date?",
+          "What are you looking for in terms of scope or level next?",
+          "What would need to be true for you to say yes to a role like this?"
+        ]
+      },
+      "behavioral": {
+        "easy": [
+          "Tell me about a project or piece of work you really enjoyed. What made it satisfying?",
+          "How do you like to work with a team day to day?",
+          "Tell me about something you built or shipped that you are proud of.",
+          "What drew you to developer tools and infrastructure in your past work?",
+          "Describe a time you picked up something new quickly to get a job done."
+        ],
+        "medium": [
+          "Tell me about a time you disagreed with a teammate. How did it resolve?",
+          "Describe a time you had to deliver under a tight deadline. What did you trade off?",
+          "Tell me about a time you got hard feedback. What did you do with it?",
+          "Describe a time you took ownership of something outside your role.",
+          "Tell me about a time a project did not go as planned. What did you do?"
+        ],
+        "hard": [
+          "Tell me about your biggest professional failure — what happened, and what did you change afterward?",
+          "Describe a time you drove a difficult decision through real resistance.",
+          "Tell me about the hardest conflict you have navigated on a team. How did you handle it?",
+          "Describe a time you made a high-stakes call with incomplete information.",
+          "Tell me about a time you had to influence people over whom you had no authority."
+        ]
+      },
+      "values": {
+        "easy": [
+          "What kind of mission or environment brings out your best work?",
+          "Why {company} specifically, rather than others in developer tools and infrastructure?",
+          "What do you care about most in the teams you join?",
+          "What does a good team culture look like to you?",
+          "What motivates you beyond the day-to-day work?"
+        ],
+        "medium": [
+          "Tell me about a time your work reflected reliability and craft for the developers who depend on you.",
+          "How do you make sure you do not break the people building on your APIs?",
+          "Tell me about a time you disagreed with a decision — how did you handle it?",
+          "Describe a time you took ownership of something outside your immediate job.",
+          "When have you had to balance moving fast with doing things carefully?"
+        ],
+        "hard": [
+          "You need to change an API that customers cannot easily migrate off. How do you approach it?",
+          "Tell me about a time the right thing and the easy thing were different — what did you do?",
+          "Describe a decision you made that you knew would be unpopular. How did you handle the fallout?",
+          "When have you pushed back on leadership or a strong stakeholder? What happened?",
+          "Tell me about a principle you will not compromise on, even under pressure."
+        ]
+      },
+      "final": {
+        "easy": [
+          "What questions do you have for us — about the team, the role, or how we work?",
+          "Is there anything you did not get to share that you would like us to know?",
+          "What is your impression of the process so far?",
+          "What are you most excited about in a role like this?",
+          "How can we help you make a good decision from here?"
+        ],
+        "medium": [
+          "Looking at your first few months at {company}, what would you want to focus on?",
+          "What would make this role a great fit for you — or not?",
+          "What do you need from a manager to do your best work?",
+          "Where do you want to grow over the next couple of years?",
+          "What would make you turn down an offer from us?"
+        ],
+        "hard": [
+          "Tell me about the hardest reliability or scaling problem you have owned.",
+          "Tell me about the hardest decision you have made in your work. Would you make it again?",
+          "If you joined and found things were not as described, how would you handle it?",
+          "What is a risk you took in your career that shaped how you work today?",
+          "Six months in, how would you want your teammates to describe your impact?"
+        ]
+      }
+    },
+    "enterprise-saas": {
+      "screening": {
+        "easy": [
+          "Thanks for making the time. To start, tell me a little about yourself and what you are working on these days.",
+          "What is prompting you to look at new opportunities right now?",
+          "What are you hoping to find in your next role or team?",
+          "What kind of work do you enjoy most day to day?",
+          "How did you first get into this field?"
+        ],
+        "medium": [
+          "What do you know about {company}, and what caught your interest?",
+          "What draws you to enterprise and B2B software?",
+          "What would make a next role feel like a real step up for you?",
+          "Is there anything about {company} you were hoping to learn more about today?",
+          "What kind of team environment helps you do your best work?"
+        ],
+        "hard": [
+          "Give me the short version of your background — just the parts most relevant to this role.",
+          "What is your timeline, and are you in process anywhere else?",
+          "Are there any logistics we should cover — location, work authorization, or start date?",
+          "What are you looking for in terms of scope or level next?",
+          "What would need to be true for you to say yes to a role like this?"
+        ]
+      },
+      "behavioral": {
+        "easy": [
+          "Tell me about a project or piece of work you really enjoyed. What made it satisfying?",
+          "How do you like to work with a team day to day?",
+          "Tell me about something you built or shipped that you are proud of.",
+          "What drew you to enterprise and B2B software in your past work?",
+          "Describe a time you picked up something new quickly to get a job done."
+        ],
+        "medium": [
+          "Tell me about a time you disagreed with a teammate. How did it resolve?",
+          "Describe a time you had to deliver under a tight deadline. What did you trade off?",
+          "Tell me about a time you got hard feedback. What did you do with it?",
+          "Describe a time you took ownership of something outside your role.",
+          "Tell me about a time a project did not go as planned. What did you do?"
+        ],
+        "hard": [
+          "Tell me about your biggest professional failure — what happened, and what did you change afterward?",
+          "Describe a time you drove a difficult decision through real resistance.",
+          "Tell me about the hardest conflict you have navigated on a team. How did you handle it?",
+          "Describe a time you made a high-stakes call with incomplete information.",
+          "Tell me about a time you had to influence people over whom you had no authority."
+        ]
+      },
+      "values": {
+        "easy": [
+          "What kind of mission or environment brings out your best work?",
+          "Why {company} specifically, rather than others in enterprise and B2B software?",
+          "What do you care about most in the teams you join?",
+          "What does a good team culture look like to you?",
+          "What motivates you beyond the day-to-day work?"
+        ],
+        "medium": [
+          "Tell me about a time your work reflected customer focus and cross-functional judgment.",
+          "How do you make sure you build what customers actually need?",
+          "Tell me about a time you disagreed with a decision — how did you handle it?",
+          "Describe a time you took ownership of something outside your immediate job.",
+          "When have you had to balance moving fast with doing things carefully?"
+        ],
+        "hard": [
+          "A big customer demands a feature that is wrong for the broader product. How do you handle it?",
+          "Tell me about a time the right thing and the easy thing were different — what did you do?",
+          "Describe a decision you made that you knew would be unpopular. How did you handle the fallout?",
+          "When have you pushed back on leadership or a strong stakeholder? What happened?",
+          "Tell me about a principle you will not compromise on, even under pressure."
+        ]
+      },
+      "final": {
+        "easy": [
+          "What questions do you have for us — about the team, the role, or how we work?",
+          "Is there anything you did not get to share that you would like us to know?",
+          "What is your impression of the process so far?",
+          "What are you most excited about in a role like this?",
+          "How can we help you make a good decision from here?"
+        ],
+        "medium": [
+          "Looking at your first few months at {company}, what would you want to focus on?",
+          "What would make this role a great fit for you — or not?",
+          "What do you need from a manager to do your best work?",
+          "Where do you want to grow over the next couple of years?",
+          "What would make you turn down an offer from us?"
+        ],
+        "hard": [
+          "Tell me about a time you shipped something that measurably improved customers' outcomes.",
+          "Tell me about the hardest decision you have made in your work. Would you make it again?",
+          "If you joined and found things were not as described, how would you handle it?",
+          "What is a risk you took in your career that shaped how you work today?",
+          "Six months in, how would you want your teammates to describe your impact?"
+        ]
+      }
+    },
+    "cybersecurity": {
+      "screening": {
+        "easy": [
+          "Thanks for making the time. To start, tell me a little about yourself and what you are working on these days.",
+          "What is prompting you to look at new opportunities right now?",
+          "What are you hoping to find in your next role or team?",
+          "What kind of work do you enjoy most day to day?",
+          "How did you first get into this field?"
+        ],
+        "medium": [
+          "What do you know about {company}, and what caught your interest?",
+          "What draws you to security?",
+          "What would make a next role feel like a real step up for you?",
+          "Is there anything about {company} you were hoping to learn more about today?",
+          "What kind of team environment helps you do your best work?"
+        ],
+        "hard": [
+          "Give me the short version of your background — just the parts most relevant to this role.",
+          "What is your timeline, and are you in process anywhere else?",
+          "Are there any logistics we should cover — location, work authorization, or start date?",
+          "What are you looking for in terms of scope or level next?",
+          "What would need to be true for you to say yes to a role like this?"
+        ]
+      },
+      "behavioral": {
+        "easy": [
+          "Tell me about a project or piece of work you really enjoyed. What made it satisfying?",
+          "How do you like to work with a team day to day?",
+          "Tell me about something you built or shipped that you are proud of.",
+          "What drew you to security in your past work?",
+          "Describe a time you picked up something new quickly to get a job done."
+        ],
+        "medium": [
+          "Tell me about a time you disagreed with a teammate. How did it resolve?",
+          "Describe a time you had to deliver under a tight deadline. What did you trade off?",
+          "Tell me about a time you got hard feedback. What did you do with it?",
+          "Describe a time you took ownership of something outside your role.",
+          "Tell me about a time a project did not go as planned. What did you do?"
+        ],
+        "hard": [
+          "Tell me about your biggest professional failure — what happened, and what did you change afterward?",
+          "Describe a time you drove a difficult decision through real resistance.",
+          "Tell me about the hardest conflict you have navigated on a team. How did you handle it?",
+          "Describe a time you made a high-stakes call with incomplete information.",
+          "Tell me about a time you had to influence people over whom you had no authority."
+        ]
+      },
+      "values": {
+        "easy": [
+          "What kind of mission or environment brings out your best work?",
+          "Why {company} specifically, rather than others in security?",
+          "What do you care about most in the teams you join?",
+          "What does a good team culture look like to you?",
+          "What motivates you beyond the day-to-day work?"
+        ],
+        "medium": [
+          "Tell me about a time your work reflected adversarial thinking and integrity.",
+          "How do you make sure you weigh security rigor against usability and speed?",
+          "Tell me about a time you disagreed with a decision — how did you handle it?",
+          "Describe a time you took ownership of something outside your immediate job.",
+          "When have you had to balance moving fast with doing things carefully?"
+        ],
+        "hard": [
+          "You find a serious risk right before a launch. Do you block it? Walk me through your thinking.",
+          "Tell me about a time the right thing and the easy thing were different — what did you do?",
+          "Describe a decision you made that you knew would be unpopular. How did you handle the fallout?",
+          "When have you pushed back on leadership or a strong stakeholder? What happened?",
+          "Tell me about a principle you will not compromise on, even under pressure."
+        ]
+      },
+      "final": {
+        "easy": [
+          "What questions do you have for us — about the team, the role, or how we work?",
+          "Is there anything you did not get to share that you would like us to know?",
+          "What is your impression of the process so far?",
+          "What are you most excited about in a role like this?",
+          "How can we help you make a good decision from here?"
+        ],
+        "medium": [
+          "Looking at your first few months at {company}, what would you want to focus on?",
+          "What would make this role a great fit for you — or not?",
+          "What do you need from a manager to do your best work?",
+          "Where do you want to grow over the next couple of years?",
+          "What would make you turn down an offer from us?"
+        ],
+        "hard": [
+          "Tell me about the most serious incident or vulnerability you have handled.",
+          "Tell me about the hardest decision you have made in your work. Would you make it again?",
+          "If you joined and found things were not as described, how would you handle it?",
+          "What is a risk you took in your career that shaped how you work today?",
+          "Six months in, how would you want your teammates to describe your impact?"
+        ]
+      }
+    },
+    "consumer": {
+      "screening": {
+        "easy": [
+          "Thanks for making the time. To start, tell me a little about yourself and what you are working on these days.",
+          "What is prompting you to look at new opportunities right now?",
+          "What are you hoping to find in your next role or team?",
+          "What kind of work do you enjoy most day to day?",
+          "How did you first get into this field?"
+        ],
+        "medium": [
+          "What do you know about {company}, and what caught your interest?",
+          "What draws you to consumer products?",
+          "What would make a next role feel like a real step up for you?",
+          "Is there anything about {company} you were hoping to learn more about today?",
+          "What kind of team environment helps you do your best work?"
+        ],
+        "hard": [
+          "Give me the short version of your background — just the parts most relevant to this role.",
+          "What is your timeline, and are you in process anywhere else?",
+          "Are there any logistics we should cover — location, work authorization, or start date?",
+          "What are you looking for in terms of scope or level next?",
+          "What would need to be true for you to say yes to a role like this?"
+        ]
+      },
+      "behavioral": {
+        "easy": [
+          "Tell me about a project or piece of work you really enjoyed. What made it satisfying?",
+          "How do you like to work with a team day to day?",
+          "Tell me about something you built or shipped that you are proud of.",
+          "What drew you to consumer products in your past work?",
+          "Describe a time you picked up something new quickly to get a job done."
+        ],
+        "medium": [
+          "Tell me about a time you disagreed with a teammate. How did it resolve?",
+          "Describe a time you had to deliver under a tight deadline. What did you trade off?",
+          "Tell me about a time you got hard feedback. What did you do with it?",
+          "Describe a time you took ownership of something outside your role.",
+          "Tell me about a time a project did not go as planned. What did you do?"
+        ],
+        "hard": [
+          "Tell me about your biggest professional failure — what happened, and what did you change afterward?",
+          "Describe a time you drove a difficult decision through real resistance.",
+          "Tell me about the hardest conflict you have navigated on a team. How did you handle it?",
+          "Describe a time you made a high-stakes call with incomplete information.",
+          "Tell me about a time you had to influence people over whom you had no authority."
+        ]
+      },
+      "values": {
+        "easy": [
+          "What kind of mission or environment brings out your best work?",
+          "Why {company} specifically, rather than others in consumer products?",
+          "What do you care about most in the teams you join?",
+          "What does a good team culture look like to you?",
+          "What motivates you beyond the day-to-day work?"
+        ],
+        "medium": [
+          "Tell me about a time your work reflected user empathy and healthy engagement.",
+          "How do you make sure you balance growth with users' wellbeing and trust?",
+          "Tell me about a time you disagreed with a decision — how did you handle it?",
+          "Describe a time you took ownership of something outside your immediate job.",
+          "When have you had to balance moving fast with doing things carefully?"
+        ],
+        "hard": [
+          "A change boosts engagement but nudges users in a way you are not sure is good for them. What do you do?",
+          "Tell me about a time the right thing and the easy thing were different — what did you do?",
+          "Describe a decision you made that you knew would be unpopular. How did you handle the fallout?",
+          "When have you pushed back on leadership or a strong stakeholder? What happened?",
+          "Tell me about a principle you will not compromise on, even under pressure."
+        ]
+      },
+      "final": {
+        "easy": [
+          "What questions do you have for us — about the team, the role, or how we work?",
+          "Is there anything you did not get to share that you would like us to know?",
+          "What is your impression of the process so far?",
+          "What are you most excited about in a role like this?",
+          "How can we help you make a good decision from here?"
+        ],
+        "medium": [
+          "Looking at your first few months at {company}, what would you want to focus on?",
+          "What would make this role a great fit for you — or not?",
+          "What do you need from a manager to do your best work?",
+          "Where do you want to grow over the next couple of years?",
+          "What would make you turn down an offer from us?"
+        ],
+        "hard": [
+          "Tell me about a product decision you are proud of — and one you would redo.",
+          "Tell me about the hardest decision you have made in your work. Would you make it again?",
+          "If you joined and found things were not as described, how would you handle it?",
+          "What is a risk you took in your career that shaped how you work today?",
+          "Six months in, how would you want your teammates to describe your impact?"
+        ]
+      }
+    },
+    "marketplace": {
+      "screening": {
+        "easy": [
+          "Thanks for making the time. To start, tell me a little about yourself and what you are working on these days.",
+          "What is prompting you to look at new opportunities right now?",
+          "What are you hoping to find in your next role or team?",
+          "What kind of work do you enjoy most day to day?",
+          "How did you first get into this field?"
+        ],
+        "medium": [
+          "What do you know about {company}, and what caught your interest?",
+          "What draws you to marketplaces and commerce?",
+          "What would make a next role feel like a real step up for you?",
+          "Is there anything about {company} you were hoping to learn more about today?",
+          "What kind of team environment helps you do your best work?"
+        ],
+        "hard": [
+          "Give me the short version of your background — just the parts most relevant to this role.",
+          "What is your timeline, and are you in process anywhere else?",
+          "Are there any logistics we should cover — location, work authorization, or start date?",
+          "What are you looking for in terms of scope or level next?",
+          "What would need to be true for you to say yes to a role like this?"
+        ]
+      },
+      "behavioral": {
+        "easy": [
+          "Tell me about a project or piece of work you really enjoyed. What made it satisfying?",
+          "How do you like to work with a team day to day?",
+          "Tell me about something you built or shipped that you are proud of.",
+          "What drew you to marketplaces and commerce in your past work?",
+          "Describe a time you picked up something new quickly to get a job done."
+        ],
+        "medium": [
+          "Tell me about a time you disagreed with a teammate. How did it resolve?",
+          "Describe a time you had to deliver under a tight deadline. What did you trade off?",
+          "Tell me about a time you got hard feedback. What did you do with it?",
+          "Describe a time you took ownership of something outside your role.",
+          "Tell me about a time a project did not go as planned. What did you do?"
+        ],
+        "hard": [
+          "Tell me about your biggest professional failure — what happened, and what did you change afterward?",
+          "Describe a time you drove a difficult decision through real resistance.",
+          "Tell me about the hardest conflict you have navigated on a team. How did you handle it?",
+          "Describe a time you made a high-stakes call with incomplete information.",
+          "Tell me about a time you had to influence people over whom you had no authority."
+        ]
+      },
+      "values": {
+        "easy": [
+          "What kind of mission or environment brings out your best work?",
+          "Why {company} specifically, rather than others in marketplaces and commerce?",
+          "What do you care about most in the teams you join?",
+          "What does a good team culture look like to you?",
+          "What motivates you beyond the day-to-day work?"
+        ],
+        "medium": [
+          "Tell me about a time your work reflected balancing both sides and building trust.",
+          "How do you make sure you keep supply and demand fair and safe?",
+          "Tell me about a time you disagreed with a decision — how did you handle it?",
+          "Describe a time you took ownership of something outside your immediate job.",
+          "When have you had to balance moving fast with doing things carefully?"
+        ],
+        "hard": [
+          "A fix helps buyers but hurts sellers (or vice versa). How do you decide?",
+          "Tell me about a time the right thing and the easy thing were different — what did you do?",
+          "Describe a decision you made that you knew would be unpopular. How did you handle the fallout?",
+          "When have you pushed back on leadership or a strong stakeholder? What happened?",
+          "Tell me about a principle you will not compromise on, even under pressure."
+        ]
+      },
+      "final": {
+        "easy": [
+          "What questions do you have for us — about the team, the role, or how we work?",
+          "Is there anything you did not get to share that you would like us to know?",
+          "What is your impression of the process so far?",
+          "What are you most excited about in a role like this?",
+          "How can we help you make a good decision from here?"
+        ],
+        "medium": [
+          "Looking at your first few months at {company}, what would you want to focus on?",
+          "What would make this role a great fit for you — or not?",
+          "What do you need from a manager to do your best work?",
+          "Where do you want to grow over the next couple of years?",
+          "What would make you turn down an offer from us?"
+        ],
+        "hard": [
+          "Tell me about the most operationally messy problem you have solved at scale.",
+          "Tell me about the hardest decision you have made in your work. Would you make it again?",
+          "If you joined and found things were not as described, how would you handle it?",
+          "What is a risk you took in your career that shaped how you work today?",
+          "Six months in, how would you want your teammates to describe your impact?"
+        ]
+      }
+    },
+    "gaming": {
+      "screening": {
+        "easy": [
+          "Thanks for making the time. To start, tell me a little about yourself and what you are working on these days.",
+          "What is prompting you to look at new opportunities right now?",
+          "What are you hoping to find in your next role or team?",
+          "What kind of work do you enjoy most day to day?",
+          "How did you first get into this field?"
+        ],
+        "medium": [
+          "What do you know about {company}, and what caught your interest?",
+          "What draws you to games and real-time systems?",
+          "What would make a next role feel like a real step up for you?",
+          "Is there anything about {company} you were hoping to learn more about today?",
+          "What kind of team environment helps you do your best work?"
+        ],
+        "hard": [
+          "Give me the short version of your background — just the parts most relevant to this role.",
+          "What is your timeline, and are you in process anywhere else?",
+          "Are there any logistics we should cover — location, work authorization, or start date?",
+          "What are you looking for in terms of scope or level next?",
+          "What would need to be true for you to say yes to a role like this?"
+        ]
+      },
+      "behavioral": {
+        "easy": [
+          "Tell me about a project or piece of work you really enjoyed. What made it satisfying?",
+          "How do you like to work with a team day to day?",
+          "Tell me about something you built or shipped that you are proud of.",
+          "What drew you to games and real-time systems in your past work?",
+          "Describe a time you picked up something new quickly to get a job done."
+        ],
+        "medium": [
+          "Tell me about a time you disagreed with a teammate. How did it resolve?",
+          "Describe a time you had to deliver under a tight deadline. What did you trade off?",
+          "Tell me about a time you got hard feedback. What did you do with it?",
+          "Describe a time you took ownership of something outside your role.",
+          "Tell me about a time a project did not go as planned. What did you do?"
+        ],
+        "hard": [
+          "Tell me about your biggest professional failure — what happened, and what did you change afterward?",
+          "Describe a time you drove a difficult decision through real resistance.",
+          "Tell me about the hardest conflict you have navigated on a team. How did you handle it?",
+          "Describe a time you made a high-stakes call with incomplete information.",
+          "Tell me about a time you had to influence people over whom you had no authority."
+        ]
+      },
+      "values": {
+        "easy": [
+          "What kind of mission or environment brings out your best work?",
+          "Why {company} specifically, rather than others in games and real-time systems?",
+          "What do you care about most in the teams you join?",
+          "What does a good team culture look like to you?",
+          "What motivates you beyond the day-to-day work?"
+        ],
+        "medium": [
+          "Tell me about a time your work reflected craft, performance, and love of the player experience.",
+          "How do you make sure you balance polish against a hard launch date?",
+          "Tell me about a time you disagreed with a decision — how did you handle it?",
+          "Describe a time you took ownership of something outside your immediate job.",
+          "When have you had to balance moving fast with doing things carefully?"
+        ],
+        "hard": [
+          "The game is fun but a feature is over budget on performance. How do you decide what to cut?",
+          "Tell me about a time the right thing and the easy thing were different — what did you do?",
+          "Describe a decision you made that you knew would be unpopular. How did you handle the fallout?",
+          "When have you pushed back on leadership or a strong stakeholder? What happened?",
+          "Tell me about a principle you will not compromise on, even under pressure."
+        ]
+      },
+      "final": {
+        "easy": [
+          "What questions do you have for us — about the team, the role, or how we work?",
+          "Is there anything you did not get to share that you would like us to know?",
+          "What is your impression of the process so far?",
+          "What are you most excited about in a role like this?",
+          "How can we help you make a good decision from here?"
+        ],
+        "medium": [
+          "Looking at your first few months at {company}, what would you want to focus on?",
+          "What would make this role a great fit for you — or not?",
+          "What do you need from a manager to do your best work?",
+          "Where do you want to grow over the next couple of years?",
+          "What would make you turn down an offer from us?"
+        ],
+        "hard": [
+          "Tell me about the most satisfying thing you have shipped in games or real-time systems.",
+          "Tell me about the hardest decision you have made in your work. Would you make it again?",
+          "If you joined and found things were not as described, how would you handle it?",
+          "What is a risk you took in your career that shaped how you work today?",
+          "Six months in, how would you want your teammates to describe your impact?"
+        ]
+      }
+    },
+    "hardware": {
+      "screening": {
+        "easy": [
+          "Thanks for making the time. To start, tell me a little about yourself and what you are working on these days.",
+          "What is prompting you to look at new opportunities right now?",
+          "What are you hoping to find in your next role or team?",
+          "What kind of work do you enjoy most day to day?",
+          "How did you first get into this field?"
+        ],
+        "medium": [
+          "What do you know about {company}, and what caught your interest?",
+          "What draws you to hardware and systems?",
+          "What would make a next role feel like a real step up for you?",
+          "Is there anything about {company} you were hoping to learn more about today?",
+          "What kind of team environment helps you do your best work?"
+        ],
+        "hard": [
+          "Give me the short version of your background — just the parts most relevant to this role.",
+          "What is your timeline, and are you in process anywhere else?",
+          "Are there any logistics we should cover — location, work authorization, or start date?",
+          "What are you looking for in terms of scope or level next?",
+          "What would need to be true for you to say yes to a role like this?"
+        ]
+      },
+      "behavioral": {
+        "easy": [
+          "Tell me about a project or piece of work you really enjoyed. What made it satisfying?",
+          "How do you like to work with a team day to day?",
+          "Tell me about something you built or shipped that you are proud of.",
+          "What drew you to hardware and systems in your past work?",
+          "Describe a time you picked up something new quickly to get a job done."
+        ],
+        "medium": [
+          "Tell me about a time you disagreed with a teammate. How did it resolve?",
+          "Describe a time you had to deliver under a tight deadline. What did you trade off?",
+          "Tell me about a time you got hard feedback. What did you do with it?",
+          "Describe a time you took ownership of something outside your role.",
+          "Tell me about a time a project did not go as planned. What did you do?"
+        ],
+        "hard": [
+          "Tell me about your biggest professional failure — what happened, and what did you change afterward?",
+          "Describe a time you drove a difficult decision through real resistance.",
+          "Tell me about the hardest conflict you have navigated on a team. How did you handle it?",
+          "Describe a time you made a high-stakes call with incomplete information.",
+          "Tell me about a time you had to influence people over whom you had no authority."
+        ]
+      },
+      "values": {
+        "easy": [
+          "What kind of mission or environment brings out your best work?",
+          "Why {company} specifically, rather than others in hardware and systems?",
+          "What do you care about most in the teams you join?",
+          "What does a good team culture look like to you?",
+          "What motivates you beyond the day-to-day work?"
+        ],
+        "medium": [
+          "Tell me about a time your work reflected first-principles rigor and precision.",
+          "How do you make sure you make decisions you cannot cheaply undo later?",
+          "Tell me about a time you disagreed with a decision — how did you handle it?",
+          "Describe a time you took ownership of something outside your immediate job.",
+          "When have you had to balance moving fast with doing things carefully?"
+        ],
+        "hard": [
+          "A cleaner design is harder to manufacture and costs more. How do you weigh it?",
+          "Tell me about a time the right thing and the easy thing were different — what did you do?",
+          "Describe a decision you made that you knew would be unpopular. How did you handle the fallout?",
+          "When have you pushed back on leadership or a strong stakeholder? What happened?",
+          "Tell me about a principle you will not compromise on, even under pressure."
+        ]
+      },
+      "final": {
+        "easy": [
+          "What questions do you have for us — about the team, the role, or how we work?",
+          "Is there anything you did not get to share that you would like us to know?",
+          "What is your impression of the process so far?",
+          "What are you most excited about in a role like this?",
+          "How can we help you make a good decision from here?"
+        ],
+        "medium": [
+          "Looking at your first few months at {company}, what would you want to focus on?",
+          "What would make this role a great fit for you — or not?",
+          "What do you need from a manager to do your best work?",
+          "Where do you want to grow over the next couple of years?",
+          "What would make you turn down an offer from us?"
+        ],
+        "hard": [
+          "Tell me about the most constrained system you have optimized — how did you approach it?",
+          "Tell me about the hardest decision you have made in your work. Would you make it again?",
+          "If you joined and found things were not as described, how would you handle it?",
+          "What is a risk you took in your career that shaped how you work today?",
+          "Six months in, how would you want your teammates to describe your impact?"
+        ]
+      }
+    },
+    "deep-tech": {
+      "screening": {
+        "easy": [
+          "Thanks for making the time. To start, tell me a little about yourself and what you are working on these days.",
+          "What is prompting you to look at new opportunities right now?",
+          "What are you hoping to find in your next role or team?",
+          "What kind of work do you enjoy most day to day?",
+          "How did you first get into this field?"
+        ],
+        "medium": [
+          "What do you know about {company}, and what caught your interest?",
+          "What draws you to this mission?",
+          "What would make a next role feel like a real step up for you?",
+          "Is there anything about {company} you were hoping to learn more about today?",
+          "What kind of team environment helps you do your best work?"
+        ],
+        "hard": [
+          "Give me the short version of your background — just the parts most relevant to this role.",
+          "What is your timeline, and are you in process anywhere else?",
+          "Are there any logistics we should cover — location, work authorization, or start date?",
+          "What are you looking for in terms of scope or level next?",
+          "What would need to be true for you to say yes to a role like this?"
+        ]
+      },
+      "behavioral": {
+        "easy": [
+          "Tell me about a project or piece of work you really enjoyed. What made it satisfying?",
+          "How do you like to work with a team day to day?",
+          "Tell me about something you built or shipped that you are proud of.",
+          "What drew you to this mission in your past work?",
+          "Describe a time you picked up something new quickly to get a job done."
+        ],
+        "medium": [
+          "Tell me about a time you disagreed with a teammate. How did it resolve?",
+          "Describe a time you had to deliver under a tight deadline. What did you trade off?",
+          "Tell me about a time you got hard feedback. What did you do with it?",
+          "Describe a time you took ownership of something outside your role.",
+          "Tell me about a time a project did not go as planned. What did you do?"
+        ],
+        "hard": [
+          "Tell me about your biggest professional failure — what happened, and what did you change afterward?",
+          "Describe a time you drove a difficult decision through real resistance.",
+          "Tell me about the hardest conflict you have navigated on a team. How did you handle it?",
+          "Describe a time you made a high-stakes call with incomplete information.",
+          "Tell me about a time you had to influence people over whom you had no authority."
+        ]
+      },
+      "values": {
+        "easy": [
+          "What kind of mission or environment brings out your best work?",
+          "Why {company} specifically, rather than others in this mission?",
+          "What do you care about most in the teams you join?",
+          "What does a good team culture look like to you?",
+          "What motivates you beyond the day-to-day work?"
+        ],
+        "medium": [
+          "Tell me about a time your work reflected mission focus and extreme ownership.",
+          "How do you make sure you balance moving fast with the reliability the mission demands?",
+          "Tell me about a time you disagreed with a decision — how did you handle it?",
+          "Describe a time you took ownership of something outside your immediate job.",
+          "When have you had to balance moving fast with doing things carefully?"
+        ],
+        "hard": [
+          "You are on a hard problem no one has solved, with real stakes if it fails. How do you proceed responsibly?",
+          "Tell me about a time the right thing and the easy thing were different — what did you do?",
+          "Describe a decision you made that you knew would be unpopular. How did you handle the fallout?",
+          "When have you pushed back on leadership or a strong stakeholder? What happened?",
+          "Tell me about a principle you will not compromise on, even under pressure."
+        ]
+      },
+      "final": {
+        "easy": [
+          "What questions do you have for us — about the team, the role, or how we work?",
+          "Is there anything you did not get to share that you would like us to know?",
+          "What is your impression of the process so far?",
+          "What are you most excited about in a role like this?",
+          "How can we help you make a good decision from here?"
+        ],
+        "medium": [
+          "Looking at your first few months at {company}, what would you want to focus on?",
+          "What would make this role a great fit for you — or not?",
+          "What do you need from a manager to do your best work?",
+          "Where do you want to grow over the next couple of years?",
+          "What would make you turn down an offer from us?"
+        ],
+        "hard": [
+          "Tell me about the hardest first-principles problem you have solved.",
+          "Tell me about the hardest decision you have made in your work. Would you make it again?",
+          "If you joined and found things were not as described, how would you handle it?",
+          "What is a risk you took in your career that shaped how you work today?",
+          "Six months in, how would you want your teammates to describe your impact?"
+        ]
+      }
+    },
+    "healthcare": {
+      "screening": {
+        "easy": [
+          "Thanks for making the time. To start, tell me a little about yourself and what you are working on these days.",
+          "What is prompting you to look at new opportunities right now?",
+          "What are you hoping to find in your next role or team?",
+          "What kind of work do you enjoy most day to day?",
+          "How did you first get into this field?"
+        ],
+        "medium": [
+          "What do you know about {company}, and what caught your interest?",
+          "What draws you to health and clinical technology?",
+          "What would make a next role feel like a real step up for you?",
+          "Is there anything about {company} you were hoping to learn more about today?",
+          "What kind of team environment helps you do your best work?"
+        ],
+        "hard": [
+          "Give me the short version of your background — just the parts most relevant to this role.",
+          "What is your timeline, and are you in process anywhere else?",
+          "Are there any logistics we should cover — location, work authorization, or start date?",
+          "What are you looking for in terms of scope or level next?",
+          "What would need to be true for you to say yes to a role like this?"
+        ]
+      },
+      "behavioral": {
+        "easy": [
+          "Tell me about a project or piece of work you really enjoyed. What made it satisfying?",
+          "How do you like to work with a team day to day?",
+          "Tell me about something you built or shipped that you are proud of.",
+          "What drew you to health and clinical technology in your past work?",
+          "Describe a time you picked up something new quickly to get a job done."
+        ],
+        "medium": [
+          "Tell me about a time you disagreed with a teammate. How did it resolve?",
+          "Describe a time you had to deliver under a tight deadline. What did you trade off?",
+          "Tell me about a time you got hard feedback. What did you do with it?",
+          "Describe a time you took ownership of something outside your role.",
+          "Tell me about a time a project did not go as planned. What did you do?"
+        ],
+        "hard": [
+          "Tell me about your biggest professional failure — what happened, and what did you change afterward?",
+          "Describe a time you drove a difficult decision through real resistance.",
+          "Tell me about the hardest conflict you have navigated on a team. How did you handle it?",
+          "Describe a time you made a high-stakes call with incomplete information.",
+          "Tell me about a time you had to influence people over whom you had no authority."
+        ]
+      },
+      "values": {
+        "easy": [
+          "What kind of mission or environment brings out your best work?",
+          "Why {company} specifically, rather than others in health and clinical technology?",
+          "What do you care about most in the teams you join?",
+          "What does a good team culture look like to you?",
+          "What motivates you beyond the day-to-day work?"
+        ],
+        "medium": [
+          "Tell me about a time your work reflected care for patients and respect for privacy.",
+          "How do you make sure you protect sensitive data and get it exactly right?",
+          "Tell me about a time you disagreed with a decision — how did you handle it?",
+          "Describe a time you took ownership of something outside your immediate job.",
+          "When have you had to balance moving fast with doing things carefully?"
+        ],
+        "hard": [
+          "A faster approach would move quicker but weakens a privacy safeguard. What do you do?",
+          "Tell me about a time the right thing and the easy thing were different — what did you do?",
+          "Describe a decision you made that you knew would be unpopular. How did you handle the fallout?",
+          "When have you pushed back on leadership or a strong stakeholder? What happened?",
+          "Tell me about a principle you will not compromise on, even under pressure."
+        ]
+      },
+      "final": {
+        "easy": [
+          "What questions do you have for us — about the team, the role, or how we work?",
+          "Is there anything you did not get to share that you would like us to know?",
+          "What is your impression of the process so far?",
+          "What are you most excited about in a role like this?",
+          "How can we help you make a good decision from here?"
+        ],
+        "medium": [
+          "Looking at your first few months at {company}, what would you want to focus on?",
+          "What would make this role a great fit for you — or not?",
+          "What do you need from a manager to do your best work?",
+          "Where do you want to grow over the next couple of years?",
+          "What would make you turn down an offer from us?"
+        ],
+        "hard": [
+          "Tell me about a time getting something exactly right mattered more than shipping fast.",
+          "Tell me about the hardest decision you have made in your work. Would you make it again?",
+          "If you joined and found things were not as described, how would you handle it?",
+          "What is a risk you took in your career that shaped how you work today?",
+          "Six months in, how would you want your teammates to describe your impact?"
+        ]
+      }
+    }
+  },
+  "systemDesignOrder": {
+    "big-tech": [
+      "twitter",
+      "news-feed",
+      "rate-limiter",
+      "url-shortener",
+      "discord"
+    ],
+    "quant-trading": [
+      "rate-limiter",
+      "discord",
+      "url-shortener",
+      "twitter",
+      "news-feed"
+    ],
+    "finance": [
+      "rate-limiter",
+      "personal-finance",
+      "url-shortener",
+      "twitter",
+      "news-feed"
+    ],
+    "fintech": [
+      "personal-finance",
+      "rate-limiter",
+      "url-shortener",
+      "event-ticketing",
+      "encrypted-messenger"
+    ],
+    "crypto": [
+      "encrypted-messenger",
+      "rate-limiter",
+      "personal-finance",
+      "url-shortener",
+      "discord"
+    ],
+    "ai-lab": [
+      "news-feed",
+      "translation-camera",
+      "rate-limiter",
+      "twitter",
+      "url-shortener"
+    ],
+    "dev-infra": [
+      "rate-limiter",
+      "url-shortener",
+      "discord",
+      "twitter",
+      "news-feed"
+    ],
+    "enterprise-saas": [
+      "rate-limiter",
+      "url-shortener",
+      "twitter",
+      "news-feed",
+      "event-ticketing"
+    ],
+    "cybersecurity": [
+      "encrypted-messenger",
+      "rate-limiter",
+      "url-shortener",
+      "discord",
+      "twitter"
+    ],
+    "consumer": [
+      "news-feed",
+      "twitter",
+      "discord",
+      "encrypted-messenger",
+      "manga-reader"
+    ],
+    "marketplace": [
+      "bike-share",
+      "event-ticketing",
+      "travel-booking",
+      "dating-app",
+      "news-feed"
+    ],
+    "gaming": [
+      "discord",
+      "event-ticketing",
+      "news-feed",
+      "rate-limiter",
+      "twitter"
+    ],
+    "hardware": [
+      "smart-home-hub",
+      "sky-map-ar",
+      "translation-camera",
+      "rate-limiter",
+      "mobile-browser"
+    ],
+    "deep-tech": [
+      "smart-home-hub",
+      "rate-limiter",
+      "encrypted-messenger",
+      "url-shortener",
+      "public-transit"
+    ],
+    "healthcare": [
+      "personal-finance",
+      "encrypted-messenger",
+      "fitness-coach",
+      "rate-limiter",
+      "url-shortener"
+    ]
+  }
+}
