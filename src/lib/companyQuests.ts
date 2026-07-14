@@ -1,5 +1,13 @@
 import { LocalInterviewGuide, buildLocalInterviewGuidePrompt, getGuideQuestionPool } from './localInterviewGuides';
 import { normalizeScore } from './gamification';
+import {
+  CompanyCategory,
+  getCompanyCategory,
+  getCategoryStageQuestions,
+  isCategoryStageKind,
+  resolveQuestDifficulty,
+  CATEGORY_SYSTEM_DESIGN_ORDER,
+} from './companyCategories';
 
 export type QuestStageKind =
   | 'screening'
@@ -102,14 +110,73 @@ export const buildQuestStagePrompt = (guide: LocalInterviewGuide, stage: QuestSt
   ].join('\n');
 };
 
-/** Question pool for a stage, reusing the guide's mode-based pools. */
-export const getStageQuestionPool = (guide: LocalInterviewGuide, stage: QuestStage): string[] => {
-  const pool = getGuideQuestionPool(guide, stage.mode);
-  if (stage.id === 'values') {
-    const values = guide.sampleQuestions?.values ?? [];
-    return values.length ? [...values, ...pool.filter((q) => !values.includes(q))] : pool;
+/** Resolve a guide to its interview-style category (with keyword fallback). */
+export const resolveGuideCategory = (guide: LocalInterviewGuide): CompanyCategory =>
+  getCompanyCategory({
+    slug: guide.slug,
+    company: guide.company,
+    hintText: [
+      ...guide.interviewStages,
+      ...guide.codingTopics,
+      ...guide.systemDesignTopics,
+      ...guide.behavioralTopics,
+      ...guide.tips,
+    ].join(' '),
+  });
+
+const dedupeConcat = (...lists: string[][]): string[] => {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const list of lists) {
+    for (const q of list) {
+      if (q && !seen.has(q)) { seen.add(q); out.push(q); }
+    }
   }
-  return pool;
+  return out;
+};
+
+/**
+ * Question pool for a stage. The lead source is chosen per stage so the pool's
+ * first questions match the round:
+ *  - screening: the light, get-to-know-you category bank leads (NOT the guide's
+ *    deep behavioral questions) — a recruiter screen, not a technical round.
+ *  - values: the company's own values questions lead, then the category bank.
+ *  - final: the tailored final-round category bank leads, then guide questions.
+ * Difficulty tier is drawn from the company's rating (screening capped light).
+ * The generic company-name fallback is only reached when everything is empty.
+ */
+export const getStageQuestionPool = (guide: LocalInterviewGuide, stage: QuestStage): string[] => {
+  const guidePool = getGuideQuestionPool(guide, stage.mode);
+
+  if (isCategoryStageKind(stage.id)) {
+    const category = resolveGuideCategory(guide);
+    // Screening stays light (capped at medium); other rounds scale with rating.
+    const difficulty = stage.id === 'screening'
+      ? resolveQuestDifficulty(Math.min(guide.difficulty ?? 5, 6))
+      : resolveQuestDifficulty(guide.difficulty);
+    const categoryQs = getCategoryStageQuestions(guide.company, category, stage.id, difficulty);
+    const guideValues = guide.sampleQuestions?.values ?? [];
+
+    if (stage.id === 'behavioral') {
+      // company-specific behavioral questions lead; the difficulty-tiered
+      // category behavioral bank backfills so the round scales with the company.
+      const guideBehavioral = guide.sampleQuestions?.behavioral ?? [];
+      return dedupeConcat(guideBehavioral, categoryQs, guidePool);
+    }
+    if (stage.id === 'values') {
+      // company-specific values lead; category values + guide pool backfill
+      return dedupeConcat(guideValues, categoryQs, guidePool);
+    }
+    if (stage.id === 'screening') {
+      // light category rapport leads; only light guide values may backfill —
+      // deliberately NOT the guide's deep behavioral questions.
+      return dedupeConcat(categoryQs, guideValues);
+    }
+    // final: tailored final-round bank leads, then guide questions backfill.
+    return dedupeConcat(categoryQs, guidePool);
+  }
+
+  return guidePool;
 };
 
 /**
@@ -328,6 +395,11 @@ export const getSystemDesignPool = (guide: LocalInterviewGuide): SystemDesignPat
   guide.systemDesignTopics
     .filter((topic) => topic.trim().length > 0)
     .forEach((topic, index) => push(makeGuideSystemDesignPattern(guide, topic, index)));
+
+  // Category-preferred canon designs come next: a strong company-type signal
+  // when the guide names no system-design topics of its own.
+  const category = resolveGuideCategory(guide);
+  (CATEGORY_SYSTEM_DESIGN_ORDER[category] ?? []).forEach((id) => push(getSystemDesignPatternById(id)));
 
   const text = getSystemDesignMatchText(guide);
   const tokens = new Set(text.split(/[^a-z0-9]+/).filter(Boolean));

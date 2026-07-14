@@ -103,6 +103,13 @@ vectorlotto/
 # Community content MD
 community-content/
 
+# Quest question tracker + research working files. The interview questions are
+# maintained privately (synced to Firebase), so these reporting/working
+# artifacts must never be pushed to the public repo.
+data/quest-question-tracker.xlsx
+data/quest-tracker/
+data/interview-guides/_research-progress.json
+
 # Learning curriculum: raw third-party repos cloned by
 # scripts/sync-learning-sources.mjs. Never commit these — they're large,
 # have their own nested .git, and CareerVivid's own curriculum content lives
