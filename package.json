@@ -2,7 +2,7 @@
   "name": "careervivid",
   "private": true,
   "version": "0.0.0",
-  "license": "GPL-3.0-only",
+  "license": "See LICENSE",
   "type": "module",
   "scripts": {
     "dev": "vite",

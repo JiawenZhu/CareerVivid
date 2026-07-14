@@ -215,9 +215,7 @@ and earlier commits have not been rewritten.
 ## License and contributions
 
 CareerVivid is source-available for personal learning and job-search use.
-Commercial use requires the attribution described in the
-[CareerVivid Source-Available License](LICENSE). Course source materials retain
-their original licenses; see `data/learning/sources.json`.
+Commercial use of this Software is strictly prohibited. Any commercial use or licensing inquiries must be directed to CareerVivid at evan@careervivid.app or support@careervivid.app. Course source materials retain their original licenses; see `data/learning/sources.json`.
 
 Contributions are welcome. Start with [CONTRIBUTING.md](CONTRIBUTING.md) for
 the development workflow, focused-test expectations, and content licensing

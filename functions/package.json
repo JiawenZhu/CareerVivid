@@ -1,7 +1,7 @@
 {
   "name": "careervivid-functions",
   "version": "1.0.0",
-  "license": "GPL-3.0-only",
+  "license": "See LICENSE",
   "main": "lib/index.js",
   "scripts": {
     "build": "tsc",
