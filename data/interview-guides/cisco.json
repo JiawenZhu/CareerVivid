@@ -21,46 +21,17 @@
     "Testing approach"
   ],
   "codingTopics": [
-    "OSI model (all 7 layers)",
-    "TCP/IP protocols",
-    "Routing algorithms (OSPF, BGP)",
-    "Network security",
-    "Load balancing",
-    "DNS, CDN concepts",
-    "Graphs (very important for routing)",
-    "Trees (prefix trees for routing tables)",
-    "Hash tables",
-    "Queues (for packet processing)",
-    "Some string manipulation",
-    "Working implementation",
-    "Handling of edge cases (disconnected nodes, negative weights)",
-    "Time/space complexity analysis",
-    "Discussion of when to use Dijkstra vs Bellman-Ford",
-    "50-75 leetcode medium problems",
-    "Focus heavily on graphs",
-    "Practice in C++ or Python",
-    "Emphasize clean, efficient code"
+    "Graphs for routing: Dijkstra, Bellman-Ford, and cycle detection",
+    "Trees and prefix tries for routing tables",
+    "Queues and streams for packet processing",
+    "Hash tables and string manipulation",
+    "Networking systems and monitoring"
   ],
   "systemDesignTopics": [
-    "Design a load balancer",
-    "Design a CDN",
-    "Design a distributed firewall",
-    "Design a monitoring system for network devices",
-    "C/C++/Python Skills",
-    "Architecture: Edge servers, origin servers, routing",
-    "Caching: What to cache, eviction policies",
-    "Routing: How to route users to nearest edge",
-    "Consistency: Cache invalidation strategies",
-    "Monitoring: Health checks, metrics",
-    "\"Explain how TCP congestion control works.\"",
-    "\"What happens when you type a URL in a browser?\" (network perspective)",
-    "\"How does BGP routing work?\"",
-    "\"Explain the difference between L2 and L3 switching.\"",
-    "\"How would you troubleshoot packet loss?\"",
-    "Study CDN architectures",
-    "Learn about load balancers",
-    "Understand distributed systems basics",
-    "Focus on reliability and scale"
+    "Design a global load balancer that routes traffic to the nearest healthy edge",
+    "Design a CDN with edge caching and origin fallback",
+    "Design a distributed firewall enforcing policy across datacenters",
+    "Design a monitoring system that tracks health and metrics for millions of network devices"
   ],
   "behavioralTopics": [
     "Collaboration: Working across teams",
@@ -82,27 +53,30 @@
   ],
   "sampleQuestions": {
     "coding": [
-      "Implement a streaming feature aggregator: given a stream of events, maintain rolling counts and averages per key with bounded memory. Discuss complexity and eviction.",
-      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph.",
-      "Implement prefix trees for routing tables. Talk through your approach, complexity, and edge cases.",
-      "Design a data structure supporting insert, delete, and get-random in O(1). Explain your reasoning.",
-      "Given an array of integers, find the longest contiguous subarray whose sum equals a target. Discuss complexity and edge cases."
+      "Implement a streaming feature aggregator: given a stream of packet events, maintain rolling counts and averages per flow with bounded memory. Discuss eviction.",
+      "Given a network topology as a weighted graph, find shortest paths with Dijkstra and discuss when Bellman-Ford is needed for negative weights.",
+      "Implement a prefix trie for longest-prefix-match routing-table lookups. Discuss complexity and edge cases.",
+      "Given a directed graph of device dependencies, detect a cycle; explain how undirected changes it.",
+      "Given an array of throughput samples, find the longest contiguous window whose sum meets a target. Discuss complexity."
     ],
     "behavioral": [
       "Tell me about a time you worked across teams to deliver something. How did you handle competing priorities?",
       "Tell me about a time you engaged deeply with a customer or user problem. How did it change what you built?",
-      "Tell me about a time you debugged a complex systems issue.",
+      "Tell me about a time you debugged a complex systems or networking issue.",
       "How do you handle disagreements with team members?",
       "Describe a project where you had to learn new technology."
     ],
     "systemDesign": [
-      "Design a load balancer. Cover the API, data model, and how it scales.",
-      "Design a CDN. Cover the API, data model, and how it scales.",
-      "Design a distributed firewall. Cover the API, data model, and how it scales.",
-      "Design a monitoring system for network devices. Cover the API, data model, and how it scales.",
-      "Explain how TCP congestion control works."
+      "Design a global load balancer that routes traffic to the nearest healthy edge.",
+      "Design a CDN with edge caching and origin fallback.",
+      "Design a distributed firewall enforcing policy across datacenters.",
+      "Design a monitoring system for millions of network devices."
     ],
-    "values": [],
+    "values": [
+      "Cisco connects the world’s networks and is investing heavily in security. What draws you to networking infrastructure?",
+      "Tell me about a time you collaborated across large, distributed teams.",
+      "Describe a time reliability at scale was your top priority."
+    ],
     "other": []
   },
   "difficulty": 6.5,

@@ -6,29 +6,50 @@
   "interviewStages": [
     "Behavioral: mission alignment with open social web, written communication"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Graph traversal over social follow networks (BFS with block/mute filters)",
+    "Streams and realtime: firehose event processing, trending over rolling windows",
+    "Heaps for feed ranking; cache design for timelines with cursors",
+    "String parsing of AT-URIs and records; TypeScript throughout",
+    "Fan-out simulation for decentralized data"
+  ],
+  "systemDesignTopics": [
+    "Design the AT Protocol firehose that streams every public post to third-party feed generators in real time",
+    "Design a custom-feed generator service that ranks posts for millions of users with pluggable algorithms",
+    "Design timeline fan-out for a decentralized social network where users can self-host their data"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Given the follow graph, compute friends-of-friends suggestions excluding blocked and muted accounts (filtered BFS).",
+      "Consume a firehose stream of post events and maintain the top-k trending hashtags over a rolling hour.",
+      "Parse and validate AT-URIs (at://did/collection/rkey) into components with precise error reporting.",
+      "Implement a timeline cache with pagination cursors that stays consistent while new posts stream in.",
+      "From a batch of posts and reply references, reconstruct threads and return the deepest chain (tree building)."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Bluesky is a small team building in public. Tell me about shipping something with the whole internet watching (open source, visible outages).",
+      "Describe contributing to a protocol or standard where you didn't control all the implementers.",
+      "Tell me about a scaling emergency — we grew from 1M to 10M+ users in bursts. What did you triage first?",
+      "How do you work autonomously on a small remote team with minimal process?"
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design the relay/firehose: consuming every PDS's event log and re-broadcasting a unified stream.",
+      "Design custom feeds: third-party ranking services, timeouts, and safe fallbacks when a feed generator dies.",
+      "Design moderation labeling that composes across independent labelers in a decentralized network."
+    ],
+    "values": [
+      "Bluesky's goal is moving social from platforms to protocols. Why does decentralization matter — and where is it overhyped?",
+      "Users own their data and can leave. How does credible exit discipline the way you'd build features?",
+      "How should moderation work when no single company controls the network?"
+    ],
     "other": [
       "Is Bluesky remote-friendly?",
       "How does Bluesky compare to Mastodon or Threads?",
       "What is the engineering culture?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 7,
   "tips": [],
   "compensation": null,
   "rawSummary": "Bluesky Interview Guide (2026): Decentralized Social Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nBluesky\nbsky.app ↗\n\nBluesky is the decentralized social network built on the AT Protocol — the modern alternative to Twitter/X. Funded by Twitter spinout, now an independent company. The interview is technically rigorous with focus on the federated protocol design and the unique scale challenges of decentralized social.\n\nProcess\n\nRecruiter screen → 60-minute coding pair → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–5 weeks.\n\nWhat they actually ask\n\n- Design a federated social network with decentralized identity\n\n- Design timeline algorithms for AT Protocol\n\n- Design content moderation across federated servers\n\n- Coding: practical TypeScript/Go, often with distributed-systems framing\n\n- Behavioral: mission alignment with open social web, written communication\n\nLevels and comp (2026)\n\n- SE: $180K–$240K total\n\n- Senior SE: $260K–$340K\n\n- Staff: $370K–$480K\n\n- Principal: $500K–$650K\n\nPrep priorities\n\n- Be fluent in TypeScript / Go (the bulk of the codebase)\n\n- Understand AT Protocol and federated social architectures\n\n- Read about ActivityPub, Mastodon, and the broader fediverse for context\n\nFrequently Asked Questions\n\nIs Bluesky remote-friendly?\n\nDistributed-first. Small team (~50 employees) globally. Quarterly off-sites.\n\nHow does Bluesky compare to Mastodon or Threads?\n\nMastodon is ActivityPub-based, federated. Threads is Meta-controlled. Bluesky uses AT Protocol with different decentralization model. Bluesky engineering pays competitively.\n\nWhat is the engineering culture?\n\nMission-driven (open social web), small team, technically deep. Strong fit for engineers excited about the future of social networks.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Bluesky? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextPalindrome Dynamic Programming Interview Patterns: LPS, Minimum Cuts, and Palindrome Partitioning (2025)⏱ 6 min readLow-Level Design: Chat Application (OOP Interview)⏱ 8 min readSystem Design Interview: E-Commerce Platform (Amazon/Shopify Scale)⏱ 5 min read"

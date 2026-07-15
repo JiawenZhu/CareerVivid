@@ -10,23 +10,43 @@
     "Domain depth (1–2 rounds) — depends on role: factor research, ML systems, distributed systems, data infrastructure",
     "Behavioral / cultural fit (1 round) — collaboration, intellectual humility, willingness to engage with challenging research feedback"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Two-pointer and sliding-window problems over price and returns series",
+    "Sorting: complexity trade-offs, choosing algorithms for trade feeds",
+    "Portfolio and trading data structure design (OO design of positions, trades, calculators)",
+    "Financial time-series math: correlation, covariance, rolling statistics",
+    "Merge and reconciliation of trade and position tables (SQL-style joins in code)"
+  ],
+  "systemDesignTopics": [
+    "Design a backtesting engine that replays 20 years of daily prices across 10,000 instruments",
+    "Design the end-of-day PnL pipeline that aggregates positions, trades and prices across strategies",
+    "Design a research data platform that versions factor datasets for quantitative researchers"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "A function intermittently fails in production. Walk me through how you would reproduce, isolate, and fix the bug.",
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Given a stream of trades with partial fills, maintain net long/short positions per instrument and compute realized PnL — mirror of AQR's OO take-home.",
+      "Compute rolling correlation and covariance of two assets' daily returns over a window; discuss numerical stability and why daily vs monthly correlations differ.",
+      "Find the maximum-profit window in a price series with at most k round trips; analyze the DP and its memory.",
+      "Merge trade and position snapshots (two time-sorted tables) and report reconciliation breaks — a SQL join in code.",
+      "Compare time and memory complexity of the major sorting algorithms and justify which you'd use for a nearly-sorted trade feed."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a time you changed your mind because the data disagreed with your intuition.",
+      "Describe defending an idea to a skeptical, analytically sharp audience. How did you prepare?",
+      "Tell me about a piece of analysis you later discovered was wrong. What did you do?",
+      "Describe a time rigor slowed you down and pragmatism won — or should have."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a backtesting engine: data layout for 20 years of prices, replay determinism, and parallelism across strategies.",
+      "Design the overnight PnL and risk-attribution pipeline with late-arriving trade corrections.",
+      "Design a versioned factor-data store so researchers can reproduce any historical study exactly."
+    ],
+    "values": [
+      "AQR prides itself on academic rigor and intellectual honesty. Where have you published, presented, or rigorously peer-reviewed work?",
+      "Systematic investing means trusting the model in drawdowns. Tell me about holding a principled position under pressure.",
+      "What draws you to quantitative finance over big-tech engineering?"
+    ],
     "other": [
       "Do I need a PhD to work at AQR?",
       "How real is the academic culture vs marketing?",
@@ -35,7 +55,7 @@
       "Is AQR a good place for early-career engineers?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 8,
   "tips": [],
   "compensation": [
     "New-grad quant researcher: $250k–$400k total comp first year (PhD; lower for Master's)",

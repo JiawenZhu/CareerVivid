@@ -6,29 +6,50 @@
   "interviewStages": [
     "Behavioral: customer focus, ownership, working in mature SaaS"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Streams at high throughput: engagement-event processing, Kafka-consumer idempotency",
+    "Queues and scheduling: campaign sends across rate-limited channels, greedy + heap",
+    "Sliding-window rate limiting and frequency caps",
+    "Hash-map segmentation and MongoDB-style document merging",
+    "Debugging exercises in realtime pipelines; Ruby on Rails stack"
+  ],
+  "systemDesignTopics": [
+    "Design the campaign-send pipeline that delivers billions of push notifications and emails daily with per-user frequency caps",
+    "Design a real-time segmentation engine that re-evaluates audience membership as user events stream in",
+    "Design the Currents export system streaming engagement events to customer data warehouses with at-least-once delivery"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Implement a per-user frequency-cap rate limiter (max N messages per rolling window) that holds up at a million sends a second.",
+      "From a user-event stream, evaluate segment membership rules like 'did X at least k times in the last 7 days' incrementally (sliding window).",
+      "Merge partial user-profile documents arriving out of order into one canonical document with per-field last-write-wins.",
+      "Schedule a campaign's sends across ESP connections with different throughput limits to finish soonest (greedy + heap).",
+      "Debug: a Kafka consumer double-processes engagement events after rebalances — find the bug and make processing idempotent."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Take your seat at the table: tell me about asserting a position in a forum where you were junior.",
+      "Don't ignore smoke: describe noticing a small anomaly that turned out to be a real problem. What made you dig?",
+      "Embrace curiosity: what system did you learn end-to-end just because you wanted to understand it?",
+      "Tell me about operating a high-throughput realtime system during a traffic spike (think Black Friday sends)."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design the multichannel send pipeline: push, email, SMS, in-app — with per-channel throttles and global frequency caps.",
+      "Design streaming segmentation over MongoDB-backed user profiles at billions of events per day.",
+      "Design Currents: reliable event export to Kafka/warehouses with customer-visible delivery SLAs."
+    ],
+    "values": [
+      "Braze's values include 'be a human in the pursuit of excellence' — how do you keep empathy while holding a high bar?",
+      "Our customers' brands live or die on message relevance. How do you think about the line between engagement and spam?",
+      "Which Braze value would you find hardest to live, and why?"
+    ],
     "other": [
       "Is Braze remote-friendly?",
       "How does Braze compare to Customer.io or Iterable?",
       "What is the engineering culture?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 7,
   "tips": [],
   "compensation": null,
   "rawSummary": "Braze Interview Guide (2026): Customer Engagement Platform\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nBraze\nbraze.com ↗\n\nBraze is the leading customer engagement platform — focuses on mobile marketing, push notifications, in-app messages. Public since 2021. The interview emphasizes high-throughput message delivery, ML-driven personalization, and the unique scale challenges of consumer messaging.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design a push notification platform handling billions of sends per day\n\n- Design segmentation and audience targeting at scale\n\n- Design A/B testing for marketing campaigns\n\n- Coding: medium DSA, often with stream processing framing\n\n- Behavioral: customer focus, ownership, working in mature SaaS\n\nLevels and comp (2026)\n\n- SE II: $155K–$195K total\n\n- Senior SE: $225K–$295K\n\n- Staff: $325K–$430K\n\n- Principal: $460K–$610K\n\nPrep priorities\n\n- Be fluent in Java or Scala (bulk of the codebase)\n\n- Understand stream processing (Kafka, Flink) and high-throughput pipelines\n\n- Brush up on push notification protocols (APNs, FCM)\n\nFrequently Asked Questions\n\nIs Braze remote-friendly?\n\nHybrid in NYC (HQ), London, Tokyo. Many engineering roles fully remote within US.\n\nHow does Braze compare to Customer.io or Iterable?\n\nBraze is largest by enterprise customers. Iterable is comparable. Customer.io is more developer-friendly. Braze pays comparable to mid-tier SaaS.\n\nWhat is the engineering culture?\n\nMature, customer-driven, mid-stage. Strong work-life balance.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Braze? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextTime Series Database: Low-Level Design⏱ 5 min readMental Math Drills for Trading Interviews 2026: Patterns, Practice, Worked Examples⏱ 4 min readLow-Level Design: Task Management System (Trello/Jira) — Boards, Workflows, and Notifications⏱ 7 min read"

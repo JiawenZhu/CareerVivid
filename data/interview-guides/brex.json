@@ -9,20 +9,18 @@
     "Behavioral (1 round): standard STAR questions with a bias toward high-judgment situations."
   ],
   "codingTopics": [
-    "Implement a payment-handler API endpoint with idempotency, retry safety, and transactional correctness",
-    "Build a ledger-entry system that handles double-entry posting with consistency guarantees",
-    "Reconciliation algorithm: match internal transactions against external feeds with fuzzy rules",
-    "Authorization state machine with all failure paths (timeout, network error, bank decline, duplicate)",
-    "Classic algorithm problems (graphs, trees) with practical financial twists (money flow, approval chains)"
+    "Idempotent payment-handler API: process a stream of transaction events with retry safety and exactly-once posting",
+    "Double-entry ledger data structure: post debits and credits and detect imbalances",
+    "Reconciliation: merge internal transactions against external bank feeds with fuzzy matching",
+    "Authorization state machine: model timeout, decline, duplicate, and network-error paths",
+    "Graphs and trees with money-flow twists: approval chains and spend hierarchies"
   ],
   "systemDesignTopics": [
-    "\"Design the card-authorization path with a strict 100ms latency budget, handling 10K TPS at peak.\"",
-    "\"Design a ledger system with double-entry accounting, audit logging, and nightly reconciliation.\"",
-    "\"Design real-time fraud detection that blocks 80% of true fraud with <1% false positives.\"",
-    "\"Design the expense-approval workflow engine for 5K enterprise customers with custom rules.\"",
-    "\"Tell me about a time you built something that handled money or high-stakes data.\"",
-    "\"What's the worst bug you've shipped to production? How did you catch it and how did you prevent it from happening again?\"",
-    "\"Describe a situation where you had to choose between shipping fast and getting it right.\""
+    "Design the card-authorization path with a strict 100ms latency budget handling 10K TPS at peak",
+    "Design a double-entry ledger with immutable audit logging and nightly reconciliation",
+    "Design real-time fraud detection that blocks most true fraud with under 1% false positives",
+    "Design the expense-approval workflow engine for enterprise customers with custom rules",
+    "Design an idempotent payments API resilient to duplicate and out-of-order webhooks"
   ],
   "behavioralTopics": [
     "High-judgment situations: \"Describe a time you had to make a call with incomplete information where the downside was significant.\"",
@@ -32,27 +30,31 @@
   ],
   "sampleQuestions": {
     "coding": [
-      "Implement a payment-handler API endpoint with idempotency, retry safety, and transactional correctness. Talk through your approach, complexity, and edge cases.",
-      "Build a ledger-entry system that handles double-entry posting with consistency guarantees. Talk through your approach, complexity, and edge cases.",
-      "Implement timeout, network error, bank decline, duplicate. Talk through your approach, complexity, and edge cases.",
-      "Implement a double-entry ledger that processes a stream of transactions and detects imbalances. How do you guarantee idempotency when a transaction is delivered twice?",
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases."
+      "Implement an idempotent payment handler: given a stream of transaction requests with idempotency keys, apply each exactly once and stay correct under retries. Discuss complexity and failure modes.",
+      "Build a double-entry ledger that posts debits and credits from a transaction stream and flags any imbalance. How do you guarantee idempotency when an entry is delivered twice?",
+      "Reconciliation: given internal transactions and an external bank feed, merge and match records with fuzzy rules and report unmatched entries. Discuss edge cases.",
+      "Model a card-authorization state machine covering approval, timeout, bank decline, network error, and duplicate. Walk through the transitions and invariants.",
+      "Given a stream of card swipes, compute per-account rolling spend within a sliding time window with bounded memory. Discuss complexity."
     ],
     "behavioral": [
-      "Describe a time you had to make a call with incomplete information where the downside was significant.",
-      "Have you worked under compliance constraints? How did they shape your decisions?",
-      "Tell me about a project involving risk, legal, or finance stakeholders. How did you align with them?",
-      "Describe a production incident or project you owned end-to-end. What did you do, and what was the outcome?",
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+      "Describe a time you made a high-stakes call with incomplete information where the downside was significant.",
+      "Tell me about a time you worked under compliance or regulatory constraints. How did they shape your design?",
+      "Walk me through a project where losing a message would have meant losing money. How did you guarantee correctness?",
+      "Tell me about a production incident you owned end-to-end. What did you change so it would not recur?",
+      "Describe a time you chose between shipping fast and getting a money-critical feature exactly right."
     ],
     "systemDesign": [
-      "Design the card-authorization path with a strict 100ms latency budget, handling 10K TPS at peak.",
-      "Design a ledger system with double-entry accounting, audit logging, and nightly reconciliation.",
-      "Design real-time fraud detection that blocks 80% of true fraud with <1% false positives. Cover the API, data model, and how it scales.",
-      "Design the expense-approval workflow engine for 5K enterprise customers with custom rules. Cover the API, data model, and how it scales.",
-      "Design a service at Brex scale that shortens URLs. Cover the API, storage, and hot-key handling."
+      "Design the card-authorization path with a strict 100ms latency budget handling 10K TPS at peak.",
+      "Design a double-entry ledger with immutable audit logging and nightly reconciliation.",
+      "Design real-time fraud detection that blocks most true fraud with under 1% false positives.",
+      "Design the expense-approval workflow engine for enterprise customers with custom rules."
     ],
-    "values": [],
+    "values": [
+      "Why Brex specifically among fintech companies building spend-management products?",
+      "Brex narrowed its focus to enterprise and startup spend after 2022-2023. How do you think about that kind of hard strategic reset?",
+      "Tell me about a time you took ownership of correctness for something involving customers’ money.",
+      "What principle around handling money or user trust would you refuse to compromise on?"
+    ],
     "other": [
       "Do I need Rails experience to get hired?",
       "How does the craft round differ from a standard project deep-dive?",

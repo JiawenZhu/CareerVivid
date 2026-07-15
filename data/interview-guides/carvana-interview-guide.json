@@ -6,29 +6,49 @@
   "interviewStages": [
     "Behavioral: customer focus, ownership, working with operational complexity"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "E-commerce systems: inventory, pricing, checkout, and order fulfillment",
+    "Arrays and hash maps for catalog and cart operations",
+    "Data-structure refactoring in C#/.NET or TypeScript",
+    "Object joining and merging of catalog and order data",
+    "Simulation of stateful flows such as a purchase state machine"
+  ],
+  "systemDesignTopics": [
+    "Design the vehicle-inventory and pricing system for a high-traffic online car marketplace",
+    "Design the checkout and order-fulfillment pipeline for buying a car online",
+    "Design the reservation and hold system that prevents two buyers from purchasing the same car"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Given catalog and inventory objects, join them into an enriched array of listing objects. Discuss complexity and null handling.",
+      "Implement the logic for a purchase state machine (browsing, reserved, financing, sold) with valid transitions. Discuss invariants.",
+      "Given a stream of inventory updates, maintain a consistent available-vehicle view with dedup. Discuss edge cases.",
+      "Given daily price history for a vehicle, compute the best buy window to surface a deal. Discuss complexity."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a time you thought through a problem out loud and collaborated to a solution.",
+      "Describe a production issue in an e-commerce or high-traffic system you resolved.",
+      "Tell me about a time you understood the why behind a requirement, not just the how.",
+      "Describe working across microservices teams to ship a customer-facing feature."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design the vehicle-inventory and pricing system for a high-traffic online car marketplace.",
+      "Design the checkout and order-fulfillment pipeline for buying a car online.",
+      "Design the reservation and hold system that prevents two buyers from purchasing the same car."
+    ],
+    "values": [
+      "Carvana reimagined a notoriously painful buying experience. What draws you to fixing broken customer journeys?",
+      "Tell me about a time you put the customer at the center of a technical decision.",
+      "Describe a time you owned quality end-to-end in a fast-moving environment."
+    ],
     "other": [
       "Is Carvana remote-friendly?",
       "How does Carvana compare to CarMax or Vroom?",
       "What is the engineering culture?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 6.5,
   "tips": [],
   "compensation": null,
   "rawSummary": "Carvana Interview Guide (2026): Online Auto Retail Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nCarvana\ncarvana.com ↗\n\nCarvana is the largest online used-car retailer in the US — famous for car vending machines and 7-day return policies. Public since 2017. The interview emphasizes complex inventory management, financing integration, and the operational realities of selling cars online.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design real-time inventory across hundreds of locations\n\n- Design a vehicle pricing engine that adapts to market conditions\n\n- Design financing integration with multiple lenders\n\n- Coding: medium DSA, often with inventory or graph framing\n\n- Behavioral: customer focus, ownership, working with operational complexity\n\nLevels and comp (2026)\n\n- SE II: $135K–$170K total\n\n- Senior SE: $200K–$260K\n\n- Staff: $290K–$380K\n\n- Principal: $400K–$520K\n\nPrep priorities\n\n- Be fluent in C# (.NET) or TypeScript/Node (newer services)\n\n- Understand inventory management, supply chain\n\n- Brush up on payment processing and financing patterns\n\nFrequently Asked Questions\n\nIs Carvana remote-friendly?\n\nHybrid in Phoenix/Tempe (HQ), Atlanta, others. Some engineering roles remote within US.\n\nHow does Carvana compare to CarMax or Vroom?\n\nCarvana is online-first. CarMax has stronger physical-presence. Vroom struggled and downsized. Carvana comp is mid-tier; below FAANG.\n\nWhat is the engineering culture?\n\nPragmatic, customer-driven, calm pace post-2022 challenges. Strong work-life balance.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Carvana? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextSystem Design: API Design Best Practices — REST, Versioning, Pagination, Rate Limiting, and GraphQL⏱ 6 min readFollower Feed Low-Level Design: Fanout Strategies, Feed Pagination, and Hybrid Approach for Celebrities⏱ 5 min readAsana Interview Guide 2026: Work Graph, Reactive Data, Luna Framework, and AI Studio⏱ 9 min read"

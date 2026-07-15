@@ -16,10 +16,10 @@
     "Applied OO design (permission model, custom-field type system, recurring-task engine)"
   ],
   "systemDesignTopics": [
-    "\"Design the permissions model supporting teams, projects, custom roles, and inherited access.\"",
-    "\"Design a notification system that prevents overwhelm: per-user preferences, relevance scoring, delivery digests.\"",
-    "\"Design the real-time collaborative editing layer for a project view with 50 concurrent viewers.\"",
-    "\"Design the recurring-task engine that schedules millions of recurring tasks efficiently across timezones.\""
+    "Design the permissions model supporting teams, projects, custom roles, and inherited access",
+    "Design a notification system that prevents overwhelm with per-user preferences, relevance scoring, and delivery digests",
+    "Design the real-time collaborative editing layer for a project view with 50 concurrent viewers",
+    "Design the recurring-task engine that schedules millions of recurring tasks efficiently across timezones"
   ],
   "behavioralTopics": [
     "Reject False Dichotomies: \"Tell me about a time you were told you had to choose between two things and found a third option.\"",
@@ -29,11 +29,11 @@
   ],
   "sampleQuestions": {
     "coding": [
-      "Implement task with status, dependencies, rollup logic for parent / child completion. Talk through your approach, complexity, and edge cases.",
-      "Implement given a base computation and a change to inputs, update only the minimum necessary outputs. Talk through your approach, complexity, and edge cases.",
-      "Implement compute project statistics from an audit log. Talk through your approach, complexity, and edge cases.",
-      "Implement task dependency DAG execution, subtask rollup, cycle detection in project hierarchies. Talk through your approach, complexity, and edge cases.",
-      "Implement permission model, custom-field type system, recurring-task engine. Talk through your approach, complexity, and edge cases."
+      "Model a task with status, subtasks and dependencies; implement rollup logic so a parent completes only when all children do — state the invariants.",
+      "Given a project's audit log as an event stream, compute per-project statistics (open tasks, overdue counts) incrementally as events arrive.",
+      "Detect cycles in a task-dependency graph and return a valid execution order for the remaining DAG.",
+      "Given a derived computation over task fields and a single-field change, update only the minimum necessary outputs (incremental computation — Asana's signature).",
+      "Design the class model for custom field types (text, number, enum) with validation; walk through your OO choices."
     ],
     "behavioral": [
       "Tell me about a time you were told you had to choose between two things and found a third option.",
@@ -46,10 +46,13 @@
       "Design the permissions model supporting teams, projects, custom roles, and inherited access.",
       "Design a notification system that prevents overwhelm: per-user preferences, relevance scoring, delivery digests.",
       "Design the real-time collaborative editing layer for a project view with 50 concurrent viewers.",
-      "Design the recurring-task engine that schedules millions of recurring tasks efficiently across timezones.",
-      "Design a service at Asana scale that shortens URLs. Cover the API, storage, and hot-key handling."
+      "Design the recurring-task engine that schedules millions of recurring tasks efficiently across timezones."
     ],
-    "values": [],
+    "values": [
+      "Which of Asana's values — co-creation, mindfulness, reject false dichotomies, heartitude — resonates most, and where have you lived it?",
+      "Tell me about practicing 'give and take responsibility': owning an area fully while genuinely empowering others.",
+      "Asana's product is about clarity of purpose, plan, and responsibility. How does that kind of clarity show up in how you personally work?"
+    ],
     "other": [
       "Do I need to know Luna or their specific reactive framework?",
       "How does the Facebook-origin heritage show up in interviews?",

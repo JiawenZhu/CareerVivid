@@ -8,20 +8,17 @@
     "Behavioral / hiring manager (1 round): ownership, consumer empathy, cross-functional collaboration, regulated-environment awareness."
   ],
   "codingTopics": [
-    "Idempotent transfer handler: given this API request, implement the service handler with retry safety and correct error semantics",
-    "Duplicate-detection for direct deposits: identify same-deposit-across-sources without over-rejecting legitimate duplicates",
-    "Notification router: given this event stream, deliver notifications with per-user preferences and deduplication",
-    "Fraud feature calculator: given a stream of card events, compute rolling features for a real-time model with bounded memory",
-    "Classic algorithm problems (graphs, trees, dynamic programming) with practical financial twists"
+    "Idempotent transfer handler: implement the service handler with retry safety and correct error semantics",
+    "Duplicate-detection for direct deposits: identify the same deposit across sources without over-rejecting",
+    "Notification router: deliver notifications from an event stream with per-user preferences and dedup",
+    "Fraud feature calculator: compute rolling features over a stream of card events with bounded memory",
+    "Graphs, trees, and dynamic programming with practical financial twists"
   ],
   "systemDesignTopics": [
-    "\"Design the transfer system for 8M users handling 50K TPS at peak with exactly-once semantics.\"",
-    "\"Design a real-time fraud detection pipeline: 10K events/sec, <50ms scoring latency.\"",
-    "\"Design the notification system for deposits, transactions, and alerts across 20M devices.\"",
-    "\"Design SpotMe overdraft decisioning inline with the authorization path.\"",
-    "\"Tell me about a consumer-facing product you built. What did you learn about users from it?\"",
-    "\"What would you change about Chime's product if you joined?\"",
-    "\"Describe a time you pushed back against a product decision because of user impact.\""
+    "Design the money-transfer system for millions of users handling peak TPS with exactly-once semantics",
+    "Design a real-time fraud-detection pipeline scoring card events under a tight latency budget",
+    "Design the notification system for deposits, transactions, and alerts across tens of millions of devices",
+    "Design SpotMe overdraft decisioning inline with the card-authorization path"
   ],
   "behavioralTopics": [
     "Consumer empathy: \"Describe a time you deeply understood your users. How did it change what you built?\"",
@@ -31,27 +28,31 @@
   ],
   "sampleQuestions": {
     "coding": [
-      "Given this API request, implement the service handler with retry safety and correct error semantics. Talk through your approach, complexity, and edge cases.",
-      "Given this event stream, deliver notifications with per-user preferences and deduplication. Talk through your approach, complexity, and edge cases.",
-      "Given a stream of card events, compute rolling features for a real-time model with bounded memory. Talk through your approach, complexity, and edge cases.",
+      "Given an API request, implement an idempotent transfer handler with retry safety and correct error semantics. Talk through complexity and edge cases.",
+      "Given an event stream, deliver notifications with per-user preferences and deduplication. Talk through complexity and edge cases.",
+      "Given a stream of card events, compute rolling fraud features (count, sum, velocity) for a real-time model with bounded memory. Talk through complexity.",
       "Implement a double-entry ledger that processes a stream of transactions and detects imbalances. How do you guarantee idempotency when a transaction is delivered twice?",
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases."
+      "Detect duplicate direct deposits arriving from multiple sources without over-rejecting legitimate duplicates. Discuss the dedup key design and edge cases."
     ],
     "behavioral": [
       "Describe a time you deeply understood your users. How did it change what you built?",
       "Tell me about a production incident affecting consumers. How did you own it?",
-      "Have you worked with compliance / risk / legal? What was that like?",
-      "How do you think about shipping in a newly-public company vs a private-growth company?",
+      "Have you worked with compliance, risk, or legal? What was that like?",
+      "How do you think about shipping in a newly-public company versus a private-growth company?",
       "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
     ],
     "systemDesign": [
-      "Design the transfer system for 8M users handling 50K TPS at peak with exactly-once semantics.",
-      "Design a real-time fraud detection pipeline: 10K events/sec, <50ms scoring latency. Cover the API, data model, and how it scales.",
-      "Design the notification system for deposits, transactions, and alerts across 20M devices. Cover the API, data model, and how it scales.",
-      "Design SpotMe overdraft decisioning inline with the authorization path. Cover the API, data model, and how it scales.",
-      "Design a service at Chime scale that shortens URLs. Cover the API, storage, and hot-key handling."
+      "Design the money-transfer system for millions of users handling peak TPS with exactly-once semantics.",
+      "Design a real-time fraud-detection pipeline scoring card events under a tight latency budget.",
+      "Design the notification system for deposits, transactions, and alerts across tens of millions of devices.",
+      "Design SpotMe overdraft decisioning inline with the card-authorization path."
     ],
-    "values": [],
+    "values": [
+      "Chime’s mission is to help everyday people improve their financial lives. What draws you to member-first fintech?",
+      "Tell me about a time you designed for financial access and the underserved user.",
+      "Describe a time you pushed back on a decision because of member impact.",
+      "How do you weigh growth against protecting members’ money and trust?"
+    ],
     "other": [
       "Know the partner-bank architecture conceptually. Who holds the deposits? Who issues the cards? Where does Chime fit?",
       "Is Chime a bank?",

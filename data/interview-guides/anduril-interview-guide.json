@@ -9,27 +9,44 @@
     "Domain depth (1–2 rounds) — robotics, ML, hardware, embedded, depending on role",
     "Behavioral / mission alignment (1 round) — explicit probing on motivation and comfort with the work"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Realtime systems and ring buffers",
+    "Streaming sensor fusion",
+    "Memory-safe embedded data structures",
+    "Graph search and path planning / simulation"
+  ],
+  "systemDesignTopics": [
+    "Design an autonomy platform that fuses distributed sensors into a real-time picture",
+    "Design a Lattice-style command-and-control system resilient to intermittent field connectivity",
+    "Design a fleet telemetry and software-update system for edge devices in contested environments"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Implement a fixed-size ring buffer for sensor readings with O(1) reads and writes and no dynamic allocation. Walk through the concurrency considerations.",
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Implement a fixed-size ring buffer for sensor readings with O(1) reads/writes and no dynamic allocation.",
+      "Given a real-time sensor stream, fuse readings from multiple sources with timestamps and detect stale/dropped data.",
+      "Implement a bounded, lock-free-ish queue for a hard-real-time loop; discuss latency guarantees.",
+      "Parse a binary telemetry protocol defensively; handle corrupt frames without crashing.",
+      "Compute shortest path / A* for autonomous route planning on a weighted grid. Discuss performance."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Anduril places outsized weight on mission alignment. Why do you want to work on defense technology, honestly?",
+      "The culture is low-ego, high-ownership. Tell me about a time you took broad responsibility with little oversight.",
+      "Anduril moves at startup speed on safety-critical systems. Describe balancing urgency with rigor on something that couldn't fail.",
+      "Tell me about a time you made a hard trade-off in a real-world deployment. How did you reason about it?",
+      "Describe a disagreement with a senior person over an engineering call. How did it resolve?"
     ],
     "systemDesign": [
-      "Design Anduril's autonomy systems platform — cover distributed sensors, real-time architectures. Walk through the architecture, trade-offs, and failure modes.",
-      "Design a service at Anduril scale that shortens URLs. Cover the API, storage, and hot-key handling.",
-      "Design a rate limiter for a public API. Discuss algorithms, distributed coordination, and failure modes."
+      "Design an autonomy platform that fuses distributed sensors into a real-time picture with tight latency budgets.",
+      "Design a command-and-control system (Lattice-style) resilient to intermittent connectivity in the field.",
+      "Design a fleet telemetry and software-update system for edge devices deployed in contested environments."
     ],
-    "values": [],
+    "values": [
+      "'Why Anduril?' is asked in multiple rounds. What genuinely draws you to building defense technology?",
+      "How do you feel about working on safety-critical and weapons-adjacent systems? Walk me through your thinking.",
+      "Anduril values speed and ownership over process. Where do you draw the line between fast and reckless?",
+      "What does building for national-security impact mean to you personally?"
+    ],
     "other": [
       "Do I need a security clearance to work at Anduril?",
       "How do I handle the defense / weapons work question?",
@@ -38,7 +55,7 @@
       "Is Anduril a good place for early-career engineers?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 7,
   "tips": [],
   "compensation": [
     "New-grad engineer: $180k–$280k total comp first year",

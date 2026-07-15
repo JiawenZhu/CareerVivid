@@ -9,48 +9,43 @@
   ],
   "codingTopics": [
     "Design-document state: model a tree of design elements with operations (add, move, group, delete) and invariants",
-    "Selection and transformation system: implement multi-select with bounding-box computation and constraint-based transforms",
-    "Undo / redo with branching or linear history",
-    "Layout algorithms (flex-box-like, grid-like, snapping to alignment guides)",
-    "Classic algorithm problems (trees, graphs, intervals) with design-editor twists"
+    "Selection and transformation: multi-select with bounding-box computation and constraint-based transforms",
+    "Undo and redo with branching or linear history and bounded memory",
+    "Layout algorithms: flex-like, grid-like, and snapping to alignment guides",
+    "Trees, graphs, and intervals with design-editor twists"
   ],
   "systemDesignTopics": [
-    "\"Design real-time collaborative editing for a complex design document with 20 simultaneous editors.\"",
-    "\"Design the asset library supporting 100M stock assets with sub-second filter / search.\"",
-    "\"Design the rendering service that produces PNG / PDF / MP4 exports from design documents at scale.\"",
-    "\"Design Magic Studio's AI-generation pipeline with cost-bounded throughput and consistent UX.\"",
-    "Discuss WebGL vs Canvas2D vs SVG for different design-editor surfaces.",
-    "Walk through React reconciliation and how you'd avoid unnecessary renders for a document with thousands of elements.",
-    "Explain memory-management strategies for long-lived browser sessions.",
-    "Describe how you'd optimize a laggy design-editor interaction.",
-    "Reason about the CSS rendering pipeline (layout, paint, composite) and when it bottlenecks.",
-    "\"What's a design tool you use and love? What's broken about it?\"",
-    "\"Describe a design-related feature you'd improve in Canva. How would you measure success?\"",
-    "\"Tell me about a time you advocated for UX quality against a deadline.\"",
-    "\"What's a side project or personal design work you've done?\""
+    "Design real-time collaborative editing for a complex design document with many simultaneous editors",
+    "Design the asset library supporting hundreds of millions of stock assets with sub-second search",
+    "Design the export rendering service that produces PNG, PDF, and MP4 from design documents at scale",
+    "Design Magic Studio’s AI-generation pipeline with cost-bounded throughput and consistent UX"
   ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Design-document state: model a tree of design elements with operations (add, move, group, delete) and invariants. Talk through your approach, complexity, and edge cases.",
-      "Implement multi-select with bounding-box computation and constraint-based transforms. Talk through your approach, complexity, and edge cases.",
-      "Implement flex-box-like, grid-like, snapping to alignment guides. Talk through your approach, complexity, and edge cases.",
-      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph.",
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases."
+      "Model a design document as a tree of elements with add, move, group, and delete operations preserving invariants. Talk through complexity and edge cases.",
+      "Implement multi-select with bounding-box computation and constraint-based transforms. Talk through complexity and edge cases.",
+      "Implement flex-like and grid-like layout with snapping to alignment guides. Talk through complexity and edge cases.",
+      "Given the element graph of a document with grouping references, detect a cycle; explain how undirected changes it.",
+      "Implement undo and redo for the editor as a bounded history stack supporting linear and branching edits. Discuss the data structure and memory bounds."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a time you fought for UX quality against a deadline.",
+      "Describe a design-editor or creative-tool feature you would improve and how you would measure success.",
+      "Tell me about a performance problem you fixed in a complex, long-lived client app.",
+      "Describe a time you collaborated closely with designers to ship something polished."
     ],
     "systemDesign": [
-      "Design real-time collaborative editing for a complex design document with 20 simultaneous editors.",
-      "Design the asset library supporting 100M stock assets with sub-second filter / search. Cover the API, data model, and how it scales.",
-      "Design the rendering service that produces PNG / PDF / MP4 exports from design documents at scale.",
-      "Design Magic Studio's AI-generation pipeline with cost-bounded throughput and consistent UX.",
-      "Walk through React reconciliation and how you'd avoid unnecessary renders for a document with thousands of elements."
+      "Design real-time collaborative editing for a complex design document with many simultaneous editors.",
+      "Design the asset library supporting hundreds of millions of stock assets with sub-second search.",
+      "Design the export rendering service that produces PNG, PDF, and MP4 from design documents at scale.",
+      "Design Magic Studio’s AI-generation pipeline with cost-bounded throughput and consistent UX."
     ],
-    "values": [],
+    "values": [
+      "Canva’s mission is to empower everyone to design. What draws you to democratizing creative tools?",
+      "Tell me about a side project or personal creative work you are proud of.",
+      "Describe a time you made a product more accessible to non-expert users."
+    ],
     "other": [
       "Is Sydney really the center of gravity?",
       "How does Canva compare to Figma on interviews?",

@@ -50,7 +50,7 @@ const InterviewShowcaseSection: React.FC = () => (
                         Practice the exact loop — {ALL_GUIDES.length}+ companies.
                     </h2>
                     <p className="mt-2 max-w-2xl text-base font-medium text-[#665a4a] dark:text-[#aaa39a]">
-                        Recruiter screen, live coding with real test execution, system design on a whiteboard, behavioral rounds — a voice AI interviews you and scores every attempt.
+                        Recruiter screen, live coding with real test execution, system design on a whiteboard, behavioral rounds — Vivid interviews you and delivers a comprehensive performance report after every attempt.
                     </p>
                 </div>
                 <a

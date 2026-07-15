@@ -11,32 +11,46 @@
     "Experience/Past Work (1 round): Deep-dive into your previous projects, design decisions, and trade-offs."
   ],
   "codingTopics": [
-    "Arrays/Strings: Manipulation, searching, optimization",
-    "Trees: Binary trees, tree traversals, BST operations",
-    "Graphs: BFS, DFS, shortest path",
-    "Dynamic Programming: Classic DP problems",
-    "System Design: Booking systems, search/recommendation engines, payment processing, calendar availability"
+    "Graph algorithms (BFS/DFS/shortest path)",
+    "Array and string manipulation",
+    "Search and two-pointer techniques",
+    "Caching and system-level thinking"
   ],
-  "systemDesignTopics": [],
+  "systemDesignTopics": [
+    "Design a booking system that prevents double-booking across a two-sided marketplace",
+    "Design listing search and ranking with geospatial filters and personalization",
+    "Design a trust-and-safety system to detect fraudulent listings at scale"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the longest contiguous subarray whose sum equals a target. Discuss complexity and edge cases.",
-      "Serialize and deserialize a binary tree. Walk through your encoding choices, complexity, and edge cases.",
-      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph.",
-      "Given a set of coin denominations, compute the minimum number of coins needed to reach a target amount. Compare the recursive and bottom-up approaches.",
-      "Implement a double-entry ledger that processes a stream of transactions and detects imbalances. How do you guarantee idempotency when a transaction is delivered twice?"
+      "Given a host's daily booking revenue as an array, find the longest run of consecutive days whose revenue sums to a target. Discuss complexity and edge cases.",
+      "Serialize and deserialize a tree of nested listing categories (Home > Cabin > A-frame). Walk through your encoding choices and edge cases.",
+      "Listings link to 'similar stays' as a directed graph. Detect whether the recommendation graph has a cycle, and explain how your approach scales.",
+      "Given available nightly-discount denominations, compute the minimum number of discounts to reach a target price reduction. Compare greedy vs DP.",
+      "Design a data structure for a calendar that supports booking, cancellation, and availability queries efficiently."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Airbnb's value is 'Champion the Mission.' Tell me about a time you connected your work to a larger purpose.",
+      "'Be a Host' is about care and belonging. Describe a time you went out of your way to make a teammate or user feel supported.",
+      "'Be a Cereal Entrepreneur' means resourcefulness. Tell me about a time you solved something scrappily with limited resources.",
+      "Describe a time you collaborated with a PM or designer to change a product decision.",
+      "Tell me about a time you raised the code-quality bar — tests, edge cases, readability — under deadline pressure."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a booking/reservation system for a two-sided marketplace: availability, double-booking prevention, and payments.",
+      "Design search and ranking for listings with filters, geospatial queries, and personalization.",
+      "Design a trust-and-safety system to detect fraudulent listings or accounts at scale."
+    ],
+    "values": [
+      "Airbnb's mission is a world where anyone can belong anywhere. What does that mean to you?",
+      "As a frequent user, what's one thing about the Airbnb product you'd change and why?",
+      "Tell me about a time you showed empathy for a user whose situation was very different from yours.",
+      "'Embrace the Adventure.' Describe a time you grew by taking on something outside your comfort zone."
+    ],
     "other": []
   },
-  "difficulty": null,
+  "difficulty": 7,
   "tips": [
     "Study Core Values: Read about Airbnb's mission and values deeply. Prepare stories demonstrating each value with specific examples.",
     "Show Product Sense: Demonstrate understanding of user experience, design trade-offs, and product thinking. Use Airbnb as a user.",

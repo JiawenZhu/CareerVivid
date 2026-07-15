@@ -15,38 +15,38 @@
     "Debug: fix a subtle bug in a small piece of code given failing test output"
   ],
   "systemDesignTopics": [
-    "\"Design the Jira issue permission model supporting 10K users, custom roles, and project-level overrides.\"",
-    "\"Design the real-time collaboration layer for a Confluence page with 50 simultaneous editors.\"",
-    "\"Design cross-product notifications with per-user preferences, batching, and delivery across email / Slack / in-product.\"",
-    "\"Design the search infrastructure for a single tenant with 10M issues and sub-second query latency.\"",
-    "Open company, no bullshit: \"Tell me about a time you shared bad news with a stakeholder. How did you handle it?\"",
-    "Build with heart and balance: \"Describe a tradeoff you made between feature completeness and shipping on time.\"",
-    "Don't #@!% the customer: \"Tell me about a time you pushed back on an internal request to protect the user experience.\"",
-    "Play, as a team: \"Describe how you've contributed to a team's success beyond your individual work.\"",
-    "Be the change you seek: \"Tell me about a process or practice you changed because you believed it was wrong.\""
+    "Design the Jira issue permission model supporting 10K users, custom roles, and project-level overrides",
+    "Design the real-time collaboration layer for a Confluence page with 50 simultaneous editors",
+    "Design cross-product notifications with per-user preferences, batching, and delivery across email, Slack and in-product",
+    "Design the search infrastructure for a single tenant with 10 million issues and sub-second query latency"
   ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Implement e.g., booking system, permissions hierarchy, versioned document. Talk through your approach, complexity, and edge cases.",
-      "Implement a specific data structure with Java-idiomatic API design (concurrent queue with specific semantics, LRU cache, rate limiter). Talk through your approach, complexity, and edge cases.",
-      "Implement invalid input, missing fields, unicode. Talk through your approach, complexity, and edge cases.",
-      "Implement a streaming feature aggregator: given a stream of events, maintain rolling counts and averages per key with bounded memory. Discuss complexity and eviction.",
-      "A function intermittently fails in production. Walk me through how you would reproduce, isolate, and fix the bug."
+      "Design and implement a rate limiter for the Jira REST API with per-tenant quotas; discuss data structures and concurrency semantics.",
+      "Implement an LRU cache with TTL for Confluence page fragments — Java-idiomatic API design expected.",
+      "Parse a Jira issue-import file containing invalid input, missing fields and unicode edge cases into validated records with a rejects report.",
+      "Model a permissions hierarchy (org, project, issue) with inheritance and overrides; implement an efficient access check.",
+      "Given failing test output for a small versioned-document module, isolate and fix the bug — narrate your debugging process."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Open company, no bullshit: tell me about a time you shared bad news with a stakeholder early. How did you handle it?",
+      "Build with heart and balance: describe a trade-off you made between feature completeness and shipping on time.",
+      "Don't #@!% the customer: tell me about a time you pushed back on an internal request to protect the user experience.",
+      "Play, as a team: describe how you've contributed to a team's success beyond your individual work.",
+      "Be the change you seek: tell me about a process or practice you changed because you believed it was wrong."
     ],
     "systemDesign": [
       "Design the Jira issue permission model supporting 10K users, custom roles, and project-level overrides.",
       "Design the real-time collaboration layer for a Confluence page with 50 simultaneous editors.",
       "Design cross-product notifications with per-user preferences, batching, and delivery across email / Slack / in-product.",
-      "Design the search infrastructure for a single tenant with 10M issues and sub-second query latency.",
-      "Design a service at Atlassian scale that shortens URLs. Cover the API, storage, and hot-key handling."
+      "Design the search infrastructure for a single tenant with 10M issues and sub-second query latency."
     ],
-    "values": [],
+    "values": [
+      "Which Atlassian value resonates most with you, and where have you genuinely lived it?",
+      "How do you practice 'open company, no bullshit' when transparency is uncomfortable or costly?",
+      "Atlassian is distributed-first (Team Anywhere). How do you keep collaboration healthy across time zones?"
+    ],
     "other": [
       "Do I need Java / Kotlin to get hired at Atlassian?",
       "Is the Team Anywhere program real?",

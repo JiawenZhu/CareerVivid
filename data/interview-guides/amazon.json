@@ -10,13 +10,16 @@
     "Behavioral/Bar Raiser (2-3 rounds): Deep-dive into past experiences using STAR method. The Bar Raiser is a specially trained interviewer who ensures high hiring standards."
   ],
   "codingTopics": [
-    "Arrays/Strings: Rotation, sliding window, substring problems",
-    "Trees: Binary tree operations, BST validation, tree traversals",
-    "Graphs: BFS, DFS, shortest path (Dijkstra's algorithm)",
-    "Dynamic Programming: Optimization problems, memoization",
-    "System Design: E-commerce systems, inventory management, distributed databases"
+    "Arrays: rotation, sliding-window, two-pointer",
+    "Trees and graph traversals",
+    "Dynamic programming",
+    "Caching and hash-table design"
   ],
-  "systemDesignTopics": [],
+  "systemDesignTopics": [
+    "Design a scalable e-commerce order and inventory system that prevents overselling",
+    "Design a product recommendation service serving personalized results at low latency",
+    "Design a distributed rate limiter for a public-facing API"
+  ],
   "behavioralTopics": [
     "Customer Obsession: Starting with the customer and working backwards",
     "Ownership: Acting on behalf of the entire company, thinking long-term",
@@ -27,24 +30,33 @@
   ],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the longest contiguous subarray whose sum equals a target. Discuss complexity and edge cases.",
-      "Serialize and deserialize a binary tree. Walk through your encoding choices, complexity, and edge cases.",
-      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph.",
-      "Given a set of coin denominations, compute the minimum number of coins needed to reach a target amount. Compare the recursive and bottom-up approaches.",
-      "Implement an LRU cache with O(1) get and put. Then explain how you would make it thread-safe without serializing all access."
+      "Given a stream of daily order counts, find the longest contiguous span whose total equals a target. Discuss complexity and edge cases.",
+      "Serialize and deserialize the category tree of a product catalog. Walk through your encoding choices, complexity, and edge cases.",
+      "Given package dependencies in a build as a directed graph, detect a cycle and explain how your solution scales to a large monorepo.",
+      "Given coin/gift-card denominations, compute the minimum number needed to reach a checkout total. Compare greedy vs DP.",
+      "Implement an LRU cache with O(1) get/put, then explain how you'd make it thread-safe without serializing all access."
     ],
     "behavioral": [
-      "Tell me about a time you engaged deeply with a customer or user problem. How did it change what you built?",
-      "Describe a production incident or project you owned end-to-end. What did you do, and what was the outcome?",
-      "Describe a time you had to deliver under a tight deadline. What trade-offs did you make?",
-      "Tell me about the piece of work you are most proud of. What was the measurable impact?",
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+      "Customer Obsession: tell me about a time you engaged deeply with a customer problem and how it changed what you built.",
+      "Ownership: describe a production incident or project you owned end-to-end. What did you do, and what was the outcome?",
+      "Deliver Results: describe a time you delivered under a tight deadline. What trade-offs did you make?",
+      "Have Backbone; Disagree and Commit: tell me about a time you disagreed with a manager or peer, then committed. How did it resolve?",
+      "Dive Deep: tell me about a time you found a root cause others had missed by digging into the details."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a scalable e-commerce order and inventory system that prevents overselling under high concurrency.",
+      "Design a product recommendation service that serves personalized results at low latency and huge scale.",
+      "Design a distributed rate limiter for a public-facing API. Discuss algorithms, coordination, and failure modes."
+    ],
+    "values": [
+      "Amazon has 16 Leadership Principles. Which one do you most naturally embody, with a concrete example?",
+      "'Are Right, A Lot' and 'Learn and Be Curious.' Tell me about a time new information made you change a strongly held view.",
+      "'Frugality.' Describe a time you accomplished more with fewer resources.",
+      "'Invent and Simplify.' Tell me about a time you found a simpler solution to a complex problem."
+    ],
     "other": []
   },
-  "difficulty": null,
+  "difficulty": 7,
   "tips": [
     "Master Leadership Principles: Have 15-20 STAR stories ready covering different principles. Be specific about your individual contribution.",
     "Practice Working Code: Amazon wants code that works, even if not optimal. Test your solutions thoroughly.",

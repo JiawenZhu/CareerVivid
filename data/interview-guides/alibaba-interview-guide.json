@@ -18,22 +18,44 @@
     "Database optimization: index design, query planning, sharding strategies (PolarDB and OceanBase are Alibaba's database technologies)",
     "For AntGroup: payment processing reliability, idempotency, financial-grade consistency"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Array and string algorithms",
+    "Graph and heap problems",
+    "Distributed systems and caching",
+    "High-throughput streaming"
+  ],
+  "systemDesignTopics": [
+    "Design a flash-sale (seconds-kill) system that handles massive spikes without overselling",
+    "Design an e-commerce order and payment pipeline consistent under Singles' Day peak load",
+    "Design a distributed inventory service with strong consistency across regions"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Java-flavored: find two numbers in an array that sum to a target; then extend to k-sum and discuss complexity.",
+      "Design a distributed ID generator for high-throughput order creation. Discuss collisions and ordering.",
+      "Implement an LRU cache with O(1) operations and discuss making it work in a distributed cache tier.",
+      "Given a huge log stream, compute top-k hot items in a time window with bounded memory.",
+      "Detect a cycle in a large dependency graph and explain how your solution scales."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Alibaba's first value is 'Customer First, Employees Second, Shareholders Third.' Tell me about a time you truly put the customer first.",
+      "'If not now, when? If not me, who?' Describe a time you stepped up to own something no one else would.",
+      "'Today's best performance is tomorrow's baseline.' Tell me about a time you raised your own bar after a success.",
+      "'Change is the only constant.' Describe a time you adapted quickly to a big shift in direction.",
+      "Tell me about a time you disagreed with a teammate and how you reached resolution."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a flash-sale / seconds-kill system that handles massive spikes without overselling inventory.",
+      "Design an e-commerce order and payment pipeline that stays consistent under extreme peak load (e.g., Singles' Day).",
+      "Design a distributed inventory service with strong consistency across regions."
+    ],
+    "values": [
+      "Alibaba's mission is 'to make it easy to do business anywhere.' What draws you to that scale of impact?",
+      "The Aliren/culture round weighs values heavily. Which of Alibaba's six values best describes you, and why?",
+      "How do you think about building for hundreds of millions of users across very different markets?",
+      "'Trust makes everything simple.' Tell me about a time trust (or its absence) shaped a project's outcome."
+    ],
     "other": [
       "Does Alibaba sponsor work visas?",
       "How does the Aliren round affect the offer?",
@@ -42,7 +64,7 @@
       "What is unique about Alibaba's engineering interview?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 7,
   "tips": [
     "Technical: 8–10 weeks of LeetCode (Blind 75 + topic-targeted) plus system design via Alex Xu's books",
     "Cloud-specific: familiarity with Alibaba Cloud terminology and architecture (similar to AWS but with Chinese-market-specific services)",

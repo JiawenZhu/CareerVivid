@@ -22,22 +22,43 @@
     "King (Candy Crush) — mobile and live-ops focused, A/B testing heavy, more SaaS-like",
     "Battle.net online services — distributed systems work that resembles tech-company backend more than game development"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "C++ data structures for game state; memory-efficient object pools",
+    "Graph pathfinding on game maps (A*, BFS)",
+    "Simulation of gameplay ticks, cooldowns, and ability timelines",
+    "Heaps and hash maps: leaderboards, matchmaking, realtime ratings",
+    "String parsing of chat commands and game logs"
+  ],
+  "systemDesignTopics": [
+    "Design the matchmaking service for Overwatch that balances skill, latency and queue time across regions",
+    "Design a game-state replication system keeping a 40-player raid in sync at 20 ticks a second",
+    "Design the telemetry pipeline that ingests billions of gameplay events for balance analysis"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Implement A* pathfinding for a unit on a Warcraft-style tile map with impassable terrain; justify your heuristic.",
+      "Design an object pool for projectile entities that avoids per-frame allocations; discuss memory layout and cache-friendliness.",
+      "From a stream of match results, maintain player ratings and a live top-100 leaderboard (heap + hash map).",
+      "Simulate an ability-cooldown system over a timeline of casts and return the illegal ones (simulation + priority queue).",
+      "Parse chat commands like '/invite \"player name\"' with quoting and escapes into validated commands."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Every Voice Matters is a Blizzard value. Tell me about surfacing a concern as the most junior person in the room.",
+      "Commit to Quality: describe delaying or rejecting work because it wasn't good enough. What was the fallout?",
+      "Tell me about receiving harsh critique on creative or technical work (our culture-fit panel includes designers and producers).",
+      "Describe collaborating with non-engineers — artists, designers, producers — when priorities clashed."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design regional matchmaking: skill rating, latency buckets, queue-time fairness, and party constraints.",
+      "Design authoritative game-state replication with client prediction and cheat resistance.",
+      "Design a gameplay-telemetry pipeline feeding designers' balance dashboards within minutes of play."
+    ],
+    "values": [
+      "Gameplay First: how do you make engineering trade-offs when performance budgets compete with feature richness?",
+      "Play Nice; Play Fair: how would you approach anti-cheat or toxicity problems in a live game?",
+      "What games do you play, and what's one system in them you'd redesign? (Embrace Your Inner Geek is real here.)"
+    ],
     "other": [
       "Do I need game-development experience?",
       "Is the work mostly C++?",
@@ -45,7 +66,7 @@
       "What is work-life balance like?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 7,
   "tips": [],
   "compensation": [
     "Senior engineer: $160–220K base + RSU + bonus → $250–380K total",

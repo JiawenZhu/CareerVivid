@@ -9,27 +9,43 @@
     "Domain depth (1 round) — depends on role: quant finance, ML, distributed systems, security",
     "Behavioral / cross-functional (1 round) — collaboration, ambiguity, fit with the BlackRock culture"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "SQL as a core skill: portfolios, positions, prices",
+    "Java/C++ OO design and language internals (JVM memory, move semantics)",
+    "Hash maps and heaps for risk aggregation and top-k exposures",
+    "Financial time-series: rolling volatility, returns math",
+    "Idempotent processing: trade events, webhook pipelines; portfolio data structures"
+  ],
+  "systemDesignTopics": [
+    "Design a portfolio-analytics pipeline in Aladdin that recomputes risk for 100,000 portfolios after market close",
+    "Design a webhook processor with idempotency guarantees for trade-event notifications to institutional clients",
+    "Design a real-time market-data cache serving thousands of Aladdin users with per-client entitlement checks"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "A function intermittently fails in production. Walk me through how you would reproduce, isolate, and fix the bug.",
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Aggregate position-level risk exposures up a portfolio hierarchy (tree rollup) and return the top-k exposures per node with a heap.",
+      "Write SQL to compute month-over-month AUM change per fund from positions and prices tables, handling missing prices gracefully.",
+      "Process an at-least-once trade-event feed idempotently so each trade affects PnL exactly once; discuss keys and storage.",
+      "Compute rolling volatility of daily portfolio returns over a configurable window; discuss numerical stability.",
+      "Walk through JVM memory management and find the leak in this snippet whose heap grows under sustained load."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Fiduciary to our clients: tell me about a time you put the customer's interest above an easier engineering path.",
+      "One BlackRock: describe collaborating across teams or functions to deliver something neither could alone.",
+      "Passion for performance: tell me about raising the bar on a system others considered good enough.",
+      "Tell me about maintaining and evolving a long-lived platform rather than greenfield building. What discipline does it take?"
     ],
     "systemDesign": [
-      "Design one of BlackRock's core financial-systems flavor — address multi-asset risk calculations, real-time pricing, large-scale portfolio analytics. Walk through the architecture, trade-offs, and failure modes.",
-      "Design a service at BlackRock scale that shortens URLs. Cover the API, storage, and hot-key handling.",
-      "Design a rate limiter for a public API. Discuss algorithms, distributed coordination, and failure modes."
+      "Design the overnight risk-recomputation pipeline for 100K portfolios with a hard morning deadline.",
+      "Design a webhook/event-notification processor for institutional clients with idempotency and replay.",
+      "Design a data pipeline feeding portfolio-management dashboards with both real-time and end-of-day views."
     ],
-    "values": [],
+    "values": [
+      "Which BlackRock Principle resonates most, and where have you demonstrated it?",
+      "Aladdin runs a large share of the world's assets. How does that responsibility change how you'd engineer?",
+      "Emotional ownership: what would make you treat this platform like your own?"
+    ],
     "other": [
       "How important is Aladdin to BlackRock's overall identity?",
       "What's the AI / ML investment trajectory at BlackRock?",
@@ -38,7 +54,7 @@
       "Is BlackRock a good place for early-career engineers?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 6.5,
   "tips": [],
   "compensation": [
     "New-grad SWE: $170k–$260k total comp first year",

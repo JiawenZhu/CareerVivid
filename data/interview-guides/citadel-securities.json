@@ -10,39 +10,42 @@
     "Hiring manager / director-level conversation (1 round): typically near the end, focuses on team-specific fit and long-term trajectory."
   ],
   "codingTopics": [
-    "Implement a simple matching engine or order book primitive",
-    "Process a market data feed and compute statistics (VWAP, time-weighted price, rolling volatility)",
+    "Implement a matching engine or order-book primitive",
+    "Process a market-data feed and compute statistics (VWAP, time-weighted price, rolling volatility)",
     "Detect arbitrage opportunities given prices on multiple venues",
     "Optimize a slow function for low-latency execution",
     "Classic algorithms (graphs, dynamic programming, intervals) with market-data twists"
   ],
   "systemDesignTopics": [
-    "\"Design the market-data ingestion system for 50 exchanges with sub-microsecond latency requirements.\"",
-    "\"Design a risk-aggregation system that updates per-symbol exposure in real time across thousands of strategies.\"",
-    "\"Design the order-routing system that decides which venue gets each order based on liquidity, latency, and economics.\""
+    "Design the market-data ingestion system for many exchanges with sub-microsecond latency requirements",
+    "Design a risk-aggregation system that updates per-symbol exposure in real time across thousands of strategies",
+    "Design the order-routing system that decides which venue gets each order based on liquidity, latency, and economics"
   ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Implement a simple matching engine or order book primitive. Talk through your approach, complexity, and edge cases.",
-      "Implement VWAP, time-weighted price, rolling volatility. Talk through your approach, complexity, and edge cases.",
-      "Detect arbitrage opportunities given prices on multiple venues. Talk through your approach, complexity, and edge cases.",
+      "Implement a simple matching engine or order-book primitive. Talk through complexity and edge cases.",
+      "Process a market-data feed and compute VWAP, time-weighted price, and rolling volatility. Talk through complexity and edge cases.",
+      "Detect arbitrage opportunities given prices on multiple venues. Talk through complexity and edge cases.",
       "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph.",
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases."
+      "Given a stream of market-data ticks, maintain a sliding-window max and min price in amortized O(1). Discuss the deque approach."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a time you optimized code for microsecond-level latency.",
+      "Describe a bug where understanding hardware or memory behavior was key to the fix.",
+      "Tell me about the hardest algorithmic problem you have solved and your approach.",
+      "Describe a time you held an extremely high correctness bar under pressure."
     ],
     "systemDesign": [
-      "Design the market-data ingestion system for 50 exchanges with sub-microsecond latency requirements.",
+      "Design the market-data ingestion system for many exchanges with sub-microsecond latency requirements.",
       "Design a risk-aggregation system that updates per-symbol exposure in real time across thousands of strategies.",
-      "Design the order-routing system that decides which venue gets each order based on liquidity, latency, and economics.",
-      "Design a service at Citadel Securities scale that shortens URLs. Cover the API, storage, and hot-key handling.",
-      "Design a rate limiter for a public API. Discuss algorithms, distributed coordination, and failure modes."
+      "Design the order-routing system that decides which venue gets each order based on liquidity, latency, and economics."
     ],
-    "values": [],
+    "values": [
+      "Citadel Securities is a market-maker where microseconds and correctness translate to money. What draws you to that?",
+      "Tell me about a time performance and precision were both non-negotiable.",
+      "Describe how you approach being right when the cost of being wrong is high."
+    ],
     "other": [
       "How is Citadel Securities different from Citadel (hedge fund)?",
       "How does Citadel Securities compare to Jane Street and HRT for new grads?",
@@ -51,7 +54,7 @@
       "Is Citadel Securities likely to IPO?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 8.5,
   "tips": [
     "Treat the trading game as a real exercise. Mock practice, not just reading about it.",
     "Be direct in conversations. Citadel Securities values clarity over diplomatic hedging.",

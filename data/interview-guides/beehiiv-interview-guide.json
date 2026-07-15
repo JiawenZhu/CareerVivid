@@ -6,29 +6,50 @@
   "interviewStages": [
     "Behavioral: customer focus, fast-moving culture, ownership"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "String templating and parsing for email rendering",
+    "Streams: send/open/click event processing, sliding-window engagement metrics",
+    "Hash-map dedupe and merge of subscriber lists",
+    "Queues and scheduling: campaign sends under rate limits, heap-based greedy",
+    "Rails-style OO design and time-series analytics"
+  ],
+  "systemDesignTopics": [
+    "Design a newsletter-send pipeline that delivers 100 million emails an hour with per-domain rate limits",
+    "Design the subscriber-segmentation engine that evaluates dynamic audience rules at send time",
+    "Design an email open- and click-tracking system that stays accurate under bot and prefetch traffic"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Dedupe a merged subscriber list by email with normalization rules (case, dots, plus-addressing); design the hash-map keys.",
+      "Render a newsletter template by substituting {{tokens}} with subscriber fields, handling missing fields and HTML escaping.",
+      "From a stream of send and open events, compute open rate per campaign over a sliding 24-hour window.",
+      "Schedule N campaigns across per-domain rate limits so all complete soonest — greedy with a heap; prove it terminates.",
+      "Detect bot opens: subscribers whose opens arrive within one second of send for k consecutive campaigns."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "beehiiv prizes bias to action. Tell me about shipping something end-to-end fast — what did you consciously skip?",
+      "Describe owning quality with no QA team: how do you test what you ship?",
+      "Tell me about handling rapid context switching across features at a small startup.",
+      "Describe a time user feedback changed what you built mid-stream."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design bulk email sending: queueing, ESP/IP warm-up, per-domain throttles, and bounce handling.",
+      "Design the referral-program feature: attribution, fraud checks, and reward fulfillment.",
+      "Design newsletter analytics that creators actually trust: opens, clicks, and bot filtering."
+    ],
+    "values": [
+      "beehiiv is creator-first. Tell me about building something where the user's income depended on your reliability.",
+      "We move fast with high expectations for speed and quality. When have you delivered both, and what did it cost?",
+      "Why newsletters and the creator economy — why does this space matter?"
+    ],
     "other": [
       "Is Beehiiv remote-friendly?",
       "How does Beehiiv compare to Substack?",
       "What is the engineering culture?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 6,
   "tips": [],
   "compensation": null,
   "rawSummary": "Beehiiv Interview Guide (2026): Modern Newsletter Platform\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nBeehiiv\nbeehiiv.com ↗\n\nBeehiiv is the modern newsletter platform competing with Substack, founded by ex-Morning Brew employees. Used by tens of thousands of newsletters. The interview is small-team and rewards engineers excited about the creator economy and modern web stack.\n\nProcess\n\nRecruiter screen → 60-minute coding pair → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 2–4 weeks.\n\nWhat they actually ask\n\n- Design a newsletter delivery and analytics pipeline\n\n- Design referral / growth viral loops (similar to Morning Brew's growth playbook)\n\n- Design ad serving network for newsletter monetization\n\n- Coding: practical Ruby/Rails or TypeScript\n\n- Behavioral: customer focus, fast-moving culture, ownership\n\nLevels and comp (2026)\n\n- SE: $160K–$210K total\n\n- Senior SE: $230K–$310K\n\n- Staff: $330K–$440K\n\n- Principal: $460K–$610K\n\nEquity has high upside given Series B funding and category leadership.\n\nPrep priorities\n\n- Be fluent in Ruby on Rails (primary stack)\n\n- Understand growth loops, referral mechanics, and viral marketing\n\n- Brush up on email deliverability and ad-serving patterns\n\nFrequently Asked Questions\n\nIs Beehiiv remote-friendly?\n\nHybrid in NYC (HQ); some remote within US for senior+ roles.\n\nHow does Beehiiv compare to Substack?\n\nSubstack has the larger brand and creator network. Beehiiv has more features, faster shipping, and stronger growth-tooling. Comp is comparable; bar is high at both.\n\nWhat is the engineering culture?\n\nFast-moving, ship-focused, ownership-heavy. Younger team than Substack. Strong fit for engineers who like startup intensity.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Beehiiv? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextMinimum Spanning Tree: Kruskal's and Prim's Algorithm Interview Guide⏱ 4 min readGraceful Degradation Low-Level Design⏱ 7 min readSystem Design: Web Crawler — Distributed Crawling, URL Frontier, Politeness, Deduplication, robots.txt, Sitemap⏱ 7 min read"

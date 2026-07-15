@@ -6,29 +6,49 @@
   "interviewStages": [
     "Behavioral: customer focus, written communication, security mindset"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Authentication flows: session lifecycle, token issuance, and revocation",
+    "OAuth and JWT handling and validation",
+    "Rate limiting and abuse prevention on auth endpoints",
+    "Caching of sessions and user data with invalidation",
+    "String and token parsing plus data-structure design"
+  ],
+  "systemDesignTopics": [
+    "Design a multi-tenant authentication and session-management service for thousands of applications",
+    "Design token issuance, refresh, and revocation with active-session monitoring",
+    "Design a rate-limiting and bot-detection layer for authentication endpoints"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Implement a session store with issuance, lookup, and O(1) revocation, backed by an LRU cache with a memory bound. Discuss eviction.",
+      "Given a JWT, validate its signature, expiry, and claims, and reject tampered tokens. Discuss the parsing and edge cases.",
+      "Implement a sliding-window rate limiter for login attempts per user and IP. Discuss the data structure and complexity.",
+      "Given a stream of auth events, detect credential-stuffing bursts within a time window. Discuss the approach."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a time you handled a security-sensitive problem carefully.",
+      "Describe building a developer-facing API or SDK that others integrated.",
+      "Tell me about moving fast as an early-stage engineer while keeping quality high.",
+      "Describe a time you audited or hardened an authentication implementation."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a multi-tenant authentication and session-management service for thousands of applications.",
+      "Design token issuance, refresh, and revocation with active-session monitoring.",
+      "Design a rate-limiting and bot-detection layer for authentication endpoints."
+    ],
+    "values": [
+      "Clerk is developer-first, obsessing over the DX of authentication. What draws you to building for other developers?",
+      "Tell me about a time you sweated the details of an API’s ergonomics.",
+      "How do you balance shipping fast at a startup with getting security right?"
+    ],
     "other": [
       "Is Clerk fully remote?",
       "How does Clerk compare to Auth0 (Okta) or Supabase Auth?",
       "What is the engineering culture?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 6.5,
   "tips": [],
   "compensation": null,
   "rawSummary": "Clerk Interview Guide (2026): Authentication for Modern Apps\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nClerk\nclerk.com ↗\n\nClerk is the modern authentication and user-management platform — used by tens of thousands of startups and SaaS companies. Drop-in components for sign-in, MFA, organization management, and increasingly for B2B SaaS auth flows. The interview emphasizes frontend SDK design, security, and the realities of running a high-availability auth platform.\n\nProcess\n\nRecruiter screen → 60-minute coding pair → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 2–4 weeks.\n\nWhat they actually ask\n\n- Design a session management system with stateful and stateless modes\n\n- Design an SSO (SAML / OIDC) flow that handles arbitrary enterprise IdPs\n\n- Design a passkey enrollment and login flow\n\n- Coding: practical TypeScript/Node, often with security framing\n\n- Behavioral: customer focus, written communication, security mindset\n\nLevels and comp (2026)\n\n- SE: $180K–$240K total\n\n- Senior SE: $260K–$340K\n\n- Staff: $370K–$480K\n\n- Principal: $500K–$650K\n\nPrep priorities\n\n- Be fluent in TypeScript and at least one auth protocol (OIDC, SAML, WebAuthn)\n\n- Understand security fundamentals: cookies, tokens, CSRF, XSS\n\n- Read the Clerk engineering blog and architecture documentation\n\nFrequently Asked Questions\n\nIs Clerk fully remote?\n\nYes. Distributed across US and EU. Quarterly off-sites.\n\nHow does Clerk compare to Auth0 (Okta) or Supabase Auth?\n\nAuth0 is enterprise-broad. Supabase Auth is Postgres-native. Clerk wins on developer experience and modern UI components for B2C and B2B SaaS. Comp is competitive at senior+.\n\nWhat is the engineering culture?\n\nFast-moving, async-friendly, opinionated. Strong written-communication culture. Genuine craft pride.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Clerk? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextDefense Primes Interview Guide (2026): Lockheed Martin, Northrop Grumman, Raytheon (RTX)⏱ 3 min readLow Level Design: Cursor-Based vs Offset Pagination⏱ 6 min readMore Hat Puzzles⏱ 3 min read"

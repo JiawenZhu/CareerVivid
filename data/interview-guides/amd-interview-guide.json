@@ -9,27 +9,44 @@
     "System design or specialty design (1 round) — varies by role; for ML systems candidates, expect questions about distributed training and inference architectures",
     "Behavioral / cross-functional (1 round)"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Concurrency and memory-safe systems",
+    "Cache-friendly array and math kernels",
+    "Simulation of compute workloads",
+    "Systems-level data structures"
+  ],
+  "systemDesignTopics": [
+    "Design a distributed training data pipeline feeding many GPU / accelerator nodes",
+    "Design a job scheduler placing workloads across a heterogeneous CPU/GPU cluster",
+    "Design fleet telemetry and monitoring for accelerators in production"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Implement a thread-safe bounded queue. How do you prevent race conditions and deadlocks?",
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Implement a thread-safe bounded queue for a producer/consumer pipeline. Prevent race conditions and deadlocks.",
+      "Given a large matrix, write cache-friendly code for a transform and explain memory-access trade-offs.",
+      "Implement a lock-free or fine-grained-locked counter and discuss correctness under contention.",
+      "Optimize a hot loop for a compute kernel: discuss vectorization and data layout.",
+      "Given a large 2D compute grid, implement a cache-friendly stencil/convolution pass. Discuss memory-access patterns and how data layout affects performance on a GPU-like architecture."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "AMD values execution reliability. Tell me about a time you committed to a plan, spotted a risk early, and communicated it clearly.",
+      "Hardware and software teams work tightly at AMD. Describe a time you collaborated across a big discipline boundary.",
+      "AMD encourages direct but humble communication. Tell me about a time you gave direct feedback without ego.",
+      "Continuous improvement: describe a time you fixed a broken process systematically and shared the learnings.",
+      "How do you use AI tools in your workflow, and how do you stay the 'human arbiter' of the output?"
     ],
     "systemDesign": [
-      "Design AMD's varies by role; for ML systems candidates platform — cover expect questions about distributed training and inference architectures. Walk through the architecture, trade-offs, and failure modes.",
-      "Design a service at AMD scale that shortens URLs. Cover the API, storage, and hot-key handling.",
-      "Design a rate limiter for a public API. Discuss algorithms, distributed coordination, and failure modes."
+      "For ML-systems roles: design a distributed training data pipeline feeding many GPU/accelerator nodes efficiently.",
+      "Design a job scheduler that places compute workloads across a heterogeneous CPU/GPU cluster.",
+      "Design a telemetry and monitoring system for a fleet of accelerators in production."
     ],
-    "values": [],
+    "values": [
+      "AMD is closing the gap with NVIDIA on AI compute. What draws you to that underdog engineering challenge?",
+      "Why AMD/ROCm over the more established CUDA ecosystem for your career?",
+      "How do you think about execution excellence when timelines and hardware constraints are unforgiving?",
+      "Tell me about a time you raised the quality bar for a team."
+    ],
     "other": [
       "Should I choose AMD or NVIDIA for an AI / GPU career?",
       "How realistic is AMD closing the CUDA gap?",
@@ -38,7 +55,7 @@
       "How does the Lisa Su era affect engineering culture?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 6,
   "tips": [],
   "compensation": [
     "New-grad SWE / hardware engineer: $160k–$240k total comp first year",

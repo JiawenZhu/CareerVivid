@@ -9,27 +9,45 @@
     "Domain depth (1 round) — depends on role: ML for underwriting, mobile, distributed systems, compliance engineering",
     "Behavioral / values fit (1 round) — collaboration, written reasoning, conviction about the product mission"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Double-entry ledgers and financial correctness",
+    "fintech streaming pipelines",
+    "Portfolio and finance math",
+    "Idempotency and caching"
+  ],
+  "systemDesignTopics": [
+    "Design a loan-servicing system covering application, underwriting, disbursement, and collections",
+    "Design an idempotent installment-repayment ledger that never double-charges",
+    "Design real-time checkout that prices and offers loans dynamically at merchant checkout"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Implement a double-entry ledger that processes a stream of transactions and detects imbalances. How do you guarantee idempotency when a transaction is delivered twice?",
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Implement a double-entry ledger that processes a stream of transactions and detects imbalances. How do you guarantee consistency?",
+      "Implement idempotent loan-application processing so a retried request never creates a duplicate loan.",
+      "Given a repayment schedule, compute amortization and remaining balance exactly with integer-cents arithmetic.",
+      "Parse a stream of underwriting feature events and maintain a rolling per-user aggregate efficiently.",
+      "Design a data structure with O(1) insert/delete/get-random and explain a use in a servicing system."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Affirm's value 'It's on us' is about accountability. Tell me about a time you took ownership of a failure that wasn't entirely yours.",
+      "'People come first.' Describe a decision where you put the customer's financial wellbeing ahead of a revenue metric.",
+      "'No fine print' means radical transparency. Tell me about a time you chose to be transparent when it was uncomfortable.",
+      "Affirm has a written-reasoning-heavy culture. Describe a complex decision you argued for in writing. What was the reasoning?",
+      "'Push the envelope.' Tell me about the most ambitious thing you've shipped and the trade-offs you made."
     ],
     "systemDesign": [
-      "Design one of Affirm's core fintech systems — address loan servicing, payments, idempotency, ledger consistency. Walk through the architecture, trade-offs, and failure modes.",
-      "Design a service at Affirm scale that shortens URLs. Cover the API, storage, and hot-key handling.",
-      "Design a rate limiter for a public API. Discuss algorithms, distributed coordination, and failure modes."
+      "Design Affirm's loan-servicing system: application, underwriting integration, disbursement, servicing, and collections with strict consistency.",
+      "Design an idempotent payments/ledger pipeline for installment repayments that must never double-charge or lose a payment.",
+      "Design the real-time checkout system that prices and offers loans dynamically at merchant checkout.",
+      "Design a compliance-audit trail for underwriting decisions that satisfies regulatory review."
     ],
-    "values": [],
+    "values": [
+      "Affirm's mission is honest financial products that improve lives. Why does that resonate with you?",
+      "BNPL faces real regulatory scrutiny (CFPB/TILA). How do you think about building responsibly in a regulated space?",
+      "'Simpler is better.' When have you removed complexity rather than adding a feature?",
+      "How do you weigh moving fast against the correctness bar required for money movement?"
+    ],
     "other": [
       "How does the 2024 CFPB rule affect Affirm engineering?",
       "What's the underwriting ML actually like?",
@@ -38,7 +56,7 @@
       "How risky is the BNPL business given regulatory pressure?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 7,
   "tips": [],
   "compensation": [
     "New-grad SWE: $170k–$260k total comp first year",
