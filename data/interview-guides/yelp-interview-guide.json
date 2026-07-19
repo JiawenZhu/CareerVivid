@@ -6,29 +6,50 @@
   "interviewStages": [
     "Behavioral: customer focus, ownership, working with mature platform"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Graph and routing: matching, shortest path on road networks",
+    "Geospatial: nearest-neighbor queries, geohashing",
+    "Heaps and top-K: ranking listings, nearest providers",
+    "Streaming: real-time orders and status events",
+    "Hash maps and caching: inventory and catalog lookups"
+  ],
+  "systemDesignTopics": [
+    "Design a local search ranking system (geographic + relevance + quality)",
+    "Design fake review detection",
+    "Design business profile management with claim verification"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "At Yelp, given providers and pending orders streaming in, match them to minimize total wait time, allowing batching of nearby orders. Discuss the greedy heap approach.",
+      "Answer top-K nearest-provider queries for a user at high QPS. Discuss geohashing and a heap-based approach.",
+      "Maintain a real-time in-stock count per listings from an event stream with bounded memory.",
+      "Rank listings for a search query by relevance and availability using a heap. Discuss tie-breaking.",
+      "Given a stream of orders status events, detect any stuck longer than a threshold using a sliding window."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a project you are proud of at Yelp scale and the hardest tradeoff you made.",
+      "Give me an example that shows customer focus, ownership, working with mature platform.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a local search ranking system (geographic + relevance + quality).",
+      "Design fake review detection.",
+      "Design business profile management with claim verification."
+    ],
+    "values": [
+      "Yelp balances multiple sides of a marketplace. Describe a time you weighed one side against another.",
+      "Tell me about a time you built something that helped both supply and demand succeed.",
+      "How do you improve trust and safety in a two-sided marketplace?"
+    ],
     "other": [
       "Is Yelp remote-friendly?",
       "How does Yelp compare to Google Maps or Tripadvisor?",
       "What is the engineering culture?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 6,
   "tips": [],
   "compensation": null,
   "rawSummary": "Yelp Interview Guide (2026): Local Search Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nYelp\nyelp.com ↗\n\nYelp is the dominant US local search and review platform — 200M+ reviews of local businesses. The interview emphasizes search relevance, local data, fraud detection (fake reviews), and the unique two-sided marketplace dynamics of consumer + business.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design a local search ranking system (geographic + relevance + quality)\n\n- Design fake review detection\n\n- Design business profile management with claim verification\n\n- Coding: medium DSA, often with graph or geo framing\n\n- Behavioral: customer focus, ownership, working with mature platform\n\nLevels and comp (2026)\n\n- SE II: $150K–$185K total\n\n- Senior SE: $215K–$285K\n\n- Staff: $310K–$410K\n\n- Principal: $430K–$570K\n\nPrep priorities\n\n- Be fluent in Python (legacy ML/data) or Go (newer services)\n\n- Understand search and ranking systems\n\n- Brush up on geographic indexing (S2, geohash) and local-relevance signals\n\nFrequently Asked Questions\n\nIs Yelp remote-friendly?\n\nYes. Fully remote in the US since 2020.\n\nHow does Yelp compare to Google Maps or Tripadvisor?\n\nYelp is local-business specific. Google Maps wins on map experience. Tripadvisor specializes in travel. Yelp comp is mid-tier; below FAANG.\n\nWhat is the engineering culture?\n\nMature, stable, distributed-first. Strong testing and deploy discipline. Mission has stabilized post-IPO.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Yelp? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextTagging System Low-Level Design⏱ 7 min readRecursion Interview Patterns: Memoization, Tree Recursion, Classic Problems⏱ 6 min readAI Coding Assistants Compared 2026: Cursor, Copilot, Claude Code, Windsurf⏱ 4 min read"

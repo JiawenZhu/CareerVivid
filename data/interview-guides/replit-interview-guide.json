@@ -6,29 +6,50 @@
   "interviewStages": [
     "Behavioral: ownership, technical depth, written communication"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Practical systems coding: parsers, queues, small state machines",
+    "Streaming and time-series: windowed aggregation over log and metric events",
+    "String parsing: query languages, config formats",
+    "Data structures: ring buffers, LRU caches, tries",
+    "Graph and topological: build and dependency ordering"
+  ],
+  "systemDesignTopics": [
+    "Design a multi-tenant code execution sandbox with sub-second cold start",
+    "Design AI coding agents with tool use and reasoning loops",
+    "Design real-time collaborative coding (Operational Transformation)"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "At Replit, parse a stream of log and metric events and aggregate by key over a sliding window. Discuss memory bounds.",
+      "Implement a rate-limited, back-pressured queue for ingestion. Discuss what happens when a downstream sink is slow.",
+      "Parse a config format into a typed structure with schema validation. Discuss error handling.",
+      "Given a dependency graph of build targets, compute a valid build order and detect cycles via topological sort.",
+      "Downsample a time-series into fixed buckets (min, max, avg) as data streams in. Walk through the approach."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a project you are proud of at Replit scale and the hardest tradeoff you made.",
+      "Give me an example that shows ownership, technical depth, written communication.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a multi-tenant code execution sandbox with sub-second cold start.",
+      "Design AI coding agents with tool use and reasoning loops.",
+      "Design real-time collaborative coding (Operational Transformation)."
+    ],
+    "values": [
+      "Replit is trusted by the developers who depend on it. Describe a time you prioritized reliability and craft.",
+      "Tell me about an open-source contribution or public work you are proud of.",
+      "How do you weigh a breaking change against the migration cost for users?"
+    ],
     "other": [
       "Is Replit remote-friendly?",
       "How does Replit compare to Codespaces or GitPod?",
       "What is the engineering bar?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 7,
   "tips": [],
   "compensation": null,
   "rawSummary": "Replit Interview Guide (2026): Cloud IDE and Agent Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nReplit\nreplit.com ↗\n\nReplit is the cloud-IDE and AI-coding-agent platform — used by millions of learners and developers. Pivoted strongly toward AI agents in 2024–2025. The interview is technically deep with focus on sandboxed compute, AI agent design, and developer-facing tooling.\n\nProcess\n\nRecruiter screen → 60-minute coding pair → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–5 weeks.\n\nWhat they actually ask\n\n- Design a multi-tenant code execution sandbox with sub-second cold start\n\n- Design AI coding agents with tool use and reasoning loops\n\n- Design real-time collaborative coding (Operational Transformation)\n\n- Coding: practical TypeScript / Python / Go\n\n- Behavioral: ownership, technical depth, written communication\n\nLevels and comp (2026)\n\n- SE: $190K–$240K total\n\n- Senior SE: $270K–$360K\n\n- Staff: $390K–$520K\n\n- Principal: $560K–$740K\n\nPrep priorities\n\n- Be fluent in TypeScript, Go, or Python\n\n- Understand container internals: Docker, runc, gVisor, Firecracker\n\n- Brush up on AI agent patterns and LLM API integration\n\nFrequently Asked Questions\n\nIs Replit remote-friendly?\n\nDistributed-first. Hub in San Francisco. Most engineering roles fully remote within US.\n\nHow does Replit compare to Codespaces or GitPod?\n\nReplit owns the consumer/learner segment. Codespaces is GitHub-integrated. GitPod is enterprise-friendly. Replit's AI agent (Replit Agent) is the differentiator. Comp is competitive with mid-tier AI startups.\n\nWhat is the engineering bar?\n\nHigh. Small team handling significant scale and AI complexity.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Replit? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextFrontend System Design: Build YouTube Watch Page⏱ 3 min readSystem Design: Distributed Transactions — Two-Phase Commit, Saga Pattern, and the Outbox Pattern⏱ 6 min readSocial Graph Analytics Low-Level Design: Degree Distribution, Cluster Detection, and Influence Scoring⏱ 5 min read"

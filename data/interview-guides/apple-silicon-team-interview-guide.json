@@ -17,22 +17,43 @@
     "Compilers: implement a small optimization pass in pseudocode; explain how vectorization decisions are made",
     "Drivers: implement a producer-consumer queue in C with appropriate memory barriers; explain how Mach IPC works"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Bit-manipulation: register packing, masks, allocation bitmaps",
+    "Memory hierarchy: cache simulation, memory-efficient data structure design",
+    "Systems programming: C/C++ performance, profiling numeric kernels",
+    "Dependency graphs: silicon validation and build pipeline scheduling, topological sort",
+    "Time-series and logs: interrupt traces, sliding-window analysis of telemetry"
+  ],
+  "systemDesignTopics": [
+    "Design a performance-telemetry pipeline that collects and aggregates hardware counters from millions of Apple Silicon devices",
+    "Design a pre-silicon validation framework that schedules thousands of emulation jobs across a compute farm",
+    "Design a memory-allocator test harness that detects fragmentation regressions across chip generations"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Pack and unpack power-state flags into a 64-bit hardware register using bit manipulation; handle endianness and reserved bits.",
+      "Simulate an L1/L2 cache with configurable associativity and report the hit rate for a given memory-access trace.",
+      "Given a DAG of chip-validation jobs with dependencies and durations, schedule them across N machines to minimize total time.",
+      "Find the first free block in a giant allocation bitmap efficiently — discuss word-level tricks and popcount.",
+      "Given a log of interrupt timestamps, find the longest window where the interrupt rate stayed under a threshold."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about the deepest bug you've ever chased — hardware, kernel, or compiler level. How did you isolate it?",
+      "Describe collaborating with a team whose discipline you didn't share (hardware/silicon vs software). How did you bridge vocabulary?",
+      "Tell me about a time a performance optimization mattered enormously. How did you measure before and after?",
+      "Describe working under strict secrecy or need-to-know constraints. How did you still get help when stuck?"
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a performance-telemetry aggregation pipeline for hardware counters across millions of devices.",
+      "Design the job scheduler for a pre-silicon emulation farm with priorities, preemption, and dependency chains.",
+      "Design a regression-detection system comparing performance benchmarks across nightly silicon-model builds."
+    ],
+    "values": [
+      "Why chip-level work at Apple rather than pure software? What draws you to the hardware-software boundary?",
+      "Apple Silicon's edge comes from vertical integration. Tell me about a time owning the whole stack let you do something others couldn't.",
+      "How do you balance shipping on a fixed silicon schedule against your own quality bar?"
+    ],
     "other": [
       "Can I join Apple Silicon with a software-only background?",
       "Do I need to know Verilog?",
@@ -40,7 +61,7 @@
       "Is the work secret?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 8.5,
   "tips": [],
   "compensation": [
     "ICT3 / Senior: $200–250K base + $300–500K equity (4-year vest) + bonus → $400–600K total",

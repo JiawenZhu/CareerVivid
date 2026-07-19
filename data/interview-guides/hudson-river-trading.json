@@ -8,36 +8,43 @@
     "Behavioral / fit (1 round): conversation about background, why HRT specifically, how you operate technically. Less STAR-format than typical FAANG; more discussion-style."
   ],
   "codingTopics": [
-    "Graph problems with non-obvious approach (shortest path with constraints, max-flow variants, min-cost matching)",
+    "Graph problems with a non-obvious approach: shortest path with constraints, max-flow variants, min-cost matching",
     "Hard dynamic programming with state compression or non-obvious transitions",
-    "Implement a specific data structure with tight performance requirements (custom hash map, memory-pool allocator, ring buffer with specific concurrency semantics)",
-    "Computational-geometry problems (convex hull, line intersection, point-in-polygon optimizations)",
-    "Numerical / parsing problems with floating-point or integer-overflow edge cases",
-    "Walk through what happens when a packet arrives at a network card and how it reaches your trading code in a kernel-bypass setup.",
-    "Describe how you'd design a market-data parser to maintain microsecond-level latency under heavy load.",
-    "Explain how cache coherence affects cross-core communication and what you'd do to minimize cost.",
-    "Expected-value problems (multi-stage games, conditional expectations)",
-    "Probability fundamentals (Bayesian reasoning, conditional probability)",
-    "Market-making framing for some problems (fair-value reasoning, dynamic pricing under uncertainty)",
-    "Statistics intuition (regression, hypothesis testing at conceptual level)"
+    "Implement a data structure with tight performance requirements: custom hash map, memory-pool allocator, ring buffer",
+    "Numerical and parsing problems with floating-point or integer-overflow edge cases",
+    "Probability and expected-value problems: conditional expectations, market-making fair-value reasoning"
   ],
-  "systemDesignTopics": [],
+  "systemDesignTopics": [
+    "Design a low-latency market-data feed handler that parses exchange packets in microseconds",
+    "Design an order-management system that guarantees no duplicate or lost orders under failover",
+    "Design a backtesting engine that replays years of tick data deterministically",
+    "Design a real-time risk and position-limit checker in the critical trading path"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Discuss lock-free data structures &mdash; when do they help, what are the costs, what's the difference from wait-free?",
-      "Reason about memory ordering: what does C++'s memory_order_acquire actually guarantee on x86 vs ARM?",
-      "Implement shortest path with constraints, max-flow variants, min-cost matching. Talk through your approach, complexity, and edge cases.",
-      "Given a set of coin denominations, compute the minimum number of coins needed to reach a target amount. Compare the recursive and bottom-up approaches.",
-      "Implement a specific data structure with tight performance requirements (custom hash map, memory-pool allocator, ring buffer with specific concurrency semantics). Talk through your approach, complexity, and edge cases."
+      "Implement a fixed-capacity ring buffer for a single-producer single-consumer market-data queue with the tightest possible latency. Discuss memory ordering.",
+      "Parse a binary exchange market-data message in TLV format into a book update with zero allocations on the hot path. Discuss the approach.",
+      "Given a stream of order-book updates, maintain the top-of-book (best bid and ask) with O(1) updates. Discuss the data structure.",
+      "Expected-value puzzle: in a multi-round game with conditional payoffs, compute the optimal stopping strategy. Walk through the probability reasoning.",
+      "Maintain a rolling median of trade prices over a sliding window using two heaps. Discuss complexity."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "HRT is engineering-heavy and precise. Tell me about a time microscopic correctness or performance mattered.",
+      "Describe a time you optimized something to the limit, in latency or memory, and how you measured it.",
+      "Give an example of collaborating quietly and effectively with very strong engineers.",
+      "Tell me about a time you found a subtle bug others missed in a performance-critical system."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a low-latency market-data feed handler that parses exchange packets in microseconds.",
+      "Design an order-management system that guarantees no duplicate or lost orders under failover.",
+      "Design a backtesting engine that replays years of tick data deterministically."
+    ],
+    "values": [
+      "HRT treats technology as the product. Describe a time deep technical craft was the differentiator.",
+      "How do you reason about risk and uncertainty when the cost of being wrong is high?",
+      "Tell me about a time intellectual honesty led you to abandon an approach you were invested in."
+    ],
     "other": [
       "Is HRT's coding bar really higher than FAANG?",
       "How does HRT compare to Jane Street and Citadel Securities for new grads?",
@@ -46,7 +53,7 @@
       "How does HRT compare to Jump Trading?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 9,
   "tips": [
     "Treat the coding bar as the central filter. If you can't solve hard competitive-programming problems cleanly, no other strength compensates.",
     "Understand low-latency systems beyond surface. Cache effects, memory ordering, NUMA, lock-free patterns &mdash; these distinguish strong candidates.",

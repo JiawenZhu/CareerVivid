@@ -9,27 +9,41 @@
     "Domain depth (1 round) — depends on role: distributed systems, ML, security, crypto, data engineering",
     "Behavioral / fit (1 round) — collaboration, ambiguity, customer focus"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Arrays and trees: traversal and search",
+    "SQL-style joins and aggregation over account data",
+    "Strings and hashmaps for transaction processing",
+    "Sorting and searching financial records"
+  ],
+  "systemDesignTopics": [
+    "Design a brokerage trade order-processing system with audit trails",
+    "Design a real-time portfolio valuation dashboard for retail investors",
+    "Design a secure account statement and transaction-history service"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "A function intermittently fails in production. Walk me through how you would reproduce, isolate, and fix the bug.",
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Given a customer's transaction history, compute account balance over time and flag any overdrafts. Talk through your approach and edge cases.",
+      "Given a tree of fund categories, aggregate total assets under management per branch. Discuss complexity.",
+      "Merge dated dividend and price records to compute total return for a holding. Talk through your approach.",
+      "Given buy and sell trade orders, match them FIFO to compute realized gains and cost basis. Discuss edge cases and complexity."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a project on your resume you're proud of. Walk me through a hard trade-off you made.",
+      "Describe a time you caught a data-integrity or correctness issue in a financial or critical system.",
+      "Tell me about a time you had to explain a complex technical decision to a non-technical stakeholder.",
+      "Describe a time you improved onboarding or documentation for your team."
     ],
     "systemDesign": [
-      "Design one of Fidelity Investments's core financial systems with scale — address millions of accounts, billions in transactions. Walk through the architecture, trade-offs, and failure modes.",
-      "Design a service at Fidelity Investments scale that shortens URLs. Cover the API, storage, and hot-key handling.",
-      "Design a rate limiter for a public API. Discuss algorithms, distributed coordination, and failure modes."
+      "Design a brokerage order-processing system. Cover order lifecycle, audit trails, and correctness guarantees.",
+      "Design a real-time portfolio valuation dashboard. Cover price ingestion, fan-out, and caching.",
+      "Design a secure statement and transaction-history service. Cover access control, retention, and scale."
     ],
-    "values": [],
+    "values": [
+      "Fidelity manages people's life savings. How does that responsibility shape how you build software?",
+      "Tell me about a time you prioritized doing the correct thing over the fast thing.",
+      "Why financial services, and why a firm known for long-term stability like Fidelity?"
+    ],
     "other": [
       "How does private ownership actually affect engineers?",
       "What's working in Fidelity Digital Assets like?",
@@ -38,7 +52,7 @@
       "Is Fidelity a good place for early-career engineers?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 5,
   "tips": [],
   "compensation": [
     "New-grad SWE: $130k–$220k total comp first year",

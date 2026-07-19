@@ -6,29 +6,50 @@
   "interviewStages": [
     "Behavioral: customer focus, written communication, working with non-technical buyers"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Data sync and diffing: incremental change detection over rows",
+    "Streaming and batching: rate-limited pushes to external APIs",
+    "Parsing and transformation: field mapping, schema handling",
+    "Retry and reliability: dead-letter queues, idempotency",
+    "Data structures: hash maps for diffing, queues"
+  ],
+  "systemDesignTopics": [
+    "Design a reverse-ETL sync engine that pushes millions of rows to Salesforce without exceeding rate limits",
+    "Design diff detection that finds only changed rows for incremental syncs",
+    "Design a connector framework with retry, dead-letter, and observability",
+    "Design a Composable CDP audience-computation pipeline over a warehouse"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Given two snapshots of a warehouse table, compute the minimal set of row inserts, updates, and deletes to sync. Discuss hashing and complexity.",
+      "Push updates to a downstream API with a strict rate limit. Implement batching plus token-bucket throttling with retries.",
+      "Implement idempotent delivery with a dead-letter queue so a flaky sink never duplicates or silently drops rows.",
+      "Map and transform warehouse columns to a destination schema, handling type mismatches and nulls. Walk through edge cases."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Hightouch moves customers' data reliably. Tell me about a time you prevented data loss or corruption.",
+      "Describe a time strong written communication helped a customer or teammate.",
+      "Give an example of working with non-technical buyers or users to scope a feature.",
+      "Tell me about a time you owned an incident involving an external integration."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a reverse-ETL sync engine that pushes millions of rows to Salesforce without exceeding rate limits.",
+      "Design diff detection that finds only the changed rows for an incremental sync.",
+      "Design a connector framework with retry, dead-letter handling, and observability."
+    ],
+    "values": [
+      "Customers trust Hightouch with their data. Describe a time you earned or protected that trust.",
+      "How do you balance sync speed against correctness and rate-limit safety?",
+      "Tell me about a time you chose the pragmatic solution to ship reliably."
+    ],
     "other": [
       "Is Hightouch fully remote?",
       "How does Hightouch compare to Census?",
       "What is the bar like for senior roles?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 6,
   "tips": [],
   "compensation": null,
   "rawSummary": "Hightouch Interview Guide (2026): Reverse ETL Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nHightouch\nhightouch.com ↗\n\nHightouch pioneered the \"reverse ETL\" category — sync data from your warehouse (Snowflake, BigQuery, Redshift) to operational tools (Salesforce, HubSpot, Iterable). Now expanding to Composable CDP. The interview emphasizes data engineering, SQL fluency, and the reliability concerns of moving customer data between systems.\n\nProcess\n\nRecruiter screen → 60-minute coding pair → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design a sync engine that pushes 10M rows from a warehouse to Salesforce without exceeding rate limits\n\n- Design diff detection that finds only changed rows for incremental syncs\n\n- Design a connector framework with retry, dead-letter, and observability\n\n- Coding: medium DSA, often with parsing or transformation flavor\n\n- Behavioral: customer focus, written communication, working with non-technical buyers\n\nLevels and comp (2026)\n\n- SE II: $170K–$210K total\n\n- Senior SE: $250K–$320K\n\n- Staff: $350K–$460K\n\n- Principal: $480K–$620K\n\nPrep priorities\n\n- Be fluent in TypeScript/Node.js and SQL\n\n- Understand modern data stack: Snowflake, BigQuery, dbt, Fivetran\n\n- Read about reverse ETL patterns and customer data infrastructure\n\nFrequently Asked Questions\n\nIs Hightouch fully remote?\n\nYes. Distributed across US and EU. Hubs in San Francisco optional.\n\nHow does Hightouch compare to Census?\n\nBoth reverse ETL leaders. Hightouch broader on Composable CDP / audience activation. Comp is comparable.\n\nWhat is the bar like for senior roles?\n\nHigh. Strong technical writing, demonstrated craft, and customer empathy all matter.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Hightouch? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextLow Level Design: Booking and Reservation System⏱ 5 min readDispute Service Low-Level Design: Chargeback Flow, Evidence Collection, and Resolution Workflow⏱ 5 min readLow Level Design: ML Content Moderation Service⏱ 3 min read"

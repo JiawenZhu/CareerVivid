@@ -6,29 +6,51 @@
   "interviewStages": [
     "Behavioral: customer focus, ownership, fast-moving culture"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Search and inverted-index algorithms",
+    "Fuzzy matching and merge / dedup",
+    "String and dictionary structures",
+    "Streaming score aggregation and caching"
+  ],
+  "systemDesignTopics": [
+    "Design a B2B contact database with ingestion, dedup, enrichment, and low-latency filtered search",
+    "Design a sales-engagement sequencer sending multi-step outreach at scale without spam flags",
+    "Design a lead-scoring pipeline that updates in near real time as engagement arrives"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Given a large contact database, implement fast fuzzy matching/dedup of records (same person, different sources).",
+      "Implement an inverted index to support filtered search over millions of B2B contacts. Discuss complexity.",
+      "Given a stream of engagement events (opens, clicks, replies), maintain rolling per-lead scores efficiently.",
+      "Implement a rate limiter for outbound email sending that respects per-domain limits.",
+      "Given two contact lists from different sources, merge them and resolve duplicates (same person, different email/format) into a single canonical record. Discuss matching heuristics."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Apollo's culture is 'together' and remote-first. Tell me about a time you collaborated effectively across a distributed team.",
+      "Apollo emphasizes ownership and operational excellence. Describe a time you owned an outcome end-to-end.",
+      "The culture is transparent with little hierarchy. Tell me about a time you gave upward feedback that changed something.",
+      "Describe a time you moved fast in a fast-growing environment and how you kept quality up.",
+      "Tell me about a disagreement with a teammate and how you resolved it."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a B2B contact-database and search platform: ingestion, dedup, enrichment, and low-latency filtered queries.",
+      "Design a sales-engagement sequencer that schedules and sends multi-step outreach at scale without hitting spam limits.",
+      "Design a lead-scoring pipeline that updates in near real time as engagement signals arrive."
+    ],
+    "values": [
+      "Apollo's mission is to help sellers find and close their best customers. Why does that resonate with you?",
+      "Why Apollo over ZoomInfo or Salesloft, in your view?",
+      "How do you think about data quality and responsible use when handling a large contact database?",
+      "Tell me about a time you thrived with a lot of autonomy and little process."
+    ],
     "other": [
       "Is Apollo remote-friendly?",
       "How does Apollo compare to ZoomInfo or Salesloft?",
       "What is the engineering culture?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 6,
   "tips": [],
   "compensation": null,
   "rawSummary": "Apollo.io Interview Guide (2026): B2B Sales Intelligence\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nApollo.io\napollo.io ↗\n\nApollo is the SMB-friendly sales intelligence and engagement platform — combines a contact database with engagement tools. Series D funding, fast-growing. The interview emphasizes data engineering at scale (hundreds of millions of contacts) and the unique challenges of running a B2B data platform.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design a contact database with hundreds of millions of records\n\n- Design data freshness and verification pipelines\n\n- Design an email engagement engine with deliverability\n\n- Coding: medium DSA, often with data-pipeline framing\n\n- Behavioral: customer focus, ownership, fast-moving culture\n\nLevels and comp (2026)\n\n- SE II: $160K–$200K total\n\n- Senior SE: $230K–$305K\n\n- Staff: $320K–$430K\n\n- Principal: $450K–$600K\n\nPrep priorities\n\n- Be fluent in TypeScript/Node.js (bulk of the codebase)\n\n- Understand data engineering at scale and ETL patterns\n\n- Brush up on email deliverability and CRM data\n\nFrequently Asked Questions\n\nIs Apollo remote-friendly?\n\nDistributed-first since 2020. Hubs in San Francisco and remote across US. Most engineering roles fully remote.\n\nHow does Apollo compare to ZoomInfo or Salesloft?\n\nZoomInfo is enterprise-tier with deeper data. Salesloft is engagement-focused. Apollo combines both for SMB. Apollo pays competitively with similarly-staged startups.\n\nWhat is the engineering culture?\n\nFast-moving, ship-focused, ownership-heavy. Younger team. Strong fit for engineers who like startup intensity.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Apollo.io? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextMulti-Region Replication Low-Level Design: Global Data Distribution and Failover⏱ 8 min readHarvey Interview Guide (2026): Process, Questions, Compensation⏱ 6 min readLow-Level Design: Pharmacy Prescription System — Drug Interactions, Refills, Insurance Adjudication, and Dispensing⏱ 6 min read"

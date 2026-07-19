@@ -9,32 +9,46 @@
     "Behavioral/Googleyness (1 round): Questions about your past experiences, teamwork, and how you align with Google's culture."
   ],
   "codingTopics": [
-    "Arrays and Strings: Two-pointer techniques, sliding window, string manipulation",
-    "Trees and Graphs: BFS, DFS, tree traversals, shortest path algorithms",
-    "Dynamic Programming: Knapsack, longest common subsequence, matrix chain multiplication",
-    "Sorting and Searching: Binary search variations, merge sort, quicksort",
-    "Hash Tables: Frequency counting, anagram detection, caching strategies"
+    "Arrays and Strings: two-pointer techniques, sliding window, string manipulation",
+    "Trees and Graphs: BFS, DFS, tree traversals, shortest-path algorithms",
+    "Dynamic Programming: knapsack, longest common subsequence, matrix chain",
+    "Sorting and Searching: binary-search variations, merge sort, quicksort",
+    "Hash Tables and heaps: frequency counting, top-K, caching strategies"
   ],
-  "systemDesignTopics": [],
+  "systemDesignTopics": [
+    "Design a URL shortener for Google scale with analytics",
+    "Design a distributed web crawler and search indexing pipeline",
+    "Design YouTube video upload, transcoding, and streaming",
+    "Design Google Docs real-time collaborative editing"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the longest contiguous subarray whose sum equals a target. Discuss complexity and edge cases.",
-      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph.",
-      "Given a set of coin denominations, compute the minimum number of coins needed to reach a target amount. Compare the recursive and bottom-up approaches.",
-      "Design a data structure supporting insert, delete, and get-random in O(1). Explain your reasoning.",
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases."
+      "Given Google Search query logs as a stream, return the top-K most frequent queries in the last hour using a heap. Discuss memory bounds.",
+      "Given a Maps road network as a weighted graph, find the shortest route between two intersections. Discuss Dijkstra versus A* with a heuristic.",
+      "Autocomplete: build a prefix trie over billions of search terms and return the top suggestions for a typed prefix. Discuss ranking and memory.",
+      "Given two sorted lists of Gmail message timestamps, merge them into one sorted thread view using the two-pointer technique.",
+      "Given a grid representing a Google Photos image, count connected regions of similar-colored pixels using flood fill / DFS."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a time you made progress on a problem that was ambiguous and under-specified.",
+      "Describe a time you received difficult feedback and what you changed as a result.",
+      "Give an example of when you put the user first even though it made the engineering harder.",
+      "Tell me about a time you led without formal authority to move a cross-functional effort forward."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a URL shortener that operates and reports analytics at Google scale.",
+      "Design a distributed web crawler and the pipeline that indexes pages for search.",
+      "Design YouTube's video upload, transcoding, and adaptive streaming path."
+    ],
+    "values": [
+      "Google values intellectual humility. Describe a time you were clearly wrong and how you handled it.",
+      "Tell me about a time you challenged the status quo or a decision you thought was wrong.",
+      "Give an example of choosing to do the right thing when a faster or easier path was available."
+    ],
     "other": []
   },
-  "difficulty": null,
+  "difficulty": 9,
   "tips": [
     "Master the Fundamentals: Focus heavily on data structures and algorithms. Practice 150-200 LeetCode problems, emphasizing medium difficulty.",
     "Study System Design: Read \"Designing Data-Intensive Applications\" and practice designing real systems. Focus on scalability, reliability, and distributed systems.",

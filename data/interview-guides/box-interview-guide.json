@@ -6,29 +6,50 @@
   "interviewStages": [
     "Behavioral: collaboration, customer focus, navigating large enterprise stakeholder maps"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Heaps and hash maps: k most frequent words across files (Box classic)",
+    "Threads and synchronization: race conditions, cache inconsistency reasoning",
+    "Bit manipulation: permission bitmasks, flipping the k-th bit",
+    "Trees: file-hierarchy traversal, offline sync conflict merging",
+    "Design: elevator-controller OO design, write-through caches"
+  ],
+  "systemDesignTopics": [
+    "Design an elevator-control system for a 50-floor building with four elevators",
+    "Design Box file sync that reconciles offline edits across devices without losing data",
+    "Design a shared-link permission system with folder inheritance, expiry, and enterprise policies"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Find the k most frequent words across a set of files (a Box favorite); compare heap vs sort approaches when files don't fit in memory.",
+      "Flip the k-th bit of an integer, then extend to setting bit ranges in a folder-permissions bitmask.",
+      "Identify the race condition in this file-upload code sharing state across threads, and fix it; discuss locking granularity.",
+      "Two versions of a folder tree were edited offline: produce the merged tree and the conflict list (recursive traversal).",
+      "Implement a write-through cache for file metadata and explain the inconsistency windows it still allows."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Box asks retrospectives: walk me through your last major project — what would you do differently?",
+      "Tell me about making an enterprise customer wildly successful (blow our customers' minds).",
+      "GSD: describe a time you cut through process to ship something that mattered.",
+      "Make mom proud: tell me about a decision where you chose the honorable path over the easy one."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design the elevator controller: 50 floors, 4 cars, scheduling policy, and starvation avoidance (Box onsite classic).",
+      "Design desktop file sync: change detection, chunked upload, conflict resolution, and resumability.",
+      "Design enterprise content permissions: inheritance, shared links, expiry, and audit for compliance customers."
+    ],
+    "values": [
+      "Box's values include '10X it' — tell me about a time you aimed for a 10x improvement instead of 10%.",
+      "'Bring your whole self to work': what does that mean to you on a team?",
+      "Enterprises trust Box with their most sensitive content. How does that trust shape day-to-day engineering?"
+    ],
     "other": [
       "Is Box still relevant in the M365/Google Workspace era?",
       "How does Box compensation compare to Dropbox?",
       "Is Box hiring aggressively?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 7,
   "tips": [],
   "compensation": null,
   "rawSummary": "Box Interview Guide (2026): Enterprise Content Management\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nBox\nbox.com ↗\n\nBox is the enterprise version of Dropbox — content management for Fortune 500 companies, with deep focus on compliance, governance, and integration with everything from Salesforce to Microsoft 365. The interview reflects that: more enterprise-flavored system design, less pure consumer scale.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (LeetCode medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design a permissions system that scales to billions of files with fine-grained ACLs\n\n- Design a content classification pipeline that uses ML to tag enterprise documents\n\n- Design an event/audit log system with regulatory retention requirements\n\n- Coding: medium DSA — trees, hash maps, occasionally graph problems\n\n- Behavioral: collaboration, customer focus, navigating large enterprise stakeholder maps\n\nLevels and comp (2026)\n\n- SE II: $150K–$185K total\n\n- Senior SE: $220K–$290K\n\n- Staff: $320K–$420K\n\n- Principal: $450K–$580K\n\nPrep priorities\n\n- Brush up on enterprise auth: SAML, OIDC, SCIM, RBAC vs ABAC\n\n- Understand compliance frameworks: SOC2, HIPAA, FedRAMP, ITAR\n\n- Be ready to discuss Java/Python — Box uses both heavily\n\nFrequently Asked Questions\n\nIs Box still relevant in the M365/Google Workspace era?\n\nYes. Box owns the regulated-industry niche (legal, healthcare, government) where M365 lock-in is a non-starter.\n\nHow does Box compensation compare to Dropbox?\n\nDropbox pays meaningfully more, especially on equity. Box base is competitive at junior levels; total comp lags ~15–25% at senior+.\n\nIs Box hiring aggressively?\n\nSelective. Most growth is in AI/automation roles tied to Box AI. Traditional content management hiring is slower.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Box? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextGreedy Algorithm Interview Patterns: Activity Selection, Jump Game, and Interval Scheduling (2025)⏱ 6 min readLow Level Design: Authentication and Authorization Service⏱ 8 min readGrubhub Interview Guide (2026): Food Delivery Engineering⏱ 1 min read"

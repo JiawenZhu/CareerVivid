@@ -6,29 +6,49 @@
   "interviewStages": [
     "Behavioral: customer focus, mission-driven (wellness), calm pace"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Mobile client logic: Swift and Kotlin data modeling and UI state",
+    "Content catalog: search and filtering over meditation and sleep sessions",
+    "Streaming audio playback: buffering and offline download queue",
+    "Arrays and strings with content-library twists",
+    "Caching of media metadata for offline sessions"
+  ],
+  "systemDesignTopics": [
+    "Design the audio content-delivery and offline-download system for millions of mobile users",
+    "Design the personalized recommendation feed of meditations based on user history",
+    "Design the subscription and entitlement service gating premium content"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Given the content library, implement search and multi-filter (duration, category, narrator) returning ranked results. Discuss indexing and complexity.",
+      "Given a user’s offline-download queue with a storage cap, choose which sessions to cache using an LRU policy. Discuss the data structure.",
+      "Given a stream of playback-progress events, resume each user’s session at the correct timestamp with dedup. Discuss edge cases.",
+      "Given daily meditation logs, compute the longest streak and current streak per user. Discuss complexity."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a time you sweated UX polish and craft on a consumer product.",
+      "Describe a project where you improved user wellbeing or engagement thoughtfully.",
+      "Tell me about balancing shipping speed with a calm, high-quality user experience.",
+      "Describe a time you used product metrics to decide what to build next."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design the audio content-delivery and offline-download system for millions of mobile users.",
+      "Design the personalized recommendation feed of meditations based on user history.",
+      "Design the subscription and entitlement service gating premium content."
+    ],
+    "values": [
+      "Calm’s mission is mental fitness and wellbeing. How does building a mission-driven wellness product appeal to you?",
+      "Tell me about a time you designed for the user’s emotional experience, not just features.",
+      "How do you think about not exploiting engagement in a wellness product?"
+    ],
     "other": [
       "Is Calm remote-friendly?",
       "How does Calm compare to Headspace?",
       "What is the engineering culture?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 6,
   "tips": [],
   "compensation": null,
   "rawSummary": "Calm Interview Guide (2026): Mental Health App Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nCalm\ncalm.com ↗\n\nCalm is the leading meditation and mental health app — 100M+ downloads. The interview emphasizes mobile content delivery, audio streaming, subscription management, and the unique design considerations of a wellness product.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design audio content delivery with offline downloads\n\n- Design subscription management and family plans\n\n- Design personalization for content recommendations\n\n- Coding: medium DSA, often with mobile or content framing\n\n- Behavioral: customer focus, mission-driven (wellness), calm pace\n\nLevels and comp (2026)\n\n- SE II: $150K–$190K total\n\n- Senior SE: $215K–$285K\n\n- Staff: $310K–$410K\n\n- Principal: $430K–$570K\n\nPrep priorities\n\n- Be fluent in Swift / Kotlin (mobile) and Node.js (backend)\n\n- Understand audio streaming and offline downloads\n\n- Brush up on subscription billing patterns\n\nFrequently Asked Questions\n\nIs Calm remote-friendly?\n\nDistributed across San Francisco, NYC, London. Most engineering roles fully remote within US.\n\nHow does Calm compare to Headspace?\n\nCalm has slightly larger user base. Headspace is more clinical / therapy-integrated. Comp is comparable.\n\nWhat is the engineering culture?\n\nMission-driven (wellness), calm pace, strong work-life balance. Engineers who believe in the product thrive.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Calm? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextLow Level Design: Microservices Communication Patterns⏱ 7 min readSystem Design: Design Zoom — Video Conferencing, WebRTC, SFU/MCU, Screen Sharing, Recording, Breakout Rooms⏱ 7 min readHow many floors can an egg be dropped without breaking?⏱ 4 min read"

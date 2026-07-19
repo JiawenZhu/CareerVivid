@@ -18,22 +18,42 @@
     "For cloud-team roles: Kubernetes operators, multi-tenancy, capacity scaling, billing systems",
     "Streaming SQL and Flink for the ksqlDB and Flink integration teams"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Partitioned log append and offset management (stream, logs, array)",
+    "Ordered merge of partitioned streams (merge, heap, stream)",
+    "Idempotent dedup within a window (hash, dictionary, sliding-window)",
+    "Consumer-group partition rebalancing (graph, systems)"
+  ],
+  "systemDesignTopics": [
+    "Design a distributed append-only log (like Kafka) with partitioning and replication",
+    "Design a reliable event-ingestion pipeline that handles out-of-order and duplicate records",
+    "Design a distributed feature-flag and config propagation system across thousands of microservices",
+    "Design exactly-once stream processing with checkpointing and backpressure"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Kafka partitions are ordered logs. Given per-partition record streams, merge them into a single time-ordered stream using a heap.",
+      "Implement offset commit and replay: given a consumer's committed offset and a partition log, resume delivery without dropping or duplicating.",
+      "Deduplicate records in a stream using idempotency keys within a sliding time window.",
+      "Given a consumer group and partitions, assign partitions evenly and reassign when a consumer leaves (rebalance)."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a time you communicated directly and honestly about a hard problem.",
+      "Describe owning a distributed-systems reliability issue end-to-end.",
+      "Confluent values 'One Team'. Tell me about breaking down a silo to get something shipped.",
+      "Describe a tradeoff between throughput and correctness in a data system."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design Kafka's storage layer: partitioned append-only logs with leader/follower replication and consumer offsets.",
+      "Design a reliable ingestion pipeline that accepts millions of events/sec, tolerates out-of-order arrival, and guarantees no data loss.",
+      "Design exactly-once semantics for a stream processor, including checkpointing and recovery after a crash."
+    ],
+    "values": [
+      "Confluent is built on open-source Kafka. Tell me about engaging with an open-source community.",
+      "How do you stay customer-obsessed when building deep infrastructure?",
+      "Describe being frugal or pragmatic with limited engineering resources."
+    ],
     "other": [
       "Do I need to know Kafka internally to interview?",
       "Is the work mostly Java?",
@@ -42,7 +62,7 @@
       "Is remote work allowed?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 7,
   "tips": [
     "Technical: 6–8 weeks of LeetCode plus distributed systems via Designing Data-Intensive Applications",
     "Kafka-specific: read the Confluent blog, the Kafka documentation, and at least 5–10 KIPs covering major features (transactions, exactly-once, KRaft)",

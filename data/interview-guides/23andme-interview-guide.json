@@ -18,39 +18,48 @@
     "For ML-track: applying ML to genomic and phenotypic data, evaluation of clinical-grade predictions"
   ],
   "codingTopics": [
-    "Compute polygenic risk scores at scale. Given a million genotyped customers and a PRS model with thousands of weighted SNPs, compute scores efficiently. Discuss vectorization with NumPy/PyTorch, how to handle missing genotypes, and how to roll out new score versions without recomputing everything.",
-    "Implement an ancestry inference pipeline. Local ancestry inference (which segments of a chromosome come from which population). Discuss reference panels, the role of statistical models like Hidden Markov Models, and the tension between resolution and confidence.",
-    "Design a relative-finder. Identify likely cousins/half-siblings/etc among the user base by detecting shared chromosomal segments (IBD — identity by descent). Discuss the privacy implications and how the matching is opt-in.",
-    "Differential privacy applied to research releases: epsilon budget, the privacy-utility trade-off, and why clinical conclusions can still be drawn from properly noised aggregate data.",
-    "Multi-party computation for cross-database queries: how research collaborations work without raw data sharing.",
-    "The 2023 data breach context: what changed in 23andMe's privacy posture (credential stuffing detection, opt-in defaults for relative-finder, audit logging). Engineering questions sometimes reference specific lessons from that incident.",
-    "React/Next.js for the customer-facing genome browser: how to render arbitrary chromosome regions efficiently, how to handle very large data sets in the browser without freezing the UI.",
-    "Mobile considerations: the iOS/Android apps for accessing reports, how to balance offline access against the need to gate access on session validity.",
-    "A/B testing on health-information features: ethical constraints (you cannot A/B test the accuracy of a health report), regulatory constraints (FDA views some changes as device modifications).",
-    "Tempus AI &mdash; precision medicine and genomics"
+    "Large-scale array and math pipelines",
+    "Streaming record dedup and normalization",
+    "Time-series and numeric aggregation",
+    "Graph algorithms over relatedness data"
   ],
-  "systemDesignTopics": [],
+  "systemDesignTopics": [
+    "Design a genomics pipeline turning raw genotype files into ancestry and health reports at consumer scale",
+    "Design privacy-preserving storage for genetic PII with consent tracking and research opt-in",
+    "Design a safe rollout of a new clinical-grade report version to millions of customers"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Is 23andMe a stable employer in 2026?",
-      "What is the privacy posture?",
-      "What happened in the restructuring?",
-      "Compute polygenic risk scores at scale. Talk through your approach, complexity, and edge cases.",
-      "Implement an ancestry inference pipeline. Talk through your approach, complexity, and edge cases."
+      "Compute polygenic risk scores at scale: a million genotyped customers, a model with thousands of weighted SNPs. Discuss vectorization, missing-genotype handling, and rolling out new score versions without full recompute.",
+      "Implement a local-ancestry inference step: assign chromosome segments to reference populations. Discuss the resolution-vs-confidence trade-off.",
+      "Detect shared chromosomal segments (IBD) between users to build a relative-finder. Talk through complexity and the opt-in privacy model.",
+      "Given a stream of genotype records, deduplicate and normalize noisy SNP calls efficiently. Discuss edge cases.",
+      "Implement a differentially-private aggregate query over a research cohort; explain the epsilon budget and utility trade-off."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "23andMe went through a major restructuring. Tell me about a time you stayed effective through organizational uncertainty.",
+      "Describe a time you handled sensitive user data and had to make a judgment call about privacy.",
+      "Tell me about a time you had to explain a complex technical or statistical result to a non-technical stakeholder.",
+      "Describe a project where you owned something end-to-end with limited resources.",
+      "Tell me about a disagreement with a teammate over methodology. How did it resolve?"
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a genomics data pipeline that ingests raw genotype files and produces ancestry and health reports at consumer scale.",
+      "Design privacy-preserving storage for genetic PII, including access controls, consent tracking, and research opt-in/opt-out.",
+      "Design a system to safely roll out a new clinical-grade report version to millions of existing customers."
+    ],
+    "values": [
+      "23andMe's mission is to help people access and understand their genome. What draws you to that?",
+      "Genetic data is uniquely personal and permanent. How do you think about the ethics of building on it?",
+      "How would you balance research value against individual privacy when releasing aggregate insights?",
+      "Given the company's current state, what would make this role the right bet for you?"
+    ],
     "other": [
       "Do I need genomics background?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 6,
   "tips": [],
   "compensation": [
     "Mid: $140–180K base + bonus → $160–200K total",

@@ -8,21 +8,17 @@
     "Behavioral / hiring manager: past projects, global / cross-timezone effectiveness, hypergrowth comfort."
   ],
   "codingTopics": [
-    "Payroll calculation: given an employee and jurisdiction, compute gross-to-net with correct tax handling",
-    "Multi-currency transfer orchestration with FX conversion and bank routing",
-    "Contract-lifecycle state machine with jurisdiction-specific variations",
-    "Benefits-eligibility evaluator given plan rules and employee attributes",
-    "Classic algorithm problems (graphs, DP) with global-HR applied twists"
+    "Payroll gross-to-net calculation across jurisdictions (finance, fintech, math, numbers)",
+    "Multi-currency transfer orchestration with FX and bank routing (finance, fintech, financial)",
+    "Contract-lifecycle state machine with jurisdiction variations (simulation, systems)",
+    "Benefits-eligibility rule evaluation (dependency, graph)",
+    "Double-entry ledger over a transaction stream with idempotency (finance, fintech, streams)"
   ],
   "systemDesignTopics": [
-    "\"Design the multi-country payroll execution system running bi-weekly or monthly cycles in 100+ countries with jurisdictional compliance.\"",
-    "\"Design the contractor payment orchestration with multi-currency support and banking partner failover.\"",
-    "\"Design the benefits administration platform supporting country-specific plans with ongoing enrollment and changes.\"",
-    "\"Design the immigration / visa case-management system integrating with government services where available.\"",
-    "Walk through what happens legally when Deel hires an employee in Germany for a US customer.",
-    "Discuss the trade-offs of contractor vs EOR classification for international hires.",
-    "Reason about how you'd handle a country's new tax law change affecting all customers' employees in that jurisdiction.",
-    "Describe data-residency considerations for employment records in GDPR vs non-GDPR jurisdictions."
+    "Design a multi-country payroll execution system running scheduled cycles across 100+ jurisdictions with compliance rules",
+    "Design a contractor payment orchestration layer with multi-currency support and banking-partner failover",
+    "Design a global benefits-administration platform supporting country-specific plans and enrollment changes",
+    "Design an immigration and visa case-management system integrating with government services where available"
   ],
   "behavioralTopics": [
     "Hypergrowth comfort: \"How do you operate in a fast-growing company with shifting priorities?\"",
@@ -32,27 +28,29 @@
   ],
   "sampleQuestions": {
     "coding": [
-      "Given an employee and jurisdiction, compute gross-to-net with correct tax handling. Talk through your approach, complexity, and edge cases.",
-      "Implement a double-entry ledger that processes a stream of transactions and detects imbalances. How do you guarantee idempotency when a transaction is delivered twice?",
-      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph.",
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution."
+      "Given an employee and jurisdiction, compute gross-to-net pay applying the correct ordered tax and deduction rules. How do you keep the rule engine testable across 100+ countries?",
+      "Implement a double-entry ledger that processes a stream of payroll transactions and detects imbalances. How do you guarantee idempotency when a payment event is delivered twice?",
+      "Orchestrate a cross-border payout: pick an FX rate, route through a banking partner, and fail over to a backup on timeout without double-paying.",
+      "Model a contract lifecycle as a state machine with jurisdiction-specific transitions (draft, signed, active, terminated) and validate an incoming event.",
+      "Given plan rules and employee attributes, evaluate benefits eligibility; explain how you'd represent rules so ops can edit them safely."
     ],
     "behavioral": [
-      "How do you operate in a fast-growing company with shifting priorities?",
-      "Describe working effectively across many timezones and cultures.",
-      "Tell me about understanding a customer's HR / compliance challenge.",
-      "Describe a complex project you owned end-to-end.",
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+      "Deel scaled extremely fast globally. Tell me about delivering under intense growth or deadline pressure.",
+      "Describe owning a compliance-sensitive feature where a bug had real financial or legal consequences.",
+      "Tell me about working effectively across many time zones and cultures on one project.",
+      "Describe simplifying a painful workflow for a customer or internal ops team."
     ],
     "systemDesign": [
-      "Design the multi-country payroll execution system running bi-weekly or monthly cycles in 100+ countries with jurisdictional compliance.",
-      "Design the contractor payment orchestration with multi-currency support and banking partner failover.",
-      "Design the benefits administration platform supporting country-specific plans with ongoing enrollment and changes.",
-      "Design the immigration / visa case-management system integrating with government services where available.",
-      "Walk through what happens legally when Deel hires an employee in Germany for a US customer."
+      "Design Deel's multi-country payroll engine: scheduling cycles, applying per-jurisdiction compliance, and reconciling failures.",
+      "Design contractor payments with multi-currency support and banking-partner failover.",
+      "Walk through what happens legally and in the system when Deel hires an employee in Germany for a US customer (EOR flow).",
+      "Design data-residency handling for employment records across GDPR and non-GDPR jurisdictions."
     ],
-    "values": [],
+    "values": [
+      "Deel's mission is to remove the barriers to global hiring. Why does that matter to you?",
+      "How do you weigh moving fast against the correctness bar required for payroll and money movement?",
+      "How do you approach building for regulatory environments that differ in every country?"
+    ],
     "other": [
       "How does Deel compare to Rippling / Workday on interviews?",
       "Is EOR really that complex technically?",

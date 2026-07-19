@@ -18,10 +18,10 @@
     "Classic algorithm problems (trees, DP) with financial-system twists"
   ],
   "systemDesignTopics": [
-    "\"Design the transaction-processing pipeline handling 50M transactions/day with idempotency and settlement guarantees.\"",
-    "\"Design fraud-scoring for 100K TPS peak with <100ms latency and model feedback loops.\"",
-    "\"Design the cross-border money-movement system with multi-currency, multi-regulation, and multi-partner-bank dependencies.\"",
-    "\"Design the dispute-handling workflow integrating consumer, merchant, and acquirer parties.\""
+    "Design the transaction-processing pipeline handling 50M transactions/day with idempotency and settlement guarantees",
+    "Design fraud-scoring for 100K TPS peak with <100ms latency and model feedback loops",
+    "Design the cross-border money-movement system with multi-currency, multi-regulation, and multi-partner-bank dependencies",
+    "Design the dispute-handling workflow integrating consumer, merchant, and acquirer parties"
   ],
   "behavioralTopics": [
     "Large-company navigation: \"Describe working effectively across multiple teams or organizational boundaries.\"",
@@ -31,27 +31,28 @@
   ],
   "sampleQuestions": {
     "coding": [
-      "Implement a double-entry ledger that processes a stream of transactions and detects imbalances. How do you guarantee idempotency when a transaction is delivered twice?",
-      "Implement BigDecimal / long-cents, not float. Talk through your approach, complexity, and edge cases.",
-      "Implement connected-component analysis of fraud rings. Talk through your approach, complexity, and edge cases.",
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution."
+      "At PayPal, implement an idempotent handler for payments so retries never double-charge. Discuss the dedupe key and storage.",
+      "Compute balances from a stream of ledger entries with correct decimal and rounding rules so totals reconcile to the cent.",
+      "Given a stream of payments, detect suspected fraud when velocity exceeds a threshold in a sliding window.",
+      "Reconcile a stream of payments against returns and reversals. Discuss idempotency and the matching key.",
+      "Handle multi-currency balances with correct rounding across currencies. Walk through the edge cases."
     ],
     "behavioral": [
-      "Describe working effectively across multiple teams or organizational boundaries.",
-      "Have you worked under compliance constraints? How did they shape engineering?",
-      "Tell me about a production incident at scale. What did you own?",
-      "Describe a time you contributed to modernizing or improving a legacy system.",
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+      "Tell me about a project you are proud of at PayPal scale and the hardest tradeoff you made.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end.",
+      "Describe a time something you shipped failed or fell short. What did you change afterward?"
     ],
     "systemDesign": [
       "Design the transaction-processing pipeline handling 50M transactions/day with idempotency and settlement guarantees.",
-      "Design fraud-scoring for 100K TPS peak with <100ms latency and model feedback loops. Cover the API, data model, and how it scales.",
-      "Design the cross-border money-movement system with multi-currency, multi-regulation, and multi-partner-bank dependencies.",
-      "Design the dispute-handling workflow integrating consumer, merchant, and acquirer parties. Cover the API, data model, and how it scales.",
-      "Design a service at PayPal scale that shortens URLs. Cover the API, storage, and hot-key handling."
+      "Design fraud-scoring for 100K TPS peak with <100ms latency and model feedback loops.",
+      "Design the cross-border money-movement system with multi-currency, multi-regulation, and multi-partner-bank dependencies."
     ],
-    "values": [],
+    "values": [
+      "PayPal protects users' money. Describe a time you prevented a correctness or fraud problem.",
+      "Tell me about a time you balanced a growth feature against fraud or risk.",
+      "How do you earn and keep user trust in a financial product?"
+    ],
     "other": [
       "How does PayPal compare to Stripe / Brex / Block on interviews?",
       "What's the legacy / modernization reality?",
@@ -60,7 +61,7 @@
       "What about the recent strategic changes and activist-investor pressure?"
     ]
   },
-  "difficulty": 6.5,
+  "difficulty": 6,
   "tips": [
     "Pick your BU thoughtfully. Core PayPal, Venmo, Braintree, Zettle, Xoom have distinct cultures.",
     "Know modern Java. Records, sealed classes, text blocks, streams &mdash; current idiom signals you're not coasting on legacy skills.",

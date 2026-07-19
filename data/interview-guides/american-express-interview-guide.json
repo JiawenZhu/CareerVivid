@@ -6,29 +6,51 @@
   "interviewStages": [
     "Behavioral: customer focus, ownership, navigating regulated environment"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "financial and fintech stream processing",
+    "Caching and array algorithms",
+    "Rolling aggregation over streams",
+    "Idempotency and correctness"
+  ],
+  "systemDesignTopics": [
+    "Design a real-time fraud-detection system scoring card transactions with strict latency SLAs",
+    "Design a rewards / points ledger consistent and auditable across millions of accounts",
+    "Design a rate limiter and circuit breaker for a regulated public financial API"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Given a stream of card transactions, detect potential duplicates within a sliding time window. Discuss complexity.",
+      "Implement an LRU cache with O(1) get/put and discuss thread safety for a high-QPS service.",
+      "Find two numbers in an array that sum to a target; extend to handle a very large, streaming dataset.",
+      "Parse and validate structured transaction records defensively; handle malformed input.",
+      "Given a stream of card authorizations, maintain a rolling per-account spend total and flag any that exceed a dynamic limit in O(1) per event."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Amex evaluates against its Blue Box Values. Which — 'We do what's right,' 'Customer commitment,' or 'Integrity' — resonates most, and why?",
+      "Personal Accountability is a Blue Box value. Tell me about a time you owned a mistake and made it right.",
+      "Customer Commitment: describe a time you went out of your way to protect or serve a customer.",
+      "Tell me about a time you led without authority to get a cross-functional result.",
+      "Describe a time you delivered in a regulated or compliance-heavy environment. What extra care did you take?"
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a real-time fraud-detection system that scores card transactions with strict latency and reliability SLAs.",
+      "Design a rewards/points ledger that stays consistent and auditable across millions of accounts.",
+      "Design a rate limiter and circuit breaker for a regulated public-facing financial API."
+    ],
+    "values": [
+      "Amex is 200 years old and trust-centric. What draws you to a brand built on customer trust?",
+      "How do you balance innovation speed with the risk controls a financial institution requires?",
+      "'We do what's right.' Tell me about a time the right thing and the easy thing diverged.",
+      "Why Amex over a fintech startup or a big-tech company?"
+    ],
     "other": [
       "Is AmEx remote-friendly?",
       "How does AmEx compare to Capital One or Goldman Sachs?",
       "What is the engineering culture?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 6,
   "tips": [],
   "compensation": null,
   "rawSummary": "American Express Interview Guide (2026): Tech in Financial Services\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nAmerican Express\namericanexpress.com ↗\n\nAmerican Express is the credit card and travel services giant — large engineering organization with significant tech investment. The interview is rigorous for a financial-services company, with emphasis on payments, fraud detection, and the regulatory complexity of card issuing.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2–3 coding, 1 system design, 1 behavioral. Cycle: 4–6 weeks.\n\nWhat they actually ask\n\n- Design a real-time fraud detection system at sub-100ms latency\n\n- Design a points/rewards calculation engine\n\n- Design payment processing with regulatory compliance\n\n- Coding: medium DSA, often with financial framing\n\n- Behavioral: customer focus, ownership, navigating regulated environment\n\nLevels and comp (2026)\n\n- SE: $135K–$170K total\n\n- Senior SE: $200K–$260K\n\n- Staff: $290K–$380K\n\n- Principal: $400K–$520K\n\nPrep priorities\n\n- Be fluent in Java (the bulk of the codebase) or Python (newer services)\n\n- Understand payments protocols and card networks\n\n- Brush up on regulatory framework: PCI-DSS, OCC, BSA/AML\n\nFrequently Asked Questions\n\nIs AmEx remote-friendly?\n\nHybrid in NYC (HQ), Phoenix, others. 3 days in office for most roles.\n\nHow does AmEx compare to Capital One or Goldman Sachs?\n\nCapital One is more tech-forward. Goldman pays more for top engineers. AmEx has strong premium-card brand and stable benefits.\n\nWhat is the engineering culture?\n\nMature, methodical, regulation-aware. Less startup-fast than tech-native companies. Stable employer with strong benefits.\n\nSimilar company guides\n\nCapital Oneinterview guideMarqetainterview guideWiseinterview guideKlarnainterview guideCartainterview guideAdyeninterview guide\n\nPrepping for American Express? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextPalantir Interview Guide 2026: Decomp Problems, Knowledge Graphs, and Data Platform Engineering⏱ 7 min readDesigning for Observability: Low-Level Design⏱ 6 min readSystem Design: Coupon and Promo Code System — Validation, Redemption, and Abuse Prevention⏱ 6 min read"

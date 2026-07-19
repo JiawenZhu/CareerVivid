@@ -15,19 +15,10 @@
     "Classic algorithm problems (graphs, topological sort, cycle detection) with reactive-system twists"
   ],
   "systemDesignTopics": [
-    "\"Design the reactive-expression engine evaluating 10K user-provided formulas with sub-100ms updates.\"",
-    "\"Design the data-source connector framework supporting 60+ databases / APIs with uniform auth, caching, rate limiting.\"",
-    "\"Design the agent-execution system with tool-calling, state persistence, and cost tracking.\"",
-    "\"Design the self-hosted deployment model supporting air-gapped enterprise customers.\"",
-    "Discuss React rendering behavior for a component tree with thousands of nodes.",
-    "Walk through how you'd implement spreadsheet-like reactivity with correct dependency tracking.",
-    "Reason about drag-and-drop performance when dragging items with expensive renders.",
-    "Describe approaches for undo / redo in a visual editor with reactive state.",
-    "Explain when you'd use a virtual list, memoization, or schedule-yielding to maintain UI responsiveness.",
-    "\"What internal tools have you built or used at your previous company? What worked, what didn't?\"",
-    "\"If you were designing Retool for data analysts specifically, how would it differ from what exists today?\"",
-    "\"Describe a trade-off you've made between low-code ease and extensibility.\"",
-    "\"What's your take on the AI-agent-builder direction for low-code platforms?\""
+    "Design the reactive-expression engine evaluating 10K user-provided formulas with sub-100ms updates",
+    "Design the data-source connector framework supporting 60+ databases / APIs with uniform auth, caching, rate limiting",
+    "Design the agent-execution system with tool-calling, state persistence, and cost tracking",
+    "Design the self-hosted deployment model supporting air-gapped enterprise customers"
   ],
   "behavioralTopics": [
     "Shipping velocity: \"Describe the fastest meaningful feature you've shipped end-to-end.\"",
@@ -37,27 +28,28 @@
   ],
   "sampleQuestions": {
     "coding": [
-      "Given a graph of cells with formulas, re-evaluate only affected cells when inputs change. Talk through your approach, complexity, and edge cases.",
-      "Implement a streaming feature aggregator: given a stream of events, maintain rolling counts and averages per key with bounded memory. Discuss complexity and eviction.",
-      "Implement a uniform interface over diverse APIs (REST, GraphQL, database). Talk through your approach, complexity, and edge cases.",
-      "Implement graphs, topological sort, cycle detection. Talk through your approach, complexity, and edge cases.",
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases."
+      "At Retool, parse a stream of log and metric events and aggregate by key over a sliding window. Discuss memory bounds.",
+      "Implement a rate-limited, back-pressured queue for ingestion. Discuss what happens when a downstream sink is slow.",
+      "Parse a config format into a typed structure with schema validation. Discuss error handling.",
+      "Given a dependency graph of build targets, compute a valid build order and detect cycles via topological sort.",
+      "Downsample a time-series into fixed buckets (min, max, avg) as data streams in. Walk through the approach."
     ],
     "behavioral": [
-      "Describe the fastest meaningful feature you've shipped end-to-end.",
-      "Tell me about a time you understood an internal-ops user's pain point deeply.",
-      "Describe a hard technical problem you solved. How did you go from confused to confident?",
-      "How do you handle ambiguity and pivoting priorities at a growing company?",
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+      "Tell me about a project you are proud of at Retool scale and the hardest tradeoff you made.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end.",
+      "Describe a time something you shipped failed or fell short. What did you change afterward?"
     ],
     "systemDesign": [
       "Design the reactive-expression engine evaluating 10K user-provided formulas with sub-100ms updates.",
       "Design the data-source connector framework supporting 60+ databases / APIs with uniform auth, caching, rate limiting.",
-      "Design the agent-execution system with tool-calling, state persistence, and cost tracking. Cover the API, data model, and how it scales.",
-      "Design the self-hosted deployment model supporting air-gapped enterprise customers. Cover the API, data model, and how it scales.",
-      "Walk through how you'd implement spreadsheet-like reactivity with correct dependency tracking."
+      "Design the agent-execution system with tool-calling, state persistence, and cost tracking."
     ],
-    "values": [],
+    "values": [
+      "Retool is trusted by the developers who depend on it. Describe a time you prioritized reliability and craft.",
+      "Tell me about an open-source contribution or public work you are proud of.",
+      "How do you weigh a breaking change against the migration cost for users?"
+    ],
     "other": [
       "Is Retool really engineering-heavy, or is it a thin wrapper over existing tools?",
       "How does Retool compare to Airtable or Bubble on interviews?",

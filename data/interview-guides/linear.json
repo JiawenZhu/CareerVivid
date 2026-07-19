@@ -15,14 +15,10 @@
     "Classic algorithm problems (graphs, trees, intervals) with product-feature twists (dependency graph with cycle detection, topological sort for sub-issue rollup)"
   ],
   "systemDesignTopics": [
-    "\"Design the offline-first sync engine that keeps clients consistent while allowing offline edits.\"",
-    "\"Design the issue-relationship model supporting parents, children, blockers, and dependencies with invariant preservation.\"",
-    "\"Design the command-palette with fast global search across issues, projects, people, and labels.\"",
-    "\"Design the activity-feed and notification system with per-user relevance ranking.\"",
-    "\"What tools do you use daily? What's great and what's broken about each?\"",
-    "\"Describe a design decision in Linear you think is brilliant. And one you'd change.\"",
-    "\"Walk me through a feature you've shipped that you're proud of from a craft perspective.\"",
-    "\"You're designing a new tool. What are the first three decisions you'd make?\""
+    "Design the offline-first sync engine that keeps clients consistent while allowing offline edits",
+    "Design the issue-relationship model supporting parents, children, blockers, and dependencies with invariant preservation",
+    "Design the command-palette with fast global search across issues, projects, people, and labels",
+    "Design the activity-feed and notification system with per-user relevance ranking"
   ],
   "behavioralTopics": [
     "Craft: \"Tell me about a time you pushed back on shipping something that wasn't quite right.\"",
@@ -32,27 +28,28 @@
   ],
   "sampleQuestions": {
     "coding": [
-      "Given a product scenario (e.g., issues with parent / child relationships and cycles), design types and operations that preserve invariants. Talk through your approach, complexity, and edge cases.",
-      "Given a set of local edits and a set of remote edits, compute a consistent merged state. Talk through your approach, complexity, and edge cases.",
-      "Implement fast fuzzy search across a typed object corpus. Talk through your approach, complexity, and edge cases.",
-      "Implement a streaming feature aggregator: given a stream of events, maintain rolling counts and averages per key with bounded memory. Discuss complexity and eviction.",
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases."
+      "At Linear, model a workflow engine with triggers, conditions, and actions. Evaluate a workflow DAG and detect cycles.",
+      "Implement a per-tenant rate limiter so one customer cannot exhaust shared capacity. Discuss the token-bucket design.",
+      "Given a stream of tenant events, maintain rolling per-entity scores with bounded memory.",
+      "Implement a filter query over records supporting AND/OR on custom fields. Discuss indexing for a multi-tenant store.",
+      "Deduplicate records via fuzzy clustering on name and email. Discuss the matching and complexity."
     ],
     "behavioral": [
-      "Tell me about a time you pushed back on shipping something that wasn't quite right.",
-      "Describe how you've worked effectively across timezones.",
-      "What are you hoping to build or learn over the next several years?",
-      "Tell me about a time you deeply understood a user's problem.",
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+      "Tell me about a project you are proud of at Linear scale and the hardest tradeoff you made.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end.",
+      "Describe a time something you shipped failed or fell short. What did you change afterward?"
     ],
     "systemDesign": [
       "Design the offline-first sync engine that keeps clients consistent while allowing offline edits.",
       "Design the issue-relationship model supporting parents, children, blockers, and dependencies with invariant preservation.",
-      "Design the command-palette with fast global search across issues, projects, people, and labels.",
-      "Design the activity-feed and notification system with per-user relevance ranking. Cover the API, data model, and how it scales.",
-      "Walk me through a feature you've shipped that you're proud of from a craft perspective."
+      "Design the command-palette with fast global search across issues, projects, people, and labels."
     ],
-    "values": [],
+    "values": [
+      "Linear succeeds when its customers do. Describe a time you solved for the customer even at a cost to the team.",
+      "Tell me about a time you handled a tricky multi-tenant isolation or permissions problem.",
+      "How do you balance enterprise customization against product simplicity?"
+    ],
     "other": [
       "How does Linear's offline-first architecture actually work?",
       "Is Linear's craft round really decisive?",
@@ -61,7 +58,7 @@
       "How small is Linear relative to competitors?"
     ]
   },
-  "difficulty": 8,
+  "difficulty": 6,
   "tips": [
     "Use Linear for real work. Ideally multiple weeks before interviewing &mdash; try cycles, projects, relationships, roadmap views.",
     "Read Tuomas Artman's sync-engine talks. The YouTube recordings are gold for platform-role prep.",

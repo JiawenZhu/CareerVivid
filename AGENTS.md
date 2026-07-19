@@ -1,25 +1,20 @@
 # CareerVivid Agent Coordination
 
-## Canonical Worktree
+## Canonical Repository
 
-Use this clean worktree for coordinated production work:
-
-```bash
-cd /Users/jiawenzhu/Developer/careervivid-release
-```
-
-Current baseline branch:
+Use this repository for coordinated CareerVivid work:
 
 ```bash
-codex/live-stable-baseline-20260529
+cd /Users/jiawenzhu/Developer/careervivid
 ```
 
-Do not use `/Users/jiawenzhu/Developer/careervivid` for new production work unless the user explicitly asks for it. That worktree has unrelated in-progress changes and should not be treated as the clean deploy base.
+The former `/Users/jiawenzhu/Developer/careervivid-release` worktree has been retired. Do not reference it in deployment, release, security, or packaging instructions.
+
+Before a release operation, always inspect the active branch and working tree. If unrelated changes are present, create or use a clean worktree from this repository and bring over only the intended changes.
 
 ## Chrome Extension Packaging
 
-- Always prepare Chrome extension builds and upload zip files from `/Users/jiawenzhu/Developer/careervivid-release`.
-- Never source Chrome extension code, `dist-extension`, upload zips, or screenshots from `/Users/jiawenzhu/Developer/careervivid`.
+- Prepare Chrome extension builds and upload zip files from `/Users/jiawenzhu/Developer/careervivid` or a clean worktree created from it.
 - When only creating a Chrome Web Store upload zip, package from a copied staging directory so the original `dist-extension` folder remains untouched.
 - Keep the upload folder free of obsolete extension zips so the latest `2.1.1` package is unambiguous.
 
@@ -31,9 +26,9 @@ Do not use `/Users/jiawenzhu/Developer/careervivid` for new production work unle
 
 ## Security Workflow
 
-1. Start from `/Users/jiawenzhu/Developer/careervivid-release`.
+1. Start from `/Users/jiawenzhu/Developer/careervivid` or a clean worktree created from it.
 2. Check `git status --short --branch` before editing.
-3. Create a task branch from the clean baseline for each fix.
+3. Create a task branch from the verified clean current branch for each fix.
 4. Use GitHub Dependabot as the required source of truth when GitHub is reachable.
 5. Do not depend on removed or unavailable scanner integrations; use Dependabot plus local audits as the baseline workflow.
 6. Keep security changes minimal, reviewable, and scoped to the finding.
@@ -42,8 +37,7 @@ Do not use `/Users/jiawenzhu/Developer/careervivid` for new production work unle
 
 ## Deploy Safety
 
-- Do not deploy from a dirty worktree.
-- Do not deploy from `/Users/jiawenzhu/Developer/careervivid`.
+- Do not deploy from a dirty worktree unless every changed file is intentionally in scope and has been reviewed.
 - For hosting-only web changes, prefer:
 
 ```bash

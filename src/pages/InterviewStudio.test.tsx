@@ -216,6 +216,9 @@ describe('InterviewStudio setup workspace', () => {
     render(<InterviewStudio />);
 
     expect(screen.getByText('Technical Interview Simulator')).toBeInTheDocument();
+    expect(screen.getByText('301')).toBeInTheDocument();
+    expect(screen.getByText('22,611')).toBeInTheDocument();
+    expect(screen.getByText('821')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Behavioral' })).toHaveAttribute('aria-pressed', 'true');
     expect(screen.getByRole('button', { name: 'Standard' })).toHaveAttribute('aria-pressed', 'true');
     expect(screen.getByRole('button', { name: '15 min' })).toHaveAttribute('aria-pressed', 'true');

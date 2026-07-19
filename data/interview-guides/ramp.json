@@ -15,14 +15,10 @@
     "Classic algorithm problems (graphs, trees, DP) with fintech / procurement twists"
   ],
   "systemDesignTopics": [
-    "\"Design the spend-categorization pipeline handling 10M transactions/day with AI-assisted classification plus human review.\"",
-    "\"Design the approval-routing engine with policies that customers configure in their own UI.\"",
-    "\"Design the accounting-sync pipeline to NetSuite / QuickBooks with eventual consistency and audit trails.\"",
-    "\"Design the Ramp Intelligence layer retrieving customer-specific context for spend anomaly detection.\"",
-    "\"When should a finance feature use an LLM vs a deterministic rule?\"",
-    "\"Walk me through an AI feature you've shipped or would ship. How did you handle the cases where the model is wrong?\"",
-    "\"Customers are complaining that your AI categorization is wrong for their industry. How do you approach the fix?\"",
-    "\"Design the evaluation methodology for a new AI feature. What metrics? What thresholds for shipping?\""
+    "Design the spend-categorization pipeline handling 10M transactions/day with AI-assisted classification plus human review",
+    "Design the approval-routing engine with policies that customers configure in their own UI",
+    "Design the accounting-sync pipeline to NetSuite / QuickBooks with eventual consistency and audit trails",
+    "Design the Ramp Intelligence layer retrieving customer-specific context for spend anomaly detection"
   ],
   "behavioralTopics": [
     "Shipping velocity: \"Tell me about the fastest end-to-end feature you've shipped.\"",
@@ -32,28 +28,27 @@
   ],
   "sampleQuestions": {
     "coding": [
-      "Given transaction data, implement a deterministic categorization rule engine with overrides. Talk through your approach, complexity, and edge cases.",
-      "Implement a streaming feature aggregator: given a stream of events, maintain rolling counts and averages per key with bounded memory. Discuss complexity and eviction.",
-      "Implement a double-entry ledger that processes a stream of transactions and detects imbalances. How do you guarantee idempotency when a transaction is delivered twice?",
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution."
+      "At Ramp, implement an idempotent handler for payments so retries never double-charge. Discuss the dedupe key and storage.",
+      "Compute balances from a stream of ledger entries with correct decimal and rounding rules so totals reconcile to the cent.",
+      "Given a stream of payments, detect suspected fraud when velocity exceeds a threshold in a sliding window.",
+      "Reconcile a stream of payments against returns and reversals. Discuss idempotency and the matching key.",
+      "Handle multi-currency balances with correct rounding across currencies. Walk through the edge cases."
     ],
     "behavioral": [
-      "Tell me about the fastest end-to-end feature you've shipped.",
-      "Describe a time you deeply understood a customer's finance workflow. How did it change what you built?",
-      "Tell me about a time a subtle bug could have cost money. How did you find and prevent it?",
-      "Where have you been skeptical of an AI solution? Where have you been a strong advocate? What informed those positions?",
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+      "Tell me about a project you are proud of at Ramp scale and the hardest tradeoff you made.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end.",
+      "Describe a time something you shipped failed or fell short. What did you change afterward?"
     ],
     "systemDesign": [
       "Design the spend-categorization pipeline handling 10M transactions/day with AI-assisted classification plus human review.",
-      "Design the approval-routing engine with policies that customers configure in their own UI. Cover the API, data model, and how it scales.",
-      "Design the accounting-sync pipeline to NetSuite / QuickBooks with eventual consistency and audit trails.",
-      "Design the Ramp Intelligence layer retrieving customer-specific context for spend anomaly detection.",
-      "Design the evaluation methodology for a new AI feature. What metrics? What thresholds for shipping?"
+      "Design the approval-routing engine with policies that customers configure in their own UI.",
+      "Design the accounting-sync pipeline to NetSuite / QuickBooks with eventual consistency and audit trails."
     ],
     "values": [
-      "How stable is equity value given the private-market valuation?"
+      "Ramp protects users' money. Describe a time you prevented a correctness or fraud problem.",
+      "Tell me about a time you balanced a growth feature against fraud or risk.",
+      "How do you earn and keep user trust in a financial product?"
     ],
     "other": [
       "Do I need production AI experience to get hired?",
@@ -62,7 +57,7 @@
       "Is NYC headquarters a real hub or can I stay SF / remote?"
     ]
   },
-  "difficulty": 7.5,
+  "difficulty": 6,
   "tips": [
     "Have production-AI opinions. What works, what doesn't, how to ship it reliably.",
     "Know the fintech fundamentals. Idempotency, ledger accounting, authorization state machines.",

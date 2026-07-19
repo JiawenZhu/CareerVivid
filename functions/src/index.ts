@@ -86,7 +86,7 @@ export { exportToGoogleDocs } from "./googleDocs";
 export * from "./stitchCommerce";
 export * from "./deepResearch";
 export * from "./linkedin";
-export { mobileInterviewAnalyze, mobileInterviewLiveToken } from "./mobileInterview";
+export { mobileInterviewAnalyze, mobileInterviewLiveToken, mobileInterviewQuestions, mobileInterviewTranscribe } from "./mobileInterview";
 export { injectCommunityMeta } from "./meta-injector";
 export { renderSeoContent } from "./seo/renderSeoContent";
 export { generateSitemap } from "./seo/generateSitemap";

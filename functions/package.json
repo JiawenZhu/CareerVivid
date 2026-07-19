@@ -4,6 +4,7 @@
   "license": "See LICENSE",
   "main": "lib/index.js",
   "scripts": {
+    "prebuild": "node ../scripts/verify-quest-question-tracker.mjs && node ../scripts/generate-mobile-interview-question-catalog.mjs",
     "build": "tsc",
     "serve": "npm run build && firebase emulators:start --only functions",
     "shell": "npm run build && firebase functions:shell",

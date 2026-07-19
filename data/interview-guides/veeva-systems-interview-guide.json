@@ -28,25 +28,37 @@
     "Data integrity: ALCOA+ principles (Attributable, Legible, Contemporaneous, Original, Accurate, plus Complete, Consistent, Enduring, Available). Discuss how each principle constrains your architecture.",
     "Validation: change-control processes for production deploys in regulated environments. Why you cannot just push code to a Vault customer's tenant; the validation cycle is part of the engineering process."
   ],
-  "systemDesignTopics": [],
+  "systemDesignTopics": [
+    "Design a workflow engine",
+    "Design a multi-tenant workflow and automation engine",
+    "Design search with complex filters over millions of records per tenant",
+    "Design an integration framework connecting hundreds of third-party tools"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Implement document version control with audit trails. Talk through your approach, complexity, and edge cases.",
-      "Implement role-based access control with delegation. Talk through your approach, complexity, and edge cases.",
-      "You need to deduplicate a very large dataset that does not fit in memory. Walk me through your approach and how you would verify correctness.",
-      "Implement a streaming feature aggregator: given a stream of events, maintain rolling counts and averages per key with bounded memory. Discuss complexity and eviction.",
-      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph."
+      "Implement document version control with audit trails. Veeva Vault's core value is regulated-document management. Discuss optimistic vs pessimistic locking, how to track every field change for FDA inspection, and how to handle concurrent edits.",
+      "Implement role-based access control with delegation. Pharma users have complex roles (clinical research associate, regulatory affairs lead, pharmacovigilance) with delegation chains. Discuss how to evaluate permissions at query time without N+1 patterns.",
+      "At Veeva Systems, model a workflow engine with triggers, conditions, and actions. Evaluate a workflow DAG and detect cycles.",
+      "Implement a per-tenant rate limiter so one customer cannot exhaust shared capacity. Discuss the token-bucket design.",
+      "Given a stream of tenant events, maintain rolling per-entity scores with bounded memory."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a project you are proud of at Veeva Systems scale and the hardest tradeoff you made.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end.",
+      "Describe a time something you shipped failed or fell short. What did you change afterward?"
     ],
     "systemDesign": [
-      "Design a workflow engine. Pharmaceutical document approval flows have 5-15 steps with conditional routing, parallel approvals, and audit checkpoints. How would you model the state machine and persist it?"
+      "Design a workflow engine.",
+      "Design a multi-tenant workflow and automation engine.",
+      "Design search with complex filters over millions of records per tenant."
     ],
-    "values": [],
+    "values": [
+      "Veeva Systems succeeds when its customers do. Describe a time you solved for the customer even at a cost to the team.",
+      "Tell me about a time you handled a tricky multi-tenant isolation or permissions problem.",
+      "How do you balance enterprise customization against product simplicity?"
+    ],
     "other": [
       "Do I need life-sciences background?",
       "Is the work mostly Java?",
@@ -54,7 +66,7 @@
       "Does Veeva allow remote work?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 6,
   "tips": [],
   "compensation": [
     "Mid: $140–180K base + Veeva RSU + bonus → $230–320K total",

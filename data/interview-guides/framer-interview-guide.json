@@ -6,29 +6,51 @@
   "interviewStages": [
     "Behavioral: design empathy, craft, written communication"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Frontend data structures: DOM trees and scene graphs",
+    "String and array manipulation for layout and parsing",
+    "Animation and interpolation math",
+    "State machines for editor interactions (undo/redo)",
+    "Graph traversal for component and layer trees"
+  ],
+  "systemDesignTopics": [
+    "Design the rendering engine for a visual web-design canvas with nested layers",
+    "Design an undo/redo and history system for a collaborative design editor",
+    "Design a system that exports a visual design into production React code",
+    "Design real-time multiplayer editing of a shared design document"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Given a nested layer tree on a canvas, hit-test which layer sits under a click point. Talk through the data structure and complexity.",
+      "Implement an undo/redo stack for canvas edits with grouped and coalesced operations. Discuss your approach and edge cases.",
+      "Interpolate a spring or easing animation between two layout states over time. Talk through the math and edge cases.",
+      "Given absolute-positioned elements, compute the overall bounding box and detect overlaps. Discuss complexity.",
+      "Serialize and deserialize a component tree so a design can be saved and restored exactly. Talk through the trade-offs."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a time you obsessed over the craft and polish of a UI or interaction.",
+      "Describe a time you made something feel measurably faster or smoother for users.",
+      "Tell me about collaborating closely with designers on a hard frontend problem.",
+      "Describe a time you dug into browser internals or rendering to fix a tough bug."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design the rendering engine for a nested-layer design canvas. Cover the scene graph, invalidation, and performance.",
+      "Design undo/redo and history for a collaborative editor. Cover operation modeling, coalescing, and conflicts.",
+      "Design real-time multiplayer editing of a design document. Cover presence, conflict resolution, and sync."
+    ],
+    "values": [
+      "Framer's mission is to make the web more creative. What does great craft in software mean to you?",
+      "Tell me about a time you cared more about the end user's creative experience than shipping fast.",
+      "How do you balance visual and interaction polish against engineering constraints?"
+    ],
     "other": [
       "Is Framer remote-friendly?",
       "How does Framer compare to Webflow or Squarespace?",
       "What is the engineering culture?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 7,
   "tips": [],
   "compensation": null,
   "rawSummary": "Framer Interview Guide (2026): Visual Web Design Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nFramer\nframer.com ↗\n\nFramer is the design-and-publish platform for modern websites — competing with Webflow on the visual builder space, with stronger design-tool ergonomics. Amsterdam-headquartered, fast-growing. The interview emphasizes design tool engineering, browser internals, and animation work.\n\nProcess\n\nRecruiter screen → 60-minute coding pair → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–5 weeks.\n\nWhat they actually ask\n\n- Design a real-time collaborative canvas (similar to Figma)\n\n- Design CSS code generation from visual primitives\n\n- Design Framer Motion-style animation engine\n\n- Coding: practical TypeScript, often with browser internals or animation framing\n\n- Behavioral: design empathy, craft, written communication\n\nLevels and comp (2026)\n\n- SE II: EUR 75K–95K total (Amsterdam)\n\n- Senior SE: EUR 105K–135K\n\n- Staff: EUR 145K–185K\n\n- Principal: EUR 200K+\n\nEuropean-tier comp; below US peers. Strong work-life balance.\n\nPrep priorities\n\n- Be fluent in TypeScript/React (the bulk of the codebase)\n\n- Understand browser internals: DOM, CSS, layout, paint\n\n- Brush up on web animation (Framer Motion, CSS animations)\n\nFrequently Asked Questions\n\nIs Framer remote-friendly?\n\nHybrid in Amsterdam (HQ), San Francisco. Some engineering roles fully remote within EU.\n\nHow does Framer compare to Webflow or Squarespace?\n\nFramer wins on design ergonomics for designer-power-users. Webflow is more developer-friendly. Squarespace is design-templated. Framer pays European tier.\n\nWhat is the engineering culture?\n\nDesign-focused, technically rigorous, calm pace. Strong fit for engineers who care about craft and aesthetics.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Framer? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextSystem Design: Chat Application — Real-Time Messaging, Message Storage, and Presence (WhatsApp/Slack)⏱ 6 min readSalary Negotiation 2026: Initial Offer, Counter, Multiple Offers⏱ 7 min readGlean Interview Guide (2026): Process, Questions, Compensation⏱ 4 min read"

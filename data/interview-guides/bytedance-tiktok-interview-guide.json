@@ -9,26 +9,44 @@
     "Domain-specific (1 round) — for ML roles, ML systems / model questions; for recommendation roles, ranking / retrieval / collaborative filtering",
     "Behavioral / cross-functional (1 round) — culture fit, collaboration, motivation"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Arrays, strings, two-pointer and sliding-window at a fast medium-hard pace",
+    "Heaps and top-K for feed ranking and trending content",
+    "Graphs with BFS and DFS over the follow and interaction graph",
+    "Dynamic programming and interval problems",
+    "Stream processing for real-time engagement counters"
+  ],
+  "systemDesignTopics": [
+    "Design the For You video recommendation feed serving personalized ranking at massive scale",
+    "Design a live-streaming ingestion and fan-out system with low end-to-end latency",
+    "Design a trending top-K service that tracks the most engaged content in real time",
+    "Design a content-moderation pipeline that scores uploads for policy violations"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Given a stream of video engagement events, maintain the top-K trending videos in real time using a heap. Discuss complexity and updates.",
+      "Given a user’s watch history as an array, find the longest window meeting an engagement threshold using a sliding window. Discuss edge cases.",
+      "Given the follow graph, find the shortest interaction path between two creators with BFS. How do you handle scale?",
+      "Given a list of hashtags, group anagram-equivalent tags and return counts. Discuss complexity."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a time you moved fast and shipped despite ambiguity. What did you learn?",
+      "Describe a time you were candid and direct with a peer about a hard truth.",
+      "Tell me about a decision you drove with data and A/B testing rather than opinion.",
+      "Describe a time you were wrong and openly changed your position."
     ],
     "systemDesign": [
-      "Design ByteDance/TikTok's calibrated to your level; can be quite deep at senior at production scale. Walk through the architecture, trade-offs, and failure modes.",
-      "Design a service at ByteDance/TikTok scale that shortens URLs. Cover the API, storage, and hot-key handling.",
-      "Design a rate limiter for a public API. Discuss algorithms, distributed coordination, and failure modes."
+      "Design the For You video recommendation feed serving personalized ranking at massive scale.",
+      "Design a live-streaming ingestion and fan-out system with low end-to-end latency.",
+      "Design a trending top-K service that tracks the most engaged content in real time.",
+      "Design a content-moderation pipeline that scores uploads for policy violations."
     ],
-    "values": [],
+    "values": [
+      "ByteDance emphasizes “seek truth and be pragmatic.” Tell me about a time you cut through opinion with evidence.",
+      "How do you stay effective in a fast, flat, execution-heavy culture?",
+      "Describe a time you gave or received very direct feedback and it improved the outcome."
+    ],
     "other": [
       "What's the work-life balance really like?",
       "Why does ByteDance pay so well?",
@@ -37,7 +55,7 @@
       "Should I prefer ByteDance over FAANG?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 8,
   "tips": [],
   "compensation": [
     "New-grad SWE: $200k–$320k total (location-dependent)",

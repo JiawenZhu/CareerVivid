@@ -6,29 +6,48 @@
   "interviewStages": [
     "Behavioral: ownership, on-call discipline, customer empathy"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Arrays, strings, and hashmaps for call and routing data",
+    "Scheduling and simulation for call distribution",
+    "SQL-style aggregation over call records",
+    "Streams and real-time event processing"
+  ],
+  "systemDesignTopics": [
+    "Design an automatic call distributor that routes calls to available agents",
+    "Design a real-time contact-center analytics dashboard for supervisors",
+    "Design a system for recording, storing, and transcribing millions of calls"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Given incoming calls and available agents with skills, implement skills-based routing to the best-matched free agent. Talk through your approach and edge cases.",
+      "Given a stream of call events, compute average wait time and service level in a rolling window. Discuss the data structure.",
+      "Given agent shift intervals, find coverage gaps where no agent is available. Talk through complexity.",
+      "Merge call-detail records from multiple queues and aggregate handle time per agent. Discuss your approach."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a time you built or maintained a system where downtime directly hurt customers.",
+      "Describe a time you improved the performance of a data-heavy feature.",
+      "Tell me about a time you collaborated across teams to ship a customer-facing feature.",
+      "Describe a time you handled a production incident."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design an automatic call distributor. Cover skills-based routing, queueing, and real-time agent state at scale.",
+      "Design a supervisor analytics dashboard. Cover event ingestion, rolling metrics, and low-latency updates.",
+      "Design call recording, storage, and transcription for millions of daily calls. Cover the pipeline and retention."
+    ],
+    "values": [
+      "Five9's customers run their business on the platform every second. How does reliability shape your engineering choices?",
+      "Tell me about a time you went out of your way to improve a customer's experience.",
+      "How do you balance new features against the reliability of a mission-critical service?"
+    ],
     "other": [
       "Is Five9 remote-friendly?",
       "How does Five9 compare to NICE or Genesys?",
       "What is the engineering culture?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 5,
   "tips": [],
   "compensation": null,
   "rawSummary": "Five9 Interview Guide (2026): Cloud Contact Center Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 6, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 6, 2026 · techinterview.org\n\n⏱ 1 min read\n\nFive9\nfive9.com ↗\n\nFive9 is a leading cloud contact-center (CCaaS) provider — handles inbound/outbound/blended call center workloads with AI agent assist. Public since 2014. The interview emphasizes real-time voice infrastructure, ACD/IVR design, and the AI/ML used for routing, transcription, and agent assist.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–5 weeks.\n\nWhat they actually ask\n\n- Design an automatic call distributor (ACD) at scale\n\n- Design an IVR with low-latency speech recognition\n\n- Design real-time agent-assist using LLMs\n\n- Coding: medium DSA, often with concurrency or queue framing\n\n- Behavioral: ownership, on-call discipline, customer empathy\n\nLevels and comp (2026)\n\n- SE II: $130K–$165K total\n\n- Senior SE: $190K–$250K\n\n- Staff: $270K–$365K\n\n- Principal: $385K–$510K\n\nPrep priorities\n\n- Be fluent in Java or Go (most of the platform)\n\n- Understand SIP/RTP, WebRTC, and ASR/TTS pipelines\n\n- Brush up on contact-center concepts (ACD, IVR, blended dialers)\n\nFrequently Asked Questions\n\nIs Five9 remote-friendly?\n\nHybrid in San Ramon CA (HQ), Atlanta, San Jose. Many engineering roles fully remote within US.\n\nHow does Five9 compare to NICE or Genesys?\n\nGenesys is the largest by enterprise share. NICE has the broader CX-suite. Five9 is the AI-forward mid-market leader. Comp is mid-tier; below cloud leaders.\n\nWhat is the engineering culture?\n\nMature, customer-driven, calmer pace. Strong work-life balance.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Five9? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextLow Level Design: Kubernetes Scheduler Design⏱ 3 min readLow Level Design: Multi-Region Architecture⏱ 4 min readTree Traversal Interview Patterns: Inorder, Level Order, Zigzag, and Serialize/Deserialize (2025)⏱ 6 min read"

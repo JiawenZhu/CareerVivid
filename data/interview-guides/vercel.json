@@ -14,16 +14,10 @@
     "Extend an existing mini-app: add a feature to this working code in 30 minutes"
   ],
   "systemDesignTopics": [
-    "\"Design an ISR (Incremental Static Regeneration) system for a site with 1M pages.\"",
-    "\"Design edge middleware for a multi-tenant serverless platform.\"",
-    "\"Design streaming SSR that can handle 10K concurrent requests per region.\"",
-    "\"Design a build cache system that invalidates correctly across CI and local development.\"",
-    "Walk through what happens when a user hits a Next.js page with dynamic = \"force-static\" vs \"force-dynamic\".",
-    "Debug a hydration mismatch given this component tree.",
-    "Explain how Suspense boundaries interact with streaming SSR.",
-    "Frame user segments and what each cares about",
-    "Propose 2&ndash;3 concrete changes with reasoning",
-    "Pick the highest-leverage one and defend it"
+    "Design an ISR (Incremental Static Regeneration) system for a site with 1M pages",
+    "Design edge middleware for a multi-tenant serverless platform",
+    "Design streaming SSR that can handle 10K concurrent requests per region",
+    "Design a build cache system that invalidates correctly across CI and local development"
   ],
   "behavioralTopics": [
     "Shipping velocity: \"What's the most you've shipped in a weekend or a week?\"",
@@ -34,26 +28,27 @@
   "sampleQuestions": {
     "coding": [
       "Build a small stateful component or hook with specific async semantics (debounced search, cancellable fetcher, race-condition-safe pagination). Talk through your approach, complexity, and edge cases.",
-      "Implement SSR-like render output, log tail, event stream. Talk through your approach, complexity, and edge cases.",
-      "Implement retry with exponential backoff and jitter, TTL cache with swr semantics. Talk through your approach, complexity, and edge cases.",
-      "Implement a streaming feature aggregator: given a stream of events, maintain rolling counts and averages per key with bounded memory. Discuss complexity and eviction.",
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases."
+      "Parse or transform a structured stream (SSR-like render output, log tail, event stream). Talk through your approach, complexity, and edge cases.",
+      "Implement a small primitive (retry with exponential backoff and jitter, TTL cache with swr semantics). Talk through your approach, complexity, and edge cases.",
+      "At Vercel, parse a stream of log and metric events and aggregate by key over a sliding window. Discuss memory bounds.",
+      "Implement a rate-limited, back-pressured queue for ingestion. Discuss what happens when a downstream sink is slow."
     ],
     "behavioral": [
-      "What's the most you've shipped in a weekend or a week?",
-      "Have you contributed to a project you didn't author? Walk me through a specific PR.",
-      "How do you drive alignment on an async-first team?",
-      "Show me something technically interesting you built recently and walk me through a design choice you made.",
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+      "Tell me about a project you are proud of at Vercel scale and the hardest tradeoff you made.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end.",
+      "Describe a time something you shipped failed or fell short. What did you change afterward?"
     ],
     "systemDesign": [
-      "When would you use a Server Component vs a Client Component? What are the actual costs of each?",
-      "Why might a CSS-in-JS library break with React 19 streaming SSR?",
-      "Acknowledge tradeoffs &mdash; what's the cost of each change?",
-      "Design an ISR (Incremental Static Regeneration) system for a site with 1M pages. Cover the API, data model, and how it scales.",
-      "Design edge middleware for a multi-tenant serverless platform. Cover the API, data model, and how it scales."
+      "Design an ISR (Incremental Static Regeneration) system for a site with 1M pages.",
+      "Design edge middleware for a multi-tenant serverless platform.",
+      "Design streaming SSR that can handle 10K concurrent requests per region."
     ],
-    "values": [],
+    "values": [
+      "Vercel is trusted by the developers who depend on it. Describe a time you prioritized reliability and craft.",
+      "Tell me about an open-source contribution or public work you are proud of.",
+      "How do you weigh a breaking change against the migration cost for users?"
+    ],
     "other": [
       "How deep do I need to know Next.js for a backend / platform role?",
       "Is the product-sense round weighted heavily?",

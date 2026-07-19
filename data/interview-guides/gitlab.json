@@ -17,25 +17,19 @@
     "Debug and fix a failing test in a realistic codebase"
   ],
   "systemDesignTopics": [
-    "\"Design the infrastructure for running 50K parallel CI pipelines across cloud providers.\"",
-    "\"Design container registry storage with cross-region replication and bounded latency.\"",
-    "\"Design incremental merge request validation that runs against partial diffs.\"",
-    "\"Design audit logging for compliance with SOC 2 and FedRAMP requirements.\"",
-    "Collaboration: \"Describe a time you worked effectively with someone you strongly disagreed with.\"",
-    "Results: \"Tell me about a project where you had to ship despite imperfect information.\"",
-    "Efficiency: \"Describe a process you improved or automated. How did you measure the impact?\"",
-    "Diversity, Inclusion, and Belonging: \"Tell me about a time you created a more inclusive team environment.\"",
-    "Iteration: \"Describe a project you shipped in small pieces rather than waiting for completion.\"",
-    "Transparency: \"Tell me about a mistake you made publicly and what happened.\""
+    "Design the infrastructure for running 50K parallel CI pipelines across cloud providers",
+    "Design container-registry storage with cross-region replication and bounded latency",
+    "Design incremental merge-request validation that runs against partial diffs",
+    "Design audit logging for compliance with SOC 2 and FedRAMP requirements"
   ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "You need to deduplicate a very large dataset that does not fit in memory. Walk me through your approach and how you would verify correctness.",
-      "Build a small Vue component with specific reactivity semantics and accessibility constraints. Talk through your approach, complexity, and edge cases.",
-      "Implement worker pool with cancellation, rate-limited fetcher with retries. Talk through your approach, complexity, and edge cases.",
-      "A function intermittently fails in production. Walk me through how you would reproduce, isolate, and fix the bug.",
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases."
+      "You need to deduplicate a very large dataset of commit objects that does not fit in memory. Walk me through your approach and how you'd verify correctness.",
+      "Build a small Vue component for a merge-request widget with specific reactivity semantics and accessibility constraints. Talk through your approach and edge cases.",
+      "Implement a Go worker pool with cancellation and a rate-limited fetcher with retries for a CI runner. Talk through your approach, complexity, and edge cases.",
+      "A CI job intermittently fails in production. Walk me through how you'd reproduce, isolate, and fix the bug.",
+      "Given a dependency graph of CI stages, compute a valid execution order and detect cycles (topological sort). Talk through complexity."
     ],
     "behavioral": [
       "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
@@ -47,9 +41,13 @@
       "Design container registry storage with cross-region replication and bounded latency. Cover the API, data model, and how it scales.",
       "Design incremental merge request validation that runs against partial diffs. Cover the API, data model, and how it scales.",
       "Design audit logging for compliance with SOC 2 and FedRAMP requirements. Cover the API, data model, and how it scales.",
-      "Design a service at GitLab scale that shortens URLs. Cover the API, storage, and hot-key handling."
+      "Design a container registry garbage collector that reclaims unreferenced layers safely. Cover correctness and scale."
     ],
-    "values": [],
+    "values": [
+      "GitLab's values are CREDIT (Collaboration, Results, Efficiency, Diversity/Inclusion/Belonging, Iteration, Transparency). Tell me about a time you shipped in small iterations rather than waiting for perfect.",
+      "GitLab is all-remote and default-transparent. Tell me about a time you worked openly and documented a mistake publicly.",
+      "Describe a process you improved or automated for efficiency. How did you measure the impact?"
+    ],
     "other": [
       "Do I really need to read the Handbook before interviewing?",
       "How real is the location-factor compensation?",

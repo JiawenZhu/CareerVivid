@@ -6,29 +6,52 @@
   "interviewStages": [
     "Behavioral: ownership, taste, fast-moving startup"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Streaming TTS audio generation with low latency (stream, streams, realtime, pipeline)",
+    "Text normalization and tokenization for speech (string, dictionary, prefix)",
+    "Audio buffer/ring management for playback (cache, memory, data structure, realtime)",
+    "Rate-limited API wrapper for model calls (systems, cache, sliding-window)",
+    "Practical product coding over realistic scenarios (array, string, systems)"
+  ],
+  "systemDesignTopics": [
+    "Design a low-latency streaming text-to-speech API that starts audio playback before full synthesis completes",
+    "Design a voice-cloning pipeline that trains and serves custom voices safely at scale",
+    "Design the model-serving layer batching concurrent TTS requests on GPUs under a latency SLO",
+    "Design a dubbing pipeline that transcribes, translates, and re-voices audio while preserving timing"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Build a rate-limited wrapper around a TTS model API that queues requests, respects a per-key quota, and streams audio chunks back as they're generated.",
+      "Given input text, implement text normalization (numbers, dates, abbreviations) into a form a TTS model can pronounce. Discuss edge cases per language.",
+      "Implement a ring buffer that smooths streamed audio chunks for gapless playback under jittery network delivery.",
+      "Process a stream of generated audio frames and detect/patch underruns so playback never stalls, keeping memory bounded.",
+      "Realistic scenario: synthesize speech for a long article. Design and code a chunking strategy that keeps first-audio latency low while preserving prosody across chunk boundaries."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "ElevenLabs wants 'founders who happen to be looking for a job.' Tell me about acting like an owner beyond your role.",
+      "Describe building a working product quickly from an ambiguous problem. How did you make judgment calls?",
+      "Tell me about shipping fast, learning from users, and iterating.",
+      "Describe taking full responsibility for an outcome that wasn't formally yours."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design ElevenLabs' streaming TTS API delivering first audio in well under a second.",
+      "Design a safe voice-cloning training and serving pipeline.",
+      "Design GPU batching for concurrent TTS under a latency SLO.",
+      "Design a dubbing pipeline (transcribe, translate, re-voice) preserving timing."
+    ],
+    "values": [
+      "ElevenLabs is pushing the frontier of AI voice. What draws you to that mission?",
+      "Voice cloning has real misuse risk. How do you weigh capability against safety?",
+      "What does high agency and founder mentality look like in your day-to-day work?"
+    ],
     "other": [
       "Is ElevenLabs remote-friendly?",
       "How does ElevenLabs compare to Deepgram or Descript?",
       "What is the engineering culture?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 7,
   "tips": [],
   "compensation": null,
   "rawSummary": "ElevenLabs Interview Guide (2026): AI Voice Generation\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 6, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 6, 2026 · techinterview.org\n\n⏱ 1 min read\n\nElevenLabs\nelevenlabs.io ↗\n\nElevenLabs is the leading AI voice-generation platform — TTS, voice cloning, dubbing, and a real-time conversational voice agent. Founded by ex-Google/Palantir engineers. Series C in 2024. The interview emphasizes ML systems for audio, low-latency real-time inference, and the engineering of multilingual voice products.\n\nProcess\n\nRecruiter screen → 60-minute coding (Python or systems language) → onsite virtual: 2 coding, 1 ML system design, 1 craft deep-dive, 1 behavioral. ML/research candidates get a research deep-dive. Cycle: 3–5 weeks.\n\nWhat they actually ask\n\n- Design a real-time TTS streaming server with sub-300ms latency\n\n- Design voice-cloning enrollment plus abuse-prevention safeguards\n\n- Design a multilingual dubbing pipeline (ASR → MT → TTS) with style preservation\n\n- Coding: medium-hard DSA, often ML-flavored\n\n- Behavioral: ownership, taste, fast-moving startup\n\nLevels and comp (2026)\n\n- SE: $190K–$260K total (London bands £110K–£160K plus equity)\n\n- Senior SE: $270K–$370K total (London bands £160K–£230K plus equity)\n\n- Staff / ML Research: $380K–$560K+ total at top of band\n\nPrep priorities\n\n- Be fluent in Python (research/serving), C++/CUDA helpful for inference roles\n\n- Understand TTS architectures (autoregressive vs diffusion), streaming inference, and audio codecs\n\n- Brush up on ASR, alignment, and multilingual NLP\n\nFrequently Asked Questions\n\nIs ElevenLabs remote-friendly?\n\nHubs in London (HQ), New York, San Francisco. Many engineering roles hybrid; some senior+ roles remote.\n\nHow does ElevenLabs compare to Deepgram or Descript?\n\nDeepgram is ASR-first. Descript is creator-tools-first. ElevenLabs is TTS/voice-generation leader and now expanding to conversational. Comp is competitive for AI startups at top of band.\n\nWhat is the engineering culture?\n\nSmall, technically dense, taste-driven, fast-shipping. Strong product-research-engineering blend.\n\nSimilar company guides\n\nReka AIinterview guideSakana AIinterview guideBlack Forest Labsinterview guideHippocratic AIinterview guideRunwayinterview guidePika Labsinterview guide\n\nPrepping for ElevenLabs? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextHow Transformer Models Work: Attention Mechanism Explained⏱ 6 min readBuilding a Writing Culture in Engineering Teams⏱ 3 min readSystem Design: Design Real-Time Analytics Platform — Clickstream Processing, Funnel Analysis, Cohort Analysis, OLAP⏱ 6 min read"

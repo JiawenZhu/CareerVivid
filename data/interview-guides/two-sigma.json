@@ -22,7 +22,12 @@
     "\"How would you build a system to detect regime changes in a financial time series?\"",
     "\"You have access to alternative data X. How would you evaluate whether it adds value?\""
   ],
-  "systemDesignTopics": [],
+  "systemDesignTopics": [
+    "Design a low-latency market-data feed handler that parses exchange packets in microseconds",
+    "Design an order-management system that guarantees no duplicate or lost orders under failover",
+    "Design a backtesting engine that replays years of tick data deterministically",
+    "Design a real-time risk and position-limit checker in the critical trading path"
+  ],
   "behavioralTopics": [
     "\"What's a research question that interests you that has nothing to do with finance?\"",
     "\"Walk me through a project you started for fun &mdash; what motivated it, what did you learn?\"",
@@ -31,21 +36,28 @@
   ],
   "sampleQuestions": {
     "coding": [
-      "Implement rolling statistic, expanding window, irregular-time-series resampling. Talk through your approach, complexity, and edge cases.",
+      "Implement an efficient time-series operation (rolling statistic, expanding window, irregular-time-series resampling). Talk through your approach, complexity, and edge cases.",
       "Process a large structured dataset with bounded memory. Talk through your approach, complexity, and edge cases.",
-      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph.",
-      "Given working but suboptimal code, improve it. Talk through your approach, complexity, and edge cases.",
-      "Implement a function that's robust to floating-point edge cases. Talk through your approach, complexity, and edge cases."
+      "At Two Sigma, given a stream of market-data ticks, maintain a rolling VWAP or moving average over a sliding time window. Discuss complexity and eviction.",
+      "Implement a fixed-capacity ring buffer for a single-producer single-consumer market-data ticks queue with minimal latency. Discuss memory ordering.",
+      "Parse a binary exchange message into an order-book updates with zero allocations on the hot path. Discuss the approach."
     ],
     "behavioral": [
-      "What's a research question that interests you that has nothing to do with finance?",
-      "Walk me through a project you started for fun &mdash; what motivated it, what did you learn?",
-      "What do you read for pleasure?",
-      "What's a time you changed your mind based on data?",
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+      "Tell me about a project you are proud of at Two Sigma scale and the hardest tradeoff you made.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end.",
+      "Describe a time something you shipped failed or fell short. What did you change afterward?"
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a low-latency market-data feed handler that parses exchange packets in microseconds.",
+      "Design an order-management system that guarantees no duplicate or lost orders under failover.",
+      "Design a backtesting engine that replays years of tick data deterministically."
+    ],
+    "values": [
+      "Two Sigma treats correctness under pressure as non-negotiable. Describe a time precision mattered more than speed.",
+      "How do you reason about risk and uncertainty when the cost of being wrong is high?",
+      "Tell me about a time intellectual honesty led you to abandon an approach you were invested in."
+    ],
     "other": [
       "Do I need a PhD for Two Sigma quant research?",
       "How does Two Sigma compare to D. E. Shaw or Citadel hedge fund?",
@@ -54,7 +66,7 @@
       "Is the SoHo NYC office really required?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 9,
   "tips": [
     "Pick your track honestly. QR vs SWE tracks have different bars; trying to be both rarely works in interviews.",
     "Show genuine intellectual curiosity. Have an interest you'll talk about authentically.",

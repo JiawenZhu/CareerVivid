@@ -18,22 +18,43 @@
     "Standard algorithmic problems for software-only roles",
     "For ground systems and mission control: distributed systems, telemetry pipelines, anomaly detection"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "C++ systems programming for flight software; memory-constrained data structures",
+    "Time-series telemetry processing, sliding-window limit monitoring",
+    "Graphs: dependency analysis of launch procedures, critical paths, topological sort",
+    "Simulation of physical systems and fault-tolerant voting",
+    "Numerical math: interpolation, plausibility checks on sensor data"
+  ],
+  "systemDesignTopics": [
+    "Design the telemetry-ingestion system that streams New Glenn sensor data to mission control with sub-second latency",
+    "Design a launch-countdown sequencer coordinating thousands of checks with abort logic at every step",
+    "Design a fleet-health monitoring platform for reusable boosters across missions"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Process a telemetry stream of engine-sensor readings and flag any sensor exceeding limits for N consecutive samples (sliding window).",
+      "Given a DAG of countdown checks with dependencies and durations, compute the critical path and earliest possible launch time.",
+      "Implement a ring buffer for fixed-rate telemetry on a memory-constrained flight computer; define overwrite semantics precisely.",
+      "Interpolate missing samples in an altitude time-series and flag physically implausible jumps.",
+      "Simulate a triple-redundancy voter reading three sensor values and emitting a fault-tolerant output; handle two-way disagreements."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about your most technically complex project. What made it hard and how did you solve it?",
+      "Describe debugging an issue with limited information or reproducibility — our hardware often can't be re-flown.",
+      "Safety-minded judgment: tell me about a time you stopped work or escalated because something felt unsafe or wrong.",
+      "Gradatim Ferociter — step by step, ferociously. Describe delivering a long program through disciplined increments."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design launch telemetry: ingestion from thousands of sensors, real-time display, and lossless recording for post-flight analysis.",
+      "Design the countdown sequencer: distributed checks, holds, and abort propagation with hard safety guarantees.",
+      "Design booster fleet-health tracking: per-flight sensor baselines, anomaly detection, and refurbishment scheduling."
+    ],
+    "values": [
+      "Blue Origin's vision is millions of people living and working in space. What does that mission mean to you personally?",
+      "How do you balance schedule pressure against safety in a system where failure is catastrophic and public?",
+      "Tell me about working across hardware disciplines — how do you earn credibility with propulsion or avionics engineers?"
+    ],
     "other": [
       "Is US citizenship required?",
       "How does Blue Origin compare to SpaceX culturally?",
@@ -41,7 +62,7 @@
       "How does compensation compare to SpaceX?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 7,
   "tips": [],
   "compensation": [
     "Junior: $120–160K base + bonus → $140–200K total",

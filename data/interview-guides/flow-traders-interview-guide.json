@@ -10,27 +10,43 @@
     "System design (1 round, for engineering) — trading systems, latency, ETF-specific architecture",
     "Behavioral / cultural fit (1 round) — collaboration, Dutch business culture fit"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Math and numbers: fast arithmetic and probability",
+    "Arrays and streams: order book and tick processing",
+    "Low-latency data structures: heaps and ring buffers",
+    "Simulation of trading and market scenarios",
+    "Bit manipulation and performance optimization"
+  ],
+  "systemDesignTopics": [
+    "Design a low-latency order book that supports fast best-bid/ask lookups",
+    "Design a market-data feed handler that normalizes ticks from many exchanges",
+    "Design a real-time risk system that tracks exposure across ETF positions"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "A function intermittently fails in production. Walk me through how you would reproduce, isolate, and fix the bug.",
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Implement a limit order book supporting add, cancel, and match with O(log n) best-price lookups. Talk through the data structures and complexity.",
+      "Given a stream of trade prices, maintain the running max and min in a sliding window with O(1) amortized updates. Discuss your approach.",
+      "Given bid/ask quotes across exchanges, detect arbitrage opportunities in real time. Talk through complexity and edge cases.",
+      "Compute the fair value of an ETF from its basket constituents as prices tick, minimizing recomputation. Discuss your approach.",
+      "Given two correlated price series, compute a rolling correlation efficiently. Talk through complexity."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a time you had to make a fast, high-stakes decision with incomplete information.",
+      "Describe a time you optimized code for latency or throughput. What did you measure?",
+      "Tell me about a time a small mistake had a big impact. What did you learn?",
+      "Describe a time you worked closely with a team under intense time pressure."
     ],
     "systemDesign": [
-      "Design Flow Traders's trading systems platform — cover latency, ETF-specific architecture. Walk through the architecture, trade-offs, and failure modes.",
-      "Design a service at Flow Traders scale that shortens URLs. Cover the API, storage, and hot-key handling.",
-      "Design a rate limiter for a public API. Discuss algorithms, distributed coordination, and failure modes."
+      "Design a low-latency order book. Cover the data structures, matching, and how you minimize tail latency.",
+      "Design a market-data feed handler normalizing ticks across exchanges. Cover parsing, sequencing, and gap recovery.",
+      "Design a real-time risk system tracking exposure across ETF positions. Cover aggregation and update latency."
     ],
-    "values": [],
+    "values": [
+      "Trading rewards being fast and correct. Tell me about a time both mattered and how you balanced them.",
+      "Describe a time your precision and attention to detail prevented a costly error.",
+      "How do you stay calm and effective in high-pressure, time-critical situations?"
+    ],
     "other": [
       "Should I work at Flow Traders or Optiver?",
       "What's the trader training program like?",
@@ -39,7 +55,7 @@
       "Is Flow Traders a good place for early-career engineers?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 8,
   "tips": [],
   "compensation": [
     "New-grad trader / SWE (Amsterdam): €70k–€150k base + bonus = €100k–€250k total in normal years; up to €500k+ in volatility-spike years",

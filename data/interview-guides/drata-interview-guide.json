@@ -6,29 +6,52 @@
   "interviewStages": [
     "Behavioral: customer focus, navigating compliance domain, working with audits"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Integration polling and evidence-collection scheduling (pipeline, systems, monitoring, stream)",
+    "Compliance-control-to-evidence mapping graph (graph, dependency, topological)",
+    "Configuration snapshot diffing for drift detection (merge, string)",
+    "Rate-limited concurrent API clients across integrations (systems, cache, realtime)",
+    "Trees/graphs with compliance-framework twists (graph, tree, dependency)"
+  ],
+  "systemDesignTopics": [
+    "Design a compliance-automation platform that continuously collects evidence from cloud and SaaS integrations",
+    "Design an integration framework that polls hundreds of third-party APIs with rate limits and failure isolation",
+    "Design a control-monitoring engine mapping SOC 2 and ISO 27001 controls to automated tests over collected evidence",
+    "Design a configuration-drift detector that alerts when a resource falls out of compliance"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Given many third-party integrations to poll for evidence, schedule collection jobs respecting each API's rate limit and isolating one slow integration from the rest.",
+      "Model the mapping from compliance controls to required evidence as a graph; given collected evidence, compute which controls are satisfied and which are failing.",
+      "Compare two snapshots of a cloud resource's configuration and report exactly what drifted out of a compliant state.",
+      "Implement a concurrent, rate-limited client that fans out requests to an integration and retries transient failures with backoff without exceeding the quota.",
+      "Given a tree of organizational assets with per-node compliance requirements, find all currently non-compliant nodes. Analyze complexity."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Drata looks for 'Drivers.' Tell me about driving an ambiguous project to completion without being told how.",
+      "Describe collaborating across teams to ship something no single team owned.",
+      "Tell me about working effectively in a fast-changing, early-stage environment.",
+      "Describe digging into a customer's compliance or security pain and building the right thing."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design Drata's continuous compliance platform: integration ingestion, evidence storage, and control monitoring.",
+      "Design an integration framework polling hundreds of APIs with rate limits and failure isolation.",
+      "Design a control-monitoring engine mapping frameworks to automated evidence tests.",
+      "Design a configuration-drift detector with alerting."
+    ],
+    "values": [
+      "Drata automates trust and compliance. Why does that problem motivate you?",
+      "How do you balance moving fast with the accuracy a compliance product demands?",
+      "What does being a 'Driver' in an ambiguous environment mean to you?"
+    ],
     "other": [
       "Is Drata remote-friendly?",
       "How does Drata compare to Vanta or Secureframe?",
       "What is the engineering culture?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 6,
   "tips": [],
   "compensation": null,
   "rawSummary": "Drata Interview Guide (2026): Compliance Automation\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nDrata\ndrata.com ↗\n\nDrata is one of the leading compliance automation platforms — automates SOC 2, ISO 27001, HIPAA, and other certifications. Used by 5,000+ companies. The interview emphasizes integrations engineering, evidence-collection automation, and the realities of building software around compliance frameworks.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design an integrations framework that pulls evidence from 100+ third-party systems\n\n- Design a continuous monitoring system with policy-violation alerting\n\n- Design audit-package generation for auditor handoffs\n\n- Coding: medium DSA, often with workflow framing\n\n- Behavioral: customer focus, navigating compliance domain, working with audits\n\nLevels and comp (2026)\n\n- SE II: $160K–$200K total\n\n- Senior SE: $230K–$300K\n\n- Staff: $320K–$420K\n\n- Principal: $440K–$580K\n\nPrep priorities\n\n- Be fluent in TypeScript/Node.js (the bulk of the codebase)\n\n- Understand compliance frameworks (SOC 2, ISO 27001, HIPAA) at a high level\n\n- Brush up on integrations patterns: webhooks, polling, API rate limits\n\nFrequently Asked Questions\n\nIs Drata remote-friendly?\n\nYes. Distributed across US. Hybrid options in San Diego (HQ).\n\nHow does Drata compare to Vanta or Secureframe?\n\nVanta is the largest by customer count. Drata is technically rigorous and focuses on broader frameworks. Secureframe is the budget-tier alternative. Comp is comparable to Vanta.\n\nWhat is the engineering culture?\n\nFast-moving, pragmatic, regulation-aware. Strong written documentation culture given the compliance domain.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Drata? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextFrontend Authentication: Cookies, Tokens, and Session Management⏱ 3 min readLow-Level Design: Inventory Management System — Stock Tracking, Reservations, and Replenishment⏱ 5 min readPrefix Sum Interview Patterns: Subarray Sum, 2D Range Query, Product⏱ 5 min read"

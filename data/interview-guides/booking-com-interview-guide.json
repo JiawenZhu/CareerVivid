@@ -9,27 +9,43 @@
     "Domain depth or experimentation (1 round) — A/B testing methodology, statistical reasoning, search ranking, ML systems depending on role",
     "Behavioral / cross-functional (1 round) — collaboration, ambiguity, customer mindset, experimentation discipline"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Sliding-window, two-pointer and greedy problems framed in booking scenarios",
+    "Heaps: top-k hotel ranking, merging ranking shards",
+    "Graphs and DFS: itinerary search with constraints",
+    "Cache design: insertion-order caches for availability lookups",
+    "SQL over reservations; string handling of multi-currency prices"
+  ],
+  "systemDesignTopics": [
+    "Design the hotel-availability search serving millions of queries a second across 28 million listings",
+    "Design a dynamic-pricing cache that keeps room rates fresh across currencies and partner feeds",
+    "Design an experimentation platform that runs a thousand concurrent A/B tests on the booking flow"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "A function intermittently fails in production. Walk me through how you would reproduce, isolate, and fix the bug.",
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Given check-in/check-out date pairs for a property, compute maximum simultaneous occupancy (sweep line / two-pointer).",
+      "Implement an insertion-order-evicting cache for room-availability lookups — Booking's practical cache exercise; discuss why not plain LRU.",
+      "Merge ranked results from multiple search shards and return the top-k hotels for a query using a heap.",
+      "Given city connections with prices, find the cheapest itinerary with at most k stops (graph/DFS with pruning).",
+      "Write SQL to find properties with declining month-over-month bookings for three consecutive months."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a time you gave difficult feedback to a peer. How did you deliver it? (A staple of our culture-fit round.)",
+      "Describe helping another engineer succeed at your own short-term cost.",
+      "Growth mindset: tell me about a skill you deliberately built in the last year and how.",
+      "Booking ships experiments constantly. Tell me about a time data killed your favorite idea."
     ],
     "systemDesign": [
-      "Design one of Booking.com's core large-scale travel marketplace systems — address search, availability, pricing, multi-region, currency. Walk through the architecture, trade-offs, and failure modes.",
-      "Design a service at Booking.com scale that shortens URLs. Cover the API, storage, and hot-key handling.",
-      "Design a rate limiter for a public API. Discuss algorithms, distributed coordination, and failure modes."
+      "Design availability search: inverted indexes over dates/filters, cache invalidation on bookings, and partner-feed lag.",
+      "Design the payments layer for a marketplace spanning 200+ countries, currencies, and local regulations.",
+      "Design the A/B experimentation pipeline: assignment, guardrail metrics, and interaction detection at 1000 concurrent tests."
     ],
-    "values": [],
+    "values": [
+      "Think customer first: describe a decision where traveler experience beat short-term conversion.",
+      "Own it: tell me about carrying an unglamorous problem to completion because it was yours.",
+      "Do the right thing: describe an ethical judgment call you made at work."
+    ],
     "other": [
       "Do I need to relocate to Amsterdam to work at Booking?",
       "How real is the Perl legacy in 2026?",
@@ -38,7 +54,7 @@
       "Is Booking good for early-career engineers?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 6.5,
   "tips": [],
   "compensation": [
     "New-grad SWE (Amsterdam, EUR-denominated): €60k–€90k base + bonus + RSUs (~€80k–€140k total)",

@@ -8,25 +8,16 @@
     "Behavioral / hiring manager: past projects, fast-pace comfort, craft orientation, hiring-bar awareness."
   ],
   "codingTopics": [
-    "Implement a text-buffer primitive with efficient edit operations (rope, piece table, or similar)",
-    "Context-retrieval: given a cursor position in a codebase, select most relevant code snippets for an LLM prompt",
-    "Streaming edit application: handle incoming LLM tokens and apply them as real-time edits to a document",
-    "Multi-file diff / coordination: track changes across many files with consistency",
-    "Classic algorithm problems (trees, graphs, DP) with editor or AI-adjacent twists"
+    "Editor text-buffer edits (string, two-pointer, data structure)",
+    "Context retrieval ranking for LLM prompts (heap, search, autocomplete, typeahead)",
+    "Streaming token application to a document (stream, realtime)",
+    "Multi-file change tracking and merge (graph, merge, dependency)"
   ],
   "systemDesignTopics": [
-    "\"Design the tab-prediction system with sub-100ms latency end-to-end for millions of users.\"",
-    "\"Design Cursor's agent mode executing multi-file edits with verification and rollback.\"",
-    "\"Design the privacy-preserving inference architecture letting enterprise customers keep code confidential.\"",
-    "\"Design the custom-model training pipeline producing coding-specialized variants from foundation models.\"",
-    "Discuss fine-tuning a base model for coding-specific tasks &mdash; data selection, training objectives, evaluation.",
-    "Reason about context-retrieval approaches for LLM coding prompts.",
-    "Describe an evaluation methodology for \"was this completion helpful.\"",
-    "Explain inference-optimization choices for ultra-low-latency completions.",
-    "\"Compare Cursor to Copilot / Windsurf / Claude Code. Where does each win?\"",
-    "\"What's broken about Cursor today? What would you fix?\"",
-    "\"Describe a time you obsessed over a product-craft decision in your own work.\"",
-    "\"What's your take on AI-coding-tool market positioning &mdash; editor-first vs IDE-integration vs chat-based?\""
+    "Design Cursor's tab-prediction system that suggests the next edit with sub-100ms end-to-end latency",
+    "Design a codebase-indexing system that embeds and retrieves relevant context for an AI IDE",
+    "Design a low-latency LLM inference pipeline for real-time code completion",
+    "Design multi-file edit application that applies AI-proposed diffs safely across a repo"
   ],
   "behavioralTopics": [
     "Selective-bar awareness: \"How do you think about hiring and team quality?\"",
@@ -36,27 +27,27 @@
   ],
   "sampleQuestions": {
     "coding": [
-      "Implement a text-buffer primitive with efficient edit operations (rope, piece table, or similar). Talk through your approach, complexity, and edge cases.",
-      "Given a cursor position in a codebase, select most relevant code snippets for an LLM prompt. Talk through your approach, complexity, and edge cases.",
-      "Handle incoming LLM tokens and apply them as real-time edits to a document. Talk through your approach, complexity, and edge cases.",
-      "Track changes across many files with consistency. Talk through your approach, complexity, and edge cases.",
-      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph."
+      "Implement a text-buffer primitive with efficient edit operations (rope or piece table). Talk through approach, complexity, and edge cases.",
+      "Given a cursor position in a codebase, select the most relevant code snippets to include in an LLM prompt within a token budget.",
+      "Handle incoming LLM tokens and apply them as real-time edits to a document, keeping the buffer consistent.",
+      "Cursor edits many files at once. Given AI-proposed diffs across files with dependencies, detect conflicts/cycles and produce a safe apply order."
     ],
     "behavioral": [
-      "How do you think about hiring and team quality?",
-      "Describe operating through rapid product evolution.",
-      "Tell me about pushing for quality despite deadline pressure.",
-      "Describe understanding a developer user's workflow deeply.",
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+      "Cursor values extreme ownership. Tell me about shipping something under pressure without a PM.",
+      "Describe a product decision you made as an engineer and how you validated it.",
+      "Tell me about owning a failure and what you changed afterward.",
+      "Describe giving or receiving direct, blunt feedback."
     ],
     "systemDesign": [
-      "Design the tab-prediction system with sub-100ms latency end-to-end for millions of users. Cover the API, data model, and how it scales.",
-      "Design Cursor's agent mode executing multi-file edits with verification and rollback. Cover the API, data model, and how it scales.",
-      "Design the privacy-preserving inference architecture letting enterprise customers keep code confidential.",
-      "Design the custom-model training pipeline producing coding-specialized variants from foundation models.",
-      "Explain inference-optimization choices for ultra-low-latency completions."
+      "Design Cursor's tab-prediction system delivering next-edit suggestions with sub-100ms latency for millions of users.",
+      "Design agent mode that executes multi-file edits with verification and rollback.",
+      "Design a privacy-preserving inference architecture letting enterprise customers keep their code confidential."
     ],
-    "values": [],
+    "values": [
+      "Cursor has no PMs - every engineer needs product sense. Tell me about a product-craft decision you obsessed over.",
+      "Do you use AI coding tools daily? How have they changed the way you work?",
+      "How do you balance shipping fast with the taste and polish developers expect from a tool they live in?"
+    ],
     "other": [
       "How does Cursor (Anysphere) compare to Windsurf (Codeium)?",
       "What's the hypergrowth really like?",

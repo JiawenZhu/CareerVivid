@@ -8,23 +8,44 @@
     "Domain depth (1–2 rounds) — memory architecture, process engineering, SoC design, ML systems, depending on role",
     "Behavioral / cross-functional (1 round) — for Korean-headquartered roles, more formal style than US tech"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Streaming and time-series: windowed aggregation over sensor readings",
+    "Bit-manipulation and low-level: packing, masks, register maps",
+    "Scheduling and simulation: task scheduling, event simulation",
+    "Data structures: ring buffers, priority queues",
+    "Graph and topological: dependency and dataflow ordering"
+  ],
+  "systemDesignTopics": [
+    "Design a telemetry ingestion pipeline for millions of devices",
+    "Design a firmware-update rollout system with staged canaries and rollback",
+    "Design a real-time monitoring and alerting system for a device fleet",
+    "Design a data pipeline that processes high-rate sensor streams"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Implement an LRU cache with O(1) get and put. Then explain how you would make it thread-safe without serializing all access.",
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "At Samsung, given a stream of sensor readings, compute a rolling min/max/avg per device over a sliding window with bounded memory.",
+      "Pack and unpack a device register map using bit-manipulation. Walk through masks and edge cases.",
+      "Schedule tasks onto limited compute units respecting dependencies. Detect cycles via topological sort.",
+      "Implement a ring buffer for device telemetry with back-pressure when a consumer is slow. Discuss complexity.",
+      "Simulate an event-driven pipeline of processing stages and report throughput and latency. Discuss the approach."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a project you are proud of at Samsung scale and the hardest tradeoff you made.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end.",
+      "Describe a time something you shipped failed or fell short. What did you change afterward?"
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a telemetry ingestion pipeline for millions of devices.",
+      "Design a firmware-update rollout system with staged canaries and rollback.",
+      "Design a real-time monitoring and alerting system for a device fleet."
+    ],
+    "values": [
+      "Samsung builds where hardware meets software. Describe a time cross-discipline collaboration mattered.",
+      "Tell me about a time correctness at the hardware/software boundary was critical.",
+      "How do you debug a problem that could live in either hardware or software?"
+    ],
     "other": [
       "Should I work at Samsung Electronics in Korea or in the US?",
       "How real is Samsung's HBM challenge?",
@@ -33,7 +54,7 @@
       "Is Samsung Electronics a good place for early-career engineers?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 7,
   "tips": [],
   "compensation": [
     "Korea-based engineering (most roles): Korean-market rates — generally lower than US in absolute terms, cost-adjusted competitive. Samsung is one of the most prestigious employers in Korea; compensation is at the top of the local market.",

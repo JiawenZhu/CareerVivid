@@ -6,29 +6,49 @@
   "interviewStages": [
     "Behavioral: ownership, on-call discipline, customer empathy for AI labs"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "GPU job bin-packing and scheduling (heap, greedy, infrastructure)",
+    "Kubernetes reconcile-loop diffing (graph, simulation, systems)",
+    "GPU telemetry rolling aggregation (time-series, monitoring, stream)",
+    "Topology-aware pod placement (graph, array)"
+  ],
+  "systemDesignTopics": [
+    "Design a GPU scheduler that bin-packs training jobs across a cluster of thousands of GPUs",
+    "Design a multi-tenant GPU cloud that isolates customers while maximizing utilization",
+    "Design a high-throughput metrics pipeline monitoring GPU health across data centers",
+    "Design a control plane that provisions and reconciles Kubernetes-based GPU workloads"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "CoreWeave schedules GPU jobs. Given jobs needing N GPUs and nodes with free GPUs, bin-pack to maximize utilization and minimize fragmentation.",
+      "Implement a Kubernetes-style reconcile loop: given desired vs actual pod state, compute the minimal create/delete actions.",
+      "Given GPU utilization metrics streaming per node, maintain a rolling p95 for a monitoring dashboard.",
+      "Given a rack/network topology graph, place the pods of a distributed training job to minimize cross-rack bandwidth."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "CoreWeave says 'act like an owner'. Tell me about taking responsibility beyond your assigned task.",
+      "Describe debugging a production incident in a low-level infrastructure system.",
+      "Tell me about optimizing throughput or utilization of expensive hardware.",
+      "Describe prioritizing under pressure during a period of rapid company growth."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design CoreWeave's GPU scheduler that packs distributed training jobs across thousands of GPUs with topology awareness.",
+      "Design multi-tenant isolation so customers share a GPU cluster securely at high utilization.",
+      "Design a real-time GPU health and telemetry pipeline across multiple data centers."
+    ],
+    "values": [
+      "CoreWeave scales GPU infrastructure extremely fast. How do you keep reliability high while moving quickly?",
+      "Tell me about a time you owned the cost-efficiency of a system.",
+      "How do you approach on-call and operational rigor?"
+    ],
     "other": [
       "Is CoreWeave remote-friendly?",
       "How does CoreWeave compare to Lambda Labs or RunPod?",
       "What is the engineering culture?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 7,
   "tips": [],
   "compensation": null,
   "rawSummary": "CoreWeave Interview Guide (2026): Specialty GPU Cloud\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 6, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 6, 2026 · techinterview.org\n\n⏱ 1 min read\n\nCoreWeave\ncoreweave.com ↗\n\nCoreWeave is the largest specialty GPU cloud — operates 250,000+ GPUs across multiple data centers, with Microsoft and OpenAI among its largest customers. IPO in 2025. The interview emphasizes deep infrastructure engineering, InfiniBand topology, and the operational reality of running tens of thousands of H100/B200 GPUs reliably.\n\nProcess\n\nRecruiter screen → 60-minute coding (Go or Python) → onsite virtual: 2 coding, 1 system design (often distributed-systems-flavored), 1 craft deep-dive, 1 behavioral. Senior+ infra candidates often get a Linux/networking deep-dive. Cycle: 3–5 weeks.\n\nWhat they actually ask\n\n- Design a multi-tenant GPU cluster scheduler with topology awareness\n\n- Design a Kubernetes-on-GPU control plane with NCCL and InfiniBand support\n\n- Design a high-throughput object store for ML datasets\n\n- Coding: medium DSA, often with networking, scheduling, or distributed-systems framing\n\n- Behavioral: ownership, on-call discipline, customer empathy for AI labs\n\nLevels and comp (2026)\n\n- SE: $185K–$245K total\n\n- Senior SE: $260K–$360K total\n\n- Staff: $370K–$510K total\n\n- Principal: $510K–$700K total\n\nPrep priorities\n\n- Be fluent in Go (control plane), Python (orchestration), and Linux/networking fundamentals\n\n- Understand InfiniBand, NVLink, NCCL, and GPU topology deeply\n\n- Brush up on Kubernetes device plugins, Slurm, and HPC scheduling\n\nFrequently Asked Questions\n\nIs CoreWeave remote-friendly?\n\nHubs in Roseland NJ (HQ), and presence in datacenter regions. Some engineering roles fully remote within US; many require datacenter or NYC-area proximity.\n\nHow does CoreWeave compare to Lambda Labs or RunPod?\n\nCoreWeave is the largest by GPU count and skews enterprise (Microsoft, OpenAI). Lambda is mid-tier and stronger on on-prem. RunPod is developer/spot-friendly. Comp is mid-to-high tier infra; senior+ bands competitive with FAANG.\n\nWhat is the engineering culture?\n\nHardware-and-network-aware, customer-driven (sells to AI labs and hyperscalers). Strong on-call expectation; the workloads matter to the customers.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for CoreWeave? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextSystem Design Interview: Design a Content Moderation System⏱ 5 min readKYC Service Low-Level Design: Identity Verification, Document Processing, and Compliance Workflow⏱ 6 min readLow Level Design: LSM-Tree Internals — Log-Structured Merge Trees⏱ 3 min read"

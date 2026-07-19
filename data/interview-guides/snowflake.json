@@ -15,10 +15,10 @@
     "Classic algorithm problems with data-systems flavor (top-K with bounded memory, distinct counting, approximate algorithms)"
   ],
   "systemDesignTopics": [
-    "\"Design a query result cache with invalidation that handles 1M queries/sec across 10K tenants.\"",
-    "\"Design the cloning / time-travel feature supporting point-in-time queries up to 90 days back.\"",
-    "\"Design cross-region data replication with eventual consistency guarantees and bounded lag.\"",
-    "\"Design the query-statistics system feeding the cost-based optimizer.\""
+    "Design a query result cache with invalidation that handles 1M queries/sec across 10K tenants",
+    "Design the cloning / time-travel feature supporting point-in-time queries up to 90 days back",
+    "Design cross-region data replication with eventual consistency guarantees and bounded lag",
+    "Design the query-statistics system feeding the cost-based optimizer"
   ],
   "behavioralTopics": [
     "Customer focus: \"Tell me about a time you deeply engaged with a customer problem.\"",
@@ -28,27 +28,28 @@
   ],
   "sampleQuestions": {
     "coding": [
-      "Implement a database primitive: hash-aggregate operator, sort with spill-to-disk, tournament-sort for external merge. Talk through your approach, complexity, and edge cases.",
-      "Given a small expression tree, implement interpretation and then codegen. Talk through your approach, complexity, and edge cases.",
-      "Implement tree rewriting, cost-based plan selection. Talk through your approach, complexity, and edge cases.",
-      "Implement top-K with bounded memory, distinct counting, approximate algorithms. Talk through your approach, complexity, and edge cases.",
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases."
+      "At Snowflake, parse a stream of log and metric events and aggregate by key over a sliding window. Discuss memory bounds.",
+      "Implement a rate-limited, back-pressured queue for ingestion. Discuss what happens when a downstream sink is slow.",
+      "Parse a config format into a typed structure with schema validation. Discuss error handling.",
+      "Given a dependency graph of build targets, compute a valid build order and detect cycles via topological sort.",
+      "Downsample a time-series into fixed buckets (min, max, avg) as data streams in. Walk through the approach."
     ],
     "behavioral": [
-      "Tell me about a time you deeply engaged with a customer problem.",
-      "Describe a project that required coordination across multiple teams.",
-      "Walk me through the hardest technical problem you've solved.",
-      "How have you made others around you more effective?",
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+      "Tell me about a project you are proud of at Snowflake scale and the hardest tradeoff you made.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end.",
+      "Describe a time something you shipped failed or fell short. What did you change afterward?"
     ],
     "systemDesign": [
       "Design a query result cache with invalidation that handles 1M queries/sec across 10K tenants.",
       "Design the cloning / time-travel feature supporting point-in-time queries up to 90 days back.",
-      "Design cross-region data replication with eventual consistency guarantees and bounded lag. Cover the API, data model, and how it scales.",
-      "Design the query-statistics system feeding the cost-based optimizer. Cover the API, data model, and how it scales.",
-      "Design a service at Snowflake scale that shortens URLs. Cover the API, storage, and hot-key handling."
+      "Design cross-region data replication with eventual consistency guarantees and bounded lag."
     ],
-    "values": [],
+    "values": [
+      "Snowflake is trusted by the developers who depend on it. Describe a time you prioritized reliability and craft.",
+      "Tell me about an open-source contribution or public work you are proud of.",
+      "How do you weigh a breaking change against the migration cost for users?"
+    ],
     "other": [
       "Do I need database internals experience to get hired?",
       "How does Snowflake compare to Databricks on interviews?",

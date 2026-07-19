@@ -8,26 +8,46 @@
     "System Design: Design a financial data system. Mine was \"Design a real-time stock quote system with 1ms latency.\" They care about low latency and high reliability.",
     "Behavioral: Questions about working in high-pressure situations, attention to detail, and customer service. Terminal users pay $24k/year – downtime isn't acceptable."
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Hash maps and ordered dictionaries for market data (Bloomberg staples)",
+    "Heaps: top-k most-traded securities, realtime ranking",
+    "Graphs and DP framed in finance: currency conversion, arbitrage detection",
+    "Streams and time-series: tick processing, VWAP, sliding windows",
+    "Low-level design: bounded caches with expiry, C++/Python internals"
+  ],
+  "systemDesignTopics": [
+    "Design the Bloomberg Terminal's real-time market-data feed delivering ticks to 350,000 subscribers with millisecond latency",
+    "Design a news-alerting system that matches breaking headlines to the securities each trader watches",
+    "Design a time-series storage engine for tick data supporting fast range queries across decades"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Implement a double-entry ledger that processes a stream of transactions and detects imbalances. How do you guarantee idempotency when a transaction is delivered twice?",
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Maintain the top-k most-traded securities from a live tick stream (heap + hash map); analyze the per-update cost.",
+      "Implement an ordered dictionary with O(1) insert, delete, and get-first/get-last by insertion order — a Bloomberg favorite; discuss the node/hash hybrid.",
+      "Given tick timestamps and prices, compute VWAP per security over sliding windows, handling out-of-order ticks.",
+      "Design a bounded price cache with per-entry expiry for terminal clients; discuss eviction under bursty market opens.",
+      "Model currencies as a conversion graph: find the best conversion path between two currencies and detect arbitrage cycles."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Why Bloomberg? (A generic answer here is a known early exit — be specific about the terminal, the data business, or the culture.)",
+      "Tell me about a time you owned a problem outside your job description until it was solved.",
+      "Describe collaborating in an open, desk-side culture: how do you handle constant interruptions and direct feedback?",
+      "Tell me about optimizing a system where milliseconds mattered to the user."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design the terminal's real-time market-data distribution: fan-out, conflation, and slow-consumer handling.",
+      "Design keyword/entity alerting over a news firehose matched against millions of trader watchlists.",
+      "Design tick-history storage: compression, partitioning, and range queries for backtesting workloads."
+    ],
+    "values": [
+      "Bloomberg gives the majority of profits to Bloomberg Philanthropies. Does that change what working here means to you?",
+      "Our customers are traders whose money is on the line at 9:30 sharp. How does that shape your view of reliability?",
+      "Bloomberg builds nearly everything in-house. When would you build rather than buy, and why?"
+    ],
     "other": []
   },
-  "difficulty": null,
+  "difficulty": 7.5,
   "tips": [],
   "compensation": null,
   "rawSummary": "Bloomberg\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  February 1, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\tUpdated February 1, 2026 · techinterview.org\n\n⏱ 3 min read\n\nBloomberg\nbloomberg.com ↗\n\nBloomberg: Finance Meets Tech\n\nGot my Bloomberg offer in 2023 after 3 months of prep. They're different from pure tech companies – you're building for finance professionals, and that shapes everything including interviews.\n\nUnderstanding Bloomberg\n\nTheir product is the Bloomberg Terminal – $24k/year per seat, used by every major financial firm. You're building tools for traders, analysts, and bankers. They care about reliability (markets don't wait) and speed (milliseconds matter).\n\nThe Process\n\nPhone Screen with Recruiter (30 min): They ask about interest in finance. You don't need an MBA, but showing zero interest in markets is a red flag. I mentioned following tech stocks – that was enough.\n\nTechnical Phone Screen (2 hours!): Yes, 2 hours. Three coding problems back-to-back, increasing in difficulty. Mine were: array manipulation, string parsing, and a graph problem. They move fast – if you solve one in 15 minutes, they move to the next.\n\nThis screen filters out a lot of people. Be ready for the marathon.\n\nOnsite (5-6 rounds):\n\n- Coding Rounds (3-4): Whiteboard coding (yes, actual whiteboard or virtual equivalent). Problems are practical – parsing data feeds, handling financial calculations with precision, time-series analysis.\n\n- System Design: Design a financial data system. Mine was \"Design a real-time stock quote system with 1ms latency.\" They care about low latency and high reliability.\n\n- Behavioral: Questions about working in high-pressure situations, attention to detail, and customer service. Terminal users pay $24k/year – downtime isn't acceptable.\n\nWhat They Actually Test\n\n- Data Parsing: CSV, JSON, binary formats, market data feeds\n\n- Performance: Low latency systems, memory optimization, cache efficiency\n\n- Precision: Financial calculations require exact decimal arithmetic (no floating point errors)\n\n- Algorithms: Standard stuff – arrays, trees, graphs, but with financial context\n\n- C++: If you know it, major plus. Much of their stack is C++.\n\nHow I Prepared\n\n- Did 150 LeetCode Problems: Mix of medium and hard. Bloomberg asks harder questions than most tech companies.\n\n- Learned Financial Basics: What's a stock ticker? What's a bond? Read \"A Random Walk Down Wall Street.\" Basic literacy matters.\n\n- Practiced Precision Math: Understand decimal vs float. Financial calculations can't have rounding errors. This came up in my interview.\n\n- Speed Drills: Their 2-hour phone screen trains you to solve problems fast. I practiced timed sets of 3 problems.\n\n- Studied Low Latency: Read about cache optimization, network latency, and real-time systems.\n\nMistakes I Made (First Attempt)\n\nI failed my first Bloomberg interview in 2022. Used a float for money calculations. Interviewer stopped me: \"What happens if someone trades $1,000,000.01 worth of bonds?\" Rounding errors. Failed that round.\n\nAlso assumed I didn't need domain knowledge. Wrong. When interviewer asked \"What data would you show for a stock?\", I said \"price.\" They wanted: bid, ask, volume, last trade time, exchange&#8230; There's a lot more to it.\n\nThe Culture\n\nMore formal than Silicon Valley but less stuffy than traditional finance. Business casual dress code. Perks are solid (cafeteria with free food, gym). Hours are reasonable for finance-tech (9-6, not banking hours).\n\nYou're building for professionals who pay a lot of money. That means pressure but also impact. Your code affects billions of dollars in trades.\n\nComp: Very competitive. Base + significant annual bonus (tied to company performance). Total comp rivals FAANG, sometimes exceeds it. Stock isn't public but they have profit-sharing.\n\nOffice culture: NYC-based primarily. They value face time more than Silicon Valley companies. Remote work is limited.\n\nLast Updated: February 2026\n\nSimilar company guides\n\nAmerican Expressinterview guideCapital Oneinterview guideMarqetainterview guideWiseinterview guideKlarnainterview guideCartainterview guide\n\nPrepping for Bloomberg? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextAffirm Interview Guide 2026: BNPL, Underwriting, Levchin Culture, Post-CFPB Engineering⏱ 7 min readD. E. Shaw Interview Guide 2026: Quant Hedge Fund, Academic Culture, Background Deep-Dive⏱ 8 min readSpotify Interview Guide 2026: Audio Streaming, Backstage, ML-Driven Discovery⏱ 7 min read"

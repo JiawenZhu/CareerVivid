@@ -6,29 +6,49 @@
   "interviewStages": [
     "Behavioral: customer focus, navigating regulatory complexity, working with finance domain"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Cap-table modeling: ownership percentages, dilution, and share-class math",
+    "Financial math: waterfall and liquidation-preference calculations",
+    "Tree and graph modeling of ownership and entity structures",
+    "Data-structure refactoring in a real-world take-home",
+    "Arrays and aggregation over equity transactions"
+  ],
+  "systemDesignTopics": [
+    "Design the cap-table service that models ownership, share classes, and dilution across financing rounds",
+    "Design a waterfall calculation engine for liquidation preferences at exit",
+    "Design an equity-transaction ledger with an auditable history of share movements"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Given a cap table with share classes and a new financing round, compute each shareholder’s post-money ownership and dilution. Discuss edge cases.",
+      "Given a liquidation waterfall with preferences and participation, compute each stakeholder’s payout for a given exit value. Discuss the math and ordering.",
+      "Model a company’s ownership as a tree of entities and roll up beneficial ownership percentages. Discuss complexity.",
+      "Given a stream of equity transactions (grants, exercises, transfers), maintain each holder’s vested balance over time. Discuss idempotency."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a time correctness in a financial calculation was critical. How did you ensure it?",
+      "Describe a real-world project you scoped and delivered end-to-end.",
+      "Tell me about collaborating closely with product or non-engineers.",
+      "Describe a time you refactored messy code or data structures for clarity."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design the cap-table service that models ownership, share classes, and dilution across financing rounds.",
+      "Design a waterfall calculation engine for liquidation preferences at exit.",
+      "Design an equity-transaction ledger with an auditable history of share movements."
+    ],
+    "values": [
+      "Carta’s mission is to change how ownership works. What draws you to democratizing equity?",
+      "Tell me about a time you built something that helped users understand something complex.",
+      "Describe how you approach correctness when people’s money and ownership are on the line."
+    ],
     "other": [
       "Is Carta remote-friendly?",
       "How does Carta compare to Pulley?",
       "What is the financial-engineering domain like?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 6.5,
   "tips": [],
   "compensation": null,
   "rawSummary": "Carta Interview Guide (2026): Cap Table and Equity Management\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nCarta\ncarta.com ↗\n\nCarta is the dominant cap table and equity management platform — used by 40,000+ private companies and most US venture firms. The interview focuses on financial domain modeling, multi-tenant architecture, and the realities of building software for high-stakes financial workflows.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design a cap table data model that handles dilution, conversions, and historical events\n\n- Design 409A valuation calculations with auditability\n\n- Design an electronic signature workflow with regulatory compliance\n\n- Coding: medium DSA, often with financial calculation framing\n\n- Behavioral: customer focus, navigating regulatory complexity, working with finance domain\n\nLevels and comp (2026)\n\n- SE II: $145K–$180K total\n\n- Senior SE: $215K–$285K\n\n- Staff: $310K–$410K\n\n- Principal: $430K–$570K\n\nPrep priorities\n\n- Be fluent in Python or TypeScript (Carta uses both)\n\n- Understand financial concepts: equity, vesting, options, RSUs\n\n- Brush up on event-sourcing patterns — cap tables are essentially event-sourced\n\nFrequently Asked Questions\n\nIs Carta remote-friendly?\n\nHybrid in San Francisco, NYC, Salt Lake City, others. Some engineering roles remote within US.\n\nHow does Carta compare to Pulley?\n\nCarta is the incumbent with broad enterprise traction. Pulley is the upstart with better developer-experience focus. Carta has more scope but slower pace.\n\nWhat is the financial-engineering domain like?\n\nDetail-oriented, regulation-aware, high-stakes for correctness. Engineers who enjoy financial domain modeling find it rewarding.\n\nSimilar company guides\n\nAmerican Expressinterview guideCapital Oneinterview guideMarqetainterview guideWiseinterview guideKlarnainterview guideAdyeninterview guide\n\nPrepping for Carta? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextLow Level Design: Event Sourcing — Design and Patterns⏱ 5 min readConsensus Service Low-Level Design: Raft Protocol, Log Replication, and Membership Changes⏱ 5 min readSystem Design: Observability Stack — Prometheus, Grafana, ELK, OpenTelemetry, Metrics, Logs, Traces, Alerting⏱ 9 min read"

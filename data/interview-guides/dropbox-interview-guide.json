@@ -6,29 +6,52 @@
   "interviewStages": [
     "Behavioral: focus on customer impact, ownership, working through ambiguity"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "File sync/diff: chunking and delta encoding (string, two-pointer, merge)",
+    "Content-addressable storage and dedup with hashing (cache, data structure, systems)",
+    "Namespace/path tree operations for shared folders (tree, graph, dependency)",
+    "LRU/metadata cache under memory bounds (cache, memory, data structure)",
+    "Conflict resolution over concurrent edits (merge, simulation, systems)"
+  ],
+  "systemDesignTopics": [
+    "Design a file synchronization service that keeps files consistent across devices with efficient delta sync",
+    "Design a content-addressable block storage layer with deduplication and durability guarantees",
+    "Design a sharing and permissions system for nested shared folders across millions of users",
+    "Design the metadata service tracking file versions, namespaces, and sync state at scale"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Implement content-defined chunking + delta sync: given an old and new version of a file, transfer only the changed blocks. Discuss chunk boundaries and dedup.",
+      "Design a content-addressable store: hash blocks, deduplicate identical blocks across users, and handle reference counting for deletes.",
+      "Given a tree of folders with sharing overrides, compute a user's effective access to a deeply nested file. Analyze complexity.",
+      "Implement an LRU metadata cache with a strict memory budget for a sync client; discuss eviction and consistency with the server.",
+      "Two devices edit the same file offline; reconcile the concurrent changes into a consistent result and detect true conflicts."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Dropbox stores users' most important files. Tell me about earning users' trust through reliability.",
+      "Describe focusing ruthlessly on the highest-impact work and cutting the rest.",
+      "Tell me about a detail others overlooked that you sweated because it mattered.",
+      "Describe shipping something meaningful under real constraints."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design Dropbox file sync: delta transfer, conflict handling, and cross-device consistency.",
+      "Design a content-addressable block store with dedup and durability.",
+      "Design nested folder sharing and permissions for millions of users.",
+      "Design the file metadata and versioning service at scale."
+    ],
+    "values": [
+      "Dropbox's value is being worthy of trust with users' data. What does that mean to you technically?",
+      "How do you decide what's highest-impact when everything feels important?",
+      "What draws you to storage/sync infrastructure problems?"
+    ],
     "other": [
       "Is Dropbox still hiring aggressively?",
       "Is Dropbox remote-friendly?",
       "What language do Dropbox engineers use?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 7,
   "tips": [],
   "compensation": null,
   "rawSummary": "Dropbox Interview Guide (2026): File Sync and Collaboration\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nDropbox\ndropbox.com ↗\n\nDropbox is the OG file sync product — 700M+ registered users and one of the most studied storage architectures (the Magic Pocket project moved them off AWS). The interview is system-design heavy and rewards depth on storage, sync algorithms, and the messy realities of cross-platform clients.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (LeetCode medium) → onsite virtual: 2 coding (LeetCode medium-hard), 1 system design, 1 architecture (senior+), 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design Dropbox sync — block-level diff, conflict resolution, multi-device convergence\n\n- Design a distributed file storage system with deduplication and erasure coding\n\n- Design real-time collaboration on a shared document (Paper)\n\n- Coding: medium-hard, often involving trees, intervals, or string parsing\n\n- Behavioral: focus on customer impact, ownership, working through ambiguity\n\nLevels and comp (2026)\n\n- IC2 (new grad): $190K–$220K total\n\n- IC3 (mid): $250K–$320K\n\n- IC4 (senior): $340K–$450K\n\n- IC5 (staff): $480K–$650K\n\nPrep priorities\n\n- Read the Magic Pocket and Nucleus blog posts — Dropbox engineering is famously well-documented\n\n- Practice file sync: rsync algorithm, content-defined chunking, Merkle trees\n\n- Be ready to discuss Python, Go, and Rust — Dropbox uses all three\n\nFrequently Asked Questions\n\nIs Dropbox still hiring aggressively?\n\nSlower than peak years. Senior roles have higher bar and longer cycles. New grad recruiting is more selective.\n\nIs Dropbox remote-friendly?\n\nVirtual First — most roles are remote, with quarterly in-person team gatherings.\n\nWhat language do Dropbox engineers use?\n\nPython (legacy) is still huge; Go for newer services; Rust for performance-critical paths; TypeScript for web.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Dropbox? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextHopper Interview Guide (2026): Travel App Engineering⏱ 1 min readLog Aggregation Pipeline Low-Level Design: Ingestion, Parsing, Indexing, and Alerting⏱ 8 min readLongest Substring Without Repeating Characters: The Sliding Window Origin Story⏱ 6 min read"

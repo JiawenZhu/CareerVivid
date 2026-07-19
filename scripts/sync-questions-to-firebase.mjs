@@ -27,8 +27,18 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
 const SERVICE_ACCOUNT = path.join(ROOT, 'firebase-service-account.json');
 const SEED = path.join(__dirname, 'seed-interview-guides.mjs');
+const VERIFY_TRACKER = path.join(__dirname, 'verify-quest-question-tracker.mjs');
 
 const dryRun = process.argv.includes('--dry-run');
+
+// The workbook/CSV tracker is the human-auditable backup of the Web source.
+// Refuse to sync if it was not regenerated after a question edit, so neither
+// the site nor native app can silently drift from the reviewed question set.
+const verification = spawnSync('node', [VERIFY_TRACKER], { stdio: 'inherit', cwd: ROOT });
+if (verification.status !== 0) {
+  console.error('\n❌  Question tracker verification failed. Rebuild the tracker before syncing questions.');
+  process.exit(verification.status ?? 1);
+}
 
 if (!fs.existsSync(SERVICE_ACCOUNT)) {
   console.warn(

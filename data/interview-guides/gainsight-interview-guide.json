@@ -6,29 +6,48 @@
   "interviewStages": [
     "Behavioral: customer focus, ownership, working in mature B2B SaaS"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Arrays, strings, and hashmaps for customer data",
+    "SQL-style joins, MERGE, and aggregation",
+    "Sorting and searching over account and usage records",
+    "Time-series aggregation of product-usage events"
+  ],
+  "systemDesignTopics": [
+    "Design a customer-health scoring system from product-usage and support signals",
+    "Design a churn-risk alerting pipeline for customer-success managers",
+    "Design a data-ingestion system that unifies customer data from many sources"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Given a stream of product-usage events, compute each account's rolling engagement score. Talk through the data structure and complexity.",
+      "Merge customer records from a CRM and a support system, resolving conflicts by recency (upsert/MERGE logic). Discuss your approach.",
+      "Given account renewal dates, find accounts at risk within the next N days using interval search. Talk through complexity.",
+      "Aggregate feature-adoption counts per account and rank the least-adopted features. Discuss your approach."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a time you helped a customer succeed, not just closed a ticket.",
+      "Describe a time you built a feature grounded in a real customer problem.",
+      "Tell me about a cross-team collaboration to resolve a customer issue.",
+      "Describe a time you handled customer adversity or a difficult stakeholder."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a customer-health scoring system. Cover signal ingestion, scoring, and how CSMs consume it.",
+      "Design a churn-risk alerting pipeline. Cover thresholds, deduplication, and routing to the right owner.",
+      "Design a data-ingestion layer that unifies customer data from many SaaS sources. Cover mapping and conflict handling."
+    ],
+    "values": [
+      "Gainsight lives by the 'Golden Rule.' Tell me about a time you treated a customer or teammate the way you'd want to be treated.",
+      "How do you keep the end customer's success central when making technical decisions?",
+      "Describe a time you went beyond your role to help someone succeed."
+    ],
     "other": [
       "Is Gainsight remote-friendly?",
       "How does Gainsight compare to ChurnZero or Totango?",
       "What is the engineering culture?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 5,
   "tips": [],
   "compensation": null,
   "rawSummary": "Gainsight Interview Guide (2026): Customer Success Platform\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 6, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 6, 2026 · techinterview.org\n\n⏱ 1 min read\n\nGainsight\ngainsight.com ↗\n\nGainsight is the category-defining customer success platform — used by enterprises to track health scores, drive renewals, and reduce churn. Owned by Vista Equity. The interview emphasizes data integration across CRM/usage/support systems, rules engines, and the analytics that power health scoring.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design a customer-health scoring engine that pulls from many sources\n\n- Design a rules/playbook engine for CSM workflows\n\n- Design Salesforce-bidirectional sync at enterprise scale\n\n- Coding: medium DSA, often with data-pipeline framing\n\n- Behavioral: customer focus, ownership, working in mature B2B SaaS\n\nLevels and comp (2026)\n\n- SE II: $130K–$165K total\n\n- Senior SE: $190K–$255K\n\n- Staff: $275K–$365K\n\n- Principal: $390K–$520K\n\nPrep priorities\n\n- Be fluent in Java and Salesforce/Apex (large parts of the codebase)\n\n- Understand ETL, rule engines, and CRM data models\n\n- Brush up on customer-success domain (NPS, health, churn)\n\nFrequently Asked Questions\n\nIs Gainsight remote-friendly?\n\nDistributed across St. Louis, San Francisco, Hyderabad. Many engineering roles fully remote.\n\nHow does Gainsight compare to ChurnZero or Totango?\n\nGainsight is the enterprise leader. ChurnZero is mid-market. Totango is more flexible/modern. Comp is mid-tier B2B SaaS; below cloud leaders.\n\nWhat is the engineering culture?\n\nMature, customer-driven, calmer pace under PE ownership. Strong work-life balance.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Gainsight? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextProject Management System Low-Level Design: Gantt Chart, Resource Allocation, and Critical Path⏱ 6 min readWebSockets in Production: Scaling, Auth, and Reconnect⏱ 2 min readFrontend Edge Computing 2026: Cloudflare Workers, Vercel Edge, Deno Deploy⏱ 4 min read"

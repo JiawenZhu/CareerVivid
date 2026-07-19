@@ -6,29 +6,49 @@
   "interviewStages": [
     "Behavioral: ownership, deep technical taste, customer empathy"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Time-series and metrics: aggregation over high-cardinality streams",
+    "Concurrency and multithreading over a shared data structure",
+    "Logs and monitoring data parsing and rollups",
+    "Heaps and top-K for the hottest metrics and series",
+    "Cache and bounded-memory aggregation"
+  ],
+  "systemDesignTopics": [
+    "Design a metrics ingestion and aggregation pipeline handling billions of data points per second",
+    "Design a high-cardinality time-series store with fast range queries and downsampling",
+    "Design a query engine for Prometheus-style metrics with cost controls"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Given a high-throughput stream of metric samples, compute per-series rolling aggregates with bounded memory. Discuss complexity and eviction.",
+      "You are given preexisting code and a long prompt: make a shared counter aggregator thread-safe and correct under concurrency. Discuss the synchronization.",
+      "Given a stream of metric writes, maintain the top-K highest-cardinality series in real time using a heap. Discuss complexity.",
+      "Parse a stream of structured logs and produce per-category error counts within a sliding time window. Discuss edge cases."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a time you debugged a concurrency or performance issue at scale.",
+      "Describe how you approached an on-call incident and what you changed afterward.",
+      "Tell me about optimizing a system for cost as well as performance.",
+      "Describe reading and extending an unfamiliar codebase quickly."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a metrics ingestion and aggregation pipeline handling billions of data points per second.",
+      "Design a high-cardinality time-series store with fast range queries and downsampling.",
+      "Design a query engine for Prometheus-style metrics with cost controls."
+    ],
+    "values": [
+      "Chronosphere is about giving teams control over observability cost and reliability. What draws you to infrastructure other engineers depend on?",
+      "Tell me about a time you cared about the operational experience of your users, who are fellow engineers.",
+      "Describe a time you balanced reliability and speed of delivery."
+    ],
     "other": [
       "Is Chronosphere remote-friendly?",
       "How does Chronosphere compare to Datadog or Grafana?",
       "What is the engineering culture?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 7,
   "tips": [],
   "compensation": null,
   "rawSummary": "Chronosphere Interview Guide (2026): Modern Observability Platform\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 6, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 6, 2026 · techinterview.org\n\n⏱ 1 min read\n\nChronosphere\nchronosphere.io ↗\n\nChronosphere is a cloud-native observability platform — built on M3, the open-source metrics engine. Founded by ex-Uber engineers (Martin Mao). Series C, $1.6B+ valuation. The interview emphasizes deep distributed-systems work, time-series database engineering, and the operational reality of running observability for hyperscale customers.\n\nProcess\n\nRecruiter screen → 60-minute coding (Go preferred) → onsite virtual: 2 coding, 1 system design (distributed-systems-flavored), 1 craft deep-dive, 1 behavioral. Cycle: 3–5 weeks.\n\nWhat they actually ask\n\n- Design a horizontally scalable time-series storage layer\n\n- Design a distributed query engine for high-cardinality metrics\n\n- Design ingestion at millions of metrics/sec with isolation\n\n- Coding: medium-hard DSA, often with concurrency or systems framing\n\n- Behavioral: ownership, deep technical taste, customer empathy\n\nLevels and comp (2026)\n\n- SE: $175K–$235K total\n\n- Senior SE: $250K–$340K total\n\n- Staff: $360K–$485K total\n\n- Principal: $500K–$675K total\n\nPrep priorities\n\n- Be fluent in Go (most of platform) and SQL/PromQL\n\n- Understand time-series storage internals (Gorilla, M3, Prometheus TSDB)\n\n- Brush up on distributed query execution, label cardinality, and downsampling\n\nFrequently Asked Questions\n\nIs Chronosphere remote-friendly?\n\nDistributed-first. Hubs in NYC and Seattle. Many engineering roles fully remote within US.\n\nHow does Chronosphere compare to Datadog or Grafana?\n\nDatadog is the dominant SaaS observability suite. Grafana Labs offers OSS + cloud Grafana. Chronosphere is the cloud-native challenger with strong cardinality controls. Comp competitive for senior+ distributed-systems work.\n\nWhat is the engineering culture?\n\nSenior-heavy, technically deep, calm. Strong distributed-systems craft from the Uber-engineering heritage.\n\nSimilar company guides\n\nDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guideOrca Securityinterview guide\n\nPrepping for Chronosphere? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextDesigning an in-memory order book in a quant interview⏱ 5 min readCache System Low-Level Design (LRU, Write Policies, Redis Cluster)⏱ 7 min readAdvanced Linked List Interview Patterns: Reversal, Cycle Detection, and Merge Operations (2025)⏱ 5 min read"

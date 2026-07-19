@@ -10,25 +10,41 @@
     "Onsite or virtual loop (4–6 rounds)."
   ],
   "codingTopics": [
-    "For hardware: RTL, architecture, or domain-specific rounds depending on team",
-    "1 behavioral round",
-    "Hiring committee review."
+    "Arrays and sorting: in-place manipulation and matrix traversal (spiral, rotate)",
+    "Bit-manipulation: register and flag masking, counting set bits, packing fields",
+    "Systems and low-level C: pointer manipulation, memory layout, buffer handling",
+    "Sliding-window and two-pointer problems on packet or signal buffers",
+    "Graph problems for chip-interconnect and dependency ordering"
   ],
-  "systemDesignTopics": [],
+  "systemDesignTopics": [
+    "Design a packet-processing pipeline for a network switch ASIC with bounded per-packet latency",
+    "Design a firmware update system for millions of deployed networking devices",
+    "Design a monitoring and telemetry pipeline for datacenter switches at scale"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Given a packet header as a bitfield, extract and validate specific flags using bit-manipulation. Walk through the masking and shifting.",
+      "Rotate an N x N register or pixel matrix in place. Discuss complexity and the in-place constraint.",
+      "Given a stream of packets over a fixed-size ring buffer, find the longest window with no dropped sequence numbers using a sliding window. Discuss edge cases.",
+      "Given a chip-interconnect dependency graph, produce a valid topological build order or detect a cycle."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a time you debugged a hard hardware and software integration issue. How did you isolate it?",
+      "Describe a project where you had to hit tight performance or memory constraints. What trade-offs did you make?",
+      "Tell me about working across firmware, hardware, and software teams to ship something.",
+      "Describe a time you took ownership of a defect that others had overlooked."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a packet-processing pipeline for a network switch ASIC with bounded per-packet latency.",
+      "Design a firmware update system for millions of deployed networking devices.",
+      "Design a monitoring and telemetry pipeline for datacenter switches at scale."
+    ],
+    "values": [
+      "Broadcom runs many acquired business units with a strong execution and efficiency culture. How do you stay productive amid that?",
+      "What draws you to low-level systems or hardware-adjacent engineering?",
+      "Tell me about a time you delivered under significant cost or resource constraints."
+    ],
     "other": [
       "How has the VMware acquisition changed Broadcom's hiring?",
       "Does Broadcom hire from non-traditional backgrounds?",
@@ -36,7 +52,7 @@
       "Is VMware still a viable employer post-acquisition?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 6.5,
   "tips": [],
   "compensation": [
     "Senior software engineer (VMware track): $180–240K base + AVGO RSU + bonus → $320–500K total",

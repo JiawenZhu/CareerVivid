@@ -15,10 +15,10 @@
     "Classic algorithm problems with practical twists (graph traversal on a labeling workflow DAG, shortest path over task dependencies)"
   ],
   "systemDesignTopics": [
-    "\"Design an ingestion pipeline for 10TB/day of labeled data with deduplication and quality checks.\"",
-    "\"Design an LLM evaluation harness for 100 benchmarks across 20 models with reproducible results.\"",
-    "\"Design a labeling task-distribution system for 10K concurrent human labelers with fraud detection.\"",
-    "\"Design a RLHF preference-collection pipeline with quality sampling and stratified distribution.\""
+    "Design an ingestion pipeline for 10TB/day of labeled data with deduplication and quality checks",
+    "Design an LLM evaluation harness for 100 benchmarks across 20 models with reproducible results",
+    "Design a labeling task-distribution system for 10K concurrent human labelers with fraud detection",
+    "Design a RLHF preference-collection pipeline with quality sampling and stratified distribution"
   ],
   "behavioralTopics": [
     "Ambiguity: \"Tell me about a project where the direction changed multiple times. How did you handle it?\"",
@@ -28,28 +28,27 @@
   ],
   "sampleQuestions": {
     "coding": [
-      "Implement given a stream of labeling tasks, route to labelers with agreement ≥ X, reject low-confidence submissions. Talk through your approach, complexity, and edge cases.",
-      "Implement cluster near-duplicate text examples, detect overlapping bounding boxes. Talk through your approach, complexity, and edge cases.",
-      "Implement compute rolling inter-annotator agreement, detect drift. Talk through your approach, complexity, and edge cases.",
-      "Implement call a labeling API for 10K items efficiently. Talk through your approach, complexity, and edge cases.",
-      "Implement graph traversal on a labeling workflow DAG, shortest path over task dependencies. Talk through your approach, complexity, and edge cases."
+      "At Scale AI, given a stream of model inference requests, batch them to maximize GPU utilization while keeping per-request latency under a bound. Discuss the queue and complexity.",
+      "Chunk a long document into overlapping passages for retrieval, respecting sentence boundaries. Discuss the sliding-window approach.",
+      "Given a query and an inverted index over embeddings, return the top-K most similar items using a heap. Discuss ranking.",
+      "Deduplicate near-identical generated outputs using shingling and hashing. Walk through complexity.",
+      "Implement an LRU cache for expensive model inference requests keyed by a prompt hash with TTL eviction. Discuss the data structure."
     ],
     "behavioral": [
-      "Tell me about a project where the direction changed multiple times. How did you handle it?",
-      "Describe a time you took something from 'broken' to 'reliable.",
-      "What's the fastest you've shipped a material piece of functionality?",
-      "Why Scale specifically, and why now?",
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+      "Tell me about a project you are proud of at Scale AI scale and the hardest tradeoff you made.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end.",
+      "Describe a time something you shipped failed or fell short. What did you change afterward?"
     ],
     "systemDesign": [
-      "RLHF: walk through the pipeline from preference collection through reward model training through policy optimization. What are the quality pitfalls at each stage? What does Constitutional AI change?",
-      "Evaluation methodology: how do you design a benchmark that's hard to game? How do you handle contamination? What are the tradeoffs of LLM-as-a-judge vs human eval vs automated metrics?",
-      "Data-quality reasoning: given this dataset and these quality signals, how do you improve label quality without increasing cost 10x?",
-      "Fine-tuning decisions: full fine-tune vs LoRA vs prompting &mdash; when does each make sense?",
-      "Design an ingestion pipeline for 10TB/day of labeled data with deduplication and quality checks."
+      "Design an ingestion pipeline for 10TB/day of labeled data with deduplication and quality checks.",
+      "Design an LLM evaluation harness for 100 benchmarks across 20 models with reproducible results.",
+      "Design a labeling task-distribution system for 10K concurrent human labelers with fraud detection."
     ],
     "values": [
-      "How is the equity valued post-deal?"
+      "Scale AI's mission carries real responsibility. Describe a time you weighed capability against safety.",
+      "How do you evaluate an AI feature where a wrong answer has real consequences?",
+      "Tell me about a time you were rigorous about data quality or evaluation when it slowed you down."
     ],
     "other": [
       "How does the post-Meta-deal affect hiring?",
@@ -58,7 +57,7 @@
       "How does Scale compare to OpenAI / Anthropic on interviews?"
     ]
   },
-  "difficulty": 7.5,
+  "difficulty": 7,
   "tips": [
     "Understand the current direction. Read recent news, the company blog, and the CEO's public comments. Have a view.",
     "Prep data-quality intuition. Read about inter-annotator agreement, active learning, adversarial labeling, and data contamination.",

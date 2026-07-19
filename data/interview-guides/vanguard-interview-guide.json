@@ -9,27 +9,44 @@
     "Domain depth (1 round) — depends on role: distributed systems, ML, security, data engineering",
     "Behavioral / values fit (1–2 rounds) — Vanguard's culture round is rigorous; expect probing on integrity, long-term orientation, alignment with the mutual ownership ethos"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Numbers and math: numerical precision, floating-point finance",
+    "Arrays and time-series: rolling P&L, moving averages",
+    "Data structures: heaps, priority queues, hash maps for positions",
+    "Dynamic programming and optimization with a risk flavor",
+    "Graph and topological: pricing-pipeline dependency ordering"
+  ],
+  "systemDesignTopics": [
+    "Design a real-time risk aggregation system across desks",
+    "Design a pricing service that recomputes valuations on market-data ticks",
+    "Design a trade capture and settlement pipeline with an immutable audit trail",
+    "Design a reconciliation system across multiple ledgers"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "A function intermittently fails in production. Walk me through how you would reproduce, isolate, and fix the bug.",
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "At Vanguard, given a stream of trades, maintain a rolling P&L or moving average over a sliding time window. Discuss eviction.",
+      "Reconcile a stream of transactions against expected settlements, flagging mismatches. Discuss idempotency and the matching key.",
+      "Given positions as (instrument, notional) pairs, compute the minimum set of trades to hedge net exposure to a target.",
+      "You have a dependency graph of pricing calculations. Detect cycles and produce a valid evaluation order via topological sort.",
+      "Merge k sorted streams of transactions from different systems into one time-ordered feed using a heap. Discuss tie-breaking."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a project you are proud of at Vanguard scale and the hardest tradeoff you made.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end.",
+      "Describe a time something you shipped failed or fell short. What did you change afterward?"
     ],
     "systemDesign": [
-      "Design one of Vanguard's core financial systems with scale — address millions of retail investor accounts, billions in AUM. Walk through the architecture, trade-offs, and failure modes.",
-      "Design a service at Vanguard scale that shortens URLs. Cover the API, storage, and hot-key handling.",
-      "Design a rate limiter for a public API. Discuss algorithms, distributed coordination, and failure modes."
+      "Design a real-time risk aggregation system across desks.",
+      "Design a pricing service that recomputes valuations on market-data ticks.",
+      "Design a trade capture and settlement pipeline with an immutable audit trail."
     ],
-    "values": [],
+    "values": [
+      "Vanguard runs on trust and correctness. Describe a time you flagged a number you were not confident in under pressure.",
+      "Tell me about a time you stayed meticulous about controls when it was tempting to cut a corner.",
+      "How do you balance moving fast with the rigor a financial system demands?"
+    ],
     "other": [
       "How does the mutual ownership structure actually work?",
       "How real is the \"low-cost ethos\" in engineering?",
@@ -38,7 +55,7 @@
       "Is Vanguard a good place for early-career engineers?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 7,
   "tips": [],
   "compensation": [
     "New-grad SWE: $130k–$200k total comp first year",

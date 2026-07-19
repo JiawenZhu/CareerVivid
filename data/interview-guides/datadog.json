@@ -9,22 +9,17 @@
     "Behavioral / values (optional for some loops): standard STAR-format questions with a tilt toward ownership and reliability."
   ],
   "codingTopics": [
-    "Streaming aggregation (compute top-K over a bounded memory budget)",
-    "Log or structured-event parser with state (build a multi-line event aggregator, correlate events by ID)",
-    "Windowing (find all events within a sliding N-minute window that match a predicate)",
-    "Cardinality-aware problems (implement an approximate distinct counter, a bloom filter with specific false-positive rate)",
-    "Tree-based problems (segment tree for range queries, interval tree for overlap detection)"
+    "Streaming aggregation: compute top-K over a bounded memory budget (stream, streams, heap, sliding-window, monitoring)",
+    "Structured-event parser with state: multi-line event aggregator correlated by ID (logs, string, streams)",
+    "Windowing: find events within a sliding N-minute window matching a predicate (sliding-window, time-series, stream)",
+    "Cardinality-aware structures: approximate distinct counter, bloom filter (data structure, memory, math)",
+    "Tree-based range queries: segment/interval tree for overlap detection (tree, data structure, graph)"
   ],
   "systemDesignTopics": [
-    "\"Design a metrics ingestion pipeline handling 10M points/sec with 1-minute latency.\"",
-    "\"Design log search for 100B events/day with bounded p99 latency.\"",
-    "\"Design a distributed tracing system with adaptive sampling that preserves interesting traces.\"",
-    "\"Design rate limiting across a multi-tenant API surface with fairness guarantees.\"",
-    "\"Tell me about the logging pipeline you built.\" (2 minutes)",
-    "\"Why Kafka instead of Kinesis?\" (5 minutes on the alternatives)",
-    "\"How did you size partitions?\" (10 minutes on throughput math)",
-    "\"What happened the first time it fell over?\" (10 minutes on failure modes)",
-    "\"If you were building it now, what would you change?\" (10 minutes on second-system thinking)"
+    "Design a metrics ingestion pipeline handling 10M points per second with one-minute end-to-end latency",
+    "Design a log search system for 100B events per day with bounded p99 latency",
+    "Design a distributed tracing system with adaptive sampling that preserves interesting traces",
+    "Design multi-tenant rate limiting across an API surface with fairness guarantees"
   ],
   "behavioralTopics": [
     "Ownership under pressure: a production incident you owned from detection through postmortem.",
@@ -34,27 +29,29 @@
   ],
   "sampleQuestions": {
     "coding": [
-      "Implement compute top-K over a bounded memory budget. Talk through your approach, complexity, and edge cases.",
-      "Implement build a multi-line event aggregator, correlate events by ID. Talk through your approach, complexity, and edge cases.",
-      "Implement find all events within a sliding N-minute window that match a predicate. Talk through your approach, complexity, and edge cases.",
-      "Implement implement an approximate distinct counter, a bloom filter with specific false-positive rate. Talk through your approach, complexity, and edge cases.",
-      "Implement segment tree for range queries, interval tree for overlap detection. Talk through your approach, complexity, and edge cases."
+      "Implement a streaming top-K over a bounded memory budget to surface the noisiest hosts by metric volume. Discuss the sketch and complexity.",
+      "Build a multi-line event aggregator that correlates log lines by trace/request ID into single events under memory pressure.",
+      "Find all events within a sliding N-minute window that match a predicate over a high-throughput event stream, keeping memory bounded.",
+      "Implement an approximate distinct counter (or a bloom filter with a target false-positive rate) to bound the cardinality of a metric tag. Analyze the error.",
+      "Build a segment or interval tree to answer range-overlap queries over time-series spans efficiently."
     ],
     "behavioral": [
-      "Describe a production incident or project you owned end-to-end. What did you do, and what was the outcome?",
-      "Tell me about a time you worked across teams to deliver something. How did you handle competing priorities?",
-      "Tell me about a time you engaged deeply with a customer or user problem. How did it change what you built?",
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?"
+      "Describe a production incident you owned from detection through postmortem. What did you change afterward?",
+      "Tell me about a scaling decision where an architecture broke and you had to rework it. What were the numbers?",
+      "Tell me about working across teams and time zones to deliver something.",
+      "Describe engaging directly with a customer problem that changed what you built."
     ],
     "systemDesign": [
-      "Design a metrics ingestion pipeline handling 10M points/sec with 1-minute latency. Cover the API, data model, and how it scales.",
-      "Design log search for 100B events/day with bounded p99 latency. Cover the API, data model, and how it scales.",
-      "Design a distributed tracing system with adaptive sampling that preserves interesting traces.",
-      "Design rate limiting across a multi-tenant API surface with fairness guarantees. Cover the API, data model, and how it scales.",
-      "Design a service at Datadog scale that shortens URLs. Cover the API, storage, and hot-key handling."
+      "Design a metrics ingestion pipeline handling 10M points/sec with 1-minute latency: API, storage, compaction, and cardinality control.",
+      "Design log search for 100B events/day with bounded p99 latency and hot/warm/cold tiering.",
+      "Design distributed tracing with adaptive sampling that preserves interesting traces.",
+      "Design multi-tenant rate limiting with fairness across tenants."
     ],
-    "values": [],
+    "values": [
+      "Datadog is deeply customer-facing even from infra. How do you keep the customer in mind in backend work?",
+      "How do you weigh reliability and on-call sustainability against shipping features fast?",
+      "At Datadog, cardinality is the core challenge. How do you think about cost vs completeness of observability data?"
+    ],
     "other": [
       "Do I need observability background to get hired?",
       "How important is the deep-dive round?",

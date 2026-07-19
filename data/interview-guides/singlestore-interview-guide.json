@@ -6,29 +6,50 @@
   "interviewStages": [
     "Behavioral: ownership, deep technical taste, distributed-systems craft"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Practical systems coding: parsers, queues, small state machines",
+    "Streaming and time-series: windowed aggregation over log and metric events",
+    "String parsing: query languages, config formats",
+    "Data structures: ring buffers, LRU caches, tries",
+    "Graph and topological: build and dependency ordering"
+  ],
+  "systemDesignTopics": [
+    "Design a sharded distributed SQL engine with rowstore and columnstore",
+    "Design a query optimizer that picks across storage formats",
+    "Design a real-time ingestion pipeline (Kafka → SingleStore)"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "At SingleStore, parse a stream of log and metric events and aggregate by key over a sliding window. Discuss memory bounds.",
+      "Implement a rate-limited, back-pressured queue for ingestion. Discuss what happens when a downstream sink is slow.",
+      "Parse a config format into a typed structure with schema validation. Discuss error handling.",
+      "Given a dependency graph of build targets, compute a valid build order and detect cycles via topological sort.",
+      "Downsample a time-series into fixed buckets (min, max, avg) as data streams in. Walk through the approach."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a project you are proud of at SingleStore scale and the hardest tradeoff you made.",
+      "Give me an example that shows ownership, deep technical taste, distributed-systems craft.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a sharded distributed SQL engine with rowstore and columnstore.",
+      "Design a query optimizer that picks across storage formats.",
+      "Design a real-time ingestion pipeline (Kafka → SingleStore)."
+    ],
+    "values": [
+      "SingleStore is trusted by the developers who depend on it. Describe a time you prioritized reliability and craft.",
+      "Tell me about an open-source contribution or public work you are proud of.",
+      "How do you weigh a breaking change against the migration cost for users?"
+    ],
     "other": [
       "Is SingleStore remote-friendly?",
       "How does SingleStore compare to Snowflake, ClickHouse, or CockroachDB?",
       "What is the engineering culture?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 7,
   "tips": [],
   "compensation": null,
   "rawSummary": "SingleStore Interview Guide (2026): Real-Time Analytical Database\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 6, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 6, 2026 · techinterview.org\n\n⏱ 1 min read\n\nSingleStore\nsinglestore.com ↗\n\nSingleStore (formerly MemSQL) is a real-time HTAP database — combines transactional and analytical workloads in a distributed, columnar-and-rowstore engine. Late-stage. The interview emphasizes deep distributed-database systems work, query optimization, and the unique architectural tradeoffs of an HTAP system.\n\nProcess\n\nRecruiter screen → 60-minute coding (C++ or Go for engine roles, Python for tools) → onsite virtual: 2 coding, 1 system design (distributed-systems-flavored), 1 craft deep-dive, 1 behavioral. Cycle: 4–6 weeks.\n\nWhat they actually ask\n\n- Design a sharded distributed SQL engine with rowstore and columnstore\n\n- Design a query optimizer that picks across storage formats\n\n- Design a real-time ingestion pipeline (Kafka → SingleStore)\n\n- Coding: medium-hard DSA, often with concurrency or systems framing\n\n- Behavioral: ownership, deep technical taste, distributed-systems craft\n\nLevels and comp (2026)\n\n- SE: $175K–$235K total\n\n- Senior SE: $250K–$345K total\n\n- Staff: $360K–$485K total\n\n- Principal: $495K–$670K total\n\nPrep priorities\n\n- Be fluent in C++ (the engine) and SQL deeply\n\n- Understand distributed query execution, sharding, replication (Raft)\n\n- Brush up on columnar storage, vectorized execution, and query optimization\n\nFrequently Asked Questions\n\nIs SingleStore remote-friendly?\n\nHubs in San Francisco (HQ), Seattle, Portugal, India. Many engineering roles fully remote within supported geographies.\n\nHow does SingleStore compare to Snowflake, ClickHouse, or CockroachDB?\n\nSnowflake is analytical-only at scale. ClickHouse is open-source columnar-focused. Cockroach is OLTP-focused distributed SQL. SingleStore differentiates on HTAP — real-time read+write at scale. Comp competitive for senior+ database systems work.\n\nWhat is the engineering culture?\n\nSenior-heavy, technically deep, calmer pace. Strong distributed-systems craft.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideOrca Securityinterview guide\n\nPrepping for SingleStore? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextPlaid Interview Guide 2026: Financial Data Infrastructure, Idempotency, and Bank API Engineering⏱ 9 min readHackerRank Interview Guide (2026): Coding Assessment Platform⏱ 1 min readCount Negative Numbers in a Sorted Matrix: Staircase Search⏱ 5 min read"

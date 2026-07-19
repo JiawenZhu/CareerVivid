@@ -8,19 +8,17 @@
     "Behavioral / hiring manager: past projects, customer focus, working under compliance constraints."
   ],
   "codingTopics": [
-    "Signature workflow state machine: model envelope state with signers, routing rules, reminders, expirations, and all failure paths",
-    "Audit event processor: given a stream of actions, generate cryptographically-verifiable audit entries",
-    "Document diff: given two versions of an agreement, compute meaningful changes (ignoring whitespace-only changes)",
-    "OO design: model an agreement with versioning, signature fields, recipients, routing, and retention policies",
-    "Classic algorithm problems (trees, graphs, tries) with practical twists from the document / agreement domain"
+    "Envelope/signature workflow state machine (simulation, systems, data structure)",
+    "Append-only tamper-evident audit event processing (logs, streams, systems)",
+    "Document diff ignoring whitespace-only changes (string, two-pointer)",
+    "OO modeling of agreements with versioning (design, data structure)",
+    "Trees/graphs/tries in the document domain (graph, tree, autocomplete, prefix)"
   ],
   "systemDesignTopics": [
-    "\"Design the core e-signature service processing 10M envelopes per day with legal-audit compliance.\"",
-    "\"Design an envelope-routing engine supporting parallel and sequential signers, conditional routing, and scheduled reminders.\"",
-    "\"Design the audit trail: append-only, tamper-evident, and queryable for compliance investigations.\"",
-    "\"Design the document storage layer with per-customer retention policies and cross-region DR.\"",
-    "Walk through how a digital signature differs from an electronic signature in the legal sense.",
-    "Explain the PAdES profiles and which one would apply to a long-term-validated contract."
+    "Design a core e-signature service processing 10M envelopes per day with legal-grade audit compliance",
+    "Design an envelope-routing engine supporting parallel and sequential signers with conditional routing and reminders",
+    "Design an append-only tamper-evident audit trail that is queryable for compliance investigations",
+    "Design a document storage layer with per-customer retention policies and cross-region disaster recovery"
   ],
   "behavioralTopics": [
     "Customer focus: \"Tell me about a time you engaged directly with a customer problem. How did it change what you built?\"",
@@ -30,27 +28,29 @@
   ],
   "sampleQuestions": {
     "coding": [
-      "Implement a streaming feature aggregator: given a stream of events, maintain rolling counts and averages per key with bounded memory. Discuss complexity and eviction.",
-      "Given a stream of actions, generate cryptographically-verifiable audit entries. Talk through your approach, complexity, and edge cases.",
-      "Given two versions of an agreement, compute meaningful changes (ignoring whitespace-only changes). Talk through your approach, complexity, and edge cases.",
-      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph.",
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases."
+      "Model a signing envelope as a state machine with multiple signers, sequential/parallel routing, reminders, and expirations. Validate an incoming signer action against current state.",
+      "Given a stream of envelope actions, generate cryptographically chained, tamper-evident audit entries. How do you make the chain verifiable?",
+      "Compute a meaningful diff between two versions of an agreement, ignoring whitespace-only changes. Discuss complexity.",
+      "Design the object model for an agreement with versioning, signature fields, recipients, routing rules, and retention. Show the key classes and relationships.",
+      "Given a routing graph with conditional branches, determine whether every signer can eventually be reached (no orphaned steps). Which traversal and why?"
     ],
     "behavioral": [
-      "Tell me about a time you engaged directly with a customer problem. How did it change what you built?",
-      "Describe a time you worked within regulatory constraints. How did they affect your design?",
-      "How do you think about shipping in a mature public SaaS company?",
-      "Tell me about a production incident affecting customer agreements. How did you handle it?",
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+      "DocuSign handles legally binding agreements. Tell me about a time correctness and trust were non-negotiable in your work.",
+      "Describe owning a feature end-to-end for enterprise customers with strict requirements.",
+      "Tell me about balancing shipping speed with the compliance/security bar of an enterprise product.",
+      "Describe handling a sensitive customer-data or reliability incident."
     ],
     "systemDesign": [
-      "How would you design audit-trail retention to meet both GDPR's right-to-erasure and eIDAS's long-term-evidence requirements?",
-      "What's the difference between a signature under eIDAS QES, AES, and SES? When is each legally sufficient?",
-      "Design the core e-signature service processing 10M envelopes per day with legal-audit compliance.",
-      "Design an envelope-routing engine supporting parallel and sequential signers, conditional routing, and scheduled reminders.",
-      "Design the audit trail: append-only, tamper-evident, and queryable for compliance investigations."
+      "Design DocuSign's e-signature service handling 10M envelopes/day with a legal audit trail.",
+      "Design an envelope-routing engine with sequential/parallel signers, conditional routing, and reminders.",
+      "Design an append-only, tamper-evident, queryable audit trail for compliance.",
+      "Design document storage with per-customer retention and cross-region DR."
     ],
-    "values": [],
+    "values": [
+      "DocuSign's product is trust between parties. Why does that mission appeal to you?",
+      "How do you weigh developer velocity against the audit and compliance guarantees enterprise customers require?",
+      "What does building for enterprise trust and reliability mean to you?"
+    ],
     "other": [
       "Do I need background in digital signatures or PKI?",
       "How important is the compliance round?",

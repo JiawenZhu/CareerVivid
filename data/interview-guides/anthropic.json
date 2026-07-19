@@ -12,17 +12,15 @@
     "Behavioral / hiring manager (1 round): past projects, conflict, ownership, and a deep dive on ONE thing you've built or written. Bring a 1-page brag doc."
   ],
   "codingTopics": [
-    "Implement a data structure with specified operations and tight complexity requirements (LRU cache, frequency counter, range tree)",
-    "Parse and transform a structured stream (log lines, tokenized text, event stream)",
-    "Graph / tree problems with a systems flavor (shortest path with edge weights, topological sort of dependency DAG)",
-    "Applied string problems (tokenize by BPE rules, implement regex-like matcher)"
+    "Data structure design with tight complexity",
+    "String and stream parsing (tokenizers, logs)",
+    "Graph and topological algorithms",
+    "Caching and systems fundamentals"
   ],
   "systemDesignTopics": [
-    "OpenAI — AI research and ChatGPT",
-    "Character.AI — consumer AI companion",
-    "Harvey — legal vertical AI",
-    "Glean — enterprise AI search",
-    "Weights & Biases — ML experiment tracking"
+    "Design a high-throughput LLM inference-serving system with batching and tight latency percentiles",
+    "Design a safe rollout and evaluation system for a new model version on production traffic",
+    "Design a rate limiter and quota system for a public model API with per-customer fairness"
   ],
   "behavioralTopics": [
     "\"Tell me about a time you changed your mind on something technical. What triggered it?\"",
@@ -38,26 +36,29 @@
   ],
   "sampleQuestions": {
     "coding": [
-      "Implement a data structure with specified operations and tight complexity requirements (LRU cache, frequency counter, range tree). Talk through your approach, complexity, and edge cases.",
-      "Implement log lines, tokenized text, event stream. Talk through your approach, complexity, and edge cases.",
-      "Implement shortest path with edge weights, topological sort of dependency DAG. Talk through your approach, complexity, and edge cases.",
-      "Implement tokenize by BPE rules, implement regex-like matcher. Talk through your approach, complexity, and edge cases.",
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases."
+      "Implement a data structure with tight complexity requirements (e.g., LRU cache, frequency tracker). Discuss trade-offs.",
+      "Parse and transform a structured stream — log lines, tokenized text, or an event stream — cleanly and efficiently.",
+      "Implement shortest path with edge weights, or a topological sort of a dependency DAG. Discuss complexity.",
+      "Implement a BPE-style tokenizer or a regex-like matcher; walk through edge cases.",
+      "Given a large text corpus, count and rank n-grams with bounded memory. Discuss the approach."
     ],
     "behavioral": [
       "Tell me about a time you changed your mind on something technical. What triggered it?",
-      "Describe a project where the initial framing was wrong. How did you notice? What did you do?",
+      "Describe a project where the initial framing was wrong. How did you notice, and what did you do?",
       "Walk me through a disagreement you had with someone senior. How did it resolve?",
-      "How do you balance research exploration with engineering delivery? Give a concrete example.",
-      "It'll be fine because we have RLHF."
+      "How do you balance research exploration against engineering delivery? Give a concrete example.",
+      "Tell me about a time you slowed down or stopped shipping because of a safety, correctness, or ethical concern."
     ],
     "systemDesign": [
-      "Design Anthropic's cost platform — cover latency percentiles, failure modes. Walk through the architecture, trade-offs, and failure modes.",
-      "Design a service at Anthropic scale that shortens URLs. Cover the API, storage, and hot-key handling.",
-      "Design a rate limiter for a public API. Discuss algorithms, distributed coordination, and failure modes."
+      "Design a high-throughput LLM inference-serving system: batching, latency percentiles, and failure modes.",
+      "Design a system to safely roll out and evaluate a new model version to production traffic.",
+      "Design a rate limiter and quota system for a public model API with fairness across customers."
     ],
     "values": [
-      "What's the values/safety round actually looking for?"
+      "Anthropic's mission is safe, beneficial AI. Why does that matter to you, beyond it being a good job?",
+      "'Act for the global good.' Tell me about a decision where you weighed long-term consequences over short-term wins.",
+      "The values/safety round probes judgment under uncertainty. How do you make high-stakes calls with incomplete information?",
+      "'Ignite a race to the top on safety.' How would you push a team toward doing the careful thing when speed is tempting?"
     ],
     "other": [
       "Do I need published AI research experience to get hired?",

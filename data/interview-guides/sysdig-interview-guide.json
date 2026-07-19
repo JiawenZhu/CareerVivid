@@ -6,29 +6,50 @@
   "interviewStages": [
     "Behavioral: ownership, working with security domain, deep technical work"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Streaming detection: pattern matching over security events",
+    "Graph problems: relate entities into attack graphs",
+    "String and parsing: log parsing, signature matching",
+    "Data structures: tries, bloom filters, heaps",
+    "Time-series: anomaly detection over event streams"
+  ],
+  "systemDesignTopics": [
+    "Design a runtime security agent that monitors syscalls in containers",
+    "Design eBPF-based instrumentation for security and observability",
+    "Design ingest at 1M events/sec for security telemetry"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "At Sysdig, given a stream of security events, flag sessions whose activity exceeds a risk threshold in a sliding window.",
+      "Build an attack graph relating entities and find the shortest path an attacker could take. Discuss the graph approach.",
+      "Match incoming logs against a set of signatures efficiently using a trie or Aho-Corasick. Discuss complexity.",
+      "Use a bloom filter to check entities against a large blocklist with bounded memory. Discuss false positives.",
+      "Detect anomalies in a time-series of security events using rolling statistics. Walk through the approach."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a project you are proud of at Sysdig scale and the hardest tradeoff you made.",
+      "Give me an example that shows ownership, working with security domain, deep technical work.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a runtime security agent that monitors syscalls in containers.",
+      "Design eBPF-based instrumentation for security and observability.",
+      "Design ingest at 1M events/sec for security telemetry."
+    ],
+    "values": [
+      "Sysdig defends customers from real adversaries. Describe a time security outweighed convenience.",
+      "Tell me about a time you responded to a security incident or near-miss.",
+      "How do you balance strong protection against a usable product?"
+    ],
     "other": [
       "Is Sysdig remote-friendly?",
       "How does Sysdig compare to Wiz or Aqua Security?",
       "What is the engineering culture?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 7,
   "tips": [],
   "compensation": null,
   "rawSummary": "Sysdig Interview Guide (2026): Cloud-Native Security\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nSysdig\nsysdig.com ↗\n\nSysdig is one of the leaders in cloud-native security and observability — runtime security for containers and Kubernetes, plus monitoring. Built on the open-source Falco project. The interview is systems-heavy and rewards engineers with deep Linux internals knowledge.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (medium DSA + systems trivia) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design a runtime security agent that monitors syscalls in containers\n\n- Design eBPF-based instrumentation for security and observability\n\n- Design ingest at 1M events/sec for security telemetry\n\n- Coding: medium-hard DSA, often with concurrency or systems framing\n\n- Behavioral: ownership, working with security domain, deep technical work\n\nLevels and comp (2026)\n\n- SE II: $170K–$210K total\n\n- Senior SE: $250K–$330K\n\n- Staff: $360K–$470K\n\n- Principal: $490K–$640K\n\nPrep priorities\n\n- Be fluent in C/C++ (Falco core) and Go (control plane)\n\n- Understand Linux internals: syscalls, namespaces, cgroups, eBPF\n\n- Brush up on Kubernetes security and runtime threats\n\nFrequently Asked Questions\n\nIs Sysdig remote-friendly?\n\nHybrid in San Francisco, Belgrade, others. Many engineering roles remote within US/EU.\n\nHow does Sysdig compare to Wiz or Aqua Security?\n\nWiz is broader cloud security; Sysdig deeper on runtime/container security; Aqua is the older incumbent. Sysdig pays comparably to Wiz for deep-systems engineers.\n\nWhat is the engineering culture?\n\nDeep-systems oriented. Strong contributors to open-source (Falco, sysdig). Slower hiring but rigorous.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Sysdig? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextSystem Design: Apache Kafka — Architecture, Partitions, and Stream Processing⏱ 7 min readSystem Design Interview: Design a Ticket Booking System (Ticketmaster)⏱ 4 min readRailroad Bridge⏱ 3 min read"

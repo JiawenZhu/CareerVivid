@@ -6,29 +6,51 @@
   "interviewStages": [
     "Behavioral: customer obsession, ownership, the Webflow design ethos"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Practical systems coding: parsers, queues, small state machines",
+    "Streaming and time-series: windowed aggregation over log and metric events",
+    "String parsing: query languages, config formats",
+    "Data structures: ring buffers, LRU caches, tries",
+    "Graph and topological: build and dependency ordering"
+  ],
+  "systemDesignTopics": [
+    "Design a real-time collaborative canvas (think Figma but for web design)",
+    "Design a time-series database with horizontal scaling and a strict query SLA",
+    "Design a distributed log aggregation system at high ingestion volume",
+    "Design a query engine with a domain-specific language and pushdown optimization"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "At Webflow, parse a stream of log and metric events and aggregate by key over a sliding window. Discuss memory bounds.",
+      "Implement a rate-limited, back-pressured queue for ingestion. Discuss what happens when a downstream sink is slow.",
+      "Parse a config format into a typed structure with schema validation. Discuss error handling.",
+      "Given a dependency graph of build targets, compute a valid build order and detect cycles via topological sort.",
+      "Downsample a time-series into fixed buckets (min, max, avg) as data streams in. Walk through the approach."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a project you are proud of at Webflow scale and the hardest tradeoff you made.",
+      "Give me an example that shows customer obsession, ownership, the webflow design ethos.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a real-time collaborative canvas (think Figma but for web design).",
+      "Design a time-series database with horizontal scaling and a strict query SLA.",
+      "Design a distributed log aggregation system at high ingestion volume."
+    ],
+    "values": [
+      "Webflow is trusted by the developers who depend on it. Describe a time you prioritized reliability and craft.",
+      "Tell me about an open-source contribution or public work you are proud of.",
+      "How do you weigh a breaking change against the migration cost for users?"
+    ],
     "other": [
       "Does Webflow hire backend engineers?",
       "What stack does Webflow use?",
       "Is Webflow fully remote?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 7,
   "tips": [],
   "compensation": null,
   "rawSummary": "Webflow Interview Guide (2026): Visual Web Development Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nWebflow\nwebflow.com ↗\n\nWebflow is the leader in visual web development — designers and marketers build sites without writing code. The engineering org is heavy on browser internals, DOM manipulation, real-time collaboration, and the unique problems of building a \"designer's IDE in the browser.\"\n\nProcess\n\nRecruiter screen → 60-minute coding phone (often frontend-flavored, DOM/JS focus) → onsite virtual: 2 coding (one DSA, one frontend), 1 system design, 1 behavioral, 1 hiring manager. Frontend roles include a \"build a small UI\" round. Cycle: 2–3 weeks.\n\nWhat they actually ask\n\n- Design a real-time collaborative canvas (think Figma but for web design)\n\n- Build an undo/redo stack for a visual editor with branching history\n\n- Implement drag-and-drop with snapping, alignment guides, and z-ordering\n\n- DOM manipulation, event delegation, virtual DOM diffing\n\n- Behavioral: customer obsession, ownership, the Webflow design ethos\n\nLevels and comp (2026)\n\n- SE II: $170K–$210K total\n\n- Senior SE: $240K–$310K\n\n- Staff: $340K–$450K\n\n- Principal: $500K–$650K\n\nPrep priorities\n\n- Brush up on browser internals: DOM, CSSOM, layout, paint, composite\n\n- Practice frontend system design (real-time, offline support, conflict resolution)\n\n- Be ready to discuss design tools, what makes them feel responsive, and why state management is hard\n\nFrequently Asked Questions\n\nDoes Webflow hire backend engineers?\n\nYes, but the public face is frontend. Backend roles focus on hosting infrastructure, CMS APIs, and form processing.\n\nWhat stack does Webflow use?\n\nJavaScript/TypeScript everywhere — Node.js backend, React for the editor, MongoDB for storage.\n\nIs Webflow fully remote?\n\nDistributed-first with hubs in San Francisco, New York, and Mexico City. Most roles are remote-eligible.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Webflow? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextQualcomm Interview Guide 2026: Snapdragon, Mobile SoC, X Elite, Modem, Automotive⏱ 7 min readEM Strategy and Roadmap: Multi-Quarter Planning for Engineering Teams⏱ 3 min readSystem Design: Distributed Tracing System (Jaeger/Zipkin/OpenTelemetry)⏱ 6 min read"

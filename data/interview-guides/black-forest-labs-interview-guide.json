@@ -6,29 +6,50 @@
   "interviewStages": [
     "Behavioral: ownership, taste, research-engineering blend"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Array and tensor manipulation for image batches, numerical math for sampling loops",
+    "Memory-efficient data pipeline design for training on billions of images",
+    "Streams and realtime: generation-request batching, latency percentile monitoring",
+    "Cache design: model and LoRA weights under VRAM budgets",
+    "Heaps and greedy scheduling on GPU fleets; dedupe with hashing"
+  ],
+  "systemDesignTopics": [
+    "Design an inference service that serves FLUX image generations at target p95 latency on a limited GPU fleet",
+    "Design the training-data pipeline that dedupes, filters and captions billions of images",
+    "Design a model-weights distribution system that rolls new checkpoints to inference nodes without downtime"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Implement the sampling loop for a simplified flow-matching/diffusion model given a denoiser function; discuss step-count vs quality trade-offs.",
+      "Batch incoming image-generation requests of mixed resolutions into GPU-friendly buckets to maximize throughput (greedy + heap).",
+      "Dedupe a web-scale image dataset using perceptual-hash buckets; design the structure for billions of entries.",
+      "Implement an LRU cache for LoRA weights on a GPU node with a strict VRAM budget and pinned entries.",
+      "From a stream of generation-latency logs, compute p50/p95/p99 per model over sliding windows with bounded memory."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about research work you shipped into a real product. What broke between the paper and production?",
+      "BFL is a small team of researchers who pioneered latent diffusion. Describe working alongside people far senior in a domain — how do you add value fast?",
+      "Describe a time an experiment failed for weeks. How did you decide to persist or pivot?",
+      "Tell me about communicating a subtle ML result honestly, including its limitations."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design FLUX inference serving: request routing, dynamic batching, and multi-model GPU packing.",
+      "Design the image training-data pipeline: crawl ingestion, NSFW/quality filters, dedupe, and captioning at billions scale.",
+      "Design evaluation infrastructure that compares image-model checkpoints on quality, safety, and prompt adherence."
+    ],
+    "values": [
+      "Open-weight releases (like FLUX.1-dev) versus API-only: how do you think about openness in generative AI?",
+      "Generative image models raise misuse concerns. Where do you draw lines, and what safeguards matter in practice?",
+      "Why visual intelligence — what problem in image/video generation do you most want to solve?"
+    ],
     "other": [
       "Is BFL remote-friendly?",
       "How does BFL compare to Stability AI or Midjourney?",
       "What is the engineering culture?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 8.5,
   "tips": [],
   "compensation": null,
   "rawSummary": "Black Forest Labs Interview Guide (2026): Frontier Image AI\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 6, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 6, 2026 · techinterview.org\n\n⏱ 1 min read\n\nBlack Forest Labs\nblackforestlabs.ai ↗\n\nBlack Forest Labs (BFL) ships the Flux family — currently the leading open-weight image-generation models. Founded by ex-Stability AI researchers including Robin Rombach (Stable Diffusion lead). Series B in 2024. The interview emphasizes deep diffusion-model research engineering and the unique tradeoffs of frontier image generation.\n\nProcess\n\nRecruiter screen → 60-minute coding (Python with PyTorch fluency) → onsite virtual: 2 coding/ML, 1 ML system design, 1 research deep-dive, 1 behavioral. Research candidates get a paper-discussion round. Cycle: 4–6 weeks.\n\nWhat they actually ask\n\n- Design a distributed training stack for a diffusion transformer (DiT)\n\n- Design an inference platform with high-quality image generation under latency budget\n\n- Design data pipelines for image-text pretraining\n\n- Coding: medium-hard DSA, often ML-flavored\n\n- Behavioral: ownership, taste, research-engineering blend\n\nLevels and comp (2026)\n\n- SE: $185K–$255K total (in EU equivalent: €130K–€180K)\n\n- Senior SE / ML Research: $270K–$390K total\n\n- Staff Research: $400K–$600K+ total at top of band\n\nPrep priorities\n\n- Be fluent in Python and PyTorch deeply\n\n- Understand diffusion architectures (DiT, MMDiT, flow matching) and rectified flow\n\n- Brush up on distributed training (FSDP, sequence parallelism) and inference optimization for diffusion\n\nFrequently Asked Questions\n\nIs BFL remote-friendly?\n\nHubs in Freiburg (Germany) and remote across EU. Some senior+ remote within US.\n\nHow does BFL compare to Stability AI or Midjourney?\n\nBFL's Flux models are widely considered better quality than Stability's SD3. Midjourney is a closed product with leading aesthetic. BFL's differentiator is open-weights frontier quality. Comp lower than US AI labs but with strong research brand.\n\nWhat is the engineering culture?\n\nResearch-engineering blended; calmer than US AI labs. Strong technical taste; team is largely the original Stable Diffusion researchers.\n\nSimilar company guides\n\nReka AIinterview guideSakana AIinterview guideHippocratic AIinterview guideRunwayinterview guidePika Labsinterview guideSunointerview guide\n\nPrepping for Black Forest Labs? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextSystem Design Interview: Design a Fleet Management and Vehicle Tracking System⏱ 5 min readSystem Design: Analytics Dashboard — Real-Time Metrics, Aggregation Pipeline, and Query Engine⏱ 5 min readRandom Walks and Stopping Times for Quant Interviews⏱ 8 min read"

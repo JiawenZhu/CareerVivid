@@ -28,33 +28,47 @@
     "HL7 v2 vs FHIR: the structural differences, why most US healthcare systems use both, and how to bridge them. Specific challenges with HL7 v2 (positional fields, optional fragments, vendor-specific Z-segments).",
     "Tempus's data scale: tens of millions of clinical records combined with genomic and imaging data. Discuss storage and query strategies that work at petabyte scale.",
     "De-identification for research use: HIPAA Safe Harbor vs Expert Determination, k-anonymity, and the trade-off between privacy and research utility.",
-    "Veeva Systems &mdash; life-sciences SaaS",
-    "23andMe &mdash; consumer genomics",
-    "Epic Systems &mdash; EHR"
+    "Veeva Systems — life-sciences SaaS",
+    "23andMe — consumer genomics",
+    "Epic Systems — EHR"
   ],
-  "systemDesignTopics": [],
+  "systemDesignTopics": [
+    "Design a feature store for clinical-genomic data",
+    "Design a RAG pipeline over a large private document corpus",
+    "Design a real-time model-serving system with batching and autoscaling",
+    "Design an evaluation harness that scores model quality with human review"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Is the work HIPAA-regulated?",
-      "What languages are used?",
-      "Implement Python dominant for ML / data; Go and Java for backend. Talk through your approach, complexity, and edge cases.",
-      "Implement a streaming feature aggregator: given a stream of events, maintain rolling counts and averages per key with bounded memory. Discuss complexity and eviction.",
-      "Implement variant calling from sequence data. Talk through your approach, complexity, and edge cases."
+      "Implement variant calling from sequence data. Walk through how to align reads to a reference genome, identify SNVs and indels, and apply quality-score filters. Senior candidates should mention BWA-MEM, GATK HaplotypeCaller, and the trade-offs of joint genotyping vs single-sample calling.",
+      "Build a clinical trial matching service. Match patients to trials based on genomic and clinical inclusion criteria. Discuss how to handle ambiguous criteria (eligibility windows, concurrent therapy restrictions) and how oncologists should be in the loop.",
+      "At Tempus AI, given a stream of model inference requests, batch them to maximize GPU utilization while keeping per-request latency under a bound. Discuss the queue and complexity.",
+      "Chunk a long document into overlapping passages for retrieval, respecting sentence boundaries. Discuss the sliding-window approach.",
+      "Given a query and an inverted index over embeddings, return the top-K most similar items using a heap. Discuss ranking."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a project you are proud of at Tempus AI scale and the hardest tradeoff you made.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end.",
+      "Describe a time something you shipped failed or fell short. What did you change afterward?"
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a feature store for clinical-genomic data.",
+      "Design a RAG pipeline over a large private document corpus.",
+      "Design a real-time model-serving system with batching and autoscaling."
+    ],
+    "values": [
+      "Tempus AI's mission carries real responsibility. Describe a time you weighed capability against safety.",
+      "How do you evaluate an AI feature where a wrong answer has real consequences?",
+      "Tell me about a time you were rigorous about data quality or evaluation when it slowed you down."
+    ],
     "other": [
       "Do I need biology / genomics background?",
       "How does Tempus compare to other health AI firms?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 7,
   "tips": [],
   "compensation": [
     "Mid: $130–170K base + RSU + bonus → $200–280K total",

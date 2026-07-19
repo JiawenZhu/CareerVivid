@@ -6,29 +6,50 @@
   "interviewStages": [
     "Behavioral: customer focus, ownership, navigating mature SaaS"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Arrays and math in checkout: 3Sum-style price problems, fair-split promotions",
+    "Cart and catalog data structure design",
+    "String parsing of merchant product feeds",
+    "Sliding-window analytics over order streams, SQL over orders",
+    "Permutations and combinatorics of shipping options; Ruby fluency helps"
+  ],
+  "systemDesignTopics": [
+    "Design a multi-tenant product-catalog service supporting per-store customization at 10K requests a second",
+    "Design the checkout flow with inventory reservation, payment orchestration, and abandoned-cart recovery",
+    "Design a webhook-delivery system with at-least-once guarantees to thousands of merchant apps"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Given item prices in a cart, find three items whose prices sum exactly to a gift-card balance (3Sum, checkout edition).",
+      "Given daily order revenue, count the ways to drop one promo day so the remaining weekday/weekend split balances (fair-array variant).",
+      "Enumerate valid assignments of items to shipping boxes under weight constraints (permutations with pruning).",
+      "Parse a merchant CSV product feed with malformed rows into a normalized catalog; report each reject with a reason.",
+      "Compute rolling 7-day GMV per store from an order stream that includes out-of-order events."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a take-home or project you presented to a panel. How did you handle critique?",
+      "Describe debugging a revenue-impacting incident for a customer (a merchant's store down is their business down).",
+      "Tell me about improving developer experience for people building on your platform or APIs.",
+      "Describe a time you disagreed with a product decision and how you argued your case."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a multi-tenant catalog API where each store customizes fields, currencies, and pricing rules.",
+      "Design checkout: inventory holds, payment-provider orchestration, and idempotent order creation.",
+      "Design merchant webhooks: retries, ordering guarantees, and protecting the platform from slow consumers."
+    ],
+    "values": [
+      "BigCommerce puts customers first. Tell me about a time a merchant's (or customer's) need beat an internal preference.",
+      "Our merchants range from side hustles to enterprises. How do you design features that scale across that range?",
+      "'Make a difference every day' — what small, consistent improvements have you driven?"
+    ],
     "other": [
       "Is BigCommerce remote-friendly?",
       "How does BigCommerce compare to Shopify?",
       "What is the engineering culture?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 6,
   "tips": [],
   "compensation": null,
   "rawSummary": "BigCommerce Interview Guide (2026): E-Commerce Platform Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nBigCommerce\nbigcommerce.com ↗\n\nBigCommerce is the SaaS e-commerce platform competing with Shopify — used by 60K+ stores and many enterprise brands. The interview emphasizes multi-tenant SaaS, store customization, and the realities of being the runner-up to Shopify in a competitive market.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design multi-tenant catalog and storefront system\n\n- Design a flexible theme/template engine\n\n- Design a payment integration framework supporting multiple processors\n\n- Coding: medium DSA, often with multi-tenancy framing\n\n- Behavioral: customer focus, ownership, navigating mature SaaS\n\nLevels and comp (2026)\n\n- SE II: $135K–$170K total\n\n- Senior SE: $200K–$260K\n\n- Staff: $290K–$380K\n\n- Principal: $400K–$520K\n\nPrep priorities\n\n- Be fluent in PHP (legacy core) and Node.js/TypeScript (newer services)\n\n- Understand multi-tenant SaaS architecture\n\n- Brush up on e-commerce protocols and payment processing\n\nFrequently Asked Questions\n\nIs BigCommerce remote-friendly?\n\nHybrid in Austin (HQ), Sydney, San Francisco. Many engineering roles remote within US.\n\nHow does BigCommerce compare to Shopify?\n\nShopify is the dominant SMB platform; BigCommerce wins more enterprise deals. Shopify engineering pays meaningfully more on equity. BigCommerce comp is mid-tier; benefits and culture solid.\n\nWhat is the engineering culture?\n\nMature SaaS — predictable, customer-focused, healthy work-life balance. Less competitive than Shopify but stable.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for BigCommerce? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextLow Level Design: MVCC — Multiversion Concurrency Control⏱ 3 min readAnti-LeetCode Interview Formats: Take-Home, Live Debug, Pair Programming, Trial Days⏱ 6 min readGradient Descent Explained: SGD, Adam, and When to Use Each⏱ 6 min read"

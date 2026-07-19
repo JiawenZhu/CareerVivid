@@ -4,29 +4,50 @@
   "url": "https://www.techinterview.org/companies/workos-interview-guide",
   "scrapedAt": "2026-07-02T07:27:36.078Z",
   "interviewStages": [],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Practical systems coding: parsers, queues, small state machines",
+    "Streaming and time-series: windowed aggregation over log and metric events",
+    "String parsing: query languages, config formats",
+    "Data structures: ring buffers, LRU caches, tries",
+    "Graph and topological: build and dependency ordering"
+  ],
+  "systemDesignTopics": [
+    "Design a SAML SSO integration that handles arbitrary IdP idiosyncrasies (Okta, Azure AD, Google Workspace)",
+    "Design SCIM provisioning with bidirectional sync and conflict handling",
+    "Design an audit log API with immutable append and queryable retention"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "At WorkOS, parse a stream of log and metric events and aggregate by key over a sliding window. Discuss memory bounds.",
+      "Implement a rate-limited, back-pressured queue for ingestion. Discuss what happens when a downstream sink is slow.",
+      "Parse a config format into a typed structure with schema validation. Discuss error handling.",
+      "Given a dependency graph of build targets, compute a valid build order and detect cycles via topological sort.",
+      "Downsample a time-series into fixed buckets (min, max, avg) as data streams in. Walk through the approach."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a project you are proud of at WorkOS scale and the hardest tradeoff you made.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end.",
+      "Describe a time something you shipped failed or fell short. What did you change afterward?"
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a SAML SSO integration that handles arbitrary IdP idiosyncrasies (Okta, Azure AD, Google Workspace).",
+      "Design SCIM provisioning with bidirectional sync and conflict handling.",
+      "Design an audit log API with immutable append and queryable retention."
+    ],
+    "values": [
+      "WorkOS is trusted by the developers who depend on it. Describe a time you prioritized reliability and craft.",
+      "Tell me about an open-source contribution or public work you are proud of.",
+      "How do you weigh a breaking change against the migration cost for users?"
+    ],
     "other": [
       "Is WorkOS fully remote?",
       "How does WorkOS compare to Auth0 (Okta) or Clerk?",
       "What is the take-home like?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 7,
   "tips": [],
   "compensation": null,
   "rawSummary": "WorkOS Interview Guide (2026): B2B Authentication Platform\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nWorkOS\nworkos.com ↗\n\nWorkOS provides the enterprise auth features (SAML SSO, SCIM provisioning, audit logs, directory sync) that startups need to sell upmarket — without building any of it themselves. The engineering culture is small-team, deeply technical, and famously well-written. The interview is selective and rewards engineers with strong written communication.\n\nProcess\n\nRecruiter screen → take-home async work sample (paid) → 60-minute pair-programming → 60-minute system design → 60-minute past-project deep dive → behavioral. Cycle: 3–5 weeks.\n\nWhat they actually ask\n\n- Design a SAML SSO integration that handles arbitrary IdP idiosyncrasies (Okta, Azure AD, Google Workspace)\n\n- Design SCIM provisioning with bidirectional sync and conflict handling\n\n- Design an audit log API with immutable append and queryable retention\n\n- Coding: practical Node/TypeScript, often involving XML or JSON parsing\n\n- Past-project deep dive: defend choices and articulate tradeoffs\n\nLevels and comp (2026)\n\n- SE: $180K–$240K total\n\n- Senior SE: $260K–$340K\n\n- Staff: $360K–$470K\n\n- Principal: $490K–$640K\n\nPrep priorities\n\n- Be fluent in TypeScript and at least one auth protocol (SAML, OIDC, SCIM)\n\n- Read the WorkOS engineering blog — they hire people who already engage\n\n- Have a strong portfolio of writing — blog posts, RFCs, OSS contributions\n\nFrequently Asked Questions\n\nIs WorkOS fully remote?\n\nYes. ~80 employees globally with concentration in North America. Quarterly off-sites are optional.\n\nHow does WorkOS compare to Auth0 (Okta) or Clerk?\n\nAuth0/Okta is broader and more enterprise. Clerk is consumer-app-friendly. WorkOS is laser-focused on the B2B \"make my SaaS enterprise-ready\" niche.\n\nWhat is the take-home like?\n\nRealistic and bounded — usually 3–4 hours, paid. Quality of writing matters as much as code.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for WorkOS? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextCross-Validation Strategies: K-Fold, Time Series, and Nested CV⏱ 5 min readCover Letters for Engineers in 2026: Do They Matter, and When?⏱ 7 min readWebhook Subscription System Low-Level Design: Registration, Challenge Verification, Event Filtering, and SSRF Prevention⏱ 9 min read"

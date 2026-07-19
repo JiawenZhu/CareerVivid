@@ -14,11 +14,10 @@ ptyProcess.onData((data) => {
   outputStr += data;
   
   if (data.includes('Enter GCP project ID')) {
-      ptyProcess.write('jastalk-firebase');
+      ptyProcess.write('jastalk-firebase\r');
   }
   
   if (data.includes('Select APIs to enable')) {
-      ptyProcess.write('');
+      ptyProcess.write('\r');
   }
 });
-

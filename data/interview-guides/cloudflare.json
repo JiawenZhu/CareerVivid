@@ -15,10 +15,11 @@
     "Streaming aggregation (top-K, sketches, sliding window counts over a long stream)"
   ],
   "systemDesignTopics": [
-    "TLS 1.3 handshake: know the message flow (ClientHello, ServerHello, EncryptedExtensions, Finished), what's encrypted and when, why session resumption matters, how 0-RTT works and its replay risk.",
-    "QUIC vs TCP: why QUIC avoids head-of-line blocking, how connection migration works, the performance implications for mobile networks.",
-    "DNS: recursive vs authoritative, what a typical resolution path looks like, why DNSSEC deployment is hard, how DoH / DoT change the trust model.",
-    "CDN behavior: how cache keys are constructed, how purge works across a distributed edge, origin shielding, conditional requests."
+    "Design a global rate limiter enforcing per-API-key limits across 300+ edge POPs",
+    "Design a CDN cache-purge system that invalidates billions of objects across a distributed edge",
+    "Design a globally replicated KV store (like Workers KV) with eventual consistency across regions",
+    "Design DDoS detection and mitigation at the edge for traffic serving ~20% of the internet",
+    "Design an authoritative and recursive DNS resolver with DNSSEC and DNS-over-HTTPS support"
   ],
   "behavioralTopics": [
     "On-call ownership &mdash; \"Tell me about a production incident you owned.\"",
@@ -28,11 +29,11 @@
   ],
   "sampleQuestions": {
     "coding": [
-      "Implement tiny HTTP parser, TLV decoder, WebSocket frame reader. Talk through your approach, complexity, and edge cases.",
-      "Implement fixed window, sliding window log, token bucket with burst. Talk through your approach, complexity, and edge cases.",
-      "Implement top-K, sketches, sliding window counts over a long stream. Talk through your approach, complexity, and edge cases.",
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution."
+      "Implement a tiny protocol/format handler (HTTP parser, TLV decoder, or WebSocket frame reader) that tolerates fragmented input. Talk through approach, complexity, and edge cases.",
+      "Implement a rate limiter with specific semantics (fixed window, sliding window log, or token bucket with burst). Discuss distributed coordination across POPs.",
+      "Given a long request stream, maintain top-K API keys by traffic across the edge using a heap plus a count sketch.",
+      "Given per-POP request events arriving as a stream, enforce a token-bucket limit per API key and return allow/deny in amortized O(1).",
+      "Implement an LRU eviction policy for a POP's response cache under a fixed memory budget."
     ],
     "behavioral": [
       "Tell me about a production incident you owned.",

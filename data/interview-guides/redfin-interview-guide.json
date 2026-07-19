@@ -6,29 +6,50 @@
   "interviewStages": [
     "Behavioral: customer focus, ownership, mission-driven culture"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Graph and routing: matching, shortest path on road networks",
+    "Geospatial: nearest-neighbor queries, geohashing",
+    "Heaps and top-K: ranking listings, nearest providers",
+    "Streaming: real-time orders and status events",
+    "Hash maps and caching: inventory and catalog lookups"
+  ],
+  "systemDesignTopics": [
+    "Design real-time pricing intelligence for buyers and sellers",
+    "Design agent matching and recommendation",
+    "Design tour scheduling and routing"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "At Redfin, given providers and pending orders streaming in, match them to minimize total wait time, allowing batching of nearby orders. Discuss the greedy heap approach.",
+      "Answer top-K nearest-provider queries for a user at high QPS. Discuss geohashing and a heap-based approach.",
+      "Maintain a real-time in-stock count per listings from an event stream with bounded memory.",
+      "Rank listings for a search query by relevance and availability using a heap. Discuss tie-breaking.",
+      "Given a stream of orders status events, detect any stuck longer than a threshold using a sliding window."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a project you are proud of at Redfin scale and the hardest tradeoff you made.",
+      "Give me an example that shows customer focus, ownership, mission-driven culture.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design real-time pricing intelligence for buyers and sellers.",
+      "Design agent matching and recommendation.",
+      "Design tour scheduling and routing."
+    ],
+    "values": [
+      "Redfin balances multiple sides of a marketplace. Describe a time you weighed one side against another.",
+      "Tell me about a time you built something that helped both supply and demand succeed.",
+      "How do you improve trust and safety in a two-sided marketplace?"
+    ],
     "other": [
       "Is Redfin remote-friendly?",
       "How does Redfin compare to Zillow?",
       "What is the engineering culture?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 6,
   "tips": [],
   "compensation": null,
   "rawSummary": "Redfin Interview Guide (2026): Tech-Forward Real Estate\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nRedfin\nredfin.com ↗\n\nRedfin is the tech-forward real estate brokerage — combines technology with employed real estate agents. Public since 2017. The interview emphasizes the intersection of technology and real-world real estate operations.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design real-time pricing intelligence for buyers and sellers\n\n- Design agent matching and recommendation\n\n- Design tour scheduling and routing\n\n- Coding: medium DSA, often with geo or scheduling framing\n\n- Behavioral: customer focus, ownership, mission-driven culture\n\nLevels and comp (2026)\n\n- SE II: $140K–$175K total\n\n- Senior SE: $205K–$270K\n\n- Staff: $295K–$385K\n\n- Principal: $410K–$540K\n\nPrep priorities\n\n- Be fluent in Java or Python (the bulk of the codebase)\n\n- Understand real estate operations and broker workflows\n\n- Brush up on geographic indexing and routing algorithms\n\nFrequently Asked Questions\n\nIs Redfin remote-friendly?\n\nHybrid in Seattle (HQ); some remote within US. Less remote-first than Zillow.\n\nHow does Redfin compare to Zillow?\n\nRedfin owns brokerage operations; Zillow is search + leads. Redfin has more operational complexity. Comp is comparable; Zillow pays slightly more on average.\n\nWhat is the engineering culture?\n\nMission-driven (transparency in real estate). Strong work-life balance. More employee/agent-focused than typical tech.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Redfin? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextAI Product Engineer Interview 2026: The New Hybrid Role⏱ 3 min readFriend Recommendation Service Low-Level Design: Graph-Based Signals, Ranking, and Diversity⏱ 5 min readSystem Design Interview: Design a Real-Time Analytics Dashboard⏱ 5 min read"

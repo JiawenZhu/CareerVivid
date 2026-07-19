@@ -8,7 +8,7 @@ export function resolveVertexModelName(model?: string): string {
 
 export function getVertexLocationForModel(model?: string): string {
   if (model && (model.includes("gemini-3.5") || model.includes("gemini-3.1"))) {
-    return "us-central1";
+    return "global";
   }
   return process.env.GOOGLE_CLOUD_LOCATION || process.env.GCLOUD_LOCATION || "us-west1";
 }

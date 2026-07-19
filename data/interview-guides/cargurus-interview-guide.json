@@ -6,29 +6,49 @@
   "interviewStages": [
     "Behavioral: customer focus, ownership, working with marketplace dynamics"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Search and ranking over vehicle listings",
+    "Arrays and hash maps: frequency counts such as most common VIN or model",
+    "Pricing analytics: max-profit and best-deal computations over price arrays",
+    "String parsing of listing and inventory data",
+    "SQL-style aggregation logic implemented in code"
+  ],
+  "systemDesignTopics": [
+    "Design the vehicle-listing search and ranking system across millions of inventory records",
+    "Design the deal-rating engine that scores each listing against market price",
+    "Design a reservation and payment flow for an online car purchase"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Given a stream of listing views, return the most frequently viewed VINs using a hash map and heap. Discuss complexity.",
+      "Given daily prices for a car model, compute the maximum profit from one buy and sell to rate deal timing. Discuss edge cases.",
+      "Given inventory records, implement multi-attribute filtering and ranking (price, mileage, distance). Discuss indexing.",
+      "Given two datasets of listings and dealers, join them into an enriched array of listing objects. Discuss complexity."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a time you put the customer first in a technical decision.",
+      "Describe a complex bug you debugged in a production system.",
+      "Tell me about balancing competing priorities across teams.",
+      "Describe a time you learned a new technology quickly to ship."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design the vehicle-listing search and ranking system across millions of inventory records.",
+      "Design the deal-rating engine that scores each listing against market price.",
+      "Design a reservation and payment flow for an online car purchase."
+    ],
+    "values": [
+      "CarGurus is a transparency-focused marketplace connecting buyers and dealers. What appeals to you about that model?",
+      "Tell me about a time you used data to build trust with users.",
+      "Describe a project where you simplified a complex decision for end users."
+    ],
     "other": [
       "Is CarGurus remote-friendly?",
       "How does CarGurus compare to Cars.com or Autotrader?",
       "What is the engineering culture?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 6,
   "tips": [],
   "compensation": null,
   "rawSummary": "CarGurus Interview Guide (2026): Auto Marketplace Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nCarGurus\ncargurus.com ↗\n\nCarGurus is the largest US auto marketplace — connects car shoppers with dealers via deal ratings, search, and pricing tools. Public since 2017. The interview emphasizes search ranking, pricing models, and the unique scale of automotive listings (millions of cars, daily updates).\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design an automotive search engine with deal-rating ML\n\n- Design dealer inventory ingestion and freshness tracking\n\n- Design pricing transparency models\n\n- Coding: medium DSA, often with search or graph framing\n\n- Behavioral: customer focus, ownership, working with marketplace dynamics\n\nLevels and comp (2026)\n\n- SE II: $140K–$175K total\n\n- Senior SE: $205K–$270K\n\n- Staff: $295K–$385K\n\n- Principal: $410K–$540K\n\nPrep priorities\n\n- Be fluent in Java or Scala (the bulk of the codebase)\n\n- Understand search ranking and ML for pricing\n\n- Brush up on automotive industry data flows\n\nFrequently Asked Questions\n\nIs CarGurus remote-friendly?\n\nHybrid in Cambridge MA (HQ), Detroit, others. Many engineering roles fully remote within US.\n\nHow does CarGurus compare to Cars.com or Autotrader?\n\nCarGurus has the strongest deal-rating brand. Cars.com is the legacy player. Autotrader (Cox) competes on listings. CarGurus pays mid-tier; below FAANG.\n\nWhat is the engineering culture?\n\nMature, customer-driven, calmer pace. Strong work-life balance.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for CarGurus? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextSystem Design Interview: Design a Hotel Reservation System⏱ 5 min readCurrency Converter Service Low-Level Design⏱ 6 min readInterviewing for AI Robotics Companies 2026: Figure, 1X, Boston Dynamics⏱ 3 min read"

@@ -19,52 +19,50 @@
     "Observability use cases: log-shipping pipelines, metric aggregation, trace sampling"
   ],
   "codingTopics": [
-    "Implement an inverted index — accept a list of documents, build a map from term to posting list with positions. Discuss term-frequency vs document-frequency, why posting lists are stored as deltas (gap encoding), and how merge-on-read works during querying.",
-    "Top-K terms in a stream — count-min sketch + heap, or HyperLogLog for cardinality. Tests whether the candidate has thought about approximate-data-structure trade-offs that show up in Elasticsearch's aggregation framework.",
-    "Fuzzy matching with edit distance — implement Levenshtein, then discuss how Lucene's automaton-based fuzzy matching works in practice. Senior+ candidates should be aware that brute-force edit-distance over an inverted index is too slow at scale."
+    "Inverted index build with posting lists and gap encoding (search, prefix, string, dictionary, data structure)",
+    "Top-K terms in a stream with count-min sketch + heap (heap, stream, streams, logs, sliding-window)",
+    "Fuzzy matching / edit distance for search (string, autocomplete, typeahead, search, two-pointer)",
+    "Merge sorted posting lists for boolean queries (merge, sort, search)",
+    "Sharding/routing of documents across nodes (systems, infrastructure, dependency)"
   ],
   "systemDesignTopics": [
-    "Design a search system over 1B documents. Sharding (number of primary shards, replicas), routing, query coordination across shards, scoring (BM25), aggregations, refresh interval trade-offs, and the cost model for Elastic Cloud.",
-    "Design log ingestion at 1M events/second. Beats / Elastic Agent → Logstash or ingest pipeline → Elasticsearch indices. Hot/warm/cold tier strategy, ILM policies, and what to do when ingestion exceeds capacity.",
-    "Design alerting on log streams. Watcher / Kibana alerts, throttling, deduplication, and the integration with downstream paging (PagerDuty).",
-    "Segment file structure: terms dictionary, postings, stored fields, doc values, term vectors. Why Lucene segments are immutable and how merging works.",
-    "Scoring: BM25 vs TF-IDF, why BM25 became the default in Lucene 6, how custom similarity classes work.",
-    "Memory considerations: heap vs off-heap, why Elasticsearch defaults to a 50% heap split, the role of OS page cache.",
-    "Weeks 1-2: LeetCode mediums (arrays, strings, hash maps). Aim for 3-5 problems/day.",
-    "Weeks 3-4: Distributed systems via Designing Data-Intensive Applications, focusing on consistency, replication, and search-engine architecture chapters.",
-    "Weeks 5-6: Lucene internals — read the official Lucene file format docs and at least 2 Elasticsearch blog posts on indexing internals. Practice 5-10 problems involving inverted indexes or trie structures.",
-    "Weeks 7-8: Elastic-specific: query DSL, aggregations, ILM. Read the Elastic blog for recent feature announcements.",
-    "Splunk &mdash; log analytics and SIEM",
-    "Datadog &mdash; SaaS observability"
+    "Design a distributed search engine over 1B documents with sharding, replication, and BM25 scoring",
+    "Design a log-ingestion pipeline handling 1M events per second with hot/warm/cold tiering",
+    "Design an alerting system over log streams with throttling and deduplication",
+    "Design the aggregation framework that computes metrics over billions of indexed documents"
   ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Implement an inverted index — accept a list of documents, build a map from term to posting list with positions. Talk through your approach, complexity, and edge cases.",
-      "Find the k most frequent elements in a stream. Which data structure do you use and why?",
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Implement an inverted index: accept documents and build a term to posting-list map with positions. Discuss gap encoding and merge-on-read.",
+      "Find the top-K most frequent terms in a high-volume stream using a count-min sketch plus a heap. Discuss the accuracy trade-off.",
+      "Implement Levenshtein edit distance for fuzzy search, then explain how Lucene's automaton-based fuzzy matching avoids brute force at scale.",
+      "Merge several sorted posting lists to evaluate a boolean AND query efficiently. Analyze complexity versus the shortest list.",
+      "Given documents and a routing function, assign them to shards and explain how a query is scattered and gathered across shards."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Elastic is open-source at its core and fully distributed. Tell me about thriving in an open, async, distributed team.",
+      "Describe contributing to an open-source project or engaging its community.",
+      "Tell me about debugging a hard distributed-systems issue (sharding, consistency, or performance).",
+      "Describe shipping iteratively and improving from user feedback."
     ],
     "systemDesign": [
-      "Is Elastic mostly Java?",
-      "Design a search system over 1B documents. Sharding (number of primary shards, replicas), routing, query coordination across shards, scoring (BM25), aggregations, refresh interval trade-offs, and the cost model for Elastic Cloud.",
-      "Design log ingestion at 1M events/second. Beats / Elastic Agent → Logstash or ingest pipeline → Elasticsearch indices. Hot/warm/cold tier strategy, ILM policies, and what to do when ingestion exceeds capacity.",
-      "Design alerting on log streams. Watcher / Kibana alerts, throttling, deduplication, and the integration with downstream paging (PagerDuty).",
-      "Design a service at Elastic scale that shortens URLs. Cover the API, storage, and hot-key handling."
+      "Design a distributed search system over 1B documents: sharding, routing, BM25 scoring, and aggregations.",
+      "Design log ingestion at 1M events/sec with hot/warm/cold ILM tiering.",
+      "Design alerting over log streams with throttling and dedup.",
+      "Design the aggregation framework over billions of documents."
     ],
-    "values": [],
+    "values": [
+      "Elastic builds in the open. What does open-source development mean to you?",
+      "How do you weigh search relevance/accuracy against latency and cost at scale?",
+      "Why search and observability infrastructure specifically?"
+    ],
     "other": [
       "Do I need to know Lucene internally?",
       "How does Elastic compare to Splunk or Datadog?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 7,
   "tips": [],
   "compensation": [
     "Mid: $140–180K base + $50–100K equity/year + bonus → $230–320K total",

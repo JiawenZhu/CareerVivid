@@ -15,14 +15,10 @@
     "Graph / tree problems with practical twists (sync conflict resolution, permission inheritance resolution, search scoring)"
   ],
   "systemDesignTopics": [
-    "\"Design the backend for a block-based editor supporting 100 concurrent editors per document with sub-200ms sync latency.\"",
-    "\"Design the sync protocol between mobile and cloud for offline-first document editing.\"",
-    "\"Design the permissions model for workspaces with inherited access, custom roles, and per-block sharing.\"",
-    "\"Design search across a user's workspace content with permission-aware results and sub-second latency.\"",
-    "\"Tell me about a product you love using. Why? What's broken about it?\"",
-    "\"You've been using Notion. What would you change? How would you decide which change matters most?\"",
-    "\"Walk me through a design decision you made where the engineering-optimal choice wasn't the best user-experience choice.\"",
-    "\"Show me something you've built personally &mdash; a side project, a tool, a writing project. What did you learn?\""
+    "Design the backend for a block-based editor supporting 100 concurrent editors per document with sub-200ms sync latency",
+    "Design the sync protocol between mobile and cloud for offline-first document editing",
+    "Design the permissions model for workspaces with inherited access, custom roles, and per-block sharing",
+    "Design search across a user's workspace content with permission-aware results and sub-second latency"
   ],
   "behavioralTopics": [
     "Craft: \"Tell me about a time you had to push back on shipping to get something right.\"",
@@ -32,27 +28,28 @@
   ],
   "sampleQuestions": {
     "coding": [
-      "Given a tree of blocks, implement move / delete / merge with invariants preserved under concurrent edits. Talk through your approach, complexity, and edge cases.",
-      "Given a set of derived views on block data, update efficiently when a block changes. Talk through your approach, complexity, and edge cases.",
-      "Implement implement a rope, piece table, or gap buffer with specific operations. Talk through your approach, complexity, and edge cases.",
-      "Implement sync conflict resolution, permission inheritance resolution, search scoring. Talk through your approach, complexity, and edge cases.",
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases."
+      "At Notion, model a workflow engine with triggers, conditions, and actions. Evaluate a workflow DAG and detect cycles.",
+      "Implement a per-tenant rate limiter so one customer cannot exhaust shared capacity. Discuss the token-bucket design.",
+      "Given a stream of tenant events, maintain rolling per-entity scores with bounded memory.",
+      "Implement a filter query over records supporting AND/OR on custom fields. Discuss indexing for a multi-tenant store.",
+      "Deduplicate records via fuzzy clustering on name and email. Discuss the matching and complexity."
     ],
     "behavioral": [
-      "Tell me about a time you had to push back on shipping to get something right.",
-      "Describe a project where the initial ambition felt unrealistic. What happened?",
-      "Tell me about a time you had to define the problem yourself before solving it.",
-      "What are you hoping to learn or build over the next 2&ndash;3 years?",
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+      "Tell me about a project you are proud of at Notion scale and the hardest tradeoff you made.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end.",
+      "Describe a time something you shipped failed or fell short. What did you change afterward?"
     ],
     "systemDesign": [
       "Design the backend for a block-based editor supporting 100 concurrent editors per document with sub-200ms sync latency.",
-      "Design the sync protocol between mobile and cloud for offline-first document editing. Cover the API, data model, and how it scales.",
-      "Design the permissions model for workspaces with inherited access, custom roles, and per-block sharing.",
-      "Design search across a user's workspace content with permission-aware results and sub-second latency.",
-      "Walk me through a design decision you made where the engineering-optimal choice wasn't the best user-experience choice."
+      "Design the sync protocol between mobile and cloud for offline-first document editing.",
+      "Design the permissions model for workspaces with inherited access, custom roles, and per-block sharing."
     ],
-    "values": [],
+    "values": [
+      "Notion succeeds when its customers do. Describe a time you solved for the customer even at a cost to the team.",
+      "Tell me about a time you handled a tricky multi-tenant isolation or permissions problem.",
+      "How do you balance enterprise customization against product simplicity?"
+    ],
     "other": [
       "How selective is Notion compared to peers?",
       "Is the take-home really important?",
@@ -61,7 +58,7 @@
       "What's remote work like?"
     ]
   },
-  "difficulty": 8,
+  "difficulty": 6,
   "tips": [
     "Build something real in Notion. Personal workspace, side-project tracker, reading list with formulas. Form concrete opinions.",
     "Know CRDTs vs OT trade-offs. Even at high level, this shows you've engaged with the technical space.",

@@ -8,26 +8,17 @@
     "Behavioral / hiring manager: past projects, customer empathy for analysts / data scientists, craft orientation."
   ],
   "codingTopics": [
-    "Cell dependency graph: implement topological evaluation of cells with data-flow between them",
-    "Streaming result handler: process SQL results as they arrive with proper pagination / virtualization",
-    "Collaborative editing primitive: handle concurrent cell inserts / deletes / edits with conflict resolution",
-    "Query parser: extract references to other cells or data-warehouse tables from a SQL or Python cell",
-    "Classic algorithm problems (trees, graphs, DP) with notebook-applied twists"
+    "Cell dependency graph: topological evaluation of cells with data-flow between them",
+    "Streaming result handler: process SQL results as they arrive with pagination and virtualization",
+    "Collaborative editing primitive: concurrent cell inserts, deletes, edits with conflict resolution",
+    "Query parser: extract references to other cells or warehouse tables from a SQL or Python cell",
+    "Classic tree, graph, and DP problems with notebook-applied twists"
   ],
   "systemDesignTopics": [
-    "\"Design the notebook compute runtime securely isolating customer Python / SQL executions.\"",
-    "\"Design the collaborative-editor sync for notebooks with 10+ concurrent editors and cell-level locking.\"",
-    "\"Design Magic AI: LLM-powered SQL generation grounded in the user's warehouse metadata.\"",
-    "\"Design the apps publishing system turning notebooks into interactive dashboards with parameter controls.\"",
-    "Discuss React performance at notebook scale with potentially thousands of cells.",
-    "Walk through how you'd implement cell-level reactivity with proper React updates.",
-    "Reason about CodeMirror integration for code-cell editing.",
-    "Describe state management for complex notebook + app state.",
-    "Explain approaches for handling large data-result display without DOM slowness.",
-    "\"What makes a data analyst's workflow smooth vs painful? How does Hex help or hurt?\"",
-    "\"Describe a time you worked closely with an analyst or data scientist. What did you learn?\"",
-    "\"How do you think about AI in analytics &mdash; where does it help, where is it dangerous?\"",
-    "\"Compare Hex's approach to Jupyter notebooks or Databricks notebooks. What's the same, what's different?\""
+    "Design a notebook compute runtime that securely isolates customer Python and SQL executions",
+    "Design collaborative-editor sync for notebooks with 10+ concurrent editors and cell-level locking",
+    "Design Magic AI: LLM-powered SQL generation grounded in the user's warehouse metadata",
+    "Design a notebook-to-app publishing system with interactive parameter controls"
   ],
   "behavioralTopics": [
     "Customer empathy: \"Tell me about deeply understanding a user's workflow and changing what you built as a result.\"",
@@ -37,27 +28,27 @@
   ],
   "sampleQuestions": {
     "coding": [
-      "Implement topological evaluation of cells with data-flow between them. Talk through your approach, complexity, and edge cases.",
-      "Process SQL results as they arrive with proper pagination / virtualization. Talk through your approach, complexity, and edge cases.",
-      "Handle concurrent cell inserts / deletes / edits with conflict resolution. Talk through your approach, complexity, and edge cases.",
-      "You need to deduplicate a very large dataset that does not fit in memory. Walk me through your approach and how you would verify correctness.",
-      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph."
+      "Given a notebook's cell dependency graph, compute the topological evaluation order and recompute only cells downstream of an edit.",
+      "Stream SQL query results into a virtualized table, rendering pages as rows arrive. Discuss pagination and bounded memory.",
+      "Resolve concurrent cell inserts, deletes, and edits from multiple collaborators with conflict resolution. Discuss the approach.",
+      "Parse a SQL or Python cell to extract references to other cells and to warehouse tables. Discuss the parsing strategy."
     ],
     "behavioral": [
-      "Tell me about deeply understanding a user's workflow and changing what you built as a result.",
-      "Describe a project where you pushed for higher quality despite deadline pressure.",
-      "How do you work effectively with design, product, and data stakeholders?",
-      "What are you hoping to learn or build in the next few years?",
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+      "Hex serves data analysts. Tell me about a time you deeply understood a user's workflow before building.",
+      "Describe a time you worked closely with a data scientist or analyst and what you learned.",
+      "Give an example of a frontend or performance challenge you solved at scale, such as many cells or large data.",
+      "Tell me about a time you shipped a collaborative feature and handled the tricky edge cases."
     ],
     "systemDesign": [
-      "Design the notebook compute runtime securely isolating customer Python / SQL executions. Cover the API, data model, and how it scales.",
-      "Design the collaborative-editor sync for notebooks with 10+ concurrent editors and cell-level locking.",
-      "Design Magic AI: LLM-powered SQL generation grounded in the user's warehouse metadata. Cover the API, data model, and how it scales.",
-      "Design the apps publishing system turning notebooks into interactive dashboards with parameter controls.",
-      "Walk through how you'd implement cell-level reactivity with proper React updates."
+      "Design the notebook compute runtime that securely isolates customer Python and SQL executions.",
+      "Design collaborative-editor sync for notebooks with 10+ concurrent editors and cell-level locking.",
+      "Design Magic AI: LLM-powered SQL generation grounded in the user's warehouse metadata."
     ],
-    "values": [],
+    "values": [
+      "Hex is about making analysts' workflows smooth. Describe a time you removed friction for a technical user.",
+      "How do you think about where AI helps versus where it is dangerous in analytics?",
+      "Tell me about a time craft and polish materially changed how users felt about a feature."
+    ],
     "other": [
       "Do I need data-engineering background to get hired?",
       "How does Hex compare to Databricks notebooks or Jupyter?",

@@ -9,27 +9,45 @@
     "Domain depth (1 round) — depends on role: distributed systems, ML, risk, cloud migration",
     "Behavioral (1 round) — collaboration, ambiguity, banking domain interest"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Core algorithms and data structures in Java/C++ (array, string, data structure)",
+    "Concurrency: thread-safe order/trade processing (systems, realtime)",
+    "Double-entry ledger / reconciliation over transaction streams (finance, financial, streams)",
+    "Time-series analytics on market data (time-series, finance, sliding-window)",
+    "Numeric precision for money and pricing (math, numbers, finance)"
+  ],
+  "systemDesignTopics": [
+    "Design a trade booking and settlement system that guarantees consistency and full auditability",
+    "Design a real-time risk aggregation service computing exposure across positions",
+    "Design a market-data distribution layer feeding pricing and trading desks with low latency",
+    "Design a reconciliation platform matching internal ledgers against counterparty statements"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Implement a double-entry ledger that processes a stream of transactions and detects imbalances. How do you guarantee idempotency when a transaction is delivered twice?",
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Implement a double-entry ledger that processes a stream of trades and flags imbalances. How do you guarantee idempotency when a booking message is redelivered?",
+      "Given a stream of market ticks, maintain a rolling VWAP per instrument over a sliding time window with bounded memory.",
+      "Design a thread-safe order queue that multiple producers write to and a single matching thread consumes. Discuss lock contention and correctness.",
+      "Compute the present value of a series of cash flows given a discount curve, being careful about rounding and currency precision.",
+      "Match internal trade records against a counterparty statement and report breaks, handling near-duplicates and timing differences."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about delivering a system under regulatory or audit constraints. How did you ensure correctness?",
+      "Describe a production incident in a financial system and how you handled it under pressure.",
+      "Tell me about working with demanding stakeholders (traders, risk, compliance) with competing needs.",
+      "Describe catching a subtle bug that could have had financial impact."
     ],
     "systemDesign": [
-      "Design Deutsche Bank's financial systems at bank scale at production scale. Walk through the architecture, trade-offs, and failure modes.",
-      "Design a service at Deutsche Bank scale that shortens URLs. Cover the API, storage, and hot-key handling.",
-      "Design a rate limiter for a public API. Discuss algorithms, distributed coordination, and failure modes."
+      "Design a trade booking and settlement pipeline with strong consistency and a full audit trail.",
+      "Design a real-time risk aggregation service computing firm-wide exposure.",
+      "Design a low-latency market-data distribution fabric for trading desks.",
+      "Design a reconciliation platform matching ledgers to counterparty statements at scale."
     ],
-    "values": [],
+    "values": [
+      "Banking runs on trust and integrity. How do you approach correctness when money is on the line?",
+      "How do you balance delivery speed against the controls and reviews a bank requires?",
+      "Why investment-bank technology rather than a pure product company?"
+    ],
     "other": [
       "How is the Sewing restructuring affecting engineers?",
       "What's working on Autobahn actually like?",
@@ -38,7 +56,7 @@
       "Is Deutsche Bank a good place for early-career engineers?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 6,
   "tips": [],
   "compensation": [
     "New-grad SWE (London): £50k–£90k total comp first year",

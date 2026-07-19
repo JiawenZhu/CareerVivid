@@ -16,33 +16,44 @@
     "For developer-tools roles: IDE integration, build-tool plugins, CI/CD integration.",
     "Specific knowledge of common vulnerability classes (SQL injection, XSS, supply-chain attacks)."
   ],
-  "codingTopics": [],
+  "codingTopics": [
+    "Streaming detection: pattern matching over security events",
+    "Graph problems: relate entities into attack graphs",
+    "String and parsing: log parsing, signature matching",
+    "Data structures: tries, bloom filters, heaps",
+    "Time-series: anomaly detection over event streams"
+  ],
   "systemDesignTopics": [
-    "Design a system that scans 1B open-source packages for vulnerabilities.",
-    "Design Snyk's dependency-tree analysis (how does a vulnerability in deep dependency affect a project?).",
-    "Design a developer-friendly fix-suggestion system (auto-PR creation, version-bump recommendations).",
-    "Design a multi-tenant security platform isolating customer data and findings."
+    "Design a system that scans 1B open-source packages for vulnerabilities",
+    "Design Snyk's dependency-tree analysis (how does a vulnerability in deep dependency affect a project?)",
+    "Design a developer-friendly fix-suggestion system (auto-PR creation, version-bump recommendations)",
+    "Design a multi-tenant security platform isolating customer data and findings"
   ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "At Snyk, given a stream of security events, flag sessions whose activity exceeds a risk threshold in a sliding window.",
+      "Build an attack graph relating entities and find the shortest path an attacker could take. Discuss the graph approach.",
+      "Match incoming logs against a set of signatures efficiently using a trie or Aho-Corasick. Discuss complexity.",
+      "Use a bloom filter to check entities against a large blocklist with bounded memory. Discuss false positives.",
+      "Detect anomalies in a time-series of security events using rolling statistics. Walk through the approach."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a project you are proud of at Snyk scale and the hardest tradeoff you made.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end.",
+      "Describe a time something you shipped failed or fell short. What did you change afterward?"
     ],
     "systemDesign": [
-      "Design a system that scans 1B open-source packages for vulnerabilities. Cover the API, data model, and how it scales.",
+      "Design a system that scans 1B open-source packages for vulnerabilities.",
       "Design Snyk's dependency-tree analysis (how does a vulnerability in deep dependency affect a project?).",
-      "Design a developer-friendly fix-suggestion system (auto-PR creation, version-bump recommendations).",
-      "Design a multi-tenant security platform isolating customer data and findings. Cover the API, data model, and how it scales.",
-      "Design a service at Snyk scale that shortens URLs. Cover the API, storage, and hot-key handling."
+      "Design a developer-friendly fix-suggestion system (auto-PR creation, version-bump recommendations)."
     ],
-    "values": [],
+    "values": [
+      "Snyk defends customers from real adversaries. Describe a time security outweighed convenience.",
+      "Tell me about a time you responded to a security incident or near-miss.",
+      "How do you balance strong protection against a usable product?"
+    ],
     "other": [
       "Do I need security background?",
       "How does Snyk compare to GitHub Advanced Security or Sonatype?",
@@ -51,7 +62,7 @@
       "Is the bar comparable to Wiz?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 7,
   "tips": [],
   "compensation": [
     "Senior (US): $190-260K base + equity → $370-600K total",

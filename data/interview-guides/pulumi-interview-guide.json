@@ -6,29 +6,50 @@
   "interviewStages": [
     "Behavioral: open-source mindset, written communication, pragmatic decision-making"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Practical systems coding: parsers, queues, small state machines",
+    "Streaming and time-series: windowed aggregation over log and metric events",
+    "String parsing: query languages, config formats",
+    "Data structures: ring buffers, LRU caches, tries",
+    "Graph and topological: build and dependency ordering"
+  ],
+  "systemDesignTopics": [
+    "Design a state engine for declarative infrastructure changes (plan / preview / apply)",
+    "Design a multi-language SDK that surfaces a consistent API across TypeScript, Python, Go, and Java",
+    "Design dependency-aware resource ordering (DAG construction and execution)"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "At Pulumi, parse a stream of log and metric events and aggregate by key over a sliding window. Discuss memory bounds.",
+      "Implement a rate-limited, back-pressured queue for ingestion. Discuss what happens when a downstream sink is slow.",
+      "Parse a config format into a typed structure with schema validation. Discuss error handling.",
+      "Given a dependency graph of build targets, compute a valid build order and detect cycles via topological sort.",
+      "Downsample a time-series into fixed buckets (min, max, avg) as data streams in. Walk through the approach."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a project you are proud of at Pulumi scale and the hardest tradeoff you made.",
+      "Give me an example that shows open-source mindset, written communication, pragmatic decision-making.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a state engine for declarative infrastructure changes (plan / preview / apply).",
+      "Design a multi-language SDK that surfaces a consistent API across TypeScript, Python, Go, and Java.",
+      "Design dependency-aware resource ordering (DAG construction and execution)."
+    ],
+    "values": [
+      "Pulumi is trusted by the developers who depend on it. Describe a time you prioritized reliability and craft.",
+      "Tell me about an open-source contribution or public work you are proud of.",
+      "How do you weigh a breaking change against the migration cost for users?"
+    ],
     "other": [
       "Is Pulumi fully remote?",
       "How does Pulumi compare to Terraform?",
       "Do I need IaC experience to interview?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 7,
   "tips": [],
   "compensation": null,
   "rawSummary": "Pulumi Interview Guide (2026): Infrastructure as Code Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nPulumi\npulumi.com ↗\n\nPulumi is the modern alternative to Terraform — write infrastructure in real programming languages (TypeScript, Python, Go, C#) instead of HCL. The interview is unique among IaC companies for its emphasis on language-internals work, since the platform compiles user code into a state machine that talks to cloud APIs.\n\nProcess\n\nRecruiter screen → 60-minute coding pair (often Go) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design a state engine for declarative infrastructure changes (plan / preview / apply)\n\n- Design a multi-language SDK that surfaces a consistent API across TypeScript, Python, Go, and Java\n\n- Design dependency-aware resource ordering (DAG construction and execution)\n\n- Coding: practical Go problems, often involving graph traversal or state machines\n\n- Behavioral: open-source mindset, written communication, pragmatic decision-making\n\nLevels and comp (2026)\n\n- SE II: $170K–$210K total\n\n- Senior SE: $240K–$310K\n\n- Staff: $340K–$450K\n\n- Principal: $470K–$610K\n\nPrep priorities\n\n- Be fluent in Go and at least one Pulumi language (TypeScript or Python)\n\n- Understand cloud provider APIs and IaC fundamentals (drift, state, idempotency)\n\n- Read the Pulumi engineering blog and OSS codebase\n\nFrequently Asked Questions\n\nIs Pulumi fully remote?\n\nYes. Distributed across US and EU. Hubs in Seattle and Brno are optional.\n\nHow does Pulumi compare to Terraform?\n\nPulumi uses real programming languages with type checking, IDEs, and reuse. Terraform is HCL-only but has broader adoption. Pulumi is winning new accounts; Terraform dominates legacy.\n\nDo I need IaC experience to interview?\n\nStrongly preferred. At minimum, work through Pulumi tutorials and deploy something to AWS/GCP/Azure with it.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Pulumi? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextLow Level Design: Multi-Region Architecture⏱ 4 min readSystem Design Interview: Design a Cloud File Storage System (Dropbox/Google Drive)⏱ 6 min readDesign Instagram Mobile: Feed, Stories, and the Photo Pipeline⏱ 2 min read"

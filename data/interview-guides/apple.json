@@ -10,36 +10,55 @@
     "Behavioral/Cultural Fit (1-2 rounds): Questions about collaboration, handling feedback, and passion for technology. Apple highly values humility and team players."
   ],
   "codingTopics": [
-    "Arrays/Strings: Manipulation, searching, pattern matching",
-    "Trees: Binary trees, BST operations, traversals",
-    "Linked Lists: Manipulation, cycle detection, reversal",
-    "Dynamic Programming: Optimization problems, memoization",
-    "System Design: Mobile app architecture, sync strategies, offline-first design"
+    "Arrays and strings: manipulation, pattern matching in large text and media metadata",
+    "Trees and graphs: product-catalog trees, device sync-state graph traversal",
+    "Cache and memory: LRU cache design under strict on-device memory budgets",
+    "Streams and time-series: concurrency-safe processing of sensor and HealthKit streams, sliding-window analytics",
+    "Dependency graphs: framework build order, topological sort",
+    "Search and prefix structures: Spotlight autocomplete, dictionary and typeahead design"
   ],
-  "systemDesignTopics": [],
+  "systemDesignTopics": [
+    "Design the iCloud settings-sync service that keeps preferences consistent across a user's iPhone, iPad and Mac",
+    "Design an on-device photo search index that works fully offline and preserves user privacy",
+    "Design the App Store download pipeline serving millions of concurrent downloads with resumable transfers",
+    "Design a push-notification delivery system for a billion iOS devices with low latency and battery awareness"
+  ],
   "behavioralTopics": [
     "Apple Silicon &mdash; M-series and A-series chip design"
   ],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the longest contiguous subarray whose sum equals a target. Discuss complexity and edge cases.",
-      "Serialize and deserialize a binary tree. Walk through your encoding choices, complexity, and edge cases.",
-      "Reverse a linked list in groups of k nodes. Discuss the iterative versus recursive trade-offs.",
-      "Given a set of coin denominations, compute the minimum number of coins needed to reach a target amount. Compare the recursive and bottom-up approaches.",
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases."
+      "Given a stream of HealthKit heart-rate samples, return the sliding-window average and flag windows exceeding a threshold — discuss on-device memory constraints.",
+      "Design and implement an LRU cache for photo thumbnails on an iPhone with a strict memory budget; cover eviction and thread safety.",
+      "Given the dependency graph of frameworks in an iOS build, return a valid build order and detect cycles.",
+      "Merge k sorted lists of photo timestamps synced from different devices into a single timeline; analyze complexity.",
+      "Implement the data structure behind Spotlight autocomplete: prefix search over millions of entries under tight memory.",
+      "Detect and repair a cycle in a linked list of pending sync operations; discuss pointer techniques and invariants."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a time you sweated a detail most people would never notice. Why did it matter?",
+      "Describe working on a project under strict confidentiality — how did you collaborate effectively without full context sharing?",
+      "Tell me about a time you pushed back on shipping because the quality bar wasn't met. What happened?",
+      "Describe a technical disagreement with a strong-willed teammate. How did you reach a decision?",
+      "Tell me about a time you deliberately cut scope to make a better product."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design the iCloud settings-sync service for cross-device consistency: conflict resolution, offline edits, and eventual convergence.",
+      "Design an offline-first, privacy-preserving on-device search index for Photos.",
+      "Design the App Store download and update pipeline: CDN strategy, resumable transfers, and delta updates.",
+      "Design an API for a new iOS framework feature — walk through memory management, concurrency model, and versioning."
+    ],
+    "values": [
+      "Apple treats privacy as a fundamental human right. Tell me about a time you made an engineering choice to protect user data, even at a cost.",
+      "Why Apple, and why this team specifically? Which of our product decisions do you admire — or disagree with?",
+      "How do you think about accessibility when building features? Give a concrete example from your work.",
+      "Apple is famous for saying no to a thousand things. Describe a time you said no to preserve focus."
+    ],
     "other": [
       "iOS-specific: Memory management, concurrency, design patterns"
     ]
   },
-  "difficulty": null,
+  "difficulty": 8,
   "tips": [
     "Use Apple Products: Deep familiarity with Apple ecosystem is essential. Be ready to discuss what you love and what you'd improve.",
     "Focus on Code Quality: Apple values clean, readable, maintainable code over clever tricks. Use meaningful variable names and proper structure.",

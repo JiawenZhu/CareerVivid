@@ -8,17 +8,16 @@
     "Behavioral / hiring manager (1 round): past projects, ownership, handling disagreement, remote-work effectiveness. HashiCorp is genuinely remote-first, and this matters."
   ],
   "codingTopics": [
-    "Implement a small primitive with specific semantics (TTL cache with eviction callbacks, rate limiter with graceful refill, retry-with-jitter)",
-    "Parse a structured wire format (HCL-like config, JSON with schema validation, binary TLV)",
-    "Model a small distributed problem (leader election, distributed lock, gossip state convergence) &mdash; usually NOT full Raft, but a piece of it",
-    "Graph / tree problems with a systems flavor (dependency resolution, topological sort of Terraform resources, cycle detection in service mesh config)"
+    "Implement a small primitive with specific semantics: TTL cache with eviction callbacks, rate limiter with graceful refill, retry-with-jitter",
+    "Parse a structured wire format: HCL-like config, JSON with schema validation, binary TLV",
+    "Model a piece of a distributed problem: leader election, distributed lock, gossip state convergence",
+    "Graph and topological problems with a systems flavor: dependency resolution, topological sort of Terraform resources, cycle detection in service-mesh config"
   ],
   "systemDesignTopics": [
-    "\"Design a secret-distribution service that handles 1M rotations per day across 100K apps.\"",
-    "\"Design service discovery for a 10K-node Kubernetes fleet across 3 regions.\"",
-    "\"Design Terraform state storage for an enterprise with thousands of workspaces.\"",
-    "\"Design a global load balancer with health-check propagation and consistent failover.\"",
-    "Raft: walk through leader election; explain log replication; describe how log compaction works; sketch the state transitions. You should know this cold if interviewing for Consul / Vault / Nomad."
+    "Design a secret-distribution service handling 1M rotations per day across 100K apps",
+    "Design service discovery for a 10K-node fleet across three regions",
+    "Design Terraform state storage for an enterprise with thousands of workspaces",
+    "Design a global load balancer with health-check propagation and consistent failover"
   ],
   "behavioralTopics": [
     "Remote effectiveness: \"Tell me about a complex project you led across timezones.\"",
@@ -28,27 +27,28 @@
   ],
   "sampleQuestions": {
     "coding": [
-      "Implement TTL cache with eviction callbacks, rate limiter with graceful refill, retry-with-jitter. Talk through your approach, complexity, and edge cases.",
-      "Implement HCL-like config, JSON with schema validation, binary TLV. Talk through your approach, complexity, and edge cases.",
-      "Implement leader election, distributed lock, gossip state convergence. Talk through your approach, complexity, and edge cases.",
-      "Implement dependency resolution, topological sort of Terraform resources, cycle detection in service mesh config. Talk through your approach, complexity, and edge cases.",
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases."
+      "Implement a TTL cache with eviction callbacks, similar to a Vault lease cache. Discuss expiry handling and complexity.",
+      "Parse an HCL-like config into a typed structure with schema validation. Discuss error handling and edge cases.",
+      "Given a graph of Terraform resource dependencies, produce a valid apply order and detect cycles via topological sort.",
+      "Implement a token-bucket rate limiter with graceful refill for API requests to a Vault-like service.",
+      "Model leader election for a small cluster (a slice of Raft): handle terms, votes, and split-brain. Discuss the state transitions."
     ],
     "behavioral": [
-      "Tell me about a complex project you led across timezones.",
-      "How do you think about what belongs in open-source vs enterprise tier?",
-      "Describe a production issue you owned end-to-end.",
-      "Tell me about a time you disagreed with a senior engineer about an architectural decision.",
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+      "HashiCorp is remote-first and writing-driven. Tell me about a time strong written communication drove a decision.",
+      "Describe a time you chose pragmatic execution over the theoretically perfect design.",
+      "Give an example of extending kindness or help to a peer or user when it wasn't required.",
+      "Tell me about a time you reasoned about a hard distributed-systems failure mode such as a partition or consensus edge case."
     ],
     "systemDesign": [
-      "Gossip protocols: how does SWIM achieve failure detection? What's the trade-off vs heartbeat-to-coordinator? How does HashiCorp's LAN vs WAN gossip differ?",
-      "Consistency models: given this use case, would you pick linearizable, sequential, or eventual? Why? What's the latency / availability cost?",
-      "Go-specific: how does context cancellation propagate? What are common pitfalls with goroutine leaks? When would you use a sync.Cond vs a channel?",
-      "Design a secret-distribution service that handles 1M rotations per day across 100K apps. Cover the API, data model, and how it scales.",
-      "Design service discovery for a 10K-node Kubernetes fleet across 3 regions. Cover the API, data model, and how it scales."
+      "Design a secret-distribution service that handles 1M rotations per day across 100K applications.",
+      "Design service discovery for a 10K-node fleet spanning three regions.",
+      "Design Terraform state storage for an enterprise with thousands of workspaces and concurrent applies."
     ],
-    "values": [],
+    "values": [
+      "Integrity is HashiCorp's core principle. Describe a time you were honest about a limitation or mistake under pressure.",
+      "HashiCorp believes beauty works better. Tell me about a time craftsmanship in your work paid off.",
+      "Reflection matters here. Describe something you changed about how you work after stepping back."
+    ],
     "other": [
       "Do I need to know Go to get hired?",
       "How is the distributed-systems round graded?",

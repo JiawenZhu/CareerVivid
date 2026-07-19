@@ -21,22 +21,45 @@
     "Respawn (Los Angeles): Apex Legends and Star Wars Jedi titles. Live-service multiplayer focus.",
     "Maxis (Redwood City): The Sims franchise. Long-running content-heavy game."
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Game-loop and entity update simulation (simulation, systems, array)",
+    "Spatial data structures for collision/queries (tree, graph, data structure)",
+    "Fixed-timestep physics and math (math, numbers, simulation)",
+    "Matchmaking/graph problems for multiplayer (graph, heap, dependency)",
+    "Memory-bounded object pools for real-time (cache, memory, data structure, realtime)"
+  ],
+  "systemDesignTopics": [
+    "Design a matchmaking service that groups players by skill and latency for online multiplayer",
+    "Design an authoritative game-server architecture that handles state sync and cheat prevention",
+    "Design a live-service backend for player progression, inventory, and in-game purchases",
+    "Design a telemetry pipeline capturing gameplay events from millions of concurrent players"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Implement an object pool for game entities that reuses memory with O(1) acquire/release and no per-frame allocation. Discuss cache locality.",
+      "Build a spatial partition (grid or quadtree) to answer 'which entities are near point P' each frame. Analyze update vs query cost.",
+      "Implement a skill-based matchmaker: given a queue of players with ratings and ping, form balanced matches minimizing rating spread. Which data structure?",
+      "Simulate a fixed-timestep game loop that advances N entities under simple physics; handle variable frame time deterministically.",
+      "Given a graph of players and recent match history, avoid rematching the same opponents while keeping queue times low."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about optimizing code under a hard real-time budget (frame time, memory). What did you cut?",
+      "Describe collaborating with designers or artists to ship a feature players loved.",
+      "Tell me about debugging a nasty issue in a complex real-time system.",
+      "Describe balancing creative ambition against a shipping deadline."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design EA's matchmaking service balancing skill and latency.",
+      "Design an authoritative game-server architecture with state sync and anti-cheat.",
+      "Design a live-service backend for progression, inventory, and purchases.",
+      "Design a gameplay-telemetry pipeline for millions of concurrent players."
+    ],
+    "values": [
+      "EA is about inspiring play. What game or experience made you want to build for players?",
+      "How do you balance technical polish against the reality of a fixed ship date?",
+      "How do you work with non-engineering creatives (design, art) to make something great?"
+    ],
     "other": [
       "Do I need game-development experience?",
       "How does EA compare to Activision Blizzard?",
@@ -44,7 +67,7 @@
       "What is work-life balance like?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 6,
   "tips": [],
   "compensation": [
     "Senior engineer: $160–220K base + EA RSU + bonus → $250–380K total",

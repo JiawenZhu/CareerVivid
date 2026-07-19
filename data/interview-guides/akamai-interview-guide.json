@@ -6,29 +6,51 @@
   "interviewStages": [
     "Behavioral: ownership, working with enterprise customers, deep technical work"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Caching and edge infrastructure",
+    "Distributed systems fundamentals",
+    "Realtime streaming and rate limiting",
+    "Graph and network algorithms"
+  ],
+  "systemDesignTopics": [
+    "Design a global CDN with origin shielding, cache invalidation, and hot-object handling",
+    "Design DDoS mitigation at the edge that scrubs traffic without hurting legitimate users",
+    "Design global anycast/DNS routing that steers users to the nearest healthy edge"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Implement a fixed-size LRU cache for edge objects with O(1) get/put; discuss eviction and concurrency at the edge.",
+      "Given a stream of requests, implement a sliding-window rate limiter that works across distributed edge nodes.",
+      "Parse and validate DNS/HTTP header inputs defensively; handle malformed and hostile input.",
+      "Compute shortest paths over a network graph with edge weights (latency). Discuss algorithm choice at scale.",
+      "Implement consistent hashing for cache-key distribution across a changing set of edge servers."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Akamai's core values include Urgency & Persistence. Tell me about a time you drove a hard problem to completion when others gave up.",
+      "'Customer First' and 'One Akamai.' Describe a time you worked across teams to solve an enterprise customer's problem.",
+      "Integrity & Trust is a stated value. Tell me about a time you did the right thing even when it was costly.",
+      "Describe a deep systems problem you owned end-to-end. What made it hard?",
+      "Tell me about a time you disagreed with a teammate on a networking or architecture decision."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a global CDN with origin shielding, cache invalidation, and hot-object handling.",
+      "Design DDoS mitigation at the edge that scrubs traffic without hurting legitimate users.",
+      "Design a global anycast/DNS routing strategy for steering users to the nearest healthy edge."
+    ],
+    "values": [
+      "Akamai runs quietly critical internet infrastructure. What draws you to unglamorous but essential systems work?",
+      "How do you think about reliability and trust when your customers are enterprises depending on you?",
+      "Giving Back is an Akamai value. Tell me about a time you invested in your community or teammates beyond your role.",
+      "Why Akamai over a newer, more fashionable edge/CDN company?"
+    ],
     "other": [
       "Is Akamai remote-friendly?",
       "How does Akamai compare to Cloudflare or Fastly?",
       "Is the engineering culture stale?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 7,
   "tips": [],
   "compensation": null,
   "rawSummary": "Akamai Interview Guide (2026): CDN and Edge Computing\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nAkamai\nakamai.com ↗\n\nAkamai is the original CDN — running the largest distributed edge network on the internet for 25+ years. Now expanding into edge compute (after acquiring Linode) and security. The interview is networking-heavy and rewards engineers with serious systems chops.\n\nProcess\n\nRecruiter screen → 60-minute technical phone (DSA + networking trivia) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 4–6 weeks.\n\nWhat they actually ask\n\n- Design a global CDN with origin shielding and cache invalidation\n\n- Design BGP routing strategies for global edge presence\n\n- Design DDoS mitigation at the edge\n\n- Coding: medium-hard DSA, often with networking flavor\n\n- Behavioral: ownership, working with enterprise customers, deep technical work\n\nLevels and comp (2026)\n\n- SE II: $140K–$170K total\n\n- Senior SE: $200K–$260K\n\n- Staff: $280K–$370K\n\n- Principal: $400K–$520K\n\nAkamai comp lags newer cloud companies; benefits and stability are strong.\n\nPrep priorities\n\n- Be fluent in C and at least one modern language (Go, Rust)\n\n- Understand networking deep: TCP, BGP, DNS, anycast\n\n- Read about Akamai's engineering history and recent edge compute moves\n\nFrequently Asked Questions\n\nIs Akamai remote-friendly?\n\nHybrid in Cambridge MA, Bangalore, Krakow. Some engineering roles remote within US.\n\nHow does Akamai compare to Cloudflare or Fastly?\n\nAkamai is the largest by network footprint; Cloudflare wins on developer experience; Fastly wins on edge programmability. Akamai pays below both on compensation.\n\nIs the engineering culture stale?\n\nMature and engineering-rigorous. Less fashionable than newer companies but solid technical work for those who care about real networking problems.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Akamai? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextLow Level Design: Live Video Streaming Platform⏱ 8 min readLow Level Design: Platform Engineering and Internal Developer Platform⏱ 4 min readLow-Level Design: Hotel Management System — Room Booking, Check-In, and Billing⏱ 8 min read"

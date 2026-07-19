@@ -4,22 +4,44 @@
   "url": "https://www.techinterview.org/companies/imc-trading-interview-guide",
   "scrapedAt": "2026-07-02T07:17:42.777Z",
   "interviewStages": [],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Low-latency data structures: ring buffers, custom hash maps, memory pools",
+    "Streaming and time-series: rolling statistics over market-data ticks",
+    "Numerical and parsing: binary feed parsing, floating-point edge cases",
+    "Probability and expected-value problems",
+    "Heaps and top-K over trade streams"
+  ],
+  "systemDesignTopics": [
+    "Design a low-latency market-data feed handler that parses exchange packets in microseconds",
+    "Design an order-management system that guarantees no duplicate or lost orders under failover",
+    "Design a backtesting engine that replays years of tick data deterministically",
+    "Design a real-time risk and position-limit checker in the critical trading path"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "At IMC Trading, given a stream of market-data ticks, maintain a rolling VWAP or moving average over a sliding time window. Discuss complexity and eviction.",
+      "Implement a fixed-capacity ring buffer for a single-producer single-consumer market-data ticks queue with minimal latency. Discuss memory ordering.",
+      "Parse a binary exchange message into an order-book updates with zero allocations on the hot path. Discuss the approach.",
+      "Given a stream of order-book updates, maintain top-of-book (best bid and ask) with O(1) updates. Discuss the data structure.",
+      "Expected-value puzzle: in a multi-round game with conditional payoffs, compute the optimal stopping strategy. Walk through the probability."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a project you are proud of at IMC Trading scale and the hardest tradeoff you made.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end.",
+      "Describe a time something you shipped failed or fell short. What did you change afterward?"
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a low-latency market-data feed handler that parses exchange packets in microseconds.",
+      "Design an order-management system that guarantees no duplicate or lost orders under failover.",
+      "Design a backtesting engine that replays years of tick data deterministically."
+    ],
+    "values": [
+      "IMC Trading treats correctness under pressure as non-negotiable. Describe a time precision mattered more than speed.",
+      "How do you reason about risk and uncertainty when the cost of being wrong is high?",
+      "Tell me about a time intellectual honesty led you to abandon an approach you were invested in."
+    ],
     "other": [
       "What's the IMC Prosperity / Trading Challenge?",
       "How does IMC compare to Optiver, given both are Amsterdam-based?",
@@ -28,7 +50,7 @@
       "What background does IMC hire from?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 8,
   "tips": [],
   "compensation": null,
   "rawSummary": "IMC Trading Interview Guide: Amsterdam Options Market Making, Trading Challenge, Quant Tech\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 25, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- IMC Trading Interview Guide: Amsterdam Options Market Making, Trading Challenge, and Quant Tech Stack\n\n- What IMC Does\n\n- Roles IMC Hires For\n\n- IMC Interview Process\n\n- What IMC Tests For\n\n- Preparation Strategy\n\n- IMC vs Other Firms\n\n- Compensation\n\n- Frequently Asked Questions\n\nUpdated April 25, 2026 · techinterview.org\n\n⏱ 6 min read\n\nIMC Trading\nimc.com ↗\n\nIMC Trading Interview Guide: Amsterdam Options Market Making, Trading Challenge, and Quant Tech Stack\n\nIMC Trading (formerly International Marketmakers Combination) is one of Europe's largest proprietary trading firms, founded in Amsterdam in 1989. With offices in Amsterdam, Chicago, Sydney, Mumbai, and Hong Kong, IMC trades its own capital across listed options, equities, ETFs, and structured products. For quant-trading candidates, IMC sits firmly in the top tier alongside Optiver, SIG, Akuna, and Jane Street &mdash; high pay, intellectually rigorous interview process, and a distinctive tech-driven trading culture.\n\nWhat IMC Does\n\nIMC is a proprietary market maker focused on options and equities across global exchanges. Profit comes from continuously providing liquidity (bid and offer quotes) and capturing spread on flow while managing the risks options inventory creates: directional, volatility, time decay, correlation.\n\nDistinctive features:\n\n- Amsterdam HQ: like Optiver and Flow Traders, IMC is part of the Dutch options market-making heritage. Amsterdam offices are major hubs.\n\n- Strong tech investment: IMC has built deep in-house technology across trading systems, market data, and analytics. C++ and Python are both used heavily.\n\n- Mid-size scale: ~1000+ employees globally; smaller than Optiver but larger than Akuna. Comparable to SIG in size and product mix.\n\n- Trading challenge / \"Prosperity\" competition: IMC has run public trading challenges that double as recruiting tools, attracting strong quantitative talent globally.\n\nRoles IMC Hires For\n\nTrader\n\nQuotes markets on a desk, manages risk, develops strategies. New-graduate traders enter through a structured training program in Amsterdam, Chicago, or Sydney; they spend months on options theory, market microstructure, and IMC's systems before joining a live desk.\n\nQuantitative Researcher\n\nBuilds models, signals, and analytics for trading desks. Strong math, stats, ML background expected. PhD-track candidates often start here.\n\nSoftware Engineer\n\nBuilds trading systems, exchange connectivity, market data infrastructure, internal tooling, low-latency components. C++ and Python both heavily used; Java for some legacy systems. Latency matters but IMC is not as latency-extreme as HRT or Jump.\n\nInternships\n\nTrader, quant researcher, and SWE internship programs in Amsterdam and Chicago. Strong conversion to full-time for top performers.\n\nIMC Interview Process\n\nRound 1: Online assessment\n\nFor traders: probability and quantitative reasoning, sometimes mental-math drills. For SWE / quant: a coding challenge plus quantitative reasoning. The IMC Trading Challenge / Prosperity is a separate offering; some candidates first interact with IMC through that.\n\nRound 2: First-round interview\n\nPhone or video, 30&ndash;45 minutes. For traders: probability brainteasers, expected-value problems, motivation discussion. For SWE: a coding question plus discussion of past projects.\n\nRound 3: Technical interview\n\nFor traders: deeper market-making round, more brainteasers, options-related questions. For SWE: harder coding (data structures, algorithms), systems design, language-specific questions (C++ memory model, Python performance, etc.). For quants: regression, time series, statistical reasoning, project deep-dives.\n\nRound 4: Superday / Trading Floor Visit\n\nOn-site (or virtual on-site) at IMC's office (Amsterdam, Chicago, or Sydney depending on role). Multiple back-to-back interviews, a trading game / market-making simulation for traders, more coding for SWE candidates. Lunch with current employees, behavioral conversations, sometimes a presentation.\n\nRound 5: Final / decision\n\nSenior partner review. Decision typically within 1&ndash;2 weeks.\n\nWhat IMC Tests For\n\nProbability and EV reasoning (traders + quants)\n\nStandard quant-finance probability stack. Expect multiple problems across rounds.\n\nMarket-making intuition (traders)\n\nTwo-sided quotes, inventory management, information updating. Same core skill as Optiver, SIG, Akuna. See Market-Making Interview Questions.\n\nOptions understanding (traders + quants)\n\nCalls, puts, put-call parity, Greeks intuition (delta, gamma, vega, theta), implied volatility. You should understand inputs and economic meaning, not just memorize formulas. See Options Pricing for Quant Interviews.\n\nCoding (for SWE)\n\nStandard data structures and algorithms in C++ or Python. IMC's bar is high but not at the I"

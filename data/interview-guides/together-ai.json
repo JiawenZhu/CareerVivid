@@ -15,14 +15,10 @@
     "Classic algorithm problems (graphs, DP, priority queues) with ML-systems applied twists"
   ],
   "systemDesignTopics": [
-    "\"Design the inference-serving system supporting 100+ open-source models with shared GPU capacity.\"",
-    "\"Design the fine-tuning service with multi-tenant LoRA adapter management and per-customer isolation.\"",
-    "\"Design the speculative-decoding pipeline working across diverse model architectures.\"",
-    "\"Design the custom-deployment offering for enterprise customers with dedicated capacity.\"",
-    "Walk through a Together AI paper or publication you know well (the company has published serving and training papers).",
-    "Discuss the trade-offs between speculative-decoding approaches.",
-    "Reason about the trade-offs of different quantization schemes (INT8 vs FP8 vs mixed precision).",
-    "Design an experiment to evaluate a new inference-optimization technique."
+    "Design the inference-serving system supporting 100+ open-source models with shared GPU capacity",
+    "Design the fine-tuning service with multi-tenant LoRA adapter management and per-customer isolation",
+    "Design the speculative-decoding pipeline working across diverse model architectures",
+    "Design the custom-deployment offering for enterprise customers with dedicated capacity"
   ],
   "behavioralTopics": [
     "Shipping velocity: \"Tell me about the fastest meaningful improvement you've shipped to a production AI system.\"",
@@ -34,25 +30,26 @@
     "coding": [
       "Implement attention from scratch with appropriate batching considerations. Talk through your approach, complexity, and edge cases.",
       "Write a CUDA kernel for a specific operation (element-wise, reduction, softmax). Talk through your approach, complexity, and edge cases.",
-      "Design a batching scheduler matching incoming requests to available GPU capacity with fairness. Talk through your approach, complexity, and edge cases.",
-      "Implement a streaming feature aggregator: given a stream of events, maintain rolling counts and averages per key with bounded memory. Discuss complexity and eviction.",
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases."
+      "At Together AI, given a stream of model inference requests, batch them to maximize GPU utilization while keeping per-request latency under a bound. Discuss the queue and complexity.",
+      "Chunk a long document into overlapping passages for retrieval, respecting sentence boundaries. Discuss the sliding-window approach.",
+      "Given a query and an inverted index over embeddings, return the top-K most similar items using a heap. Discuss ranking."
     ],
     "behavioral": [
-      "Tell me about the fastest meaningful improvement you've shipped to a production AI system.",
-      "How do you balance research-informed work with shipping production systems?",
-      "Describe a production ML system you owned end-to-end.",
-      "Tell me about a time you engaged with an enterprise customer's AI-infrastructure problem.",
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+      "Tell me about a project you are proud of at Together AI scale and the hardest tradeoff you made.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end.",
+      "Describe a time something you shipped failed or fell short. What did you change afterward?"
     ],
     "systemDesign": [
       "Design the inference-serving system supporting 100+ open-source models with shared GPU capacity.",
       "Design the fine-tuning service with multi-tenant LoRA adapter management and per-customer isolation.",
-      "Design the speculative-decoding pipeline working across diverse model architectures. Cover the API, data model, and how it scales.",
-      "Design the custom-deployment offering for enterprise customers with dedicated capacity. Cover the API, data model, and how it scales.",
-      "Design an experiment to evaluate a new inference-optimization technique. Cover the API, data model, and how it scales."
+      "Design the speculative-decoding pipeline working across diverse model architectures."
     ],
-    "values": [],
+    "values": [
+      "Together AI's mission carries real responsibility. Describe a time you weighed capability against safety.",
+      "How do you evaluate an AI feature where a wrong answer has real consequences?",
+      "Tell me about a time you were rigorous about data quality or evaluation when it slowed you down."
+    ],
     "other": [
       "Engage with open-source orientation. Why open over closed? What are the trade-offs?",
       "Do I need CUDA experience to get hired?",
@@ -62,7 +59,7 @@
       "Is remote work supported?"
     ]
   },
-  "difficulty": 8,
+  "difficulty": 7,
   "tips": [
     "Know inference optimization. vLLM, FlashAttention, speculative decoding, quantization &mdash; vocabulary for system design.",
     "Use Together AI. Run real inference workloads across several models. Form opinions about performance and API design.",

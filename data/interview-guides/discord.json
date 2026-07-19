@@ -8,21 +8,17 @@
     "Behavioral / hiring manager: past projects, real-time systems experience, consumer-product empathy."
   ],
   "codingTopics": [
-    "Implement a publish / subscribe primitive with fan-out semantics",
-    "Build a connection manager handling many concurrent WebSocket-like connections",
-    "Parse a streaming event log with backpressure and ordering guarantees",
-    "Implement a rate limiter or circuit breaker with per-user fairness",
-    "Classic algorithm problems (trees, graphs, heaps) with real-time-systems twists (message ordering across shards, priority-based routing)"
+    "Publish/subscribe fan-out primitive with ordering (stream, streams, realtime, systems)",
+    "Connection manager for many concurrent websocket clients (systems, infrastructure, memory)",
+    "Streaming event log parse with backpressure (stream, logs, streams, realtime)",
+    "Rate limiter / circuit breaker with per-user fairness (cache, systems, sliding-window)",
+    "Trees/graphs/heaps with real-time messaging twists (graph, heap, tree, dependency)"
   ],
   "systemDesignTopics": [
-    "\"Design the message-fanout system delivering messages across millions of channels to 200M users.\"",
-    "\"Design the voice-routing system for 10K concurrent multi-user voice calls per region with optimal latency.\"",
-    "\"Design the safety-moderation pipeline handling user reports and automated detection at scale.\"",
-    "\"Design the Activities platform letting third-party apps run embedded in Discord channels.\"",
-    "\"What makes Discord great for communities? What's broken?\"",
-    "\"If you were improving Discord for server owners / moderators, what would you prioritize?\"",
-    "\"How do you think about the tension between safety enforcement and community autonomy?\"",
-    "\"What's your take on Discord's commerce / Activities platform direction?\""
+    "Design a message fan-out system delivering messages across millions of channels to 200M users in real time",
+    "Design a voice-routing system for tens of thousands of concurrent multi-user voice calls with low latency",
+    "Design a safety and moderation pipeline handling user reports and automated detection at scale",
+    "Design the Activities platform letting third-party apps run embedded in Discord voice channels"
   ],
   "behavioralTopics": [
     "Real-time systems experience: \"Tell me about a high-scale real-time system you contributed to.\"",
@@ -32,27 +28,29 @@
   ],
   "sampleQuestions": {
     "coding": [
-      "Implement a publish / subscribe primitive with fan-out semantics. Talk through your approach, complexity, and edge cases.",
-      "Build a connection manager handling many concurrent WebSocket-like connections. Talk through your approach, complexity, and edge cases.",
-      "Parse a streaming event log with backpressure and ordering guarantees. Talk through your approach, complexity, and edge cases.",
-      "Implement a rate limiter or circuit breaker with per-user fairness. Talk through your approach, complexity, and edge cases.",
-      "Implement a fixed-size ring buffer for sensor readings with O(1) reads and writes and no dynamic allocation. Walk through the concurrency considerations."
+      "Implement a publish/subscribe primitive with fan-out to many subscribers per channel, preserving per-channel ordering. Discuss slow-consumer handling.",
+      "Build a connection manager tracking millions of concurrent websocket-like sessions and routing a message to the right shard. How do you handle reconnects?",
+      "Parse a streaming event log (message sends, edits, deletes) applying backpressure and preserving ordering guarantees.",
+      "Implement a per-user rate limiter for message sends that is fair across users sharing a shard. Discuss the algorithm and memory.",
+      "Given a tree of channels/categories in a server, compute the set a user can read given role-based permission overrides. Analyze complexity."
     ],
     "behavioral": [
-      "Tell me about a high-scale real-time system you contributed to.",
-      "Describe a time you deeply understood a consumer user's problem.",
-      "Discord's work spans product, moderation, platform. Tell me about coordinating across multiple teams.",
-      "Describe a production incident you owned end-to-end.",
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+      "Discord is built for communities. Tell me about designing something with real empathy for its users.",
+      "Describe taking care of a teammate or improving how your team worked together.",
+      "Tell me about making a product playful or delightful without hurting reliability.",
+      "Describe a hard call between safety enforcement and community/user freedom, and how you reasoned about it."
     ],
     "systemDesign": [
-      "Design the message-fanout system delivering messages across millions of channels to 200M users.",
-      "Design the voice-routing system for 10K concurrent multi-user voice calls per region with optimal latency.",
-      "Design the safety-moderation pipeline handling user reports and automated detection at scale.",
-      "Design the Activities platform letting third-party apps run embedded in Discord channels. Cover the API, data model, and how it scales.",
-      "Design a service at Discord scale that shortens URLs. Cover the API, storage, and hot-key handling."
+      "Design Discord's message fan-out delivering to millions of channels and 200M users in real time.",
+      "Design real-time voice routing for many concurrent multi-user calls with minimal latency.",
+      "Design a Trust & Safety moderation pipeline combining user reports and automated detection.",
+      "Design the Activities platform running embedded third-party apps in voice channels."
     ],
-    "values": [],
+    "values": [
+      "What makes Discord great for communities today, and what's broken that you'd fix?",
+      "How do you think about the tension between safety enforcement and community autonomy?",
+      "Discord values being genuine and playful. How does that show up in how you build products?"
+    ],
     "other": [
       "Do I need Rust / Elixir to get hired?",
       "How does Discord compare to Slack on interviews?",

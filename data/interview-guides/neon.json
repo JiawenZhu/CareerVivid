@@ -15,14 +15,10 @@
     "Classic algorithm problems (graphs, trees, intervals) with storage-adjacent twists"
   ],
   "systemDesignTopics": [
-    "\"Design the pageserver storing Postgres pages in S3 with sub-10ms read latency.\"",
-    "\"Design the branching system enabling copy-on-write database forks in seconds for 10K projects.\"",
-    "\"Design the autoscaler that spins up Postgres compute instances from cold in under 2 seconds.\"",
-    "\"Design the WAL-based logical replication for backup and analytics-export use cases.\"",
-    "Walk through Postgres MVCC and how versioning affects storage design.",
-    "Discuss the trade-offs of Neon's storage architecture vs traditional monolithic Postgres.",
-    "Explain how branching preserves consistency while enabling divergent writes.",
-    "Describe garbage-collection strategies for historical page versions that are no longer reachable."
+    "Design the pageserver storing Postgres pages in S3 with sub-10ms read latency",
+    "Design the branching system enabling copy-on-write database forks in seconds for 10K projects",
+    "Design the autoscaler that spins up Postgres compute instances from cold in under 2 seconds",
+    "Design the WAL-based logical replication for backup and analytics-export use cases"
   ],
   "behavioralTopics": [
     "Systems-engineering ownership: \"Describe a systems-heavy project you owned end-to-end.\"",
@@ -35,24 +31,25 @@
       "Implement a page-cache with LRU / LFU eviction and consistency guarantees. Talk through your approach, complexity, and edge cases.",
       "Parse a Postgres-like binary format (page layout, WAL records). Talk through your approach, complexity, and edge cases.",
       "Implement a log-structured storage layer with compaction. Talk through your approach, complexity, and edge cases.",
-      "Design a multi-tenant connection pool with fair allocation. Talk through your approach, complexity, and edge cases.",
-      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph."
+      "At Neon, parse a stream of log and metric events and aggregate by key over a sliding window. Discuss memory bounds.",
+      "Implement a rate-limited, back-pressured queue for ingestion. Discuss what happens when a downstream sink is slow."
     ],
     "behavioral": [
-      "Describe a systems-heavy project you owned end-to-end.",
-      "Tell me about engaging with a database-using customer's problem.",
-      "How do you think about working at a recently-acquired company through the integration period?",
-      "Have you contributed to open source? How do you think about public engineering work?",
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+      "Tell me about a project you are proud of at Neon scale and the hardest tradeoff you made.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end.",
+      "Describe a time something you shipped failed or fell short. What did you change afterward?"
     ],
     "systemDesign": [
-      "Reason about cold-start latency &mdash; what has to happen to go from zero to serving queries?",
-      "Design the pageserver storing Postgres pages in S3 with sub-10ms read latency. Cover the API, data model, and how it scales.",
+      "Design the pageserver storing Postgres pages in S3 with sub-10ms read latency.",
       "Design the branching system enabling copy-on-write database forks in seconds for 10K projects.",
-      "Design the autoscaler that spins up Postgres compute instances from cold in under 2 seconds.",
-      "Design the WAL-based logical replication for backup and analytics-export use cases. Cover the API, data model, and how it scales."
+      "Design the autoscaler that spins up Postgres compute instances from cold in under 2 seconds."
     ],
-    "values": [],
+    "values": [
+      "Neon is trusted by the developers who depend on it. Describe a time you prioritized reliability and craft.",
+      "Tell me about an open-source contribution or public work you are proud of.",
+      "How do you weigh a breaking change against the migration cost for users?"
+    ],
     "other": [
       "How did the Databricks acquisition affect Neon?",
       "How does Neon compare to Supabase and PlanetScale on interviews?",
@@ -61,7 +58,7 @@
       "Is remote work supported?"
     ]
   },
-  "difficulty": 8,
+  "difficulty": 7,
   "tips": [
     "Read Neon's engineering blog. The team publishes detailed architecture posts.",
     "Try Neon in production use. Free tier works for real experimentation with branching and scale-to-zero.",

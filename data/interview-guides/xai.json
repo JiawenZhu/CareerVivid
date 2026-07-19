@@ -10,19 +10,15 @@
   "codingTopics": [
     "Implement attention from scratch with appropriate efficiency (standard question for research engineering)",
     "Parallel-algorithm primitive in CUDA or multi-GPU setting",
-    "Data processing at scale &mdash; deduplication, sampling, quality filtering with bounded memory",
+    "Data processing at scale — deduplication, sampling, quality filtering with bounded memory",
     "Systems problem with strict latency or throughput constraints",
     "Classic algorithm problems (DP, graphs, trees) with ML or infrastructure twists"
   ],
   "systemDesignTopics": [
-    "\"Design the training cluster management for 100K H100 GPUs with fault tolerance and elastic-scaling.\"",
-    "\"Design the inference-serving system for Grok across X, API, and Grok.com with diverse latency requirements.\"",
-    "\"Design the data pipeline ingesting X content at petabyte scale for model training with safety filtering.\"",
-    "\"Design the checkpoint / resume system for a frontier model training run that can survive rack failures.\"",
-    "Walk through Grok's architecture &mdash; differences from GPT / Claude / Gemini architecturally.",
-    "Discuss scaling-law reasoning for training-compute decisions.",
-    "Debug a hypothetical training-divergence scenario at 100K GPU scale.",
-    "Design an experiment to test a specific architectural or data-mix hypothesis."
+    "Design the training cluster management for 100K H100 GPUs with fault tolerance and elastic-scaling",
+    "Design the inference-serving system for Grok across X, API, and Grok",
+    "Design the data pipeline ingesting X content at petabyte scale for model training with safety filtering",
+    "Design the checkpoint / resume system for a frontier model training run that can survive rack failures"
   ],
   "behavioralTopics": [
     "Pace and intensity: \"Tell me about the fastest-shipped impactful project in your career.\"",
@@ -33,26 +29,27 @@
   "sampleQuestions": {
     "coding": [
       "Implement attention from scratch with appropriate efficiency (standard question for research engineering). Talk through your approach, complexity, and edge cases.",
-      "Implement a thread-safe bounded queue. How do you prevent race conditions and deadlocks?",
-      "Implement an LRU cache with O(1) get and put. Then explain how you would make it thread-safe without serializing all access.",
-      "Implement a streaming feature aggregator: given a stream of events, maintain rolling counts and averages per key with bounded memory. Discuss complexity and eviction.",
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases."
+      "At xAI, given a stream of model inference requests, batch them to maximize GPU utilization while keeping per-request latency under a bound. Discuss the queue and complexity.",
+      "Chunk a long document into overlapping passages for retrieval, respecting sentence boundaries. Discuss the sliding-window approach.",
+      "Given a query and an inverted index over embeddings, return the top-K most similar items using a heap. Discuss ranking.",
+      "Deduplicate near-identical generated outputs using shingling and hashing. Walk through complexity."
     ],
     "behavioral": [
-      "Tell me about the fastest-shipped impactful project in your career.",
-      "Describe a production or research system you owned end-to-end.",
-      "What excites you about xAI specifically, given the intensity reputation?",
-      "Tell me about a time you made a contrarian technical call that turned out right.",
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+      "Tell me about a project you are proud of at xAI scale and the hardest tradeoff you made.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end.",
+      "Describe a time something you shipped failed or fell short. What did you change afterward?"
     ],
     "systemDesign": [
       "Design the training cluster management for 100K H100 GPUs with fault tolerance and elastic-scaling.",
-      "Design the inference-serving system for Grok across X, API, and Grok.com with diverse latency requirements.",
-      "Design the data pipeline ingesting X content at petabyte scale for model training with safety filtering.",
-      "Design the checkpoint / resume system for a frontier model training run that can survive rack failures.",
-      "Design an experiment to test a specific architectural or data-mix hypothesis. Cover the API, data model, and how it scales."
+      "Design the inference-serving system for Grok across X, API, and Grok.",
+      "Design the data pipeline ingesting X content at petabyte scale for model training with safety filtering."
     ],
-    "values": [],
+    "values": [
+      "xAI's mission carries real responsibility. Describe a time you weighed capability against safety.",
+      "How do you evaluate an AI feature where a wrong answer has real consequences?",
+      "Tell me about a time you were rigorous about data quality or evaluation when it slowed you down."
+    ],
     "other": [
       "Is the Musk-company intensity reputation accurate?",
       "How does xAI compare to OpenAI / Anthropic / Mistral on interviews?",
@@ -61,7 +58,7 @@
       "Is the compensation really that high?"
     ]
   },
-  "difficulty": 8.5,
+  "difficulty": 7,
   "tips": [
     "Prepare for intensity-fit questions directly. Be honest about your appetite &mdash; overclaiming backfires.",
     "Use Grok seriously. Have informed opinions about model quality relative to peers.",

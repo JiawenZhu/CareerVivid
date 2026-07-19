@@ -6,29 +6,50 @@
   "interviewStages": [
     "Behavioral: customer focus, ownership, working with three-sided marketplace"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Graph and routing: courier dispatch, shortest path with traffic",
+    "Scheduling and intervals: batching orders, prep-time windows",
+    "Heaps and top-K: nearest couriers, priority dispatch",
+    "Streaming: real-time order and ETA event processing",
+    "Hash maps and caching: menu and inventory lookups"
+  ],
+  "systemDesignTopics": [
+    "Design a courier dispatch system at city scale with batching and real-time reassignment",
+    "Design real-time restaurant inventory and menu management",
+    "Design ETA prediction combining traffic and restaurant prep time",
+    "Design a two-sided order-tracking system for diners, restaurants, and couriers"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Given live courier locations and pending orders, assign couriers to minimize total delivery time, allowing batching of nearby orders. Discuss the greedy heap approach.",
+      "Compute ETA for an order as prep-time plus routing time on a road-network graph. Discuss how you update it as conditions change.",
+      "Maintain a real-time count of in-stock menu items per restaurant from an event stream with bounded memory.",
+      "Given a stream of order-status events, detect orders stuck in a stage longer than a threshold using a sliding window."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a time you balanced the needs of three different user types such as diner, restaurant, and courier.",
+      "Describe a time you owned an on-call incident during peak load like a dinner rush.",
+      "Give an example of shipping a fix fast under operational pressure.",
+      "Tell me about a time you used data to settle a debate about a marketplace tradeoff."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a courier dispatch system at city scale with order batching and real-time reassignment.",
+      "Design real-time restaurant inventory and menu management across thousands of restaurants.",
+      "Design ETA prediction that combines live traffic with restaurant prep time."
+    ],
+    "values": [
+      "Grubhub connects diners with local restaurants. Describe a time you built something that helped a small business succeed.",
+      "How do you weigh courier experience against diner speed when they conflict?",
+      "Tell me about a time you improved reliability for a real-time, time-critical system."
+    ],
     "other": [
       "Is Grubhub remote-friendly?",
       "How does Grubhub compare to DoorDash or Uber Eats?",
       "What is the engineering culture?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 6,
   "tips": [],
   "compensation": null,
   "rawSummary": "Grubhub Interview Guide (2026): Food Delivery Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nGrubhub\ngrubhub.com ↗\n\nGrubhub is one of the major US food delivery platforms — owned by Wonder since 2024 (acquired from Just Eat Takeaway). The interview emphasizes real-time dispatch, restaurant integrations, and the unique two-sided marketplace dynamics.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design a courier dispatch system at city scale\n\n- Design real-time restaurant inventory and menu management\n\n- Design ETA prediction with traffic and restaurant prep time\n\n- Coding: medium DSA, often with geo or scheduling framing\n\n- Behavioral: customer focus, ownership, working with three-sided marketplace\n\nLevels and comp (2026)\n\n- SE II: $140K–$175K total\n\n- Senior SE: $205K–$270K\n\n- Staff: $295K–$385K\n\n- Principal: $410K–$540K\n\nPrep priorities\n\n- Be fluent in Java or Scala (the bulk of the codebase)\n\n- Understand operations research and routing\n\n- Brush up on ML for ETA and ranking\n\nFrequently Asked Questions\n\nIs Grubhub remote-friendly?\n\nDistributed across Chicago (HQ), NYC. Many engineering roles fully remote within US.\n\nHow does Grubhub compare to DoorDash or Uber Eats?\n\nGrubhub is third by US share. DoorDash is the leader; Uber Eats second. Grubhub pays mid-tier; below DoorDash on equity.\n\nWhat is the engineering culture?\n\nMature, customer-driven, calmer pace under Wonder ownership.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Grubhub? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextLow Level Design: Database Index Design and Internals⏱ 6 min readSentry Interview Guide (2026): Error Monitoring at Scale⏱ 1 min readJob Coordinator Low-Level Design: DAG Execution, Dependency Tracking, and Failure Recovery⏱ 5 min read"

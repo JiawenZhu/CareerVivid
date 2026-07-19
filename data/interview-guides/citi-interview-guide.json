@@ -9,27 +9,42 @@
     "Domain depth (1 round) — depends on role: trading systems, risk, quant analytics, ML",
     "Behavioral (1–2 rounds) — collaboration, ambiguity, banking culture fit"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Production Java: collections, streams, and clean service code",
+    "Log parsing and error aggregation from distributed services",
+    "Transaction and payment processing logic",
+    "Arrays, strings, and hash maps at medium difficulty",
+    "Data-structure design for financial records"
+  ],
+  "systemDesignTopics": [
+    "Design a payment-processing service with reliability and audit logging in a regulated environment",
+    "Design a trade-settlement system with idempotent processing and reconciliation",
+    "Design a service-to-service architecture with logging, load balancing, and failover"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Implement a double-entry ledger that processes a stream of transactions and detects imbalances. How do you guarantee idempotency when a transaction is delivered twice?",
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Parse a stream of log entries from distributed services and produce counts of errors by category. Discuss streaming and complexity.",
+      "Implement an idempotent payment-processing handler that stays correct under retries. Discuss failure modes.",
+      "Given a list of trades, aggregate net position per account and detect any settlement imbalance. Discuss edge cases.",
+      "Given transaction records, group and summarize by merchant and category using hash maps. Discuss complexity."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Walk me through the architecture of a system on your resume and why you made those choices.",
+      "Tell me about debugging a failing test or production issue in a large system.",
+      "Describe working within a formal release-management or compliance process.",
+      "Tell me about collaborating across teams in a large organization."
     ],
     "systemDesign": [
-      "Design Citi's financial systems at bank scale at production scale. Walk through the architecture, trade-offs, and failure modes.",
-      "Design a service at Citi scale that shortens URLs. Cover the API, storage, and hot-key handling.",
-      "Design a rate limiter for a public API. Discuss algorithms, distributed coordination, and failure modes."
+      "Design a payment-processing service with reliability and audit logging in a regulated environment.",
+      "Design a trade-settlement system with idempotent processing and reconciliation.",
+      "Design a service-to-service architecture with logging, load balancing, and failover."
     ],
-    "values": [],
+    "values": [
+      "Citi is a global bank operating under heavy regulation. How do you think about building reliable, compliant systems?",
+      "Tell me about a time you prioritized correctness and auditability over speed.",
+      "Describe a time you took ownership of a production issue in a regulated environment."
+    ],
     "other": [
       "How is the Jane Fraser restructuring affecting engineers?",
       "What's Citi Velocity actually like?",
@@ -38,7 +53,7 @@
       "Is Citi a good place for early-career engineers?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 6,
   "tips": [],
   "compensation": [
     "New-grad SWE: $130k–$200k total comp first year",

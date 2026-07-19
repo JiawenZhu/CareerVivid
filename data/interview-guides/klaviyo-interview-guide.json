@@ -4,29 +4,51 @@
   "url": "https://www.techinterview.org/companies/klaviyo-interview-guide",
   "scrapedAt": "2026-07-02T07:23:41.253Z",
   "interviewStages": [],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "OO design: model a business domain such as workflows with triggers and actions",
+    "Multi-tenant data structures: per-tenant rate limiting, isolation",
+    "Streaming: rolling aggregates over tenant events",
+    "Graph and DAG: workflow evaluation, dependency resolution",
+    "Search and filters: AND/OR queries over records"
+  ],
+  "systemDesignTopics": [
+    "Design real-time customer segmentation that updates as events arrive",
+    "Design email send infrastructure with throttling, suppression lists, and per-domain reputation",
+    "Design a multi-tenant workflow and automation engine",
+    "Design search with complex filters over millions of records per tenant"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "At Klaviyo, model a workflow engine with triggers, conditions, and actions. Evaluate a workflow DAG and detect cycles.",
+      "Implement a per-tenant rate limiter so one customer cannot exhaust shared capacity. Discuss the token-bucket design.",
+      "Given a stream of tenant events, maintain rolling per-entity scores with bounded memory.",
+      "Implement a filter query over records supporting AND/OR on custom fields. Discuss indexing for a multi-tenant store.",
+      "Deduplicate records via fuzzy clustering on name and email. Discuss the matching and complexity."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a project you are proud of at Klaviyo scale and the hardest tradeoff you made.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end.",
+      "Describe a time something you shipped failed or fell short. What did you change afterward?"
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design real-time customer segmentation that updates as events arrive.",
+      "Design email send infrastructure with throttling, suppression lists, and per-domain reputation.",
+      "Design a multi-tenant workflow and automation engine."
+    ],
+    "values": [
+      "Klaviyo succeeds when its customers do. Describe a time you solved for the customer even at a cost to the team.",
+      "Tell me about a time you handled a tricky multi-tenant isolation or permissions problem.",
+      "How do you balance enterprise customization against product simplicity?"
+    ],
     "other": [
       "Does Klaviyo use Python?",
       "Is Klaviyo remote-friendly?",
       "What is the offer negotiation flexibility?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 6,
   "tips": [],
   "compensation": null,
   "rawSummary": "Klaviyo Interview Guide (2026): Marketing Automation Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nKlaviyo\nklaviyo.com ↗\n\nKlaviyo IPO'd in 2023 and is now the dominant ecommerce marketing automation platform — billions of emails and SMS sent monthly, real-time segmentation across hundreds of millions of profiles. The interview emphasizes data-heavy system design and pragmatic coding over LeetCode-hard puzzles.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (one medium DSA + one applied data question) → onsite virtual loop of 4 rounds: coding (pair programming, often Python), system design (segmentation/email pipeline), behavioral, and hiring manager. Senior candidates get an additional architecture round. Cycle: 2–3 weeks.\n\nWhat they actually ask\n\n- Design real-time customer segmentation that updates as events arrive\n\n- Design email send infrastructure with throttling, suppression lists, and per-domain reputation\n\n- Build a flow engine where users define multi-step automation triggers (debounce, branching, delays)\n\n- Coding: array/string medium, often involves event streams or aggregation\n\n- SQL questions for some data-leaning roles (window functions, joins, aggregations)\n\nLevels and comp (2026)\n\n- SE I: $150K–$180K total\n\n- SE II: $200K–$250K\n\n- Senior SE: $280K–$360K\n\n- Staff: $380K–$500K\n\nPrep priorities\n\n- Practice event-driven architecture, Kafka, materialized views, and Postgres at scale\n\n- Be ready to discuss tradeoffs between real-time and batch segmentation\n\n- Klaviyo loves curiosity — bring questions about ecommerce, deliverability, or growth metrics\n\nFrequently Asked Questions\n\nDoes Klaviyo use Python?\n\nYes. The backend is heavily Python with some Go and Scala. Pair programming rounds typically use Python.\n\nIs Klaviyo remote-friendly?\n\nHybrid in Boston/Denver/London; fully remote roles exist for select teams.\n\nWhat is the offer negotiation flexibility?\n\nBase is firm; equity has more room. Always negotiate the equity grant and target bonus percentage.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Klaviyo? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextEvent Calendar Low-Level Design: Event Model, Recurring Rules, and Conflict Detection⏱ 5 min readWebSocket Server Low-Level Design: Real-Time Connections, Routing, and Scaling⏱ 8 min readLow Level Design: Electronic Health Records System⏱ 9 min read"

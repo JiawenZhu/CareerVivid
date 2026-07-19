@@ -9,23 +9,44 @@
     "Open-source / community discussion (1 round) — how you'd handle community contributions, maintainership, public communication",
     "Behavioral / values fit (1 round) — mission alignment, collaboration style, remote-work fit"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "NLP and pipelines: tokenization, chunking, retrieval over documents",
+    "Streaming: token streams and batched inference",
+    "Search and ranking: vector plus keyword retrieval, top-K with heaps",
+    "Data structures: tries, inverted indexes, LRU caches",
+    "Evaluation harnesses: scoring model outputs"
+  ],
+  "systemDesignTopics": [
+    "Design a RAG pipeline over a large private document corpus",
+    "Design a real-time model-serving system with batching and autoscaling",
+    "Design an evaluation harness that scores model quality with human review",
+    "Design a fine-tuning data pipeline with dedup and quality filtering"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Implement a streaming feature aggregator: given a stream of events, maintain rolling counts and averages per key with bounded memory. Discuss complexity and eviction.",
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "At Hugging Face, given a stream of model inference requests, batch them to maximize GPU utilization while keeping per-request latency under a bound. Discuss the queue and complexity.",
+      "Chunk a long document into overlapping passages for retrieval, respecting sentence boundaries. Discuss the sliding-window approach.",
+      "Given a query and an inverted index over embeddings, return the top-K most similar items using a heap. Discuss ranking.",
+      "Deduplicate near-identical generated outputs using shingling and hashing. Walk through complexity.",
+      "Implement an LRU cache for expensive model inference requests keyed by a prompt hash with TTL eviction. Discuss the data structure."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a project you are proud of at Hugging Face scale and the hardest tradeoff you made.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end.",
+      "Describe a time something you shipped failed or fell short. What did you change afterward?"
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a RAG pipeline over a large private document corpus.",
+      "Design a real-time model-serving system with batching and autoscaling.",
+      "Design an evaluation harness that scores model quality with human review."
+    ],
+    "values": [
+      "Hugging Face's mission carries real responsibility. Describe a time you weighed capability against safety.",
+      "How do you evaluate an AI feature where a wrong answer has real consequences?",
+      "Tell me about a time you were rigorous about data quality or evaluation when it slowed you down."
+    ],
     "other": [
       "Do I need an open-source contribution history to interview at Hugging Face?",
       "How do I prepare for a Hugging Face technical interview?",
@@ -34,7 +55,7 @@
       "What's the equity story like?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 7,
   "tips": [],
   "compensation": [
     "New-grad SWE: $150k–$220k total comp first year",

@@ -15,13 +15,10 @@
     "Classic algorithm problems (graphs, trees, DP) with workforce-system twists"
   ],
   "systemDesignTopics": [
-    "\"Design the Employee Graph supporting unified queries across HR, IT, and finance modules with strict access controls.\"",
-    "\"Design global payroll execution for 1M employees across jurisdictions with regulatory compliance.\"",
-    "\"Design the cross-module workflow engine that terminates IT access and recovers devices when HR terminates an employee.\"",
-    "\"Design the spend-management system with custom policy rules per customer and real-time card authorization.\"",
-    "\"What's your take on the Employee-Graph / compound-software architectural bet?\"",
-    "\"Compare Rippling's unified approach to best-of-breed stacks (Workday + Okta + Ramp). Where does each win?\"",
-    "\"Describe a time you pushed for architectural cohesion over short-term delivery.\""
+    "Design the Employee Graph supporting unified queries across HR, IT, and finance modules with strict access controls",
+    "Design global payroll execution for 1M employees across jurisdictions with regulatory compliance",
+    "Design the cross-module workflow engine that terminates IT access and recovers devices when HR terminates an employee",
+    "Design the spend-management system with custom policy rules per customer and real-time card authorization"
   ],
   "behavioralTopics": [
     "Ambition: \"Tell me about the most ambitious project you've contributed to.\"",
@@ -31,27 +28,28 @@
   ],
   "sampleQuestions": {
     "coding": [
-      "Design entities and operations for a specific HR / IT / finance scenario (benefit plan hierarchy, approval chain, device-assignment workflow). Talk through your approach, complexity, and edge cases.",
-      "Given an event, determine downstream actions with proper ordering and failure handling. Talk through your approach, complexity, and edge cases.",
-      "Build a client for a hypothetical third-party system with retries, rate limiting, webhook reliability. Talk through your approach, complexity, and edge cases.",
-      "Given conditions and actions, implement correct policy evaluation. Talk through your approach, complexity, and edge cases.",
-      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph."
+      "At Rippling, implement an idempotent handler for payments so retries never double-charge. Discuss the dedupe key and storage.",
+      "Compute balances from a stream of ledger entries with correct decimal and rounding rules so totals reconcile to the cent.",
+      "Given a stream of payments, detect suspected fraud when velocity exceeds a threshold in a sliding window.",
+      "Reconcile a stream of payments against returns and reversals. Discuss idempotency and the matching key.",
+      "Handle multi-currency balances with correct rounding across currencies. Walk through the edge cases."
     ],
     "behavioral": [
-      "Tell me about the most ambitious project you've contributed to.",
-      "Describe understanding a workforce-management user's problem deeply.",
-      "Tell me about a project you owned end-to-end.",
-      "How do you operate at a company with high growth and broad scope?",
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+      "Tell me about a project you are proud of at Rippling scale and the hardest tradeoff you made.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end.",
+      "Describe a time something you shipped failed or fell short. What did you change afterward?"
     ],
     "systemDesign": [
       "Design the Employee Graph supporting unified queries across HR, IT, and finance modules with strict access controls.",
       "Design global payroll execution for 1M employees across jurisdictions with regulatory compliance.",
-      "Design the cross-module workflow engine that terminates IT access and recovers devices when HR terminates an employee.",
-      "Design the spend-management system with custom policy rules per customer and real-time card authorization.",
-      "Compare Rippling's unified approach to best-of-breed stacks (Workday + Okta + Ramp). Where does each win?"
+      "Design the cross-module workflow engine that terminates IT access and recovers devices when HR terminates an employee."
     ],
-    "values": [],
+    "values": [
+      "Rippling protects users' money. Describe a time you prevented a correctness or fraud problem.",
+      "Tell me about a time you balanced a growth feature against fraud or risk.",
+      "How do you earn and keep user trust in a financial product?"
+    ],
     "other": [
       "How does Rippling compare to Workday on interviews?",
       "What is \"compound software\" and why does it matter?",
@@ -60,7 +58,7 @@
       "Is the Bangalore engineering office really important?"
     ]
   },
-  "difficulty": 7,
+  "difficulty": 6,
   "tips": [
     "Read Parker Conrad's essays. \"Compound Startup\" and adjacent pieces frame the company thesis.",
     "Engage with the Employee-Graph architecture. Have a view &mdash; pro, con, nuanced &mdash; on unified data models for workforce management.",

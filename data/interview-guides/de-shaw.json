@@ -8,17 +8,18 @@
     "Behavioral / fit (1 round): intellectual interests, why D. E. Shaw, how you operate."
   ],
   "codingTopics": [
-    "Implement a specific data structure with tight performance requirements",
-    "Algorithm problems (graphs, dynamic programming, intervals) at LeetCode hard difficulty",
-    "Process structured data with bounded memory or strict latency requirements",
-    "Numerical computation with attention to floating-point edge cases",
-    "\"Tell me about your thesis.\" (2 min summary)",
-    "\"Why did you choose that approach over X?\" (5 min on alternatives)",
-    "\"What did you find surprising?\" (5 min on unexpected results)",
-    "\"What's the limitation of your method?\" (10 min on weaknesses, follow-up extensions)",
-    "\"How does this connect to [adjacent area]?\" (10 min on broader context)"
+    "LeetCode-hard algorithms: graphs, dynamic programming, intervals (graph, dependency)",
+    "Performance-critical data structure with a tight latency budget (data structure, systems, infrastructure)",
+    "Numerical/probability problems with floating-point care (math, numbers, finance)",
+    "Bounded-memory stream processing over research/market data (streams, time-series, logs, sliding-window)",
+    "Order-book / portfolio simulation with correctness edge cases (finance, financial, trading, portfolio, simulation)"
   ],
-  "systemDesignTopics": [],
+  "systemDesignTopics": [
+    "Design a distributed research compute cluster that schedules thousands of backtests with fair resource sharing",
+    "Design a low-latency market-data ingestion and normalization pipeline feeding trading and research",
+    "Design a time-series store for tick data supporting fast historical range queries for backtests",
+    "Design a reproducible experiment-tracking system for quantitative research signals"
+  ],
   "behavioralTopics": [
     "\"What's a topic outside your professional area you've recently spent time learning?\"",
     "\"Walk me through how you decided to apply to D. E. Shaw.\"",
@@ -27,21 +28,29 @@
   ],
   "sampleQuestions": {
     "coding": [
-      "Implement a specific data structure with tight performance requirements. Talk through your approach, complexity, and edge cases.",
-      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph.",
-      "Process structured data with bounded memory or strict latency requirements. Talk through your approach, complexity, and edge cases.",
-      "Implement 5 min on unexpected results. Talk through your approach, complexity, and edge cases.",
-      "Implement 10 min on weaknesses, follow-up extensions. Talk through your approach, complexity, and edge cases."
+      "Given a directed graph of research-job dependencies, return a valid execution order and detect any cycle. How would you parallelize independent jobs?",
+      "Implement a fixed-capacity structure supporting O(1) insert and O(1) query of the running median of a stream of trade prices.",
+      "Compute the maximum profit from a series of price ticks with a cooldown constraint between trades. Walk through the DP and floating-point pitfalls.",
+      "Process a bounded-memory stream of market events and maintain the top-K instruments by traded volume in a sliding window.",
+      "Simulate a simplified limit order book: match incoming buy/sell orders with price-time priority and report fills, handling partial fills."
     ],
     "behavioral": [
-      "What's a topic outside your professional area you've recently spent time learning?",
-      "Walk me through how you decided to apply to D. E. Shaw.",
-      "What's a book or paper you've recommended to others recently?",
-      "What do you think is the most underrated problem in your field?",
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+      "Walk me through the most technically deep project or research you've done. Be ready for me to drill into every decision.",
+      "Tell me about a time your first approach was wrong and you rethought it from first principles.",
+      "Describe a time you had to master an unfamiliar, highly technical domain quickly.",
+      "Tell me about a disagreement with a smart colleague where the details really mattered. How did you resolve it?"
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design D. E. Shaw's research compute scheduler that fairly allocates a massive cluster across competing backtests.",
+      "Design a market-data pipeline that ingests, normalizes, and fans out ticks to research and execution with minimal latency.",
+      "Design a tick-data time-series store optimized for historical range scans used in backtesting.",
+      "Design a reproducible experiment-tracking system for quant signals (versioned data, code, and results)."
+    ],
+    "values": [
+      "D. E. Shaw prizes intellectual rigor over pedigree or bravado. How do you approach a problem you don't yet understand?",
+      "How do you balance mathematical elegance against the pragmatism of shipping a working trading system?",
+      "What draws you to quantitative finance rather than a pure-tech company?"
+    ],
     "other": [
       "How does D. E. Shaw compare to Two Sigma and Citadel?",
       "Do I need a PhD for D. E. Shaw quant analyst roles?",
@@ -50,7 +59,7 @@
       "Is the work-life balance reasonable?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 9,
   "tips": [
     "Engage with the academic culture. Read founder David Shaw's papers if relevant; the firm respects academic engagement.",
     "Prepare background deep-dives carefully. Practice with someone who'll push you for 30 minutes on a single project.",

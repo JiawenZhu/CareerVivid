@@ -6,29 +6,51 @@
   "interviewStages": [
     "Behavioral: customer focus, working at high scale, deep technical work"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Cache design: LRU caches for ad-serving under latency budgets",
+    "Streams and realtime: high-throughput processing of ad-impression events",
+    "Heaps and hash maps: top-k campaigns, real-time bidding data structures",
+    "Sliding-window time-series metrics: CTR, spend pacing",
+    "String parsing: ad markup validation",
+    "Data structure design with production-quality code"
+  ],
+  "systemDesignTopics": [
+    "Design a real-time ad-bidding system that answers programmatic auctions in under 100 milliseconds",
+    "Design the event-ingestion pipeline that feeds billions of daily ad impressions into the AXON recommendation models",
+    "Design an ad-frequency-capping service that enforces per-user limits across thousands of apps"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Implement an LRU cache for ad-creative metadata with O(1) operations; then discuss what changes when concurrent bidder threads hit it.",
+      "From a stream of ad-impression events, maintain the top-k campaigns by spend in real time using a heap and hash map.",
+      "Compute click-through rate over a sliding one-minute window from a firehose of timestamped ad events with bounded memory.",
+      "Bid-request logs are delivered at-least-once: dedupe events and reconcile spend totals — discuss idempotency keys.",
+      "Parse a VAST-like ad markup string and validate matching tags using a stack; report the first malformed element."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "AppLovin runs very lean teams. Tell me about a time you owned a large surface area with little oversight.",
+      "Describe a time you took initiative on a problem nobody assigned to you. What was the impact?",
+      "Tell me about a high-stakes production issue in a revenue-critical system. How did you handle it?",
+      "Describe a disagreement about a technical trade-off under a tight deadline. How did you resolve it?"
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a real-time bidding exchange: auction logic, timeout handling, and the 100ms latency budget end to end.",
+      "Design the ML feature pipeline that turns raw impression events into training data for ad-ranking models.",
+      "Design spend-pacing for ad campaigns so budgets deplete smoothly across a day of variable traffic."
+    ],
+    "values": [
+      "AppLovin values integrity, initiative, and collaboration. Which is hardest for you and how do you manage that?",
+      "Ad tech gets public scrutiny. How do you think about building advertising systems responsibly?",
+      "What excites you about performance-driven, ML-heavy ad infrastructure specifically?"
+    ],
     "other": [
       "Is AppLovin remote-friendly?",
       "How does AppLovin compare to Unity Ads or ironSource?",
       "What is the engineering bar?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 7.5,
   "tips": [],
   "compensation": null,
   "rawSummary": "AppLovin Interview Guide (2026): Mobile Ad Tech and Gaming\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nAppLovin\napplovin.com ↗\n\nAppLovin is one of the largest mobile advertising platforms — connecting app developers with advertisers via real-time bidding. Public since 2021. The interview is ML and ad-tech heavy with focus on real-time bidding, fraud detection, and revenue optimization.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (medium-hard DSA) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design a real-time bidding (RTB) system at sub-100ms latency\n\n- Design ML-driven bid optimization for advertiser ROAS\n\n- Design ad fraud detection (click fraud, install fraud)\n\n- Coding: medium-hard DSA, often with concurrency or ML framing\n\n- Behavioral: customer focus, working at high scale, deep technical work\n\nLevels and comp (2026)\n\n- SE II: $180K–$220K total\n\n- Senior SE: $260K–$340K\n\n- Staff: $370K–$490K\n\n- Principal: $510K–$680K\n\nPrep priorities\n\n- Be fluent in C++ (low-latency RTB) or Java (data services); Python for ML\n\n- Understand RTB protocol (OpenRTB) and ad-tech ecosystem\n\n- Brush up on ML for click prediction and revenue optimization\n\nFrequently Asked Questions\n\nIs AppLovin remote-friendly?\n\nHybrid in Palo Alto (HQ), Berlin, Beijing, Tokyo. Some engineering roles fully remote within US.\n\nHow does AppLovin compare to Unity Ads or ironSource?\n\nAppLovin acquired ironSource in 2024. Unity Ads is part of Unity. AppLovin pays competitively; comp top-tier among ad-tech.\n\nWhat is the engineering bar?\n\nHigh. Real-time systems, ML production work, and ad-tech complexity. Strong fit for engineers who like high-performance systems.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for AppLovin? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextConfluent Interview Guide (2026): Process, Questions, Compensation⏱ 3 min readSwift and iOS Interview Questions (2025)⏱ 9 min readGrab Interview Guide (2026): Process, Questions, Compensation⏱ 4 min read"

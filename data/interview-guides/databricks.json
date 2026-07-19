@@ -9,27 +9,42 @@
     "Domain depth (1–2 rounds) — depends on role: distributed systems, database internals, ML systems, infrastructure",
     "Behavioral / cross-functional (1 round) — collaboration, ambiguity, customer focus"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Distributed partial-aggregate merge (merge, sort, pipeline, array)",
+    "Thread-safe work queue / multithreading (systems, concurrency)",
+    "Query-plan predicate pushdown (graph, tree, dependency)",
+    "Delta/Parquet columnar scan with stats skipping (array, stream, cache)"
+  ],
+  "systemDesignTopics": [
+    "Design a distributed query engine (like Spark SQL) that executes SQL over petabytes in a data lake",
+    "Design Delta Lake providing ACID transactions and time travel over columnar files in object storage",
+    "Design a metadata and governance service (Unity Catalog) spanning many workspaces",
+    "Design a distributed shuffle for a big-data job that joins two massive datasets"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Implement an LRU cache with O(1) get and put. Then explain how you would make it thread-safe without serializing all access.",
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Databricks runs distributed aggregations. Given partitioned partial sums from many workers, merge them into a global GROUP BY result.",
+      "Implement a thread-safe bounded work queue used by a Spark-style executor with multiple worker threads.",
+      "Given a query plan tree, apply predicate pushdown so filters move below joins.",
+      "Scan a Delta/Parquet columnar file, skipping row groups whose min/max stats can't match the filter."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a concurrency or distributed-systems bug you diagnosed and fixed.",
+      "Describe optimizing a data-intensive job for scale, failures, or cost.",
+      "Tell me about a design decision where you weighed consistency vs performance.",
+      "Describe driving an ambiguous, technically deep project end-to-end."
     ],
     "systemDesign": [
-      "Design one of Databricks's core distributed data systems flavor — address sharding, query execution, transactional consistency, multi-cloud. Walk through the architecture, trade-offs, and failure modes.",
-      "Design a service at Databricks scale that shortens URLs. Cover the API, storage, and hot-key handling.",
-      "Design a rate limiter for a public API. Discuss algorithms, distributed coordination, and failure modes."
+      "Design Databricks' Spark-based distributed query engine executing SQL over petabyte-scale data lakes.",
+      "Design Delta Lake's transaction log providing ACID guarantees and time travel over object storage.",
+      "Design a distributed shuffle and join for two datasets too large to fit on any single node."
     ],
-    "values": [],
+    "values": [
+      "Databricks grew from open-source Spark. Tell me about engaging with an open-source community.",
+      "How do you stay customer-obsessed while building deep infrastructure?",
+      "Tell me about a time you raised the technical bar for your team."
+    ],
     "other": [
       "Do I need Spark experience to work at Databricks?",
       "How does the Snowflake rivalry actually affect engineers?",
@@ -38,7 +53,7 @@
       "Is Databricks good for early-career engineers?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 8,
   "tips": [],
   "compensation": [
     "New-grad SWE: $200k–$320k total comp first year",

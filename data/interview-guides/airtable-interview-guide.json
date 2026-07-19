@@ -15,7 +15,12 @@
     "For frontend: React performance with large datasets, complex state management (formula evaluation, cell dependencies), spreadsheet-style interactions.",
     "For platform: extensions and scripting platform (Airtable's customization layer)."
   ],
-  "codingTopics": [],
+  "codingTopics": [
+    "Dependency graphs and topological ordering",
+    "Reactive cache invalidation",
+    "Flexible-schema data structure design",
+    "Realtime collaborative merge"
+  ],
   "systemDesignTopics": [
     "Design Airtable's flexible-schema table system.",
     "Design real-time sync for a 100K-row table edited by multiple users.",
@@ -25,23 +30,31 @@
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Implement a formula evaluator with cell references and dependency ordering; detect and reject circular references.",
+      "Given 100K rows edited concurrently, implement conflict-free merge of cell edits. Discuss ordering and complexity.",
+      "Implement efficient filtering/sorting over a large record set with multiple view configurations.",
+      "Design a data structure for a flexible-schema table where columns can be added/typed at runtime.",
+      "Given a stream of edits, maintain a live dependency graph so dependent formula cells recompute minimally."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Airtable prizes clean, extensible code and collaborative pairing. Tell me about a time you improved a codebase's readability or structure.",
+      "Arrogance in a pairing session is a red flag here. Describe a time you incorporated feedback mid-problem and changed course.",
+      "'One team toward one mission.' Tell me about a time you shared work openly and invested in a teammate's success.",
+      "Describe a time you managed complexity — modeling data or state — for performance at scale.",
+      "Tell me about a time you disagreed with a technical approach and how you communicated it."
     ],
     "systemDesign": [
-      "Design Airtable's flexible-schema table system. Cover the API, data model, and how it scales.",
-      "Design real-time sync for a 100K-row table edited by multiple users. Cover the API, data model, and how it scales.",
-      "Design Airtable's formula evaluation engine. Cover the API, data model, and how it scales.",
-      "Design a custom-views system (grid, calendar, kanban, gallery, gantt). Cover the API, data model, and how it scales.",
-      "Design a service at Airtable scale that shortens URLs. Cover the API, storage, and hot-key handling."
+      "Design Airtable's flexible-schema table system: data model, multi-tenant storage, and how it scales.",
+      "Design real-time sync for a 100K-row table edited by multiple users, including conflict resolution.",
+      "Design Airtable's formula evaluation engine with reactive recomputation of dependent cells.",
+      "Design a custom-views system (grid, calendar, kanban, gallery, gantt) over the same underlying data."
     ],
-    "values": [],
+    "values": [
+      "Airtable's mission is to democratize software creation. Why does empowering non-developers appeal to you?",
+      "How is building a no-code database platform different from building a normal app, in your view?",
+      "Tell me about a time you cared about the end-user of a tool you built, not just its correctness.",
+      "As Airtable leans into AI-augmented workflows, where do you think that helps users most?"
+    ],
     "other": [
       "How is Airtable different from Notion?",
       "Is the no-code emphasis still the focus?",
@@ -50,7 +63,7 @@
       "Is the bar comparable to Notion?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 7,
   "tips": [],
   "compensation": [
     "Senior: $200-260K base + equity → $400-650K total",

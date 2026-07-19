@@ -16,14 +16,10 @@
     "Classic algorithm problems (graphs, trees, DP) with fintech twists"
   ],
   "systemDesignTopics": [
-    "Square: \"Design the card-present payment-processing pipeline handling 10K TPS with 100ms auth budget.\"",
-    "Cash App: \"Design P2P transfer at consumer scale with fraud detection and social-feed integration.\"",
-    "Afterpay: \"Design the credit-decisioning system that approves or declines BNPL applications within 500ms.\"",
-    "Bitkey: \"Design the self-custody recovery flow with 2-of-3 multi-sig and no custodial trust.\"",
-    "Square: discuss EMV chip-card authentication; reason about interchange routing; debug a hypothetical terminal-firmware bug scenario.",
-    "Cash App: discuss fraud vectors unique to consumer P2P; reason about bot / scam patterns; describe UX trade-offs in fraud-review flows.",
-    "Afterpay: discuss credit-scoring feature engineering; reason about regulatory evolution; describe a collections workflow.",
-    "Bitkey: discuss hardware wallet security threats; reason about key-generation entropy; describe a firmware-update attack surface."
+    "Design the Square card-present payment pipeline handling 10K transactions a second within a 100ms authorization budget",
+    "Design Cash App peer-to-peer transfers at consumer scale with fraud detection and social-feed integration",
+    "Design the Afterpay credit-decisioning system that approves or declines BNPL applications within 500ms",
+    "Design the Bitkey self-custody recovery flow with 2-of-3 multisig and no custodial trust"
   ],
   "behavioralTopics": [
     "Customer focus: \"Tell me about a time you deeply engaged with a customer problem.\"",
@@ -34,9 +30,10 @@
   "sampleQuestions": {
     "coding": [
       "Implement a double-entry ledger that processes a stream of transactions and detects imbalances. How do you guarantee idempotency when a transaction is delivered twice?",
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Implement an idempotent Cash App P2P transfer handler under at-least-once delivery; show no input ordering can double-spend.",
+      "Build a Square card-authorization state machine covering auth, capture, reversal, and timeout paths; enumerate the failure transitions.",
+      "Schedule Afterpay installments across pay periods with customer-specific plans; handle early payoff and a failed payment.",
+      "Aggregate fraud signals from a streaming transaction feed and flag accounts whose rolling risk score crosses a threshold."
     ],
     "behavioral": [
       "Tell me about a time you deeply engaged with a customer problem.",
@@ -45,8 +42,17 @@
       "What draws you to the 'economic empowerment' mission specifically?",
       "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design the Square card-present payment pipeline: 10K TPS, 100ms auth budget, and offline-mode terminals.",
+      "Design Cash App P2P transfers with fraud review queues and instant-availability trade-offs.",
+      "Design Afterpay's real-time credit decisioning with model features, fallbacks, and regulatory audit trails.",
+      "Design Bitkey's multisig recovery: lost-phone flow, key rotation, and no single point of custody."
+    ],
+    "values": [
+      "Block's purpose is economic empowerment. Where has your work expanded access for underserved users?",
+      "Cash App serves many unbanked customers. How do you weigh fraud prevention against locking out legitimate but vulnerable users?",
+      "How do you build financial software people trust with their livelihood — what practices are non-negotiable?"
+    ],
     "other": [
       "How different are Square and Cash App as interview experiences?",
       "Is Bitkey a serious engineering opportunity or a Bitcoin vanity project?",

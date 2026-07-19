@@ -6,29 +6,50 @@
   "interviewStages": [
     "Behavioral: customer focus, working with HR / recruiting domain"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Data modeling and OO design: jobs, candidates, scorecards",
+    "Scheduling and intervals: interview-slot proposals across time zones",
+    "Hash maps and dedupe: candidate matching across sources",
+    "Graph and dependency: workflow stage DAGs",
+    "String and search: candidate search with filters"
+  ],
+  "systemDesignTopics": [
+    "Design a multi-tenant applicant tracking system with role-based permissions and customizable workflows",
+    "Design an interview scheduling engine that proposes slots across candidate and interviewer time zones",
+    "Design an integration framework connecting 200+ third-party HR tools",
+    "Design a candidate search system with complex filters over millions of records per tenant"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Given interviewers' calendars as busy intervals across time zones, propose the earliest common one-hour slot for a panel. Discuss interval merging.",
+      "Model a hiring workflow as a DAG of stages with entry and exit conditions. Detect cycles and compute a valid stage order via topological sort.",
+      "Deduplicate candidate records arriving from multiple sources using fuzzy matching on name and email. Discuss the clustering approach.",
+      "Implement a filter query over candidates supporting AND/OR on custom fields. Discuss indexing for a multi-tenant store."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a time you built for a domain such as HR or recruiting that you weren't personally expert in.",
+      "Describe a time you handled a tricky multi-tenant data-isolation or permissions problem.",
+      "Give an example of prioritizing customer needs when scoping an integration.",
+      "Tell me about a time you improved a slow or confusing workflow for users."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a multi-tenant ATS with role-based permissions and customizable hiring workflows.",
+      "Design a scheduling engine that proposes interview slots across candidate and interviewer time zones.",
+      "Design an integration framework that connects 200+ third-party HR and background-check tools."
+    ],
+    "values": [
+      "Greenhouse champions fair, structured hiring. Describe a time you designed something to reduce bias or inconsistency.",
+      "How do you balance customizability for enterprise customers against product simplicity?",
+      "Tell me about a time you advocated for the end user, a candidate or a recruiter, in a design debate."
+    ],
     "other": [
       "Is Greenhouse remote-friendly?",
       "How does Greenhouse compare to Lever or Workday Recruiting?",
       "What is the engineering culture?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 5,
   "tips": [],
   "compensation": null,
   "rawSummary": "Greenhouse Interview Guide (2026): Recruiting and ATS Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nGreenhouse\ngreenhouse.io ↗\n\nGreenhouse is the leading enterprise ATS (Applicant Tracking System) — used by Airbnb, Stripe, Pinterest, and thousands more for hiring workflows. The interview is enterprise-SaaS-flavored with strong emphasis on multi-tenant architecture, complex data modeling (jobs, candidates, interviews, scorecards), and integrations with hundreds of third-party tools.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design a multi-tenant ATS with role-based permissions and customizable workflows\n\n- Design a scheduling engine that proposes interview slots considering candidates' time zones and interviewers' calendars\n\n- Design integrations with 200+ third-party tools (HRIS, background checks, video conferencing)\n\n- Coding: medium DSA, often with data-modeling flavor\n\n- Behavioral: customer focus, working with HR / recruiting domain\n\nLevels and comp (2026)\n\n- SE II: $145K–$180K total\n\n- Senior SE: $210K–$280K\n\n- Staff: $300K–$400K\n\n- Principal: $420K–$550K\n\nPrep priorities\n\n- Be fluent in Ruby on Rails (the bulk of the codebase)\n\n- Understand SaaS multi-tenancy patterns and SOC 2 compliance basics\n\n- Brush up on calendar / scheduling algorithms and time-zone math\n\nFrequently Asked Questions\n\nIs Greenhouse remote-friendly?\n\nHybrid in NYC (HQ), Denver, Toronto, Dublin. Many engineering roles fully remote within supported countries.\n\nHow does Greenhouse compare to Lever or Workday Recruiting?\n\nGreenhouse is the dominant mid-market and enterprise ATS. Lever is a smaller competitor. Workday Recruiting is part of the broader Workday HRIS suite. Greenhouse pays slightly above Lever.\n\nWhat is the engineering culture?\n\nSteady, customer-focused, healthy work-life balance. Strong written communication culture. Pragmatic over flashy.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Greenhouse? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextSystem Design: Event-Driven Architecture — Kafka, Event Sourcing, CQRS, Saga Pattern, Eventual Consistency⏱ 9 min readCoin Change: Bottom-Up and Top-Down Dynamic Programming⏱ 2 min readLow Level Design: Distributed Tracing Design and Internals⏱ 6 min read"

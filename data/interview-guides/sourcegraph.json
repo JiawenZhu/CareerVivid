@@ -15,19 +15,10 @@
     "Classic algorithm problems (graphs, trees) with code-intelligence twists (dependency graph traversal, call-graph analysis)"
   ],
   "systemDesignTopics": [
-    "\"Design the code-search index for 100K repositories with incremental updates and 200ms query latency.\"",
-    "\"Design Cody's context-retrieval system producing 8K tokens of relevant context within 500ms.\"",
-    "\"Design the batch-change system applying a refactor across 5K repositories with failure recovery.\"",
-    "\"Design the enterprise deployment model for air-gapped customers with self-managed Kubernetes clusters.\"",
-    "Walk through how you'd build \"find references\" for a specific language.",
-    "Explain the trade-offs of LSIF vs SCIP as indexing formats.",
-    "Discuss how tree-sitter compares to language-specific parsers.",
-    "Reason about how to handle incremental indexing when code changes.",
-    "Describe approaches for cross-language symbol resolution.",
-    "\"What AI coding tools have you used? What's strong and weak about each?\"",
-    "\"If you were designing Cody, how would you prioritize features for the next quarter?\"",
-    "\"Describe a time an AI coding tool failed you. What would you have fixed?\"",
-    "\"How do you measure the quality of generated code beyond 'it compiles'?\""
+    "Design the code-search index for 100K repositories with incremental updates and 200ms query latency",
+    "Design Cody's context-retrieval system producing 8K tokens of relevant context within 500ms",
+    "Design the batch-change system applying a refactor across 5K repositories with failure recovery",
+    "Design the enterprise deployment model for air-gapped customers with self-managed Kubernetes clusters"
   ],
   "behavioralTopics": [
     "Remote effectiveness: \"Describe your practices for working effectively in a fully-distributed team.\"",
@@ -37,27 +28,28 @@
   ],
   "sampleQuestions": {
     "coding": [
-      "Given a tree of language tokens, implement queries like find all references to this identifier or find all matches of this pattern. Talk through your approach, complexity, and edge cases.",
-      "Implement find identifiers starting with X, ordered by relevance. Talk through your approach, complexity, and edge cases.",
-      "Given a set of candidate code snippets and a token budget, select the most relevant subset. Talk through your approach, complexity, and edge cases.",
-      "Process a large document corpus with bounded memory. Talk through your approach, complexity, and edge cases.",
-      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph."
+      "At Sourcegraph, parse a stream of log and metric events and aggregate by key over a sliding window. Discuss memory bounds.",
+      "Implement a rate-limited, back-pressured queue for ingestion. Discuss what happens when a downstream sink is slow.",
+      "Parse a config format into a typed structure with schema validation. Discuss error handling.",
+      "Given a dependency graph of build targets, compute a valid build order and detect cycles via topological sort.",
+      "Downsample a time-series into fixed buckets (min, max, avg) as data streams in. Walk through the approach."
     ],
     "behavioral": [
-      "Describe your practices for working effectively in a fully-distributed team.",
-      "Tell me about a time written documentation changed a project outcome.",
-      "Describe a production incident you owned end-to-end.",
-      "How have you directly engaged with developer / customer feedback?",
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+      "Tell me about a project you are proud of at Sourcegraph scale and the hardest tradeoff you made.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end.",
+      "Describe a time something you shipped failed or fell short. What did you change afterward?"
     ],
     "systemDesign": [
       "Design the code-search index for 100K repositories with incremental updates and 200ms query latency.",
       "Design Cody's context-retrieval system producing 8K tokens of relevant context within 500ms.",
-      "Design the batch-change system applying a refactor across 5K repositories with failure recovery.",
-      "Design the enterprise deployment model for air-gapped customers with self-managed Kubernetes clusters.",
-      "Walk through how you'd build \"find references\" for a specific language."
+      "Design the batch-change system applying a refactor across 5K repositories with failure recovery."
     ],
-    "values": [],
+    "values": [
+      "Sourcegraph is trusted by the developers who depend on it. Describe a time you prioritized reliability and craft.",
+      "Tell me about an open-source contribution or public work you are proud of.",
+      "How do you weigh a breaking change against the migration cost for users?"
+    ],
     "other": [
       "Do I need compiler / language-server background?",
       "How does Cody compare to GitHub Copilot / Cursor / Windsurf?",

@@ -769,7 +769,7 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
                     <div className="flex shrink-0 items-center divide-x divide-[var(--cv-border-subtle)] rounded-xl border border-[var(--cv-border-subtle)] bg-[var(--cv-surface-warm-card-strong)] shadow-sm backdrop-blur">
                         {[
                             { value: INTERVIEW_GUIDE_TOTALS.companies, label: 'companies' },
-                            { value: INTERVIEW_GUIDE_TOTALS.questions, label: 'questions' },
+                            { value: INTERVIEW_GUIDE_TOTALS.questQuestions, label: 'questions' },
                             { value: INTERVIEW_GUIDE_TOTALS.stages, label: 'stages' },
                         ].map((stat) => (
                             <div key={stat.label} className="px-4 py-2 text-center first:pl-4 last:pr-4">
