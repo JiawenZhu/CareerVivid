@@ -4,29 +4,50 @@
   "url": "https://www.techinterview.org/companies/gusto-interview-guide",
   "scrapedAt": "2026-07-02T07:17:37.494Z",
   "interviewStages": [],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Money and decimal correctness: tax and paycheck math, rounding",
+    "Numbers and finance: multi-state tax rules, proration",
+    "Data structures for audit logs: immutable append-only, queryable",
+    "Date and interval handling: pay periods, ACH timing",
+    "Hash maps and dedupe: reconciling financial transactions"
+  ],
+  "systemDesignTopics": [
+    "Design a payroll calculation engine with multi-state tax rules",
+    "Design a system that handles direct-deposit reversals and ACH returns",
+    "Design immutable, queryable audit logging for financial transactions",
+    "Design a benefits-and-deductions engine integrating hundreds of third-party providers"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Compute an employee's net pay given gross, multi-state tax rules, and pre- and post-tax deductions. Discuss decimal handling so totals reconcile to the cent.",
+      "Given a stream of ACH transactions, reconcile returns and reversals against original payments. Discuss idempotency and the matching key.",
+      "Prorate a salary across a mid-period start date spanning multiple states. Walk through the date-math edge cases.",
+      "Design an append-only audit log for payroll changes that supports point-in-time queries. Discuss the data structure and complexity."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Gusto can't afford a wrong paycheck. Tell me about a time you caught or prevented a correctness bug that would have hurt users.",
+      "Describe a time you brought deep empathy for a user, a small-business owner or an employee, into a technical decision.",
+      "Give an example of raising the bar on quality when it would have been easier to ship as-is.",
+      "Tell me about a time you took ownership of an ambiguous, high-stakes problem end to end."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a payroll calculation engine that applies multi-state tax rules correctly.",
+      "Design a system that handles direct-deposit reversals and ACH returns without losing money.",
+      "Design immutable, queryable audit logging for every financial transaction."
+    ],
+    "values": [
+      "Gusto is customer-obsessed. Describe a time you dug into the why behind a request before building.",
+      "Tell me about a time you worked 'with Gusto', collaborating ego-free and elevating your teammates.",
+      "Payroll is regulated and high-stakes. How do you balance moving fast with getting correctness exactly right?"
+    ],
     "other": [
       "Does Gusto require Ruby on Rails experience?",
       "How does Gusto compare to Square or Brex on pay?",
       "Is the interview process accommodating for parents or non-traditional candidates?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 6,
   "tips": [],
   "compensation": null,
   "rawSummary": "Gusto Interview Guide (2026): Payroll and HR Tech Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nGusto\ngusto.com ↗\n\nGusto runs payroll for over 300K small businesses — calculating taxes across 50 states, processing direct deposits, handling benefits, and integrating with hundreds of third-party systems. The interview is regulatory-heavy and emphasizes correctness over cleverness. You cannot afford to get someone's paycheck wrong.\n\nProcess\n\nRecruiter screen → 45–60 minute coding phone (medium DSA, often with a financial twist) → onsite virtual: 2 coding (one pair programming, one DSA), 1 system design, 1 behavioral, 1 craft (deep dive on past work). Senior+ candidates get an additional architecture round. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design a payroll calculation engine with multi-state tax rules\n\n- Design a system that handles direct deposit reversals and ACH returns\n\n- Design audit logging for financial transactions (immutable, queryable)\n\n- Coding: medium DSA, often with money/decimal correctness focus\n\n- Pair programming: practical refactoring or feature build, ~60 minutes\n\nLevels and comp (2026)\n\n- SE I: $150K–$180K total\n\n- SE II: $190K–$240K\n\n- Senior SE: $260K–$340K\n\n- Staff: $360K–$470K\n\nPrep priorities\n\n- Brush up on decimal arithmetic, rounding, and the dangers of floats for money\n\n- Read about ACH, NACHA rules, and how payroll moves money\n\n- Be ready to discuss compliance, regulatory edge cases, and how to test financial logic\n\nFrequently Asked Questions\n\nDoes Gusto require Ruby on Rails experience?\n\nThe codebase is Rails-heavy, but they hire generalists. You can interview in any language for coding rounds, but expect Rails familiarity questions for backend roles.\n\nHow does Gusto compare to Square or Brex on pay?\n\nSlightly below Square; comparable to Brex at senior levels. Equity has cooled from peak 2021 valuation but RSU grants are still meaningful.\n\nIs the interview process accommodating for parents or non-traditional candidates?\n\nYes. Gusto has a strong reputation for flexibility, return-to-work programs, and accommodating interview schedules.\n\nSimilar company guides\n\nAmerican Expressinterview guideCapital Oneinterview guideMarqetainterview guideWiseinterview guideKlarnainterview guideCartainterview guide\n\nPrepping for Gusto? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextForm Builder Low-Level Design: Dynamic Schema, Conditional Logic, and Submission Pipeline⏱ 5 min readInterval DP and Advanced Dynamic Programming: Burst Balloons, State Machine, Tree DP⏱ 6 min readDivide and Conquer Interview Patterns: Merge Sort, Quick Select, Master Theorem⏱ 7 min read"

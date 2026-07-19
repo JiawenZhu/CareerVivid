@@ -9,24 +9,43 @@
     "Player focus / values round (1 round) — Riot's distinctive cultural round probing your player-first thinking and gaming engagement",
     "Behavioral / cross-functional (1 round) — collaboration, communication, ambiguity handling"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Simulation and game loops: deterministic state updates",
+    "Spatial data structures: quadtrees, grids for players",
+    "Streaming: real-time game-state updates processing",
+    "Graph problems: matchmaking, pathfinding",
+    "Data structures: entity component systems, pools"
+  ],
+  "systemDesignTopics": [
+    "Design a real-time multiplayer game server with state sync",
+    "Design a matchmaking system that balances skill and wait time",
+    "Design a leaderboard service updated in real time",
+    "Design an anti-cheat detection pipeline"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "A function intermittently fails in production. Walk me through how you would reproduce, isolate, and fix the bug.",
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "At Riot Games, simulate a deterministic game tick that advances game-state updates and resolves collisions. Discuss the approach.",
+      "Match players into balanced games by skill using a heap or bucketing. Discuss fairness.",
+      "Given a grid map, compute a path for an entity using A*. Discuss the heuristic.",
+      "Maintain spatial queries (nearby players) using a quadtree as positions update. Discuss complexity.",
+      "Given a stream of game-state updates, reconcile client and server state to detect cheating. Discuss the sliding-window logic."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a project you are proud of at Riot Games scale and the hardest tradeoff you made.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end.",
+      "Describe a time something you shipped failed or fell short. What did you change afterward?"
     ],
-    "systemDesign": [],
+    "systemDesign": [
+      "Design a real-time multiplayer game server with state sync.",
+      "Design a matchmaking system that balances skill and wait time.",
+      "Design a leaderboard service updated in real time."
+    ],
     "values": [
-      "How does the player-focus values round actually work?"
+      "Riot Games builds for players. Describe a time you deeply considered the player experience.",
+      "Tell me about a time you owned a real-time reliability problem under load.",
+      "How do you balance fun and fairness when they conflict?"
     ],
     "other": [
       "Do I need to play League / Valorant to work at Riot?",
@@ -35,7 +54,7 @@
       "How does Riot's anti-cheat engineering work?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 6,
   "tips": [],
   "compensation": [
     "New-grad SWE: $160k–$250k total comp first year",

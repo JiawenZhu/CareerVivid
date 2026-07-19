@@ -15,26 +15,40 @@
     "Sorting/Searching: Custom sorting, binary search variations",
     "System Design: Social networks, recommendation engines, news feed algorithms, messaging systems, search indexing"
   ],
-  "systemDesignTopics": [],
+  "systemDesignTopics": [
+    "Design a URL shortener at scale with analytics",
+    "Design a distributed crawler and indexing pipeline",
+    "Design a video upload, transcoding, and streaming system",
+    "Design a real-time collaborative document editor"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph.",
-      "Serialize and deserialize a binary tree. Walk through your encoding choices, complexity, and edge cases.",
-      "Design a data structure supporting insert, delete, and get-random in O(1). Explain your reasoning.",
-      "Implement an LRU cache with O(1) get and put. Then explain how you would make it thread-safe without serializing all access.",
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases."
+      "At LinkedIn, given a stream of requests, return the top-K most frequent in the last hour using a heap. Discuss memory bounds.",
+      "Given a road or dependency network as a weighted graph, find the shortest path between two nodes. Discuss Dijkstra versus A*.",
+      "Build autocomplete over billions of items using a prefix trie and return top suggestions for a prefix.",
+      "Merge two sorted lists of timestamped items into one ordered view using the two-pointer technique.",
+      "Given a grid of items, count connected regions using flood fill / DFS. Discuss complexity."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a project you are proud of at LinkedIn scale and the hardest tradeoff you made.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end.",
+      "Describe a time something you shipped failed or fell short. What did you change afterward?"
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a URL shortener at scale with analytics.",
+      "Design a distributed crawler and indexing pipeline.",
+      "Design a video upload, transcoding, and streaming system."
+    ],
+    "values": [
+      "LinkedIn operates at enormous scale. Describe a time you put the user first even though it made the engineering harder.",
+      "Tell me about a time you challenged the status quo or a decision you thought was wrong.",
+      "Describe a time you were clearly wrong and how intellectual humility shaped what you did next."
+    ],
     "other": []
   },
-  "difficulty": null,
+  "difficulty": 8,
   "tips": [
     "Study Graph Algorithms: LinkedIn's core is a social graph. Master BFS, DFS, shortest path, and graph traversal problems.",
     "Practice Medium Problems: Focus on 100-150 LeetCode problems at medium difficulty. LinkedIn rarely asks extremely hard questions.",

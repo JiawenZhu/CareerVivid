@@ -14,23 +14,37 @@
     "Implement a card game or board game's rules and a simple AI",
     "Simulate a random walk or stochastic process"
   ],
-  "systemDesignTopics": [],
+  "systemDesignTopics": [
+    "Design a low-latency market-data feed handler that parses exchange packets in microseconds",
+    "Design an order-management system that guarantees no duplicate or lost orders under failover",
+    "Design a backtesting engine that replays years of tick data deterministically",
+    "Design a real-time risk and position-limit checker in the critical trading path"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
       "Implement a simple order book with insert / cancel / match operations. Talk through your approach, complexity, and edge cases.",
       "Compute a moving average / running statistic efficiently. Talk through your approach, complexity, and edge cases.",
-      "Implement financial data feed, log format. Talk through your approach, complexity, and edge cases.",
-      "Implement a card game or board game's rules and a simple AI. Talk through your approach, complexity, and edge cases.",
-      "Simulate a random walk or stochastic process. Talk through your approach, complexity, and edge cases."
+      "Parse a simple structured input (financial data feed, log format). Talk through your approach, complexity, and edge cases.",
+      "At Jane Street, given a stream of market-data ticks, maintain a rolling VWAP or moving average over a sliding time window. Discuss complexity and eviction.",
+      "Implement a fixed-capacity ring buffer for a single-producer single-consumer market-data ticks queue with minimal latency. Discuss memory ordering."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a project you are proud of at Jane Street scale and the hardest tradeoff you made.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end.",
+      "Describe a time something you shipped failed or fell short. What did you change afterward?"
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a low-latency market-data feed handler that parses exchange packets in microseconds.",
+      "Design an order-management system that guarantees no duplicate or lost orders under failover.",
+      "Design a backtesting engine that replays years of tick data deterministically."
+    ],
+    "values": [
+      "Jane Street treats correctness under pressure as non-negotiable. Describe a time precision mattered more than speed.",
+      "How do you reason about risk and uncertainty when the cost of being wrong is high?",
+      "Tell me about a time intellectual honesty led you to abandon an approach you were invested in."
+    ],
     "other": [
       "Is the mental-math test really the gatekeeper?",
       "Do I need to know OCaml to get a Jane Street job?",
@@ -39,7 +53,7 @@
       "What's the partnership structure like?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 9,
   "tips": [
     "Mental math practice is non-negotiable. If you do nothing else, do this daily for 8 weeks.",
     "Think out loud during interviews. Interviewers are evaluating your reasoning as much as your answers; silent computation hurts you even if you reach the right answer.",

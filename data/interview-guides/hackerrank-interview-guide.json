@@ -6,29 +6,50 @@
   "interviewStages": [
     "Behavioral: customer focus, ownership, working with enterprise customers"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "String parsing: tokenizing and normalizing submitted code",
+    "Sandboxing and systems: resource limits, execution isolation",
+    "Similarity and hashing: plagiarism detection, fingerprinting",
+    "Streaming: real-time proctoring event processing",
+    "Data structures: dictionaries and tries for token indexing"
+  ],
+  "systemDesignTopics": [
+    "Design a coding-assessment platform with proctoring and anti-cheat",
+    "Design a sandboxed code-execution service that safely runs untrusted submissions at scale",
+    "Design a code-plagiarism detection system across millions of submissions",
+    "Design an AI-driven technical interviewer with real-time evaluation"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Given two code submissions, compute a similarity score robust to variable renaming and whitespace using token-shingling plus hashing. Discuss the approach.",
+      "Normalize and tokenize a code string, then build an index to find near-duplicate submissions via prefix and dictionary lookup.",
+      "Process a stream of proctoring events (focus-loss, paste, tab-switch) and flag sessions exceeding a risk threshold in a sliding window.",
+      "Enforce per-submission CPU and memory limits in a sandbox scheduler. Discuss the data structures for tracking and reaping runaway jobs."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a time you built something where fairness or integrity of results was critical.",
+      "Describe a time you worked with enterprise customers to meet strict requirements.",
+      "Give an example of owning security or abuse-prevention for a feature.",
+      "Tell me about a time you shipped under a reliability constraint such as a high-stakes test window."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a coding-assessment platform with proctoring and anti-cheat.",
+      "Design a sandboxed code-execution service that safely runs untrusted candidate code at scale.",
+      "Design a plagiarism-detection system that compares millions of submissions."
+    ],
+    "values": [
+      "HackerRank's mission is matching skills to opportunity. Describe a time you improved fairness or access for users.",
+      "How do you balance anti-cheat strictness against a good candidate experience?",
+      "Tell me about a time you advocated for the developer or end user in a product decision."
+    ],
     "other": [
       "Is HackerRank remote-friendly?",
       "How does HackerRank compare to Karat or Codility?",
       "What is the engineering culture?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 6,
   "tips": [],
   "compensation": null,
   "rawSummary": "HackerRank Interview Guide (2026): Coding Assessment Platform\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nHackerRank\nhackerrank.com ↗\n\nHackerRank is the leading coding assessment platform for hiring — used by 1500+ companies including Goldman Sachs, Capital One, and many tech companies. The interview emphasizes proctored test infrastructure, fair assessment design, and the unique anti-cheating challenges of high-stakes coding tests.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design a coding assessment platform with proctoring and anti-cheat\n\n- Design an AI interviewer (HackerRank acquired AI-interview tools)\n\n- Design code plagiarism detection\n\n- Coding: medium DSA, often with parsing framing\n\n- Behavioral: customer focus, ownership, working with enterprise customers\n\nLevels and comp (2026)\n\n- SE II: $135K–$170K total (US); ₹35L–₹50L (Bangalore)\n\n- Senior SE: $200K–$260K\n\n- Staff: $290K–$380K\n\n- Principal: $400K–$520K\n\nPrep priorities\n\n- Be fluent in Java/Scala (the bulk of the codebase)\n\n- Understand sandboxed code execution and security\n\n- Brush up on plagiarism detection and ML for cheating signals\n\nFrequently Asked Questions\n\nIs HackerRank remote-friendly?\n\nDistributed across Mountain View (HQ), Bangalore. Some engineering roles fully remote within India/US.\n\nHow does HackerRank compare to Karat or Codility?\n\nHackerRank is the broadest assessment platform. Karat does live interviews-as-a-service. Codility is the European competitor. HackerRank pays mid-tier.\n\nWhat is the engineering culture?\n\nMature, customer-focused, calm pace. Strong work-life balance.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for HackerRank? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextSocial Network Feed: Low-Level Design⏱ 6 min readTrust and Safety Platform Low-Level Design: Signal Aggregation, Policy Engine, and Action Bus⏱ 5 min readBuyer Protection Service Low-Level Design: Claim Filing, Escrow Hold, and Resolution Workflow⏱ 6 min read"

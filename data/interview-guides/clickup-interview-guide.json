@@ -15,33 +15,42 @@
     "For frontend: React patterns, large-scale state management (the product has many views), real-time collaboration.",
     "For platform roles: workflow automation engine, integrations architecture (ClickUp connects to hundreds of external services)."
   ],
-  "codingTopics": [],
+  "codingTopics": [
+    "Task tree traversal and reparenting (graph, dependency)",
+    "Prefix typeahead over tasks and docs (prefix, autocomplete, search)",
+    "Recurring-task scheduling simulation (simulation, time-series)",
+    "Dependency ordering for boards (topological, dependency)"
+  ],
   "systemDesignTopics": [
-    "Design ClickUp's task management with multiple views (list, board, calendar, gantt) backed by the same data.",
-    "Design a real-time collaborative workspace.",
-    "Design a workflow automation engine.",
-    "Design a notification system for hundreds of millions of events."
+    "Design ClickUp's task system supporting list, board, calendar, and Gantt views over the same data",
+    "Design real-time collaborative editing for ClickUp Docs with conflict resolution",
+    "Design a cross-workspace search and typeahead over tasks, docs, and comments",
+    "Design a notifications and activity-feed system for millions of workspace events per day"
   ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "ClickUp tasks form a tree of subtasks with dependencies. Given a task and a new parent, reparent the subtree and detect any dependency cycle it would create.",
+      "Given a workspace's tasks, build a typeahead that returns matching task names by prefix as the user types.",
+      "Implement recurring-task expansion: given a rule (every Mon/Wed) and a date range, generate all occurrences.",
+      "Given task dependencies, return a valid execution order or report a cycle so a board can flag blocked tasks (topological sort)."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a time you shipped a broad feature fast without sacrificing quality.",
+      "ClickUp has a huge product surface. Describe how you managed scope and priorities on a wide-ranging project.",
+      "Tell me about a time customer feedback changed your technical direction.",
+      "Describe handling a production incident that affected many workspaces."
     ],
     "systemDesign": [
-      "Design ClickUp's task management with multiple views (list, board, calendar, gantt) backed by the same data.",
-      "Design a real-time collaborative workspace. Cover the API, data model, and how it scales.",
-      "Design a workflow automation engine. Cover the API, data model, and how it scales.",
-      "Design a notification system for hundreds of millions of events. Cover the API, data model, and how it scales.",
-      "Design a service at ClickUp scale that shortens URLs. Cover the API, storage, and hot-key handling."
+      "Design ClickUp's task backend so the same tasks render instantly across list, board, calendar, and Gantt views.",
+      "Design real-time collaborative editing for ClickUp Docs, including cursors, presence, and conflict resolution.",
+      "Design a workspace-wide activity feed and notification fan-out for millions of events per day."
     ],
-    "values": [],
+    "values": [
+      "ClickUp's mission is to save people time by consolidating work into one app. When have you built something that meaningfully saved users time?",
+      "How do you decide what to build when everything feels high priority?",
+      "Tell me about a time you obsessed over a customer's problem."
+    ],
     "other": [
       "How does ClickUp compare to Asana / Monday?",
       "Is San Diego a hard location?",
@@ -50,7 +59,7 @@
       "Are AI tools allowed in coding rounds?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 6,
   "tips": [],
   "compensation": [
     "Senior: $170-230K base + equity → $300-500K total",

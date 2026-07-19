@@ -10,26 +10,44 @@
     "Product / customer scenario (FDE roles) — case study around how you'd address a customer problem",
     "Hiring manager / skip-level — about fit, ambition, and ethical perspectives on the work"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Graph and topological: dependency and dataflow ordering",
+    "Numerical and math: precision, simulation",
+    "Systems coding: schedulers, memory, parsers",
+    "Streaming: processing large data streams",
+    "Data structures: heaps, priority queues"
+  ],
+  "systemDesignTopics": [
+    "Design a distributed job scheduler for heavy compute",
+    "Design a data pipeline that processes massive scientific datasets",
+    "Design a simulation platform with reproducible runs",
+    "Design a real-time monitoring system for a compute fleet"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "At Palantir, given a DAG of pipeline tasks, compute a valid execution order and detect cycles via topological sort.",
+      "Schedule compute jobs onto limited resources to minimize makespan. Discuss the greedy heuristic.",
+      "Process a large stream of records that does not fit in memory. Discuss the external approach and correctness.",
+      "Implement a numerical routine and discuss floating-point precision and stability.",
+      "Maintain a rolling aggregate over a stream of pipeline tasks with bounded memory."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a project you are proud of at Palantir scale and the hardest tradeoff you made.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end.",
+      "Describe a time something you shipped failed or fell short. What did you change afterward?"
     ],
     "systemDesign": [
-      "Design Palantir's distributed systems flavor at production scale. Walk through the architecture, trade-offs, and failure modes.",
-      "Design a service at Palantir scale that shortens URLs. Cover the API, storage, and hot-key handling.",
-      "Design a rate limiter for a public API. Discuss algorithms, distributed coordination, and failure modes."
+      "Design a distributed job scheduler for heavy compute.",
+      "Design a data pipeline that processes massive scientific datasets.",
+      "Design a simulation platform with reproducible runs."
     ],
-    "values": [],
+    "values": [
+      "Palantir tackles hard technical frontiers. Describe a time deep technical craft was the differentiator.",
+      "Tell me about a time you persevered through a genuinely hard problem.",
+      "How do you reason about correctness when the domain is unforgiving?"
+    ],
     "other": [
       "What's the deal with forward-deployed engineering?",
       "How do I handle the defense / intelligence work question?",
@@ -38,7 +56,7 @@
       "How does Palantir's culture compare to typical Bay Area tech?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 8,
   "tips": [],
   "compensation": [
     "New-grad SWE: $200k–$320k total comp first year",

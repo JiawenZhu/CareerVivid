@@ -9,27 +9,44 @@
     "Domain depth (1 round, varies) — mobile audio, ML personalization, data infrastructure, depending on role",
     "Behavioral / values (1 round) — Spotify probes for collaboration style, autonomy comfort, fit with the squad model"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Feeds and ranking: heaps and top-K over content items",
+    "Search and autocomplete: prefix tries, typeahead",
+    "Streaming: rolling engagement metrics over user activity events",
+    "Caching: LRU caches for content items",
+    "Graph problems: recommendations, social graphs"
+  ],
+  "systemDesignTopics": [
+    "Design a personalized feed-ranking system at scale",
+    "Design search and autocomplete over a large content catalog",
+    "Design a notification system for millions of users",
+    "Design a recommendation pipeline from user activity"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "A function intermittently fails in production. Walk me through how you would reproduce, isolate, and fix the bug.",
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "At Spotify, given a stream of user activity events, return the top-K trending content items in the last hour using a heap. Discuss memory bounds.",
+      "Build autocomplete over content items titles using a prefix trie and return the top suggestions for a typed prefix.",
+      "Rank a personalized feed of content items for a user from their history. Discuss the scoring approach.",
+      "Implement an LRU cache for content items with a size cap. Discuss eviction and complexity.",
+      "Given a stream of user activity events, compute per-user daily streaks with correct time-zone handling."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a project you are proud of at Spotify scale and the hardest tradeoff you made.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end.",
+      "Describe a time something you shipped failed or fell short. What did you change afterward?"
     ],
     "systemDesign": [
-      "Design Spotify's streaming platform — cover catalog, recommendation, ad serving. Walk through the architecture, trade-offs, and failure modes.",
-      "Design a service at Spotify scale that shortens URLs. Cover the API, storage, and hot-key handling.",
-      "Design a rate limiter for a public API. Discuss algorithms, distributed coordination, and failure modes."
+      "Design a personalized feed-ranking system at scale.",
+      "Design search and autocomplete over a large content catalog.",
+      "Design a notification system for millions of users."
     ],
-    "values": [],
+    "values": [
+      "Spotify serves a huge consumer audience. Describe a time you prioritized user wellbeing over an engagement metric.",
+      "Tell me about a time you owned a consumer-facing reliability problem.",
+      "How do you balance business goals against a healthy user experience?"
+    ],
     "other": [
       "Is the squad / tribe / chapter model still real at Spotify?",
       "How important is Backstage at Spotify?",
@@ -38,7 +55,7 @@
       "Is Spotify good for early-career engineers?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 6,
   "tips": [],
   "compensation": [
     "New-grad SWE (US-based): $160k–$240k total comp first year",

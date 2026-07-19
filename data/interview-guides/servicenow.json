@@ -16,10 +16,10 @@
     "Classic algorithm problems (trees, graphs, tries) with practical application twists"
   ],
   "systemDesignTopics": [
-    "\"Design the workflow execution engine that runs 100M workflows per day across 8K tenants.\"",
-    "\"Design the CMDB schema and query layer supporting 100M configuration items with complex relationships.\"",
-    "\"Design the incident-ticket subscription system with real-time updates for 500K agents.\"",
-    "\"Design the audit logging pipeline meeting SOC 2, FedRAMP, and customer-specific compliance requirements.\""
+    "Design the workflow execution engine that runs 100M workflows per day across 8K tenants",
+    "Design the CMDB schema and query layer supporting 100M configuration items with complex relationships",
+    "Design the incident-ticket subscription system with real-time updates for 500K agents",
+    "Design the audit logging pipeline meeting SOC 2, FedRAMP, and customer-specific compliance requirements"
   ],
   "behavioralTopics": [
     "Customer focus: \"Describe a time you deeply understood a customer problem. How did that change what you built?\"",
@@ -30,27 +30,28 @@
   ],
   "sampleQuestions": {
     "coding": [
-      "Implement a streaming feature aggregator: given a stream of events, maintain rolling counts and averages per key with bounded memory. Discuss complexity and eviction.",
       "Implement a small rules engine or DSL evaluator with specific semantics. Talk through your approach, complexity, and edge cases.",
       "Build a permissions-check system with role hierarchies and inheritance. Talk through your approach, complexity, and edge cases.",
       "Parse and transform structured data (XML, JSON config, CSV) into a domain model. Talk through your approach, complexity, and edge cases.",
-      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph."
+      "At ServiceNow, given a stream of requests, return the top-K most frequent in the last hour using a heap. Discuss memory bounds.",
+      "Given a road or dependency network as a weighted graph, find the shortest path between two nodes. Discuss Dijkstra versus A*."
     ],
     "behavioral": [
-      "Describe a time you deeply understood a customer problem. How did that change what you built?",
-      "Tell me about a production incident you led from detection through postmortem.",
-      "Describe a cross-functional project you contributed to. What was hard and how did you make it work?",
-      "How do you balance shipping fast vs shipping reliably? Give a specific example.",
-      "How have you made others more effective? Mentorship, tooling, process?"
+      "Tell me about a project you are proud of at ServiceNow scale and the hardest tradeoff you made.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end.",
+      "Describe a time something you shipped failed or fell short. What did you change afterward?"
     ],
     "systemDesign": [
-      "Design the workflow execution engine that runs 100M workflows per day across 8K tenants. Cover the API, data model, and how it scales.",
+      "Design the workflow execution engine that runs 100M workflows per day across 8K tenants.",
       "Design the CMDB schema and query layer supporting 100M configuration items with complex relationships.",
-      "Design the incident-ticket subscription system with real-time updates for 500K agents. Cover the API, data model, and how it scales.",
-      "Design the audit logging pipeline meeting SOC 2, FedRAMP, and customer-specific compliance requirements.",
-      "Design a service at ServiceNow scale that shortens URLs. Cover the API, storage, and hot-key handling."
+      "Design the incident-ticket subscription system with real-time updates for 500K agents."
     ],
-    "values": [],
+    "values": [
+      "ServiceNow operates at enormous scale. Describe a time you put the user first even though it made the engineering harder.",
+      "Tell me about a time you challenged the status quo or a decision you thought was wrong.",
+      "Describe a time you were clearly wrong and how intellectual humility shaped what you did next."
+    ],
     "other": [
       "Do I need Now Platform experience to get hired?",
       "How does ServiceNow compare to Salesforce on interviews?",
@@ -59,7 +60,7 @@
       "How is the stock compensation picture?"
     ]
   },
-  "difficulty": 7,
+  "difficulty": 8,
   "tips": [
     "Understand the Now Platform conceptually. Read the developer documentation overview. You don't need to have built apps on it, but you should understand the metadata-driven philosophy.",
     "Write modern Java. Records, sealed classes, text blocks, streams, var. Current idiom shows currency.",

@@ -17,22 +17,45 @@
     "For software engineering roles: model-based systems engineering, requirement traceability, MISRA C / coding standards",
     "Domain-specific knowledge: aerospace, missile systems, space systems, cyber operations, depending on role"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Embedded/real-time constraints: fixed-size buffers, no dynamic allocation (memory, systems, data structure, realtime)",
+    "Sensor/signal data processing with bounded latency (stream, time-series, sliding-window, monitoring)",
+    "Bit-manipulation and packing for wire protocols (bit-manipulation, math, numbers)",
+    "Graph/pathfinding for mission or routing logic (graph, dependency, simulation)",
+    "State-machine simulation for control systems (simulation, systems)"
+  ],
+  "systemDesignTopics": [
+    "Design a real-time sensor-fusion pipeline that combines radar and optical tracks with bounded latency",
+    "Design a fault-tolerant command-and-control system that degrades safely on component failure",
+    "Design a telemetry ingestion and health-monitoring system for a fleet of deployed platforms",
+    "Design a mission-planning service that computes safe routes under dynamic constraints"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Implement a fixed-size ring buffer for sensor readings with O(1) reads/writes and no dynamic allocation on the real-time path. Walk through concurrency and overrun handling.",
+      "Given a stream of radar detections, correlate them into tracks within a sliding time window under a strict latency budget.",
+      "Pack and unpack a binary telemetry message with bit-level fields; validate a checksum and handle byte order. Discuss endianness pitfalls.",
+      "Compute the shortest safe route for a platform across a grid with no-fly zones and dynamic obstacles. Which algorithm and why?",
+      "Model a control subsystem as a finite state machine and simulate its response to a sequence of sensor events, guarding against invalid transitions."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about working on a safety- or mission-critical system where a mistake had serious consequences. How did you manage risk?",
+      "Describe following a rigorous process or standard even when it slowed you down. How did you decide to stick with it?",
+      "Tell me about collaborating across a large, cross-disciplinary team (hardware, systems, software).",
+      "Describe delivering reliably under strict requirements and formal reviews."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a sensor-fusion pipeline combining multiple feeds into a unified track picture with bounded latency.",
+      "Design a fault-tolerant command-and-control system that fails safe under partial hardware loss.",
+      "Design fleet telemetry ingestion and health monitoring for deployed platforms.",
+      "Design a mission-planning service computing safe routes under changing constraints."
+    ],
+    "values": [
+      "Working on defense systems carries real responsibility. How do you think about the mission and its stakes?",
+      "How do you balance innovation with the reliability and process discipline these systems demand?",
+      "Integrity and security are paramount here. How do you handle sensitive information and follow protocol?"
+    ],
     "other": [
       "Can I get hired without a clearance?",
       "How long does clearance take?",
@@ -41,7 +64,7 @@
       "How do I choose between the major primes?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 6,
   "tips": [],
   "compensation": [
     "Mid-level engineer: $110–150K base + 10–15% bonus → $125–175K total",

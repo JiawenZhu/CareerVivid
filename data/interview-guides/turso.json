@@ -15,14 +15,10 @@
     "Classic algorithm problems (trees, graphs, intervals) with database-applied twists"
   ],
   "systemDesignTopics": [
-    "\"Design the edge-replication system with globally-distributed read replicas and a primary for writes.\"",
-    "\"Design the embedded-replica sync protocol for applications with intermittent connectivity.\"",
-    "\"Design the vector-search integration inside libSQL with HNSW indexes and hybrid lexical-vector queries.\"",
-    "\"Design the multi-tenant management layer supporting thousands of customer databases across edge locations.\"",
-    "Walk through SQLite's WAL mode and how it enables concurrent readers with a single writer.",
-    "Discuss libSQL's replication approach and the trade-offs vs upstream SQLite.",
-    "Explain the challenges of adding vector search to a SQLite-adjacent database engine.",
-    "Describe how Turso's multi-region architecture handles regional failures."
+    "Design the edge-replication system with globally-distributed read replicas and a primary for writes",
+    "Design the embedded-replica sync protocol for applications with intermittent connectivity",
+    "Design the vector-search integration inside libSQL with HNSW indexes and hybrid lexical-vector queries",
+    "Design the multi-tenant management layer supporting thousands of customer databases across edge locations"
   ],
   "behavioralTopics": [
     "Systems-engineering passion: \"What drew you to database systems or infrastructure?\"",
@@ -32,27 +28,28 @@
   ],
   "sampleQuestions": {
     "coding": [
-      "Implement append-only log with recovery semantics. Talk through your approach, complexity, and edge cases.",
-      "Implement B-tree leaf or interior page. Talk through your approach, complexity, and edge cases.",
-      "Design a replication-stream consumer handling out-of-order arrivals. Talk through your approach, complexity, and edge cases.",
-      "Given local writes and remote updates, produce merged state. Talk through your approach, complexity, and edge cases.",
-      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph."
+      "Implement a simple WAL primitive (append-only log with recovery semantics). Talk through your approach, complexity, and edge cases.",
+      "Parse SQLite page format (B-tree leaf or interior page). Talk through your approach, complexity, and edge cases.",
+      "At Turso, parse a stream of log and metric events and aggregate by key over a sliding window. Discuss memory bounds.",
+      "Implement a rate-limited, back-pressured queue for ingestion. Discuss what happens when a downstream sink is slow.",
+      "Parse a config format into a typed structure with schema validation. Discuss error handling."
     ],
     "behavioral": [
-      "What drew you to database systems or infrastructure?",
-      "How do you operate when owning broad scope with limited team size?",
-      "Describe your practices for effective async collaboration.",
-      "Tell me about engaging with a developer's database problem.",
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+      "Tell me about a project you are proud of at Turso scale and the hardest tradeoff you made.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end.",
+      "Describe a time something you shipped failed or fell short. What did you change afterward?"
     ],
     "systemDesign": [
-      "Reason about embedded-replica semantics &mdash; when do applications see stale data, how do you bound staleness?",
       "Design the edge-replication system with globally-distributed read replicas and a primary for writes.",
-      "Design the embedded-replica sync protocol for applications with intermittent connectivity. Cover the API, data model, and how it scales.",
-      "Design the vector-search integration inside libSQL with HNSW indexes and hybrid lexical-vector queries.",
-      "Design the multi-tenant management layer supporting thousands of customer databases across edge locations."
+      "Design the embedded-replica sync protocol for applications with intermittent connectivity.",
+      "Design the vector-search integration inside libSQL with HNSW indexes and hybrid lexical-vector queries."
     ],
-    "values": [],
+    "values": [
+      "Turso is trusted by the developers who depend on it. Describe a time you prioritized reliability and craft.",
+      "Tell me about an open-source contribution or public work you are proud of.",
+      "How do you weigh a breaking change against the migration cost for users?"
+    ],
     "other": [
       "Is SQLite really production-ready for serious workloads?",
       "How does Turso compare to Cloudflare D1 or Fly.io?",
@@ -61,7 +58,7 @@
       "Is the company stable given its small size?"
     ]
   },
-  "difficulty": 7.5,
+  "difficulty": 7,
   "tips": [
     "Use Turso for a real project. The free tier is sufficient for experimentation with embedded replicas and edge deployment.",
     "Read SQLite documentation. WAL mode, transactions, B-tree implementation &mdash; vocabulary for interviews.",

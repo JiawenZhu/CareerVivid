@@ -15,15 +15,10 @@
     "Classic algorithm problems (trees, graphs, DP) with database-applied twists"
   ],
   "systemDesignTopics": [
-    "\"Design the hybrid-execution query planner deciding what operations run client-side vs cloud-side.\"",
-    "\"Design data-sharing between local DuckDB clients and MotherDuck cloud with consistency guarantees.\"",
-    "\"Design the extension-distribution system letting community-authored extensions load safely.\"",
-    "\"Design MotherDuck AI's text-to-SQL pipeline with schema-grounded prompts and evaluation.\"",
-    "Walk through DuckDB's vectorized execution model.",
-    "Discuss columnar compression schemes and their trade-offs.",
-    "Reason about hybrid-execution decisions for specific query shapes (TPC-H-like queries).",
-    "Explain how predicate pushdown interacts with partition pruning.",
-    "Describe what happens when a DuckDB query exceeds single-node memory."
+    "Design the hybrid-execution query planner deciding what operations run client-side vs cloud-side",
+    "Design data-sharing between local DuckDB clients and MotherDuck cloud with consistency guarantees",
+    "Design the extension-distribution system letting community-authored extensions load safely",
+    "Design MotherDuck AI's text-to-SQL pipeline with schema-grounded prompts and evaluation"
   ],
   "behavioralTopics": [
     "Small-team comfort: \"How do you operate when owning broad scope with limited infrastructure?\"",
@@ -35,25 +30,26 @@
     "coding": [
       "Parse and evaluate a SQL-like expression tree with typing rules. Talk through your approach, complexity, and edge cases.",
       "Implement a columnar operation (hash aggregation, sort, filter) with vectorization. Talk through your approach, complexity, and edge cases.",
-      "Given a query, determine optimal execution location. Talk through your approach, complexity, and edge cases.",
-      "Implement Parquet read / Arrow interop. Talk through your approach, complexity, and edge cases.",
-      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph."
+      "At MotherDuck, parse a stream of log and metric events and aggregate by key over a sliding window. Discuss memory bounds.",
+      "Implement a rate-limited, back-pressured queue for ingestion. Discuss what happens when a downstream sink is slow.",
+      "Parse a config format into a typed structure with schema validation. Discuss error handling."
     ],
     "behavioral": [
-      "How do you operate when owning broad scope with limited infrastructure?",
-      "What drew you to database systems specifically?",
-      "Describe a trade-off between theoretical correctness and practical shipping.",
-      "Tell me about engaging with a data-analyst or application-developer user.",
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+      "Tell me about a project you are proud of at MotherDuck scale and the hardest tradeoff you made.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end.",
+      "Describe a time something you shipped failed or fell short. What did you change afterward?"
     ],
     "systemDesign": [
       "Design the hybrid-execution query planner deciding what operations run client-side vs cloud-side.",
       "Design data-sharing between local DuckDB clients and MotherDuck cloud with consistency guarantees.",
-      "Design the extension-distribution system letting community-authored extensions load safely.",
-      "Design MotherDuck AI's text-to-SQL pipeline with schema-grounded prompts and evaluation. Cover the API, data model, and how it scales.",
-      "Walk through DuckDB's vectorized execution model."
+      "Design the extension-distribution system letting community-authored extensions load safely."
     ],
-    "values": [],
+    "values": [
+      "MotherDuck is trusted by the developers who depend on it. Describe a time you prioritized reliability and craft.",
+      "Tell me about an open-source contribution or public work you are proud of.",
+      "How do you weigh a breaking change against the migration cost for users?"
+    ],
     "other": [
       "What's the \"Big Data is Dead\" thesis?",
       "Is DuckDB the same as MotherDuck?",
@@ -62,7 +58,7 @@
       "Is remote work supported?"
     ]
   },
-  "difficulty": 7.5,
+  "difficulty": 7,
   "tips": [
     "Use DuckDB seriously. Run analytical queries on real data. Understand the performance characteristics.",
     "Try MotherDuck's free tier. Understand the hybrid-execution product experience.",

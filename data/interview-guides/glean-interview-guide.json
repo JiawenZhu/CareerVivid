@@ -19,43 +19,50 @@
     "For senior+: how to handle index updates from many SaaS sources with varying APIs and rate limits"
   ],
   "codingTopics": [
-    "Build a federated search index. Glean indexes content from many SaaS apps (Slack, Drive, Confluence, Jira, Salesforce, etc.). Discuss how to handle different rate limits, authentication models, schemas, and incremental update granularity per source.",
-    "Implement permission-aware retrieval. Search results must respect what the user can actually access in source systems. Discuss two architectures: (1) replicate ACLs into your search index and check at query time, (2) use source-system live permission checks at retrieval time. Trade-offs of each.",
-    "Design hybrid search. Combine BM25 keyword scoring with dense-embedding semantic similarity. Discuss reranking, query rewriting, and when each strategy dominates (short factual queries vs long natural-language questions).",
-    "Chunking strategies: fixed-size vs semantic vs hierarchical. Why naive fixed-size chunking underperforms in enterprise contexts where document structure matters.",
-    "Embedding model selection and update strategy: how to roll out a new embedding model when the existing index has billions of vectors. Backfill cost, query-time fallback, and the role of embedding adapters.",
-    "Evaluating RAG quality at scale: faithfulness, relevance, recall. The tension between automated metrics and customer-perceived quality. Glean's approach to feedback loops.",
-    "Tenant isolation in vector stores: per-tenant indices vs shared index with metadata filtering. The cost-vs-isolation trade-off.",
-    "Per-customer embedding models: how to support customers who want their own fine-tuned models without exploding infrastructure cost.",
-    "SSO and SCIM provisioning: handling identity at enterprise scale, mapping source-system identities to Glean's internal user model.",
-    "The difference between BM25 and dense retrieval — when each wins, why neither is sufficient alone.",
-    "Click-through learning-to-rank — how production search engines use behavioral signals to improve ranking, and the cold-start problem for new content.",
-    "Query understanding — disambiguation, reformulation, intent classification. Why \"Q3 sales numbers\" might be a question, a request for a chart, or a navigation query depending on the user's recent activity."
+    "Search and retrieval: inverted index, prefix, ranking",
+    "Graph and array algorithms",
+    "Streams and real-time ingestion pipelines",
+    "Data structures for indexing (tries, heaps)",
+    "Permission and access-control filtering"
   ],
-  "systemDesignTopics": [],
+  "systemDesignTopics": [
+    "Design an enterprise search system that indexes documents across many SaaS apps",
+    "Design a retrieval-augmented generation pipeline over a company's knowledge base",
+    "Design a permissions-aware search that only returns documents a user can access",
+    "Design a real-time ingestion pipeline that keeps the search index fresh"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Build a federated search index. Talk through your approach, complexity, and edge cases.",
-      "Implement permission-aware retrieval. Talk through your approach, complexity, and edge cases.",
-      "Design hybrid search. Talk through your approach, complexity, and edge cases.",
-      "Implement a streaming feature aggregator: given a stream of events, maintain rolling counts and averages per key with bounded memory. Discuss complexity and eviction.",
-      "A function intermittently fails in production. Walk me through how you would reproduce, isolate, and fix the bug."
+      "Build an inverted index over documents and return the top-k results for a multi-term query ranked by relevance. Talk through your approach and complexity.",
+      "Given search results, filter them by a user's access-control list efficiently at query time. Discuss the data structure.",
+      "Implement typeahead over document titles that ranks by recency and click popularity. Talk through complexity.",
+      "Given a stream of document updates from connectors, keep an index fresh with incremental updates. Discuss your approach.",
+      "Merge ranked result lists from multiple sources into a single relevance-ordered list (k-way merge). Talk through complexity."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a time you owned an ambiguous project end-to-end with a startup mentality.",
+      "Describe a time you built a search, ranking, or retrieval feature and how you measured quality.",
+      "Tell me about a time you shipped a mini-app or prototype under a tight time limit.",
+      "Describe a time you improved a system's relevance or accuracy with limited data."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design enterprise search indexing documents across many SaaS apps. Cover connectors, indexing, and freshness.",
+      "Design a RAG pipeline over a company's knowledge base. Cover retrieval, ranking, and grounding.",
+      "Design permissions-aware search that never leaks inaccessible documents. Cover ACL modeling and query-time enforcement."
+    ],
+    "values": [
+      "Glean handles sensitive company knowledge. How do you think about trust and permissions when building AI over private data?",
+      "Tell me about a time you used AI thoughtfully to drive real impact.",
+      "Why enterprise search and making knowledge accessible as a mission?"
+    ],
     "other": [
       "Do I need ML expertise?",
       "How does Glean compare to other enterprise AI startups?",
       "Is the hiring bar really high?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 7,
   "tips": [],
   "compensation": [
     "Mid: $180–230K base + significant equity + bonus → $300–450K total",

@@ -6,29 +6,49 @@
   "interviewStages": [
     "Behavioral: customer focus, working in legacy environments, supporting enterprise customers"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Distributed file block placement and replication checks (array, systems)",
+    "External merge sort of mapper outputs (merge, sort, pipeline)",
+    "Columnar/Parquet predicate skipping (array, stream)",
+    "LRU block cache for HDFS reads (cache, memory)"
+  ],
+  "systemDesignTopics": [
+    "Design a distributed file system that stores petabytes across commodity nodes with replication",
+    "Design a batch data-processing framework that runs SQL over a data lake",
+    "Design a metadata catalog and governance layer for tables across a hybrid-cloud platform",
+    "Design a resource scheduler that shares a cluster across many concurrent big-data jobs"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Given HDFS-style block reports from many datanodes, find under-replicated blocks (fewer than 3 replicas) efficiently.",
+      "Merge many sorted mapper outputs into a single sorted reducer input stream (external merge sort).",
+      "Given a Parquet-style columnar file with row-group min/max stats, skip row groups that can't match a predicate and scan the rest.",
+      "Implement an LRU block cache for HDFS reads with a fixed memory budget."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about the largest-scale data system you've worked on and a bottleneck you solved.",
+      "Describe working with an enterprise customer through a difficult migration.",
+      "Tell me about a time you debugged a failure that only appeared at cluster scale.",
+      "Describe a disagreement over a design decision and how you resolved it."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design Cloudera's data lakehouse: ingest, store, and query structured and unstructured data across on-prem and cloud.",
+      "Design a multi-tenant YARN-style scheduler that fairly shares cluster CPU and memory across competing jobs.",
+      "Design a table catalog with schema evolution and fine-grained access control for thousands of datasets."
+    ],
+    "values": [
+      "Cloudera serves large regulated enterprises. How do you balance innovation with stability and compliance?",
+      "Tell me about a time you took ownership of a system's reliability.",
+      "How do you approach open-source contribution and community (Cloudera's Hadoop/Impala heritage)?"
+    ],
     "other": [
       "Is Cloudera still relevant in the modern data stack era?",
       "Is Cloudera remote-friendly?",
       "How does Cloudera compensation compare to Databricks?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 7,
   "tips": [],
   "compensation": null,
   "rawSummary": "Cloudera Interview Guide (2026): Big Data and Hybrid Cloud\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nCloudera\ncloudera.com ↗\n\nCloudera was the original Hadoop commercial vendor and is now a hybrid-cloud data platform. The interview is data-engineering and distributed-systems heavy, with emphasis on the realities of running open-source big-data stacks at enterprise scale across cloud and on-premises environments.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (medium DSA) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–5 weeks.\n\nWhat they actually ask\n\n- Design a query engine that runs across multiple data sources (HDFS, S3, Kudu)\n\n- Design an upgrade pipeline for a large-cluster on-premise customer with zero downtime\n\n- Design metadata management across a hybrid environment\n\n- Coding: medium-hard DSA with distributed-systems flavor\n\n- Behavioral: customer focus, working in legacy environments, supporting enterprise customers\n\nLevels and comp (2026)\n\n- SE II: $140K–$175K total\n\n- Senior SE: $200K–$270K\n\n- Staff: $290K–$380K\n\n- Principal: $400K–$540K\n\nPrep priorities\n\n- Be fluent in Java and at least one big data tool (Spark, Hive, Kafka)\n\n- Understand distributed file systems and consensus protocols\n\n- Be ready to discuss cloud-native architecture: Kubernetes, S3, Iceberg\n\nFrequently Asked Questions\n\nIs Cloudera still relevant in the modern data stack era?\n\nYes for enterprise customers with significant on-premise data. The roadmap focuses on hybrid (cloud + on-prem) and AI workloads. Newer companies (Databricks, Snowflake) dominate cloud-first adoption.\n\nIs Cloudera remote-friendly?\n\nHybrid in Santa Clara, Toronto, Bangalore, Budapest. Many roles are remote within supported countries.\n\nHow does Cloudera compensation compare to Databricks?\n\nDatabricks pays meaningfully more on equity and cash. Cloudera comp is competitive at junior-mid levels but lags at senior+ for IC roles.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Cloudera? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextLow Level Design: SLO, SLA, SLI, and Error Budget⏱ 4 min readBuild a Charting Component: D3, Recharts, and Visx⏱ 2 min readSocial Login System Low-Level Design⏱ 6 min read"

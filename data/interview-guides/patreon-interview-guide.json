@@ -6,29 +6,50 @@
   "interviewStages": [
     "Behavioral: creator empathy, ownership, working with two-sided marketplace"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Feeds and ranking: heaps and top-K over content items",
+    "Search and autocomplete: prefix tries, typeahead",
+    "Streaming: rolling engagement metrics over user activity events",
+    "Caching: LRU caches for content items",
+    "Graph problems: recommendations, social graphs"
+  ],
+  "systemDesignTopics": [
+    "Design recurring subscription billing with tier upgrades / downgrades",
+    "Design content delivery with paid-tier gating",
+    "Design creator analytics dashboard"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "At Patreon, given a stream of user activity events, return the top-K trending content items in the last hour using a heap. Discuss memory bounds.",
+      "Build autocomplete over content items titles using a prefix trie and return the top suggestions for a typed prefix.",
+      "Rank a personalized feed of content items for a user from their history. Discuss the scoring approach.",
+      "Implement an LRU cache for content items with a size cap. Discuss eviction and complexity.",
+      "Given a stream of user activity events, compute per-user daily streaks with correct time-zone handling."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a project you are proud of at Patreon scale and the hardest tradeoff you made.",
+      "Give me an example that shows creator empathy, ownership, working with two-sided marketplace.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design recurring subscription billing with tier upgrades / downgrades.",
+      "Design content delivery with paid-tier gating.",
+      "Design creator analytics dashboard."
+    ],
+    "values": [
+      "Patreon serves a huge consumer audience. Describe a time you prioritized user wellbeing over an engagement metric.",
+      "Tell me about a time you owned a consumer-facing reliability problem.",
+      "How do you balance business goals against a healthy user experience?"
+    ],
     "other": [
       "Is Patreon remote-friendly?",
       "How does Patreon compare to Substack or OnlyFans?",
       "What is the engineering culture?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 6,
   "tips": [],
   "compensation": null,
   "rawSummary": "Patreon Interview Guide (2026): Creator Economy Platform\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nPatreon\npatreon.com ↗\n\nPatreon is the leading creator membership platform — millions of patrons supporting hundreds of thousands of creators. The interview emphasizes payments, recurring billing, content delivery, and the unique two-sided marketplace dynamics.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design recurring subscription billing with tier upgrades / downgrades\n\n- Design content delivery with paid-tier gating\n\n- Design creator analytics dashboard\n\n- Coding: medium DSA, often with payment or graph framing\n\n- Behavioral: creator empathy, ownership, working with two-sided marketplace\n\nLevels and comp (2026)\n\n- SE II: $160K–$200K total\n\n- Senior SE: $230K–$305K\n\n- Staff: $325K–$430K\n\n- Principal: $460K–$610K\n\nPrep priorities\n\n- Be fluent in Ruby on Rails (legacy core) and TypeScript (newer services)\n\n- Understand subscription billing patterns (Stripe Billing)\n\n- Brush up on content-delivery and access-control patterns\n\nFrequently Asked Questions\n\nIs Patreon remote-friendly?\n\nDistributed-first across US. Hub in San Francisco. Most engineering roles fully remote.\n\nHow does Patreon compare to Substack or OnlyFans?\n\nPatreon is broader creator support; Substack is newsletter-focused; OnlyFans is adult-content-dominated. Patreon pays competitive mid-tier comp.\n\nWhat is the engineering culture?\n\nMission-driven (support creators), creator-empathy focused, calm pace. Strong work-life balance.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Patreon? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextLow Level Design: KYC Identity Verification Service⏱ 9 min readJelly Beans⏱ 3 min readZendesk Interview Guide (2026): Customer Service Platform⏱ 1 min read"

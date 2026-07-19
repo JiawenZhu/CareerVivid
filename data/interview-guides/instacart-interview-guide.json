@@ -6,29 +6,50 @@
   "interviewStages": [
     "Behavioral: customer focus, ownership, working with logistics complexity"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Graph and routing: matching, shortest path on road networks",
+    "Geospatial: nearest-neighbor queries, geohashing",
+    "Heaps and top-K: ranking listings, nearest providers",
+    "Streaming: real-time orders and status events",
+    "Hash maps and caching: inventory and catalog lookups"
+  ],
+  "systemDesignTopics": [
+    "Design real-time inventory tracking across thousands of stores",
+    "Design shopper dispatch (assign orders to in-store pickers efficiently)",
+    "Design substitution logic when an item is out of stock"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "At Instacart, given providers and pending orders streaming in, match them to minimize total wait time, allowing batching of nearby orders. Discuss the greedy heap approach.",
+      "Answer top-K nearest-provider queries for a user at high QPS. Discuss geohashing and a heap-based approach.",
+      "Maintain a real-time in-stock count per listings from an event stream with bounded memory.",
+      "Rank listings for a search query by relevance and availability using a heap. Discuss tie-breaking.",
+      "Given a stream of orders status events, detect any stuck longer than a threshold using a sliding window."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a project you are proud of at Instacart scale and the hardest tradeoff you made.",
+      "Give me an example that shows customer focus, ownership, working with logistics complexity.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design real-time inventory tracking across thousands of stores.",
+      "Design shopper dispatch (assign orders to in-store pickers efficiently).",
+      "Design substitution logic when an item is out of stock."
+    ],
+    "values": [
+      "Instacart balances multiple sides of a marketplace. Describe a time you weighed one side against another.",
+      "Tell me about a time you built something that helped both supply and demand succeed.",
+      "How do you improve trust and safety in a two-sided marketplace?"
+    ],
     "other": [
       "Is Instacart remote-friendly?",
       "How does Instacart compare to DoorDash or Uber?",
       "What is the engineering culture?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 6,
   "tips": [],
   "compensation": null,
   "rawSummary": "Instacart Interview Guide (2026): Grocery Delivery Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nInstacart\ninstacart.com ↗\n\nInstacart is the dominant US grocery delivery platform — partners with thousands of retailers. The interview is operations-heavy with focus on real-time inventory, dispatch, and the unique challenges of in-store shoppers vs warehouse fulfillment.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design real-time inventory tracking across thousands of stores\n\n- Design shopper dispatch (assign orders to in-store pickers efficiently)\n\n- Design substitution logic when an item is out of stock\n\n- Coding: medium DSA, often with optimization or graph framing\n\n- Behavioral: customer focus, ownership, working with logistics complexity\n\nLevels and comp (2026)\n\n- SE II: $170K–$215K total\n\n- Senior SE: $245K–$325K\n\n- Staff: $350K–$460K\n\n- Principal: $490K–$640K\n\nPrep priorities\n\n- Be fluent in Python (heavy ML/data) or Go (newer services)\n\n- Understand operations research: routing, scheduling, capacity planning\n\n- Brush up on real-time inventory and supply-chain patterns\n\nFrequently Asked Questions\n\nIs Instacart remote-friendly?\n\nHybrid in San Francisco, Toronto, NYC. Some engineering roles remote within US/Canada.\n\nHow does Instacart compare to DoorDash or Uber?\n\nInstacart is grocery-specialized. DoorDash and Uber Eats compete in restaurant + groceries. Comp is comparable across the three.\n\nWhat is the engineering culture?\n\nPragmatic, ops-aware, data-driven. Strong ML focus given the recommendation and dispatch complexity.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Instacart? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextDatabase Design Interview Questions: Schema, Indexing, and Transactions⏱ 8 min readLow Level Design: Location Sharing Service⏱ 3 min readRecursion Interview Patterns: Memoization, Tree Recursion, Classic Problems⏱ 6 min read"

@@ -6,29 +6,49 @@
   "interviewStages": [
     "Behavioral: customer focus, ownership, working with enterprise customers"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Rule-based event routing (stream, pipeline, logs)",
+    "Reservoir sampling of a log stream (stream, sampling, math)",
+    "Log-line parsing and field extraction (string, dictionary)",
+    "Persistent-queue backpressure (queue, stream, systems)"
+  ],
+  "systemDesignTopics": [
+    "Design an observability pipeline that routes logs, metrics, and traces from many sources to many destinations",
+    "Design a high-throughput data router handling 1M events per second per node",
+    "Design a stateful streaming pipeline with persistent queues for backpressure",
+    "Design a sampling and volume-reduction system that preserves operational signal while cutting cost"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Cribl routes events by rules. Given a stream of events and routing rules, dispatch each event to all matching destinations efficiently.",
+      "Implement reservoir sampling to keep a representative subset of a high-volume log stream.",
+      "Parse semi-structured log lines and extract fields into a normalized record.",
+      "Implement a bounded persistent queue with backpressure: spill to disk or drop when a slow destination falls behind."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Cribl pairs you with an engineer during interviews. Tell me about a great pairing or collaboration experience.",
+      "Describe optimizing a high-throughput data system for cost or latency.",
+      "Tell me about owning a data-loss or reliability incident.",
+      "Describe explaining the ROI of an engineering decision to stakeholders."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design Cribl Stream: route and transform observability data from any source to any destination at 1M+ events/sec/node.",
+      "Design a persistent-queue backpressure system so a slow downstream (e.g., Splunk) never causes upstream data loss.",
+      "Design a volume-reduction/sampling layer that cuts log cost while preserving the ability to debug incidents."
+    ],
+    "values": [
+      "Cribl saves customers real money on observability. Tell me about a time you optimized cost for users.",
+      "How do you balance throughput, reliability, and cost in a data pipeline?",
+      "Tell me about a time pragmatism beat perfection."
+    ],
     "other": [
       "Is Cribl remote-friendly?",
       "How does Cribl compare to Datadog or Splunk?",
       "What is the engineering culture like?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 7,
   "tips": [],
   "compensation": null,
   "rawSummary": "Cribl Interview Guide (2026): Observability Pipeline Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nCribl\ncribl.io ↗\n\nCribl is the observability pipeline company — sit between your sources (logs, metrics, traces) and your destinations (Splunk, Datadog, S3) and route, transform, and reduce volume. Used by 60% of the Fortune 100. The interview emphasizes high-throughput data engineering, JavaScript-runtime internals, and the cost-saving math of observability data.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium-hard) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design a high-throughput data router that handles 1M events/sec per node\n\n- Design a stateful streaming pipeline with persistent queues for backpressure\n\n- Design a sampling/dropping strategy that preserves operational signal while reducing volume\n\n- Coding: medium-hard DSA, often with parsing or state-machine flavor\n\n- Behavioral: customer focus, ownership, working with enterprise customers\n\nLevels and comp (2026)\n\n- SE II: $170K–$210K total\n\n- Senior SE: $250K–$320K\n\n- Staff: $360K–$470K\n\n- Principal: $490K–$640K\n\nPrep priorities\n\n- Be fluent in Node.js/TypeScript (the data plane runs on V8) and at least one systems language\n\n- Understand observability formats: OpenTelemetry, syslog, JSON logs, Prometheus, Splunk's data model\n\n- Read the Cribl engineering blog and the Stream architecture posts\n\nFrequently Asked Questions\n\nIs Cribl remote-friendly?\n\nYes. Distributed across US and EU. Hubs in San Francisco, Boston, Seattle are optional.\n\nHow does Cribl compare to Datadog or Splunk?\n\nCribl is upstream of those — they aggregate and route data before it reaches Datadog/Splunk. Cribl pays comparable to Datadog for senior engineers.\n\nWhat is the engineering culture like?\n\nFast-paced, customer-focused, with strong technical depth. Expect ownership and willingness to work directly with enterprise customers on technical problems.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Cribl? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextLocation Tracking Low-Level Design: GPS Updates, Geofencing, and Proximity Queries⏱ 8 min readRobinhood Interview Guide⏱ 7 min readAnalytics Data Pipeline System Design⏱ 10 min read"

@@ -18,18 +18,10 @@
     "Practical tradeoffs (false positives vs false negatives)"
   ],
   "systemDesignTopics": [
-    "Data Model:",
-    "Denormalization for performance",
-    "Score calculation",
-    "Scale:",
-    "Caching layer (Redis)",
-    "Queue for async processing",
-    "Consistency:",
-    "How to handle conflicts",
-    "Vote fraud prevention",
-    "Performance:",
-    "Caching strategies",
-    "CDN usage"
+    "Design a voting system (upvotes/downvotes)",
+    "Design a comment tree structure",
+    "Design a feed generation system",
+    "Design a notification service"
   ],
   "behavioralTopics": [
     "Passion for the product: Actually use Reddit, have opinions",
@@ -43,28 +35,31 @@
   ],
   "sampleQuestions": {
     "coding": [
-      "Serialize and deserialize a binary tree. Walk through your encoding choices, complexity, and edge cases.",
-      "Take a solution you have written recently and analyze its time and space complexity. How would you optimize it?",
-      "You need to deduplicate a very large dataset that does not fit in memory. Walk me through your approach and how you would verify correctness.",
-      "Implement false positives vs false negatives. Talk through your approach, complexity, and edge cases.",
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases."
+      "At Reddit, given a stream of user activity events, return the top-K trending content items in the last hour using a heap. Discuss memory bounds.",
+      "Build autocomplete over content items titles using a prefix trie and return the top suggestions for a typed prefix.",
+      "Rank a personalized feed of content items for a user from their history. Discuss the scoring approach.",
+      "Implement an LRU cache for content items with a size cap. Discuss eviction and complexity.",
+      "Given a stream of user activity events, compute per-user daily streaks with correct time-zone handling."
     ],
     "behavioral": [
-      "Tell me about a time you engaged deeply with a customer or user problem. How did it change what you built?",
-      "Tell me about a time you worked across teams to deliver something. How did you handle competing priorities?",
-      "Tell me about a time you disagreed with a product decision.",
-      "How do you handle technical debt?",
-      "Describe a feature you shipped that users loved."
+      "Tell me about a project you are proud of at Reddit scale and the hardest tradeoff you made.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end.",
+      "Describe a time something you shipped failed or fell short. What did you change afterward?"
     ],
     "systemDesign": [
-      "Eventual consistency acceptable?",
-      "Design a service at Reddit scale that shortens URLs. Cover the API, storage, and hot-key handling.",
-      "Design a rate limiter for a public API. Discuss algorithms, distributed coordination, and failure modes."
+      "Design a voting system (upvotes/downvotes).",
+      "Design a comment tree structure.",
+      "Design a feed generation system."
     ],
-    "values": [],
+    "values": [
+      "Reddit serves a huge consumer audience. Describe a time you prioritized user wellbeing over an engagement metric.",
+      "Tell me about a time you owned a consumer-facing reliability problem.",
+      "How do you balance business goals against a healthy user experience?"
+    ],
     "other": []
   },
-  "difficulty": 9,
+  "difficulty": 6,
   "tips": [
     "100+ leetcode problems (focus on medium)",
     "Emphasize trees, graphs, hash tables",

@@ -6,29 +6,50 @@
   "interviewStages": [
     "Behavioral: customer focus, ownership, mature platform work"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "OO design: model a business domain such as workflows with triggers and actions",
+    "Multi-tenant data structures: per-tenant rate limiting, isolation",
+    "Streaming: rolling aggregates over tenant events",
+    "Graph and DAG: workflow evaluation, dependency resolution",
+    "Search and filters: AND/OR queries over records"
+  ],
+  "systemDesignTopics": [
+    "Design a B2B contact graph",
+    "Design data quality and verification pipelines",
+    "Design real-time intent signal tracking"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "At ZoomInfo, model a workflow engine with triggers, conditions, and actions. Evaluate a workflow DAG and detect cycles.",
+      "Implement a per-tenant rate limiter so one customer cannot exhaust shared capacity. Discuss the token-bucket design.",
+      "Given a stream of tenant events, maintain rolling per-entity scores with bounded memory.",
+      "Implement a filter query over records supporting AND/OR on custom fields. Discuss indexing for a multi-tenant store.",
+      "Deduplicate records via fuzzy clustering on name and email. Discuss the matching and complexity."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a project you are proud of at ZoomInfo scale and the hardest tradeoff you made.",
+      "Give me an example that shows customer focus, ownership, mature platform work.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a B2B contact graph.",
+      "Design data quality and verification pipelines.",
+      "Design real-time intent signal tracking."
+    ],
+    "values": [
+      "ZoomInfo succeeds when its customers do. Describe a time you solved for the customer even at a cost to the team.",
+      "Tell me about a time you handled a tricky multi-tenant isolation or permissions problem.",
+      "How do you balance enterprise customization against product simplicity?"
+    ],
     "other": [
       "Is ZoomInfo remote-friendly?",
       "How does ZoomInfo compare to Apollo or Cognism?",
       "What is the engineering culture?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 6,
   "tips": [],
   "compensation": null,
   "rawSummary": "ZoomInfo Interview Guide (2026): B2B Data Platform Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nZoomInfo\nzoominfo.com ↗\n\nZoomInfo is the largest B2B data and intelligence platform — public since 2020. Owns Chorus, Insent, RingLead, and others. The interview emphasizes data engineering at extreme scale (billions of contacts), data quality, and the unique challenges of public-record-based intelligence.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 4–5 weeks.\n\nWhat they actually ask\n\n- Design a B2B contact graph at billions-of-edges scale\n\n- Design data quality and verification pipelines\n\n- Design real-time intent signal tracking\n\n- Coding: medium DSA, often with graph or data-pipeline framing\n\n- Behavioral: customer focus, ownership, mature platform work\n\nLevels and comp (2026)\n\n- SE II: $135K–$170K total\n\n- Senior SE: $200K–$260K\n\n- Staff: $290K–$380K\n\n- Principal: $400K–$520K\n\nPrep priorities\n\n- Be fluent in Go or Java (bulk of the codebase)\n\n- Understand large-scale data engineering and graph databases\n\n- Brush up on B2B sales intelligence patterns\n\nFrequently Asked Questions\n\nIs ZoomInfo remote-friendly?\n\nHybrid in Vancouver WA (HQ), Waltham MA, Bethesda. Some engineering roles remote within US.\n\nHow does ZoomInfo compare to Apollo or Cognism?\n\nZoomInfo is the enterprise leader by data depth. Apollo competes on SMB. Cognism is European-strong. ZoomInfo pays mid-tier; below FAANG.\n\nWhat is the engineering culture?\n\nMature, customer-driven, calmer pace post-2022 macro challenges. Strong work-life balance.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for ZoomInfo? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextLow Level Design: Chat System Internals⏱ 11 min readSystem Design Interview: Ticketing and Seat Reservation System⏱ 7 min readFind the Depth of a Binary Tree: Recursive, BFS, Iterative DFS⏱ 6 min read"

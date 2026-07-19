@@ -6,29 +6,50 @@
   "interviewStages": [
     "Behavioral: ownership, on-call discipline, regulated-industry care"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "OO design: model a business domain such as workflows with triggers and actions",
+    "Multi-tenant data structures: per-tenant rate limiting, isolation",
+    "Streaming: rolling aggregates over tenant events",
+    "Graph and DAG: workflow evaluation, dependency resolution",
+    "Search and filters: AND/OR queries over records"
+  ],
+  "systemDesignTopics": [
+    "Design a global SIP/WebRTC platform with five-nines uptime",
+    "Design call routing across regional PoPs",
+    "Design a real-time analytics pipeline for call quality"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "At RingCentral, model a workflow engine with triggers, conditions, and actions. Evaluate a workflow DAG and detect cycles.",
+      "Implement a per-tenant rate limiter so one customer cannot exhaust shared capacity. Discuss the token-bucket design.",
+      "Given a stream of tenant events, maintain rolling per-entity scores with bounded memory.",
+      "Implement a filter query over records supporting AND/OR on custom fields. Discuss indexing for a multi-tenant store.",
+      "Deduplicate records via fuzzy clustering on name and email. Discuss the matching and complexity."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a project you are proud of at RingCentral scale and the hardest tradeoff you made.",
+      "Give me an example that shows ownership, on-call discipline, regulated-industry care.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a global SIP/WebRTC platform with five-nines uptime.",
+      "Design call routing across regional PoPs.",
+      "Design a real-time analytics pipeline for call quality."
+    ],
+    "values": [
+      "RingCentral succeeds when its customers do. Describe a time you solved for the customer even at a cost to the team.",
+      "Tell me about a time you handled a tricky multi-tenant isolation or permissions problem.",
+      "How do you balance enterprise customization against product simplicity?"
+    ],
     "other": [
       "Is RingCentral remote-friendly?",
       "How does RingCentral compare to Zoom or 8&#215;8?",
       "What is the engineering culture?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 6,
   "tips": [],
   "compensation": null,
   "rawSummary": "RingCentral Interview Guide (2026): Cloud Communications Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 6, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 6, 2026 · techinterview.org\n\n⏱ 1 min read\n\nRingCentral\nringcentral.com ↗\n\nRingCentral is the largest pure-play UCaaS provider — voice, video, messaging, contact center. Public since 2013. The interview emphasizes real-time media (SIP, WebRTC, codecs), high-availability voice infrastructure, and the unique challenges of regulated voice traffic at carrier scale.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–5 weeks.\n\nWhat they actually ask\n\n- Design a global SIP/WebRTC platform with five-nines uptime\n\n- Design call routing across regional PoPs\n\n- Design a real-time analytics pipeline for call quality\n\n- Coding: medium DSA, often with networking or concurrency framing\n\n- Behavioral: ownership, on-call discipline, regulated-industry care\n\nLevels and comp (2026)\n\n- SE II: $130K–$165K total\n\n- Senior SE: $190K–$250K\n\n- Staff: $275K–$370K\n\n- Principal: $390K–$510K\n\nPrep priorities\n\n- Be fluent in Java, Go, or C++ (split across product lines)\n\n- Understand SIP/RTP, WebRTC, and audio codecs\n\n- Brush up on telecom regulation (E911, STIR/SHAKEN)\n\nFrequently Asked Questions\n\nIs RingCentral remote-friendly?\n\nHybrid in Belmont CA (HQ), Charlotte, Denver, plus international. Many engineering roles fully remote within US.\n\nHow does RingCentral compare to Zoom or 8&#215;8?\n\nZoom is video-first and now expanding to voice. 8&#215;8 is the smaller competitor. RingCentral is the voice-first incumbent. Comp is mid-tier; below cloud leaders.\n\nWhat is the engineering culture?\n\nMature, telecom-grade, calmer pace. Strong work-life balance.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for RingCentral? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextPoll System Low-Level Design: Duplicate Vote Prevention, Real-Time Results, and Multi-Select⏱ 9 min readCircleCI Interview Guide (2026): CI/CD Platform Engineering⏱ 1 min readLow Level Design: Digital Wallet System⏱ 9 min read"

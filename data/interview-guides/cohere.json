@@ -8,21 +8,16 @@
     "Behavioral / hiring manager: past projects, enterprise-customer empathy, Canadian / international culture adaptation."
   ],
   "codingTopics": [
-    "Implement a reranker: given candidate documents and a query, produce ranked output with a scoring function",
-    "Embedding pipeline: batch-encode a corpus efficiently with a given embedding model",
-    "Multi-step agent loop with tool-calling and state management",
-    "Retrieval evaluation: compute metrics (MRR, NDCG) over relevance judgments",
-    "Classic algorithm problems with ML-systems applied twists"
+    "BPE tokenizer merges (string, merge)",
+    "Embedding nearest-neighbor search (heap, search, math)",
+    "Streaming token generation buffer (stream, realtime)",
+    "Batched attention and softmax (array, math)"
   ],
   "systemDesignTopics": [
-    "\"Design the on-premise deployment for a financial-services customer with regulatory requirements.\"",
-    "\"Design the retrieval + rerank pipeline for a healthcare customer's knowledge base with HIPAA compliance.\"",
-    "\"Design the North AI agent platform's execution layer supporting enterprise-grade audit and human-in-the-loop.\"",
-    "\"Design the multi-tenant serving system with strict per-customer isolation for Fortune 500 customers.\"",
-    "Walk through a Cohere research paper (retrieval-adjacent, multilingual, or efficient fine-tuning).",
-    "Discuss the trade-offs between dense retrieval, cross-encoder reranking, and LLM-as-judge for different retrieval scenarios.",
-    "Reason about multilingual training &mdash; data balance, evaluation, cross-lingual transfer.",
-    "Design an experiment to evaluate a new retrieval approach against production baselines."
+    "Design an on-premise LLM inference deployment for an enterprise with strict data-residency requirements",
+    "Design a retrieval-augmented generation pipeline over a customer's private document corpus",
+    "Design a multi-tenant LLM serving system with per-tenant rate limits and isolation",
+    "Design an embeddings index that supports fast semantic search over billions of documents"
   ],
   "behavioralTopics": [
     "Enterprise-customer empathy: \"Tell me about working with a customer in a regulated industry.\"",
@@ -32,27 +27,27 @@
   ],
   "sampleQuestions": {
     "coding": [
-      "Given candidate documents and a query, produce ranked output with a scoring function. Talk through your approach, complexity, and edge cases.",
-      "Implement a streaming feature aggregator: given a stream of events, maintain rolling counts and averages per key with bounded memory. Discuss complexity and eviction.",
-      "Compute metrics (MRR, NDCG) over relevance judgments. Talk through your approach, complexity, and edge cases.",
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution."
+      "Cohere's tokenizer uses BPE. Given a vocabulary of merges, tokenize an input string by greedily applying merges.",
+      "Given query and document embeddings, return the top-K most similar documents by cosine similarity using a heap.",
+      "Implement a streaming generation buffer that yields tokens as they're produced while handling backpressure to the client.",
+      "Given batched attention scores as a 2D array, apply a causal mask and row-wise softmax efficiently."
     ],
     "behavioral": [
-      "Tell me about working with a customer in a regulated industry.",
-      "How do you balance research work with production shipping?",
-      "Describe working across Toronto, London, SF, and NY offices.",
-      "How do you think about balancing model generality with customer-specific fine-tuning?",
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+      "Tell me about shipping an ML system into a real production environment with hard constraints.",
+      "Cohere is async and doc-heavy. Describe a design doc you wrote that changed a decision.",
+      "Tell me about a time you optimized inference cost or latency.",
+      "Describe collaborating with a customer or forward-deployed team to solve a real problem."
     ],
     "systemDesign": [
-      "Design the on-premise deployment for a financial-services customer with regulatory requirements.",
-      "Design the retrieval + rerank pipeline for a healthcare customer's knowledge base with HIPAA compliance.",
-      "Design the North AI agent platform's execution layer supporting enterprise-grade audit and human-in-the-loop.",
-      "Design the multi-tenant serving system with strict per-customer isolation for Fortune 500 customers.",
-      "Design an experiment to evaluate a new retrieval approach against production baselines. Cover the API, data model, and how it scales."
+      "Design an on-premise/VPC LLM deployment for a financial-services customer where data can never leave their environment.",
+      "Design a retrieval-augmented generation system over a customer's private documents, covering chunking, embeddings, and freshness.",
+      "Design a multi-tenant inference service with per-customer rate limits, isolation, and fair GPU sharing."
     ],
-    "values": [],
+    "values": [
+      "Cohere focuses on enterprise AI, not consumer chatbots. Why does that mission resonate with you?",
+      "How do you weigh model quality against deployment cost and privacy constraints?",
+      "Tell me about a time you made a pragmatic ML decision under real-world limits."
+    ],
     "other": [
       "How does Cohere compare to OpenAI / Anthropic / Mistral on interviews?",
       "What's North AI?",

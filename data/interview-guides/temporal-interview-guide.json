@@ -6,29 +6,50 @@
   "interviewStages": [
     "Behavioral: ownership, deep technical taste, working with experienced infra engineers"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Practical systems coding: parsers, queues, small state machines",
+    "Streaming and time-series: windowed aggregation over log and metric events",
+    "String parsing: query languages, config formats",
+    "Data structures: ring buffers, LRU caches, tries",
+    "Graph and topological: build and dependency ordering"
+  ],
+  "systemDesignTopics": [
+    "Design a workflow engine that survives process restarts deterministically",
+    "Design a sharded history service with consistent routing",
+    "Design idempotent activity execution with at-most-once or exactly-once semantics"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "At Temporal, parse a stream of log and metric events and aggregate by key over a sliding window. Discuss memory bounds.",
+      "Implement a rate-limited, back-pressured queue for ingestion. Discuss what happens when a downstream sink is slow.",
+      "Parse a config format into a typed structure with schema validation. Discuss error handling.",
+      "Given a dependency graph of build targets, compute a valid build order and detect cycles via topological sort.",
+      "Downsample a time-series into fixed buckets (min, max, avg) as data streams in. Walk through the approach."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a project you are proud of at Temporal scale and the hardest tradeoff you made.",
+      "Give me an example that shows ownership, deep technical taste, working with experienced infra engineers.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a workflow engine that survives process restarts deterministically.",
+      "Design a sharded history service with consistent routing.",
+      "Design idempotent activity execution with at-most-once or exactly-once semantics."
+    ],
+    "values": [
+      "Temporal is trusted by the developers who depend on it. Describe a time you prioritized reliability and craft.",
+      "Tell me about an open-source contribution or public work you are proud of.",
+      "How do you weigh a breaking change against the migration cost for users?"
+    ],
     "other": [
       "Is Temporal remote-friendly?",
       "How does Temporal compare to Airflow or Step Functions?",
       "What is the engineering culture?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 7,
   "tips": [],
   "compensation": null,
   "rawSummary": "Temporal Interview Guide (2026): Durable Workflow Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 6, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 6, 2026 · techinterview.org\n\n⏱ 1 min read\n\nTemporal\ntemporal.io ↗\n\nTemporal is the durable-workflow platform spun out from Uber Cadence — used by Snap, Coinbase, Stripe, Datadog, and many others to write reliable distributed code. Series C, $1.7B+ valuation. The interview emphasizes deep distributed systems work, deterministic execution semantics, and the engineering of a long-running stateful platform.\n\nProcess\n\nRecruiter screen → 60-minute coding (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Senior+ infra candidates often get a deep distributed-systems round. Cycle: 3–5 weeks.\n\nWhat they actually ask\n\n- Design a workflow engine that survives process restarts deterministically\n\n- Design a sharded history service with consistent routing\n\n- Design idempotent activity execution with at-most-once or exactly-once semantics\n\n- Coding: medium DSA, plus careful systems reasoning\n\n- Behavioral: ownership, deep technical taste, working with experienced infra engineers\n\nLevels and comp (2026)\n\n- SE: $190K–$260K total (cash + meaningful equity)\n\n- Senior SE: $270K–$370K total\n\n- Staff: $380K–$540K total\n\n- Principal: $530K–$780K+ total\n\nPrep priorities\n\n- Be fluent in Go (server) and at least one SDK language (Java, TypeScript, Python)\n\n- Understand event-sourcing, deterministic replay, and saga patterns\n\n- Brush up on Cassandra/PostgreSQL persistence and consistent hashing\n\nFrequently Asked Questions\n\nIs Temporal remote-friendly?\n\nDistributed-first since founding. Hubs in Seattle and SF; most engineers remote across US/Europe.\n\nHow does Temporal compare to Airflow or Step Functions?\n\nAirflow is batch DAG-oriented. Step Functions is AWS-only. Temporal is general-purpose code-as-workflow with strong durability semantics. Comp is competitive at senior+ for infrastructure work with meaningful equity.\n\nWhat is the engineering culture?\n\nSenior-heavy, technically deep, calm but rigorous. Distributed-systems craft is core.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Temporal? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextSystem Design Interview: Email Service at Scale (SendGrid/Gmail)⏱ 6 min readLow Level Design: Crowdfunding Platform⏱ 8 min readLow Level Design: DNS Resolution System⏱ 11 min read"

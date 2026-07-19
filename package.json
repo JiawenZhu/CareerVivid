@@ -17,6 +17,8 @@
     "clean": "zx scripts/clean.mjs",
     "seed:templates": "node scripts/seedTemplates.js",
     "test": "vitest run",
+    "generate:interview-guides": "node scripts/generate-interview-guide-summaries.mjs",
+    "verify:interview-guides": "node scripts/generate-interview-guide-summaries.mjs --check",
     "test:autofill": "vitest run src/autofill/__tests__"
   },
   "dependencies": {

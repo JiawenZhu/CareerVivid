@@ -15,19 +15,10 @@
     "Classic algorithm problems (trees, graphs, DP) with developer-platform twists"
   ],
   "systemDesignTopics": [
-    "\"Design the Realtime server broadcasting Postgres changes to 50K concurrent subscribers across 10K projects.\"",
-    "\"Design the multi-tenant Postgres provisioning system supporting fast spin-up and per-project isolation.\"",
-    "\"Design the Edge Functions deployment system distributing Deno-runtime functions to global POPs.\"",
-    "\"Design the auth system supporting multiple identity providers with session management across projects.\"",
-    "Walk through Postgres MVCC and logical replication.",
-    "Discuss row-level security design for multi-tenant applications.",
-    "Reason about connection-pooling choices (PgBouncer vs Supavisor) for different workload patterns.",
-    "Describe the trade-offs of per-project-database vs shared-database multi-tenancy.",
-    "Explain pg_vector HNSW vs IVF and when each is appropriate.",
-    "\"What's great about Supabase as a developer platform? What's broken?\"",
-    "\"Compare Supabase, Firebase, and Convex. Where does each win?\"",
-    "\"If you could improve one thing for Supabase developers, what would it be?\"",
-    "\"What's your take on the AI-powered backend direction (vector search, AI assistants)?\""
+    "Design the Realtime server broadcasting Postgres changes to 50K concurrent subscribers across 10K projects",
+    "Design the multi-tenant Postgres provisioning system supporting fast spin-up and per-project isolation",
+    "Design the Edge Functions deployment system distributing Deno-runtime functions to global POPs",
+    "Design the auth system supporting multiple identity providers with session management across projects"
   ],
   "behavioralTopics": [
     "Open-source sensibility: \"Have you contributed to open source? What's your philosophy about open development?\"",
@@ -38,26 +29,27 @@
   "sampleQuestions": {
     "coding": [
       "Implement a row-level-security rule evaluator for a given query. Talk through your approach, complexity, and edge cases.",
-      "Implement similar to Supabase Realtime's source layer. Talk through your approach, complexity, and edge cases.",
-      "Design an auto-retrying API client with backoff and per-endpoint rate limits. Talk through your approach, complexity, and edge cases.",
-      "Implement extract table names, rewrite with row-security predicates. Talk through your approach, complexity, and edge cases.",
-      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph."
+      "Build a streaming change-data-capture consumer (similar to Supabase Realtime's source layer). Talk through your approach, complexity, and edge cases.",
+      "Parse / transform SQL (extract table names, rewrite with row-security predicates). Talk through your approach, complexity, and edge cases.",
+      "At Supabase, parse a stream of log and metric events and aggregate by key over a sliding window. Discuss memory bounds.",
+      "Implement a rate-limited, back-pressured queue for ingestion. Discuss what happens when a downstream sink is slow."
     ],
     "behavioral": [
-      "Have you contributed to open source? What's your philosophy about open development?",
-      "Describe your practices for effective async collaboration across timezones.",
-      "How do you operate when owning broad scope with less specialization?",
-      "Tell me about a time you understood a developer user's problem deeply.",
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+      "Tell me about a project you are proud of at Supabase scale and the hardest tradeoff you made.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end.",
+      "Describe a time something you shipped failed or fell short. What did you change afterward?"
     ],
     "systemDesign": [
       "Design the Realtime server broadcasting Postgres changes to 50K concurrent subscribers across 10K projects.",
       "Design the multi-tenant Postgres provisioning system supporting fast spin-up and per-project isolation.",
-      "Design the Edge Functions deployment system distributing Deno-runtime functions to global POPs.",
-      "Design the auth system supporting multiple identity providers with session management across projects.",
-      "Walk through Postgres MVCC and logical replication."
+      "Design the Edge Functions deployment system distributing Deno-runtime functions to global POPs."
     ],
-    "values": [],
+    "values": [
+      "Supabase is trusted by the developers who depend on it. Describe a time you prioritized reliability and craft.",
+      "Tell me about an open-source contribution or public work you are proud of.",
+      "How do you weigh a breaking change against the migration cost for users?"
+    ],
     "other": [
       "Do I need deep PostgreSQL knowledge to get hired?",
       "How does Supabase compare to Firebase / Convex on interviews?",

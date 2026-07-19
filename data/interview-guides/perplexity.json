@@ -15,19 +15,10 @@
     "Classic algorithm problems (graphs, trees, priority queues) with search / ranking twists"
   ],
   "systemDesignTopics": [
-    "\"Design the retrieval pipeline pulling from 100B web pages with sub-second latency and freshness guarantees.\"",
-    "\"Design the ranking system combining BM25, dense retrieval, and LLM reranking across multiple indexes.\"",
-    "\"Design Comet's hybrid browser architecture combining on-device privacy with cloud AI assistance.\"",
-    "\"Design the citation-verification system to reduce hallucinations in generated answers.\"",
-    "Walk through dense vs lexical retrieval trade-offs for different query types.",
-    "Discuss reranker architecture choices (cross-encoder, ColBERT, LLM-based).",
-    "Reason about citation extraction when the LLM's answer doesn't match source exactly.",
-    "Describe an evaluation framework for AI-answer quality with both automated and human signals.",
-    "Explain approaches for reducing hallucinations in cited answers.",
-    "\"What makes a Perplexity answer great vs mediocre?\"",
-    "\"How would you evaluate an answer's citation quality?\"",
-    "\"Where does Perplexity lose to traditional search, and where does it win?\"",
-    "\"Design a feature that would make Perplexity stickier for power users.\""
+    "Design the retrieval pipeline pulling from 100B web pages with sub-second latency and freshness guarantees",
+    "Design the ranking system combining BM25, dense retrieval, and LLM reranking across multiple indexes",
+    "Design Comet's hybrid browser architecture combining on-device privacy with cloud AI assistance",
+    "Design the citation-verification system to reduce hallucinations in generated answers"
   ],
   "behavioralTopics": [
     "Shipping velocity: \"Tell me about a feature you shipped in an AI-product context.\"",
@@ -37,27 +28,28 @@
   ],
   "sampleQuestions": {
     "coding": [
-      "Given candidate documents and a query, produce ranked output using a scoring function. Talk through your approach, complexity, and edge cases.",
-      "Stream-process LLM response tokens with structured-output parsing (extract citations as they appear). Talk through your approach, complexity, and edge cases.",
-      "Given a user question, generate retrieval-optimized queries. Talk through your approach, complexity, and edge cases.",
-      "Merge BM25 + dense-retrieval results with a scoring function. Talk through your approach, complexity, and edge cases.",
-      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph."
+      "At Perplexity, given a stream of model inference requests, batch them to maximize GPU utilization while keeping per-request latency under a bound. Discuss the queue and complexity.",
+      "Chunk a long document into overlapping passages for retrieval, respecting sentence boundaries. Discuss the sliding-window approach.",
+      "Given a query and an inverted index over embeddings, return the top-K most similar items using a heap. Discuss ranking.",
+      "Deduplicate near-identical generated outputs using shingling and hashing. Walk through complexity.",
+      "Implement an LRU cache for expensive model inference requests keyed by a prompt hash with TTL eviction. Discuss the data structure."
     ],
     "behavioral": [
-      "Tell me about a feature you shipped in an AI-product context.",
-      "How do you design systems around LLM unreliability?",
-      "Describe working with rapidly-evolving model capabilities and user expectations.",
-      "What's your approach to shipping AI features that users trust?",
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+      "Tell me about a project you are proud of at Perplexity scale and the hardest tradeoff you made.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end.",
+      "Describe a time something you shipped failed or fell short. What did you change afterward?"
     ],
     "systemDesign": [
       "Design the retrieval pipeline pulling from 100B web pages with sub-second latency and freshness guarantees.",
       "Design the ranking system combining BM25, dense retrieval, and LLM reranking across multiple indexes.",
-      "Design Comet's hybrid browser architecture combining on-device privacy with cloud AI assistance.",
-      "Design the citation-verification system to reduce hallucinations in generated answers. Cover the API, data model, and how it scales.",
-      "Design a feature that would make Perplexity stickier for power users. Cover the API, data model, and how it scales."
+      "Design Comet's hybrid browser architecture combining on-device privacy with cloud AI assistance."
     ],
-    "values": [],
+    "values": [
+      "Perplexity's mission carries real responsibility. Describe a time you weighed capability against safety.",
+      "How do you evaluate an AI feature where a wrong answer has real consequences?",
+      "Tell me about a time you were rigorous about data quality or evaluation when it slowed you down."
+    ],
     "other": [
       "Is Perplexity just an LLM wrapper?",
       "How does Perplexity compete with ChatGPT Search and Google?",
@@ -66,7 +58,7 @@
       "What's the IPO outlook?"
     ]
   },
-  "difficulty": 7.5,
+  "difficulty": 7,
   "tips": [
     "Use Perplexity daily. 1&ndash;2 weeks of real usage before interviewing. Form authentic opinions.",
     "Know retrieval fundamentals. BM25, dense retrieval, hybrid fusion &mdash; vocabulary for system design.",

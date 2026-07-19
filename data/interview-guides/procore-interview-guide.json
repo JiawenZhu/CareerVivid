@@ -6,29 +6,50 @@
   "interviewStages": [
     "Behavioral: customer empathy (construction industry has unique needs), collaboration"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "OO design: model a business domain such as workflows with triggers and actions",
+    "Multi-tenant data structures: per-tenant rate limiting, isolation",
+    "Streaming: rolling aggregates over tenant events",
+    "Graph and DAG: workflow evaluation, dependency resolution",
+    "Search and filters: AND/OR queries over records"
+  ],
+  "systemDesignTopics": [
+    "Design a multi-tenant project management system with role-based permissions",
+    "Design document management with version control, e-signatures, and audit trails",
+    "Design integrations with hundreds of third-party tools (Excel, Bluebeam, Sage)"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "At Procore, model a workflow engine with triggers, conditions, and actions. Evaluate a workflow DAG and detect cycles.",
+      "Implement a per-tenant rate limiter so one customer cannot exhaust shared capacity. Discuss the token-bucket design.",
+      "Given a stream of tenant events, maintain rolling per-entity scores with bounded memory.",
+      "Implement a filter query over records supporting AND/OR on custom fields. Discuss indexing for a multi-tenant store.",
+      "Deduplicate records via fuzzy clustering on name and email. Discuss the matching and complexity."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a project you are proud of at Procore scale and the hardest tradeoff you made.",
+      "Give me an example that shows customer empathy (construction industry has unique needs), collaboration.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a multi-tenant project management system with role-based permissions.",
+      "Design document management with version control, e-signatures, and audit trails.",
+      "Design integrations with hundreds of third-party tools (Excel, Bluebeam, Sage)."
+    ],
+    "values": [
+      "Procore succeeds when its customers do. Describe a time you solved for the customer even at a cost to the team.",
+      "Tell me about a time you handled a tricky multi-tenant isolation or permissions problem.",
+      "How do you balance enterprise customization against product simplicity?"
+    ],
     "other": [
       "Is Procore remote-friendly?",
       "What is the construction industry like as a domain?",
       "How does Procore compare to Autodesk Construction Cloud?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 6,
   "tips": [],
   "compensation": null,
   "rawSummary": "Procore Interview Guide (2026): Construction Tech Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nProcore\nprocore.com ↗\n\nProcore is the leading construction management platform — used by 16,000+ general contractors and subcontractors. The interview focuses on enterprise SaaS engineering, complex multi-tenant data modeling, and the realities of building software for an industry that values reliability over novelty.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral, 1 hiring manager. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design a multi-tenant project management system with role-based permissions\n\n- Design document management with version control, e-signatures, and audit trails\n\n- Design integrations with hundreds of third-party tools (Excel, Bluebeam, Sage)\n\n- Coding: medium DSA, often with data-modeling framing\n\n- Behavioral: customer empathy (construction industry has unique needs), collaboration\n\nLevels and comp (2026)\n\n- SE II: $145K–$180K total\n\n- Senior SE: $210K–$280K\n\n- Staff: $300K–$400K\n\n- Principal: $420K–$550K\n\nPrep priorities\n\n- Be fluent in Ruby on Rails (the bulk of the codebase)\n\n- Understand enterprise SaaS patterns: SSO, SCIM, audit logs, RBAC\n\n- Read about modular monolith architecture (Procore is a famous example)\n\nFrequently Asked Questions\n\nIs Procore remote-friendly?\n\nHybrid in Carpinteria (HQ), Austin, NYC, and others. Many engineering roles are fully remote within US.\n\nWhat is the construction industry like as a domain?\n\nFriendly, demanding, and conservative on tech adoption. Customers value reliability over novelty. Engineers benefit from understanding construction workflows.\n\nHow does Procore compare to Autodesk Construction Cloud?\n\nProcore is dedicated; Autodesk has BIM/design integration. Procore pays slightly less but moves faster on product features.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Procore? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextNetflix⏱ 1 min readAI/ML Interview: Neural Network Training — Backpropagation, Gradient Descent, Batch Normalization, Dropout, Regularization⏱ 6 min readLow Level Design: Online Status Service⏱ 5 min read"

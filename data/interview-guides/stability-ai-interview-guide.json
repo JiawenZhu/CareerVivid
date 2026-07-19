@@ -6,29 +6,50 @@
   "interviewStages": [
     "Behavioral: ownership, taste, research-engineering blend"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "NLP and pipelines: tokenization, chunking, retrieval over documents",
+    "Streaming: token streams and batched inference",
+    "Search and ranking: vector plus keyword retrieval, top-K with heaps",
+    "Data structures: tries, inverted indexes, LRU caches",
+    "Evaluation harnesses: scoring model outputs"
+  ],
+  "systemDesignTopics": [
+    "Design a distributed training pipeline for a diffusion model",
+    "Design an inference platform with high throughput for image/video generation",
+    "Design a safety-and-watermarking pipeline for outputs"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "At Stability AI, given a stream of model inference requests, batch them to maximize GPU utilization while keeping per-request latency under a bound. Discuss the queue and complexity.",
+      "Chunk a long document into overlapping passages for retrieval, respecting sentence boundaries. Discuss the sliding-window approach.",
+      "Given a query and an inverted index over embeddings, return the top-K most similar items using a heap. Discuss ranking.",
+      "Deduplicate near-identical generated outputs using shingling and hashing. Walk through complexity.",
+      "Implement an LRU cache for expensive model inference requests keyed by a prompt hash with TTL eviction. Discuss the data structure."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a project you are proud of at Stability AI scale and the hardest tradeoff you made.",
+      "Give me an example that shows ownership, taste, research-engineering blend.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a distributed training pipeline for a diffusion model.",
+      "Design an inference platform with high throughput for image/video generation.",
+      "Design a safety-and-watermarking pipeline for outputs."
+    ],
+    "values": [
+      "Stability AI's mission carries real responsibility. Describe a time you weighed capability against safety.",
+      "How do you evaluate an AI feature where a wrong answer has real consequences?",
+      "Tell me about a time you were rigorous about data quality or evaluation when it slowed you down."
+    ],
     "other": [
       "Is Stability remote-friendly?",
       "How does Stability compare to Black Forest Labs (Flux), Midjourney, or Runway?",
       "What is the engineering culture?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 7,
   "tips": [],
   "compensation": null,
   "rawSummary": "Stability AI Interview Guide (2026): Generative Image AI\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 6, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 6, 2026 · techinterview.org\n\n⏱ 1 min read\n\nStability AI\nstability.ai ↗\n\nStability AI is the company behind the Stable Diffusion family — open-weights image, video, and audio generative models. Series B+ with 2024 leadership reset. The interview emphasizes generative-model research engineering, large-scale training, and the unique tradeoffs of an open-weights product company.\n\nProcess\n\nRecruiter screen → 60-minute coding (Python with ML fluency expected) → onsite virtual: 2 coding/ML, 1 ML system design, 1 research deep-dive, 1 behavioral. Research candidates get a paper-discussion round. Cycle: 4–6 weeks.\n\nWhat they actually ask\n\n- Design a distributed training pipeline for a diffusion model\n\n- Design an inference platform with high throughput for image/video generation\n\n- Design a safety-and-watermarking pipeline for outputs\n\n- Coding: medium-hard DSA, often ML-flavored\n\n- Behavioral: ownership, taste, research-engineering blend\n\nLevels and comp (2026)\n\n- SE: $170K–$235K total\n\n- Senior SE: $245K–$340K total\n\n- Staff / ML Research: $360K–$520K+ total at top of band\n\n(Comp tightened post 2024 restructuring; below frontier-lab top of band.)\n\nPrep priorities\n\n- Be fluent in Python and PyTorch deeply\n\n- Understand diffusion models (DDPM, score-based, flow matching, rectified flow)\n\n- Brush up on distributed training (FSDP, DeepSpeed) and inference optimization for diffusion\n\nFrequently Asked Questions\n\nIs Stability remote-friendly?\n\nHubs in London (HQ) and remote across US/EU. Many engineering and research roles remote.\n\nHow does Stability compare to Black Forest Labs (Flux), Midjourney, or Runway?\n\nBlack Forest Labs (founded by ex-Stability researchers) ships frontier image quality. Midjourney is a closed product with leading aesthetic quality. Runway is video-first. Stability's differentiator is open-weights releases. Comp lower than top-tier closed labs but with strong research brand.\n\nWhat is the engineering culture?\n\nResearch-engineering blended; calmer post-2024 reorg. Strong OSS / open-weights ethos. The London + remote distribution requires async discipline.\n\nSimilar company guides\n\nReka AIinterview guideSakana AIinterview guideBlack Forest Labsinterview guideHippocratic AIinterview guideRunwayinterview guidePika Labsinterview guide\n\nPrepping for Stability AI? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextThe RSU tax mistakes that quietly cost engineers thousands⏱ 5 min readRemove a Character from a String: In-Place, Two-Pointer, Stream⏱ 5 min readLow-Level Design: Loyalty and Rewards Program — Points, Tiers, Redemption, and Expiry⏱ 6 min read"

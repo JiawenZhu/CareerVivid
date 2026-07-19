@@ -30,32 +30,46 @@
     "Comp restructuring. Pre-acquisition Splunk equity packages have been replaced with Cisco RSU grants. The headline numbers are typically lower than pre-acquisition; refresh grants are the lever to push on in negotiation.",
     "Process integration. Cisco's hiring process is more committee-heavy and slower than Splunk's pre-acquisition pace. Expect the interview loop to take 6-10 weeks rather than 4-5.",
     "Product-strategy uncertainty. Cisco has been integrating Splunk with its existing security and observability portfolio (XDR, AppDynamics). Some teams have changed scope post-acquisition; clarify with the recruiter which team you would be joining and whether its scope is stable.",
-    "Datadog &mdash; SaaS observability",
-    "Elastic &mdash; search and observability"
+    "Datadog — SaaS observability",
+    "Elastic — search and observability"
   ],
-  "systemDesignTopics": [],
+  "systemDesignTopics": [
+    "Design a time-series database with horizontal scaling and a strict query SLA",
+    "Design a distributed log aggregation system at high ingestion volume",
+    "Design a query engine with a domain-specific language and pushdown optimization",
+    "Design a multi-tenant control plane for provisioning and config"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Is the work mostly Java?",
-      "Parse arbitrary log formats efficiently. Talk through your approach, complexity, and edge cases.",
-      "Implement a small SPL parser. Talk through your approach, complexity, and edge cases.",
-      "You need to deduplicate a very large dataset that does not fit in memory. Walk me through your approach and how you would verify correctness.",
-      "Process integration. Talk through your approach, complexity, and edge cases."
+      "Parse arbitrary log formats efficiently. Splunk's value proposition includes flexible log parsing; expect questions about regex performance, field extraction at index time vs search time, and how to handle malformed records without rejecting an entire batch.",
+      "Implement a small SPL parser. Splunk Search Processing Language has a pipeline syntax. Senior+ candidates may be asked to design a tokenizer and AST for a subset.",
+      "Process integration. Cisco's hiring process is more committee-heavy and slower than Splunk's pre-acquisition pace. Expect the interview loop to take 6-10 weeks rather than 4-5.",
+      "At Splunk, parse a stream of log and metric events and aggregate by key over a sliding window. Discuss memory bounds.",
+      "Implement a rate-limited, back-pressured queue for ingestion. Discuss what happens when a downstream sink is slow."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a project you are proud of at Splunk scale and the hardest tradeoff you made.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end.",
+      "Describe a time something you shipped failed or fell short. What did you change afterward?"
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a time-series database with horizontal scaling and a strict query SLA.",
+      "Design a distributed log aggregation system at high ingestion volume.",
+      "Design a query engine with a domain-specific language and pushdown optimization."
+    ],
+    "values": [
+      "Splunk is trusted by the developers who depend on it. Describe a time you prioritized reliability and craft.",
+      "Tell me about an open-source contribution or public work you are proud of.",
+      "How do you weigh a breaking change against the migration cost for users?"
+    ],
     "other": [
       "How has Cisco acquisition changed Splunk?",
       "How does Splunk compare to Datadog or Elastic?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 7,
   "tips": [],
   "compensation": [
     "Mid: $140–180K base + Cisco RSU + bonus → $230–320K total",

@@ -15,12 +15,10 @@
     "Classic algorithms (graphs, trees, DP) with fintech twists (approval chain routing, ledger reconciliation across accounts)"
   ],
   "systemDesignTopics": [
-    "\"Design the ACH orchestration system processing 100K transfers/day with partner-bank dependency.\"",
-    "\"Design a real-time fraud detection pipeline with <50ms scoring latency and feedback loops.\"",
-    "\"Design the virtual-card issuance and spending-controls rules engine.\"",
-    "\"Design the reconciliation system that matches Mercury's internal state against partner-bank feeds nightly.\"",
-    "How do you represent states that can't coexist? (make illegal states unrepresentable)",
-    "Show me a time you caught a bug through the type system."
+    "Design the ACH orchestration system processing 100K transfers/day with partner-bank dependency",
+    "Design a real-time fraud detection pipeline with <50ms scoring latency and feedback loops",
+    "Design the virtual-card issuance and spending-controls rules engine",
+    "Design the reconciliation system that matches Mercury's internal state against partner-bank feeds nightly"
   ],
   "behavioralTopics": [
     "Craft: \"Tell me about a time you pushed back on shipping because the design wasn't right yet.\"",
@@ -30,27 +28,28 @@
   ],
   "sampleQuestions": {
     "coding": [
-      "Implement pending, authorized, settled, returned, reversed. Talk through your approach, complexity, and edge cases.",
+      "Model a transfer lifecycle with all failure paths (pending, authorized, settled, returned, reversed). Talk through your approach, complexity, and edge cases.",
       "Implement an idempotent processor for at-least-once delivery (message queue consumer handling duplicates). Talk through your approach, complexity, and edge cases.",
       "Build a rate limiter with fairness guarantees across customers. Talk through your approach, complexity, and edge cases.",
-      "Implement ACH NACHA files, ISO 20022 messages, Plaid-style transaction data. Talk through your approach, complexity, and edge cases.",
-      "Implement a double-entry ledger that processes a stream of transactions and detects imbalances. How do you guarantee idempotency when a transaction is delivered twice?"
+      "At Mercury, implement an idempotent handler for payments so retries never double-charge. Discuss the dedupe key and storage.",
+      "Compute balances from a stream of ledger entries with correct decimal and rounding rules so totals reconcile to the cent."
     ],
     "behavioral": [
-      "Tell me about a time you pushed back on shipping because the design wasn't right yet.",
-      "Describe a moment where you understood a user / customer need deeply.",
-      "Tell me about a production incident you owned end-to-end.",
-      "Have you worked under compliance / regulatory constraints?",
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+      "Tell me about a project you are proud of at Mercury scale and the hardest tradeoff you made.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end.",
+      "Describe a time something you shipped failed or fell short. What did you change afterward?"
     ],
     "systemDesign": [
-      "When do you reach for a sum type vs a field-with-null?",
-      "How do you handle errors &mdash; exceptions, Result / Either, or something else?",
-      "When is a type system overkill?",
       "Design the ACH orchestration system processing 100K transfers/day with partner-bank dependency.",
-      "Design a real-time fraud detection pipeline with <50ms scoring latency and feedback loops. Cover the API, data model, and how it scales."
+      "Design a real-time fraud detection pipeline with <50ms scoring latency and feedback loops.",
+      "Design the virtual-card issuance and spending-controls rules engine."
     ],
-    "values": [],
+    "values": [
+      "Mercury protects users' money. Describe a time you prevented a correctness or fraud problem.",
+      "Tell me about a time you balanced a growth feature against fraud or risk.",
+      "How do you earn and keep user trust in a financial product?"
+    ],
     "other": [
       "Do I need to know Haskell to get hired?",
       "How does Mercury compare to Brex on interviews?",
@@ -59,7 +58,7 @@
       "Is Mercury remote-friendly?"
     ]
   },
-  "difficulty": 7.5,
+  "difficulty": 6,
   "tips": [
     "Engage with the stack. You don't need to be fluent in Haskell, but know enough to discuss its trade-offs.",
     "Prepare type-system stories. \"I modeled this state machine so that invalid transitions couldn't compile\" &mdash; specifics win.",

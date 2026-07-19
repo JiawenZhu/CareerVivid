@@ -26,6 +26,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { initializeApp, cert } from 'firebase-admin/app';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
+import { getMobileQuestionBuckets } from './mobile-interview-question-catalog.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DATA_DIR = path.join(__dirname, '..', 'data', 'interview-guides');
@@ -78,6 +79,7 @@ function loadBanks() {
     : { companyCategory: {}, questionBanks: {} };
   return _banks;
 }
+
 /**
  * Category-bank questions for a stage across all difficulty tiers, with
  * {company} substituted. Returns [{ text, tier }].
@@ -146,6 +148,10 @@ function toQuestionDocs(guide) {
   return questions;
 }
 
+function mobileQuestionBuckets(guide) {
+  return getMobileQuestionBuckets(guide, loadBanks());
+}
+
 /** Delete every doc in a guide's questions subcollection (idempotent re-sync). */
 async function clearQuestions(guideRef) {
   const snap = await guideRef.collection('questions').get();
@@ -161,7 +167,12 @@ async function clearQuestions(guideRef) {
 }
 
 async function seedGuide(guide) {
-  const guideDoc = toGuideDoc(guide);
+  const guideDoc = {
+    ...toGuideDoc(guide),
+    // This ordered copy is used by the authenticated native question API.
+    // It is updated in the same sync that publishes the web guide data.
+    mobileQuestionBuckets: mobileQuestionBuckets(guide),
+  };
   const questionDocs = toQuestionDocs(guide);
 
   if (DRY_RUN) {

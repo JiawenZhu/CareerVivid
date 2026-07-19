@@ -17,28 +17,42 @@
     "System Design: Cloud architecture, distributed systems, microservices",
     "Azure Services: Understanding of cloud platforms (bonus, not required)"
   ],
-  "systemDesignTopics": [],
+  "systemDesignTopics": [
+    "Design a URL shortener at scale with analytics",
+    "Design a distributed crawler and indexing pipeline",
+    "Design a video upload, transcoding, and streaming system",
+    "Design a real-time collaborative document editor"
+  ],
   "behavioralTopics": [
     "Activision Blizzard &mdash; part of Microsoft Gaming since 2023"
   ],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the longest contiguous subarray whose sum equals a target. Discuss complexity and edge cases.",
-      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph.",
-      "Given a set of coin denominations, compute the minimum number of coins needed to reach a target amount. Compare the recursive and bottom-up approaches.",
-      "Implement an LRU cache with O(1) get and put. Then explain how you would make it thread-safe without serializing all access.",
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases."
+      "At Microsoft, given a stream of requests, return the top-K most frequent in the last hour using a heap. Discuss memory bounds.",
+      "Given a road or dependency network as a weighted graph, find the shortest path between two nodes. Discuss Dijkstra versus A*.",
+      "Build autocomplete over billions of items using a prefix trie and return top suggestions for a prefix.",
+      "Merge two sorted lists of timestamped items into one ordered view using the two-pointer technique.",
+      "Given a grid of items, count connected regions using flood fill / DFS. Discuss complexity."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a project you are proud of at Microsoft scale and the hardest tradeoff you made.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end.",
+      "Describe a time something you shipped failed or fell short. What did you change afterward?"
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a URL shortener at scale with analytics.",
+      "Design a distributed crawler and indexing pipeline.",
+      "Design a video upload, transcoding, and streaming system."
+    ],
+    "values": [
+      "Microsoft operates at enormous scale. Describe a time you put the user first even though it made the engineering harder.",
+      "Tell me about a time you challenged the status quo or a decision you thought was wrong.",
+      "Describe a time you were clearly wrong and how intellectual humility shaped what you did next."
+    ],
     "other": []
   },
-  "difficulty": null,
+  "difficulty": 8,
   "tips": [
     "Demonstrate Growth Mindset: Show examples of learning from failures and continuous improvement. This is core to Microsoft culture.",
     "Practice LeetCode Medium Problems: Focus on 100-150 problems covering major data structures and algorithms.",

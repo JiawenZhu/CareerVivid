@@ -14,9 +14,10 @@
     "Design a small sub-system with a clear API and write the implementation (text buffer, diff algorithm, presence tracker)"
   ],
   "systemDesignTopics": [
-    "Canvas vs DOM vs WebGL tradeoffs for different UI problems",
-    "Bundle splitting and code loading strategies for a large app",
-    "Input handling: IME composition, pointer events, gesture recognition"
+    "Design a real-time collaborative document editor with CRDT-based conflict resolution",
+    "Design the presence and multiplayer-cursor system for hundreds of users on one document",
+    "Design the WebGL rendering pipeline for an infinite design canvas",
+    "Design offline editing with sync and conflict-free merge on reconnect"
   ],
   "behavioralTopics": [
     "Design-engineering partnership &mdash; tell a story about collaborating with a designer on a hard problem",
@@ -24,11 +25,11 @@
   ],
   "sampleQuestions": {
     "coding": [
-      "Implement range tree for selection, interval map for formatting, trie for autocomplete. Talk through your approach, complexity, and edge cases.",
-      "Implement command log, event sequence, expression tree. Talk through your approach, complexity, and edge cases.",
-      "Implement undo/redo, selection state, focus state. Talk through your approach, complexity, and edge cases.",
-      "Design a small sub-system with a clear API and write the implementation (text buffer, diff algorithm, presence tracker). Talk through your approach, complexity, and edge cases.",
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases."
+      "Implement a data structure tied to a practical editor operation (range tree for selection, interval map for formatting, or trie for autocomplete). Talk through your approach, complexity, and edge cases.",
+      "Parse or transform a structured command stream (a command log, event sequence, or expression tree). Talk through your approach, complexity, and edge cases.",
+      "Model a small editor state machine (undo/redo, selection state, focus state) with explicit transitions. Talk through your approach, complexity, and edge cases.",
+      "Design a small sub-system with a clear API and implement it (a text buffer, diff algorithm, or presence tracker). Talk through your approach, complexity, and edge cases.",
+      "Given a stream of concurrent edit operations from multiple users, merge them into a consistent document state (CRDT/OT). Talk through your approach and edge cases."
     ],
     "behavioral": [
       "Ambiguity &mdash; how do you ship when the spec isn't clear?",
@@ -38,12 +39,15 @@
       "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
     ],
     "systemDesign": [
-      "Rendering pipeline: when does the browser layout, paint, composite? What triggers a reflow?",
-      "Memory profiling: how do you find a leak in a long-running SPA?",
-      "Design a service at Figma scale that shortens URLs. Cover the API, storage, and hot-key handling.",
-      "Design a rate limiter for a public API. Discuss algorithms, distributed coordination, and failure modes."
+      "Design a collaborative editor's multiplayer layer. Cover CRDT vs OT, conflict resolution, and WebSocket scaling.",
+      "Design the presence system for 200 live cursors on one document. Cover fan-out, awareness protocol, and back-pressure.",
+      "Design offline editing with sync on reconnect. Cover conflict-free merge, delta encoding, and state recovery."
     ],
-    "values": [],
+    "values": [
+      "Figma has an unusually tight design-engineering loop. Tell me about a time you partnered closely with designers to ship something great.",
+      "Figma weights product sense heavily even for infra roles. Tell me about a time you made a call based on what was best for the user, not just the code.",
+      "Figma's craft bar is high. Describe a time you pushed past 'good enough' to get an experience truly right."
+    ],
     "other": [
       "Is the frontend interview at Figma really harder than FAANG's?",
       "Do I need to know CRDTs cold to pass system design?",

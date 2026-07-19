@@ -6,29 +6,51 @@
   "interviewStages": [
     "Behavioral: customer focus, ownership, working in mid-stage SaaS"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "OO design: model a business domain such as workflows with triggers and actions",
+    "Multi-tenant data structures: per-tenant rate limiting, isolation",
+    "Streaming: rolling aggregates over tenant events",
+    "Graph and DAG: workflow evaluation, dependency resolution",
+    "Search and filters: AND/OR queries over records"
+  ],
+  "systemDesignTopics": [
+    "Design a real-time chat platform supporting millions of conversations",
+    "Design conversation routing and assignment logic for support teams",
+    "Design a multi-tenant workflow and automation engine",
+    "Design search with complex filters over millions of records per tenant"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "At Intercom, model a workflow engine with triggers, conditions, and actions. Evaluate a workflow DAG and detect cycles.",
+      "Implement a per-tenant rate limiter so one customer cannot exhaust shared capacity. Discuss the token-bucket design.",
+      "Given a stream of tenant events, maintain rolling per-entity scores with bounded memory.",
+      "Implement a filter query over records supporting AND/OR on custom fields. Discuss indexing for a multi-tenant store.",
+      "Deduplicate records via fuzzy clustering on name and email. Discuss the matching and complexity."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a project you are proud of at Intercom scale and the hardest tradeoff you made.",
+      "Give me an example that shows customer focus, ownership, working in mid-stage saas.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a real-time chat platform supporting millions of conversations.",
+      "Design conversation routing and assignment logic for support teams.",
+      "Design a multi-tenant workflow and automation engine."
+    ],
+    "values": [
+      "Intercom succeeds when its customers do. Describe a time you solved for the customer even at a cost to the team.",
+      "Tell me about a time you handled a tricky multi-tenant isolation or permissions problem.",
+      "How do you balance enterprise customization against product simplicity?"
+    ],
     "other": [
       "Is Intercom remote-friendly?",
       "How does Intercom compare to Zendesk?",
       "What is the engineering culture?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 6,
   "tips": [],
   "compensation": null,
   "rawSummary": "Intercom Interview Guide (2026): Customer Messaging Platform\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nIntercom\nintercom.com ↗\n\nIntercom is the leading customer messaging platform — used by 25K+ companies for in-app chat, support, and onboarding. The interview is messaging-platform-flavored with strong emphasis on real-time delivery, conversation context, and AI-powered support automation (Fin).\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design a real-time chat platform supporting millions of conversations\n\n- Design conversation routing and assignment logic for support teams\n\n- Design Fin — an AI-powered customer support agent that resolves tickets autonomously\n\n- Coding: medium DSA, often with concurrency or messaging flavor\n\n- Behavioral: customer focus, ownership, working in mid-stage SaaS\n\nLevels and comp (2026)\n\n- SE II: $150K–$190K total\n\n- Senior SE: $220K–$290K\n\n- Staff: $310K–$410K\n\n- Principal: $430K–$570K\n\nPrep priorities\n\n- Be fluent in Ruby on Rails (the bulk of the codebase) and JavaScript/TypeScript\n\n- Understand WebSocket scaling and conversation-state modeling\n\n- Brush up on AI-agent patterns since Fin is core to the product\n\nFrequently Asked Questions\n\nIs Intercom remote-friendly?\n\nHybrid in Dublin (HQ), San Francisco, London. Some engineering roles fully remote within supported countries.\n\nHow does Intercom compare to Zendesk?\n\nIntercom is messaging-first; Zendesk is ticketing-first. Intercom wins for product-led companies; Zendesk for traditional support orgs. Comp is comparable.\n\nWhat is the engineering culture?\n\nMature SaaS — strong testing, deploy discipline, calm work pace. Strong written-communication culture.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Intercom? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextReturning to Tech After Caring for an Aging Parent⏱ 3 min readLow Level Design: Quiz Engine⏱ 3 min readLow Level Design: Write-Ahead Log Internals⏱ 3 min read"

@@ -15,10 +15,10 @@
     "Classic algorithm problems (graphs, trees, DP) with database twists (plan-tree rewriting, query routing across shards)"
   ],
   "systemDesignTopics": [
-    "\"Design a replica-set failover orchestrator with automatic primary election and zero data loss.\"",
-    "\"Design the sharded cluster balancer that distributes chunks across 100 shards with minimal migration overhead.\"",
-    "\"Design vector-search indexing for 1B embeddings with p99 query latency under 50ms.\"",
-    "\"Design the Atlas multi-region deployment supporting read-from-nearest with tunable consistency.\""
+    "Design a replica-set failover orchestrator with automatic primary election and zero data loss",
+    "Design the sharded cluster balancer that distributes chunks across 100 shards with minimal migration overhead",
+    "Design vector-search indexing for 1B embeddings with p99 query latency under 50ms",
+    "Design the Atlas multi-region deployment supporting read-from-nearest with tunable consistency"
   ],
   "behavioralTopics": [
     "Customer focus: \"Tell me about a time you engaged with a customer's data problem.\"",
@@ -28,27 +28,28 @@
   ],
   "sampleQuestions": {
     "coding": [
-      "Implement hash join, external sort with spill-to-disk, iterator with backpressure. Talk through your approach, complexity, and edge cases.",
-      "Serialize and deserialize a binary tree. Walk through your encoding choices, complexity, and edge cases.",
-      "Implement a simple leader election with term numbers and log replication. Talk through your approach, complexity, and edge cases.",
-      "Compute chunk boundaries for balanced distribution, implement chunk migration with consistency. Talk through your approach, complexity, and edge cases.",
-      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph."
+      "Implement a database primitive (hash join, external sort with spill-to-disk, iterator with backpressure). Talk through your approach, complexity, and edge cases.",
+      "At MongoDB, parse a stream of log and metric events and aggregate by key over a sliding window. Discuss memory bounds.",
+      "Implement a rate-limited, back-pressured queue for ingestion. Discuss what happens when a downstream sink is slow.",
+      "Parse a config format into a typed structure with schema validation. Discuss error handling.",
+      "Given a dependency graph of build targets, compute a valid build order and detect cycles via topological sort."
     ],
     "behavioral": [
-      "Tell me about a time you engaged with a customer's data problem.",
-      "Describe a production incident you owned from detection through postmortem.",
-      "Tell me about coordinating across teams with competing priorities.",
-      "Describe a domain you had to learn quickly. How did you approach it?",
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+      "Tell me about a project you are proud of at MongoDB scale and the hardest tradeoff you made.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end.",
+      "Describe a time something you shipped failed or fell short. What did you change afterward?"
     ],
     "systemDesign": [
       "Design a replica-set failover orchestrator with automatic primary election and zero data loss.",
       "Design the sharded cluster balancer that distributes chunks across 100 shards with minimal migration overhead.",
-      "Design vector-search indexing for 1B embeddings with p99 query latency under 50ms. Cover the API, data model, and how it scales.",
-      "Design the Atlas multi-region deployment supporting read-from-nearest with tunable consistency.",
-      "Design a service at MongoDB scale that shortens URLs. Cover the API, storage, and hot-key handling."
+      "Design vector-search indexing for 1B embeddings with p99 query latency under 50ms."
     ],
-    "values": [],
+    "values": [
+      "MongoDB is trusted by the developers who depend on it. Describe a time you prioritized reliability and craft.",
+      "Tell me about an open-source contribution or public work you are proud of.",
+      "How do you weigh a breaking change against the migration cost for users?"
+    ],
     "other": [
       "Do I need C++ experience to get hired?",
       "How does MongoDB compare to Snowflake on interviews?",

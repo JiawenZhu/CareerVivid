@@ -6,29 +6,50 @@
   "interviewStages": [
     "Behavioral: ownership, customer empathy for lawyers, regulated-industry care"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "NLP and text: chunking, tokenization, retrieval over documents",
+    "Search and ranking: vector plus keyword retrieval, prefix search",
+    "Pipelines: RAG ingestion and evaluation harnesses",
+    "Data structures: inverted indexes, tries, heaps for top-K",
+    "Streaming: processing large document corpora"
+  ],
+  "systemDesignTopics": [
+    "Design a RAG pipeline over millions of legal documents per customer",
+    "Design a contract-analysis system that compares thousands of provisions",
+    "Design an evaluation harness for legal-correctness with attorney review",
+    "Design tenant-isolated retrieval that keeps privileged client data separate"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Chunk a long legal document into overlapping passages respecting clause boundaries. Discuss the sliding-window approach and tradeoffs.",
+      "Given a query and an inverted index over contract clauses, return the top-K most relevant clauses using a heap. Discuss ranking.",
+      "Build a citation-grounding checker that verifies each sentence in an LLM answer maps to a retrieved source passage.",
+      "Deduplicate near-identical clauses across a document set using shingling and hashing. Walk through complexity."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Harvey serves lawyers in a high-stakes domain. Tell me about a time correctness and care mattered more than speed.",
+      "Describe a time you took ownership of an ambiguous AI or evaluation problem end to end.",
+      "Give an example of building empathy for a non-technical expert user like an attorney.",
+      "Tell me about a time an LLM or ML system produced a wrong output and how you built guardrails."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a RAG pipeline over millions of legal documents, isolated per customer.",
+      "Design a contract-analysis system that compares thousands of provisions across agreements.",
+      "Design an evaluation harness that measures legal-correctness with attorney review in the loop."
+    ],
+    "values": [
+      "Harvey works with privileged legal data. Describe a time you handled sensitive data with extra care.",
+      "How do you evaluate an AI feature for a domain where a wrong answer has real consequences?",
+      "Tell me about a time you earned the trust of a skeptical expert user."
+    ],
     "other": [
       "Is Harvey remote-friendly?",
       "How does Harvey compare to Casetext or EvenUp?",
       "What is the engineering culture?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 7,
   "tips": [],
   "compensation": null,
   "rawSummary": "Harvey Interview Guide (2026): Legal AI Platform\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 6, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 6, 2026 · techinterview.org\n\n⏱ 1 min read\n\nHarvey\nharvey.ai ↗\n\nHarvey is the leading legal AI platform — used by Allen & Overy, PwC, and many BigLaw firms for contract analysis, document drafting, and legal research. Series E, $5B+ valuation. The interview emphasizes vertical-AI engineering, retrieval over very large legal document corpora, and the regulated-industry care of working with privileged data.\n\nProcess\n\nRecruiter screen → 60-minute coding (Python or TypeScript) → onsite virtual: 2 coding, 1 system design (LLM-flavored), 1 craft deep-dive, 1 behavioral. Cycle: 3–5 weeks.\n\nWhat they actually ask\n\n- Design a RAG pipeline over millions of legal documents per customer\n\n- Design a contract-analysis system that compares thousands of provisions\n\n- Design an evaluation harness for legal-correctness (high-stakes domain)\n\n- Coding: medium DSA, often with NLP or pipeline framing\n\n- Behavioral: ownership, customer empathy for lawyers, regulated-industry care\n\nLevels and comp (2026)\n\n- SE: $185K–$255K total (cash + late-stage equity)\n\n- Senior SE: $270K–$370K total\n\n- Staff: $385K–$535K total\n\n- Principal: $545K–$740K total\n\nPrep priorities\n\n- Be fluent in Python (ML/AI services) and TypeScript / Node.js (product surface)\n\n- Understand RAG patterns deeply (chunking, embeddings, reranking, structured extraction)\n\n- Brush up on legal data formats, privilege/confidentiality concerns, and audit-trail patterns\n\nFrequently Asked Questions\n\nIs Harvey remote-friendly?\n\nHubs in San Francisco (HQ) and NYC. Most engineering roles fully remote within US.\n\nHow does Harvey compare to Casetext or EvenUp?\n\nCasetext was acquired by Thomson Reuters and serves a broader market. EvenUp focuses on personal injury / plaintiff side. Harvey is BigLaw-focused premium. Comp at Harvey is competitive at top of late-stage AI company bands.\n\nWhat is the engineering culture?\n\nSenior-heavy hires, customer-obsessed (BigLaw partners are demanding), fast-shipping. Calmer than frontier-lab pace; more product-engineering balance.\n\nSimilar company guides\n\nReka AIinterview guideSakana AIinterview guideBlack Forest Labsinterview guideHippocratic AIinterview guideRunwayinterview guidePika Labsinterview guide\n\nPrepping for Harvey? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextUser Blocking System Low-Level Design⏱ 6 min readLow-Level Design: Appointment Scheduling System — Availability, Booking, and Conflict Prevention⏱ 6 min readSystem Design: Message Queues — RabbitMQ vs SQS vs Kafka, Dead Letter Queues, Exactly-Once, Ordering⏱ 9 min read"

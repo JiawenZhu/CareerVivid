@@ -51,22 +51,10 @@
     "Review error handling patterns"
   ],
   "systemDesignTopics": [
-    "Multi-tenancy:",
-    "Schema per tenant vs shared schema",
-    "Performance considerations",
-    "Security:",
-    "Data encryption",
-    "Compliance (GDPR, SOC 2)",
-    "Scalability:",
-    "Database sharding",
-    "Caching strategies",
-    "Operations:",
-    "Deployment strategy",
-    "Disaster recovery",
-    "Study multi-tenant architectures",
-    "Learn about enterprise security",
-    "Understand cloud platforms",
-    "Review microservices patterns"
+    "Design a simple caching system",
+    "Design a multi-tenant SaaS application that can handle 10,000 enterprise customers",
+    "Design a URL shortener at scale with analytics",
+    "Design a distributed crawler and indexing pipeline"
   ],
   "behavioralTopics": [
     "Customer obsession: Enterprise customers have different needs",
@@ -94,23 +82,31 @@
   ],
   "sampleQuestions": {
     "coding": [
-      "You need to deduplicate a very large dataset that does not fit in memory. Walk me through your approach and how you would verify correctness.",
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "At SAP, given a stream of requests, return the top-K most frequent in the last hour using a heap. Discuss memory bounds.",
+      "Given a road or dependency network as a weighted graph, find the shortest path between two nodes. Discuss Dijkstra versus A*.",
+      "Build autocomplete over billions of items using a prefix trie and return top suggestions for a prefix.",
+      "Merge two sorted lists of timestamped items into one ordered view using the two-pointer technique.",
+      "Given a grid of items, count connected regions using flood fill / DFS. Discuss complexity."
     ],
     "behavioral": [
-      "Tell me about a time you engaged deeply with a customer or user problem. How did it change what you built?",
-      "Tell me about a time you worked across teams to deliver something. How did you handle competing priorities?",
-      "How do you balance research exploration with engineering delivery? Give a concrete example.",
-      "Describe a time you had to deliver under a tight deadline. What trade-offs did you make?",
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+      "Tell me about a project you are proud of at SAP scale and the hardest tradeoff you made.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end.",
+      "Describe a time something you shipped failed or fell short. What did you change afterward?"
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a simple caching system.",
+      "Design a multi-tenant SaaS application that can handle 10,000 enterprise customers.",
+      "Design a URL shortener at scale with analytics."
+    ],
+    "values": [
+      "SAP operates at enormous scale. Describe a time you put the user first even though it made the engineering harder.",
+      "Tell me about a time you challenged the status quo or a decision you thought was wrong.",
+      "Describe a time you were clearly wrong and how intellectual humility shaped what you did next."
+    ],
     "other": []
   },
-  "difficulty": 5.5,
+  "difficulty": 8,
   "tips": [
     "File parsing",
     "Efficient data structures (hash map)",

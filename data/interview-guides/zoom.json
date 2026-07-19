@@ -15,10 +15,10 @@
     "Classic algorithm problems with a real-time constraint twist (shortest path with latency budget, priority queue for packet scheduling)"
   ],
   "systemDesignTopics": [
-    "\"Design a global video conferencing infrastructure supporting 100K concurrent meetings.\"",
-    "\"Design the media routing layer with SFU nodes across 30 POPs.\"",
-    "\"Design the recording pipeline with per-participant tracks and post-meeting AI analysis.\"",
-    "\"Design the AI Companion summary pipeline with sub-minute end-of-meeting delivery.\""
+    "Design a global video conferencing infrastructure supporting 100K concurrent meetings",
+    "Design the media routing layer with SFU nodes across 30 POPs",
+    "Design the recording pipeline with per-participant tracks and post-meeting AI analysis",
+    "Design the AI Companion summary pipeline with sub-minute end-of-meeting delivery"
   ],
   "behavioralTopics": [
     "Real-time systems ownership: \"Describe a production issue where latency or quality degraded. How did you diagnose and fix?\"",
@@ -28,27 +28,28 @@
   ],
   "sampleQuestions": {
     "coding": [
-      "Implement jitter buffer with bounded memory, reordering out-of-order packets. Talk through your approach, complexity, and edge cases.",
-      "Implement given this bandwidth estimate, pick the right layer combination. Talk through your approach, complexity, and edge cases.",
-      "Implement compute per-meeting statistics from a continuous event stream. Talk through your approach, complexity, and edge cases.",
-      "Implement model a meeting session, chat thread, or recording pipeline with clean interfaces. Talk through your approach, complexity, and edge cases.",
-      "Implement a fixed-size ring buffer for sensor readings with O(1) reads and writes and no dynamic allocation. Walk through the concurrency considerations."
+      "At Zoom, model a workflow engine with triggers, conditions, and actions. Evaluate a workflow DAG and detect cycles.",
+      "Implement a per-tenant rate limiter so one customer cannot exhaust shared capacity. Discuss the token-bucket design.",
+      "Given a stream of tenant events, maintain rolling per-entity scores with bounded memory.",
+      "Implement a filter query over records supporting AND/OR on custom fields. Discuss indexing for a multi-tenant store.",
+      "Deduplicate records via fuzzy clustering on name and email. Discuss the matching and complexity."
     ],
     "behavioral": [
-      "Describe a production issue where latency or quality degraded. How did you diagnose and fix?",
-      "How do you work effectively with teammates in different timezones?",
-      "How do you think about shipping in a mature SaaS company versus a high-growth one?",
-      "How would you approach integrating AI into an existing feature that users rely on for real-time communication?",
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+      "Tell me about a project you are proud of at Zoom scale and the hardest tradeoff you made.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end.",
+      "Describe a time something you shipped failed or fell short. What did you change afterward?"
     ],
     "systemDesign": [
-      "Design a global video conferencing infrastructure supporting 100K concurrent meetings. Cover the API, data model, and how it scales.",
-      "Design the media routing layer with SFU nodes across 30 POPs. Cover the API, data model, and how it scales.",
-      "Design the recording pipeline with per-participant tracks and post-meeting AI analysis. Cover the API, data model, and how it scales.",
-      "Design the AI Companion summary pipeline with sub-minute end-of-meeting delivery. Cover the API, data model, and how it scales.",
-      "Design a service at Zoom scale that shortens URLs. Cover the API, storage, and hot-key handling."
+      "Design a global video conferencing infrastructure supporting 100K concurrent meetings.",
+      "Design the media routing layer with SFU nodes across 30 POPs.",
+      "Design the recording pipeline with per-participant tracks and post-meeting AI analysis."
     ],
-    "values": [],
+    "values": [
+      "Zoom succeeds when its customers do. Describe a time you solved for the customer even at a cost to the team.",
+      "Tell me about a time you handled a tricky multi-tenant isolation or permissions problem.",
+      "How do you balance enterprise customization against product simplicity?"
+    ],
     "other": [
       "Does Zoom use WebRTC?",
       "How important is AI Companion for interview preparation?",
@@ -57,7 +58,7 @@
       "How does Zoom compare to Cisco WebEx or Microsoft Teams on interviews?"
     ]
   },
-  "difficulty": 7,
+  "difficulty": 6,
   "tips": [
     "Know WebRTC fundamentals. Even for backend roles, understanding ICE, STUN, TURN, simulcast signals technical currency.",
     "Use AI Companion. Try the meeting summary, action items, and transcription features. Form opinions.",

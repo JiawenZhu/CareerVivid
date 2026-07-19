@@ -6,29 +6,50 @@
   "interviewStages": [
     "Behavioral: customer focus, navigating HR domain complexity"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "OO design: model a business domain such as workflows with triggers and actions",
+    "Multi-tenant data structures: per-tenant rate limiting, isolation",
+    "Streaming: rolling aggregates over tenant events",
+    "Graph and DAG: workflow evaluation, dependency resolution",
+    "Search and filters: AND/OR queries over records"
+  ],
+  "systemDesignTopics": [
+    "Design a 360-review system with manager, peer, and direct-report inputs",
+    "Design goal-tracking with cascading from company → team → individual",
+    "Design engagement-survey aggregation that preserves anonymity"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "At Lattice, model a workflow engine with triggers, conditions, and actions. Evaluate a workflow DAG and detect cycles.",
+      "Implement a per-tenant rate limiter so one customer cannot exhaust shared capacity. Discuss the token-bucket design.",
+      "Given a stream of tenant events, maintain rolling per-entity scores with bounded memory.",
+      "Implement a filter query over records supporting AND/OR on custom fields. Discuss indexing for a multi-tenant store.",
+      "Deduplicate records via fuzzy clustering on name and email. Discuss the matching and complexity."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a project you are proud of at Lattice scale and the hardest tradeoff you made.",
+      "Give me an example that shows customer focus, navigating hr domain complexity.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a 360-review system with manager, peer, and direct-report inputs.",
+      "Design goal-tracking with cascading from company → team → individual.",
+      "Design engagement-survey aggregation that preserves anonymity."
+    ],
+    "values": [
+      "Lattice succeeds when its customers do. Describe a time you solved for the customer even at a cost to the team.",
+      "Tell me about a time you handled a tricky multi-tenant isolation or permissions problem.",
+      "How do you balance enterprise customization against product simplicity?"
+    ],
     "other": [
       "Is Lattice remote-friendly?",
       "How does Lattice compare to Culture Amp or 15Five?",
       "What is the engineering culture?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 6,
   "tips": [],
   "compensation": null,
   "rawSummary": "Lattice Interview Guide (2026): HR Tech and Performance Management\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nLattice\nlattice.com ↗\n\nLattice is the leading performance management and people analytics platform — used by 5000+ companies for reviews, goals, 1:1s, and engagement surveys. The interview is enterprise-SaaS-flavored with focus on workflow design, complex data modeling, and the realities of building tools used by HR teams.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design a 360-review system with manager, peer, and direct-report inputs\n\n- Design goal-tracking with cascading from company → team → individual\n\n- Design engagement-survey aggregation that preserves anonymity\n\n- Coding: medium DSA, often with workflow or graph flavor\n\n- Behavioral: customer focus, navigating HR domain complexity\n\nLevels and comp (2026)\n\n- SE II: $150K–$185K total\n\n- Senior SE: $215K–$285K\n\n- Staff: $310K–$410K\n\n- Principal: $430K–$570K\n\nPrep priorities\n\n- Be fluent in TypeScript/React for frontend; Ruby on Rails for backend\n\n- Understand survey design and anonymity-preserving aggregation\n\n- Brush up on workflow engines and approval-graph patterns\n\nFrequently Asked Questions\n\nIs Lattice remote-friendly?\n\nHybrid in San Francisco, NYC, London, and others. Many engineering roles fully remote within supported countries.\n\nHow does Lattice compare to Culture Amp or 15Five?\n\nLattice has the broadest product (reviews, goals, 1:1s, engagement). Culture Amp leads on engagement; 15Five on continuous performance. Comp is comparable.\n\nWhat is the engineering culture?\n\nMid-stage SaaS — collaborative, customer-driven, healthy work-life balance. Strong product-engineering partnership.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Lattice? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextLow Level Design: Social Graph Service⏱ 4 min readLow-Level Design: Coupon and Discount System — Validation, Stacking Rules, Usage Limits, and Analytics⏱ 6 min readArchive System Low-Level Design⏱ 6 min read"

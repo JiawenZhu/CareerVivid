@@ -6,29 +6,50 @@
   "interviewStages": [
     "Behavioral: customer focus, ownership, working with sales domain"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "OO design: model a business domain such as workflows with triggers and actions",
+    "Multi-tenant data structures: per-tenant rate limiting, isolation",
+    "Streaming: rolling aggregates over tenant events",
+    "Graph and DAG: workflow evaluation, dependency resolution",
+    "Search and filters: AND/OR queries over records"
+  ],
+  "systemDesignTopics": [
+    "Design an email sequencing engine that sends millions of emails daily with deliverability",
+    "Design integrations with Salesforce, HubSpot, and dozens of other CRMs",
+    "Design an AI assistant that drafts personalized outreach at scale"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "At Outreach, model a workflow engine with triggers, conditions, and actions. Evaluate a workflow DAG and detect cycles.",
+      "Implement a per-tenant rate limiter so one customer cannot exhaust shared capacity. Discuss the token-bucket design.",
+      "Given a stream of tenant events, maintain rolling per-entity scores with bounded memory.",
+      "Implement a filter query over records supporting AND/OR on custom fields. Discuss indexing for a multi-tenant store.",
+      "Deduplicate records via fuzzy clustering on name and email. Discuss the matching and complexity."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a project you are proud of at Outreach scale and the hardest tradeoff you made.",
+      "Give me an example that shows customer focus, ownership, working with sales domain.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design an email sequencing engine that sends millions of emails daily with deliverability.",
+      "Design integrations with Salesforce, HubSpot, and dozens of other CRMs.",
+      "Design an AI assistant that drafts personalized outreach at scale."
+    ],
+    "values": [
+      "Outreach succeeds when its customers do. Describe a time you solved for the customer even at a cost to the team.",
+      "Tell me about a time you handled a tricky multi-tenant isolation or permissions problem.",
+      "How do you balance enterprise customization against product simplicity?"
+    ],
     "other": [
       "Is Outreach remote-friendly?",
       "How does Outreach compare to Salesloft or Apollo?",
       "What is the engineering culture?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 6,
   "tips": [],
   "compensation": null,
   "rawSummary": "Outreach Interview Guide (2026): Sales Engagement Platform\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nOutreach\noutreach.io ↗\n\nOutreach is the leading sales engagement platform — sequences, personalized outbound, and AI-powered sales rep enablement. Used by 6000+ companies. The interview emphasizes high-throughput email/call platforms, multi-channel sequencing, and integrating with the sales tech stack.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design an email sequencing engine that sends millions of emails daily with deliverability\n\n- Design integrations with Salesforce, HubSpot, and dozens of other CRMs\n\n- Design an AI assistant that drafts personalized outreach at scale\n\n- Coding: medium DSA, often with workflow or queue framing\n\n- Behavioral: customer focus, ownership, working with sales domain\n\nLevels and comp (2026)\n\n- SE II: $145K–$180K total\n\n- Senior SE: $215K–$280K\n\n- Staff: $310K–$410K\n\n- Principal: $430K–$570K\n\nPrep priorities\n\n- Be fluent in Ruby on Rails or Node.js (the bulk of the codebase)\n\n- Understand email deliverability: SPF, DKIM, DMARC, sender reputation\n\n- Brush up on integration patterns and CRM data models\n\nFrequently Asked Questions\n\nIs Outreach remote-friendly?\n\nHybrid in Seattle, Atlanta, Vancouver, others. Many engineering roles remote within supported countries.\n\nHow does Outreach compare to Salesloft or Apollo?\n\nOutreach is the enterprise-leader. Salesloft is closer in features. Apollo is the SMB-friendly alternative. Outreach pays best at senior+ levels.\n\nWhat is the engineering culture?\n\nPragmatic SaaS — strong customer focus, healthy work-life balance, mid-stage maturity.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Outreach? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextSystem Design: Real-time Chat and Messaging System (WhatsApp/Slack) — WebSockets, Pub/Sub, Scale⏱ 7 min readImpostor Syndrome on Return: Frameworks for the Self-Doubt Spiral⏱ 3 min readConsensus Service Low-Level Design: Raft Protocol, Log Replication, and Membership Changes⏱ 5 min read"

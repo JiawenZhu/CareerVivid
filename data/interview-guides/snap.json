@@ -7,25 +7,47 @@
     "System Design: Design something at Snap scale. I got \"Design Stories feature backend.\" Consider: storage (images/videos), expiration (24 hours), and privacy.",
     "Behavioral: Questions about working fast, handling ambiguity, and creative problem-solving. They value speed of execution."
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Feeds and ranking: heaps and top-K over content items",
+    "Search and autocomplete: prefix tries, typeahead",
+    "Streaming: rolling engagement metrics over user activity events",
+    "Caching: LRU caches for content items",
+    "Graph problems: recommendations, social graphs"
+  ],
+  "systemDesignTopics": [
+    "Design an image filter system",
+    "Design Stories feature backend",
+    "Design a personalized feed-ranking system at scale",
+    "Design search and autocomplete over a large content catalog"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "At Snap, given a stream of user activity events, return the top-K trending content items in the last hour using a heap. Discuss memory bounds.",
+      "Build autocomplete over content items titles using a prefix trie and return the top suggestions for a typed prefix.",
+      "Rank a personalized feed of content items for a user from their history. Discuss the scoring approach.",
+      "Implement an LRU cache for content items with a size cap. Discuss eviction and complexity.",
+      "Given a stream of user activity events, compute per-user daily streaks with correct time-zone handling."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a project you are proud of at Snap scale and the hardest tradeoff you made.",
+      "Give me an example that shows questions about working fast, handling ambiguity, and creative problem-solving. they value speed of execution.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design an image filter system.",
+      "Design Stories feature backend.",
+      "Design a personalized feed-ranking system at scale."
+    ],
+    "values": [
+      "Snap serves a huge consumer audience. Describe a time you prioritized user wellbeing over an engagement metric.",
+      "Tell me about a time you owned a consumer-facing reliability problem.",
+      "How do you balance business goals against a healthy user experience?"
+    ],
     "other": []
   },
-  "difficulty": null,
+  "difficulty": 6,
   "tips": [],
   "compensation": null,
   "rawSummary": "Snap\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  February 1, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\tUpdated February 1, 2026 · techinterview.org\n\n⏱ 2 min read\n\nSnap\nsnap.com ↗\n\nSnap Interview: Mobile and AR Focus\n\nDid my Snap interview in 2024 for a backend role. Despite being backend, they still cared that I understood mobile challenges – Snapchat is mobile-first, and that shapes everything.\n\nWhat's Different About Snap\n\nThey're fighting Instagram and TikTok for Gen Z attention. That means: speed matters (app opens to camera in < 1 second), AR features need to be smooth, and anything that delays user engagement is bad.\n\nThe technical bar is high but the culture is more relaxed than you'd expect. Less pressure than Meta, more focus on creative solutions.\n\nThe Process\n\nRecruiter Screen (30 min): Standard intro. They asked if I use Snapchat (I didn't regularly – I started using it before my tech screen). Honesty is fine but show interest.\n\nTechnical Screen (45 min): One coding problem plus system design discussion. Mine was: \"Design an image filter system.\" Not just the algorithm – think about mobile constraints, battery life, processing time.\n\nVirtual Onsite (4 rounds):\n\n- Coding (2 rounds): Medium difficulty, often with mobile context. Mine included: \"Optimize image loading for slow networks\" and a graph problem (friend suggestions).\n\n- System Design: Design something at Snap scale. I got \"Design Stories feature backend.\" Consider: storage (images/videos), expiration (24 hours), and privacy.\n\n- Behavioral: Questions about working fast, handling ambiguity, and creative problem-solving. They value speed of execution.\n\nTechnical Focus Areas\n\n- Mobile Optimization: Battery life, network efficiency, offline support\n\n- Computer Vision: Face filters, AR features, object detection\n\n- Real-Time Communication: Chat, video calls, live stories\n\n- Media Processing: Image/video compression, filters, effects\n\n- Algorithms: Graphs (social network), trees, dynamic programming\n\nMy Preparation\n\n- Used Snapchat Daily: Not just posting – I played with every feature. Lenses, Spotlight, Stories, Snap Map. Discussed feature ideas in my interview.\n\n- Learned Mobile Basics: Even as backend, I studied mobile constraints. Battery consumption, network requests, cache strategies. This came up.\n\n- Studied Computer Vision: Basics of face detection, image processing. Didn't need PhD-level knowledge, just understanding.\n\n- Did 100 LeetCode Mediums: Snap doesn't grind you with hard problems. Clean, working solutions matter more.\n\n- Speed-Focused Practice: Time-boxed problem solving. Snap values shipping fast over perfect solutions.\n\nWhat I Learned\n\nSnap cares more about product sense than some companies. They asked \"How would you improve our camera?\" and wanted real ideas, not technical jargon. Think like a product person, not just an engineer.\n\nAlso, they're lean. Smaller teams than FAANG means more ownership but also more context-switching.\n\nThe Stock Situation\n\nLet's be real: Snap stock has been rough. From $80+ in 2021 to under $10 in 2022, now back to $10-15 range. Your RSUs might not be worth much. People join for the product and team, not to get rich.\n\nIf stock comp matters to you, negotiate higher base or look elsewhere.\n\nCulture Check\n\nYoung team, LA-based HQ (Venice Beach office is nice). More startup vibe than big tech. Work-life balance is decent – they know burnout kills creativity.\n\nComp: Base is competitive, but RSUs are risky given stock performance. Total comp is 20-30% below Meta/Google. Make sure you're okay with that.\n\nLast Updated: February 2026\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Snap? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextTwo Sigma Interview Guide 2026: Quant Research Hedge Fund, Statistics Depth, Engineering Culture⏱ 9 min readUber⏱ 1 min readApple Interview Guide 2026: iOS Systems, Hardware-Software Integration, and iCloud Architecture⏱ 15 min read"

@@ -9,27 +9,42 @@
     "Domain depth (1–2 rounds) — depends on role: agent / kernel work, cloud services, ML, security research",
     "Behavioral / cross-functional (1 round) — collaboration, ambiguity, customer / safety mindset"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Endpoint telemetry stream processing (stream, logs, realtime)",
+    "Process-lineage graph reconstruction (graph, dependency)",
+    "Streaming/high-concurrency pattern matching (string, stream, systems)",
+    "Sliding-window rate limiting of noisy sensors (sliding-window, stream, realtime)"
+  ],
+  "systemDesignTopics": [
+    "Design a telemetry ingestion pipeline that processes trillions of endpoint events per day",
+    "Design a real-time threat-detection engine that matches behavioral patterns across endpoints",
+    "Design a global endpoint-agent fleet management and update system",
+    "Design a process-lineage graph that reconstructs an attack chain from endpoint events"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "A function intermittently fails in production. Walk me through how you would reproduce, isolate, and fix the bug.",
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "CrowdStrike ingests endpoint telemetry. Given a stream of process-start events, detect a suspicious parent->child chain matching a rule.",
+      "Extend a substring/pattern detector to run over streaming input and high concurrency (many endpoints at once).",
+      "Given process events, build a process-lineage tree and find the root cause of a flagged process.",
+      "Maintain a rolling count of events per endpoint over a sliding window to rate-limit a noisy sensor."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "CrowdStrike's mission is 'We Stop Breaches'. Tell me about owning a major production incident.",
+      "Describe convincing a team to adopt a new technical direction.",
+      "'We Win as One' - tell me about cross-team collaboration that shipped something big.",
+      "Describe mentoring an engineer while working fully remote."
     ],
     "systemDesign": [
-      "Design one of CrowdStrike's core security-flavored design problems — address telemetry ingestion at scale, detection pipelines, multi-tenant isolation. Walk through the architecture, trade-offs, and failure modes.",
-      "Design a service at CrowdStrike scale that shortens URLs. Cover the API, storage, and hot-key handling.",
-      "Design a rate limiter for a public API. Discuss algorithms, distributed coordination, and failure modes."
+      "Design CrowdStrike's telemetry ingestion pipeline handling trillions of endpoint events per day.",
+      "Design a real-time detection engine that matches behavioral threat patterns across a global endpoint fleet.",
+      "Design agent fleet management: safely rolling out sensor updates to millions of endpoints."
     ],
-    "values": [],
+    "values": [
+      "Why does the mission of stopping breaches resonate with you?",
+      "In security, mistakes are costly. Tell me about a time you caught a serious risk before it shipped.",
+      "How do you operate with urgency and ownership in a fully remote team?"
+    ],
     "other": [
       "How did the July 2024 incident change CrowdStrike's engineering?",
       "Do I need security experience to work at CrowdStrike?",
@@ -38,7 +53,7 @@
       "Is CrowdStrike still a good place to work after the 2024 incident?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 7,
   "tips": [],
   "compensation": [
     "New-grad SWE: $180k–$280k total comp first year",

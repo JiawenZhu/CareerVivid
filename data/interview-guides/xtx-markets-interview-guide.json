@@ -10,27 +10,44 @@
     "System design (1 round for engineering roles) — distributed systems, low-latency architectures",
     "Behavioral / cultural fit (1 round) — collaboration, intellectual humility, firm-fit"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Low-latency data structures: ring buffers, custom hash maps, memory pools",
+    "Streaming and time-series: rolling statistics over market-data ticks",
+    "Numerical and parsing: binary feed parsing, floating-point edge cases",
+    "Probability and expected-value problems",
+    "Heaps and top-K over trade streams"
+  ],
+  "systemDesignTopics": [
+    "Design a low-latency market-data feed handler that parses exchange packets in microseconds",
+    "Design an order-management system that guarantees no duplicate or lost orders under failover",
+    "Design a backtesting engine that replays years of tick data deterministically",
+    "Design a real-time risk and position-limit checker in the critical trading path"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "A function intermittently fails in production. Walk me through how you would reproduce, isolate, and fix the bug.",
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "At XTX Markets, given a stream of market-data ticks, maintain a rolling VWAP or moving average over a sliding time window. Discuss complexity and eviction.",
+      "Implement a fixed-capacity ring buffer for a single-producer single-consumer market-data ticks queue with minimal latency. Discuss memory ordering.",
+      "Parse a binary exchange message into an order-book updates with zero allocations on the hot path. Discuss the approach.",
+      "Given a stream of order-book updates, maintain top-of-book (best bid and ask) with O(1) updates. Discuss the data structure.",
+      "Expected-value puzzle: in a multi-round game with conditional payoffs, compute the optimal stopping strategy. Walk through the probability."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a project you are proud of at XTX Markets scale and the hardest tradeoff you made.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end.",
+      "Describe a time something you shipped failed or fell short. What did you change afterward?"
     ],
     "systemDesign": [
-      "Design XTX Markets's distributed systems platform — cover low-latency architectures. Walk through the architecture, trade-offs, and failure modes.",
-      "Design a service at XTX Markets scale that shortens URLs. Cover the API, storage, and hot-key handling.",
-      "Design a rate limiter for a public API. Discuss algorithms, distributed coordination, and failure modes."
+      "Design a low-latency market-data feed handler that parses exchange packets in microseconds.",
+      "Design an order-management system that guarantees no duplicate or lost orders under failover.",
+      "Design a backtesting engine that replays years of tick data deterministically."
     ],
-    "values": [],
+    "values": [
+      "XTX Markets treats correctness under pressure as non-negotiable. Describe a time precision mattered more than speed.",
+      "How do you reason about risk and uncertainty when the cost of being wrong is high?",
+      "Tell me about a time intellectual honesty led you to abandon an approach you were invested in."
+    ],
     "other": [
       "How does XTX's ML investment compare to AI labs?",
       "Should I work at XTX or a US HFT firm?",
@@ -39,7 +56,7 @@
       "Is XTX a good place for early-career engineers?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 8,
   "tips": [],
   "compensation": [
     "New-grad QR / SWE: £100k–£200k total comp first year (London market)",

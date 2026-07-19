@@ -14,7 +14,11 @@
     "Graph / tree problems with a practical flavor (dependency resolution, shortest path with weights)",
     "\"Implement a simple tool\" prompts: a mini regex, a tokenizer, a retry policy"
   ],
-  "systemDesignTopics": [],
+  "systemDesignTopics": [
+    "Design the infrastructure for serving ChatGPT to 100M users,",
+    "Design a feedback collection pipeline for RLHF,",
+    "Design a multi-tenant fine-tuning service"
+  ],
   "behavioralTopics": [
     "\"Tell me about the most impactful thing you built in the last year.\"",
     "\"Describe a time you shipped something despite ambiguity or resistance.\"",
@@ -24,20 +28,27 @@
   "sampleQuestions": {
     "coding": [
       "Implement a specific data structure to meet tight complexity (LRU cache, token counter, rate limiter). Talk through your approach, complexity, and edge cases.",
-      "Implement process tokenized input with bounded memory, parse structured log lines. Talk through your approach, complexity, and edge cases.",
-      "Implement dependency resolution, shortest path with weights. Talk through your approach, complexity, and edge cases.",
-      "Implement a simple tool prompts: a mini regex, a tokenizer, a retry policy. Talk through your approach, complexity, and edge cases.",
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases."
+      "At OpenAI, given a stream of model inference requests, batch them to maximize GPU utilization while keeping per-request latency under a bound. Discuss the queue and complexity.",
+      "Chunk a long document into overlapping passages for retrieval, respecting sentence boundaries. Discuss the sliding-window approach.",
+      "Given a query and an inverted index over embeddings, return the top-K most similar items using a heap. Discuss ranking.",
+      "Deduplicate near-identical generated outputs using shingling and hashing. Walk through complexity."
     ],
     "behavioral": [
-      "Tell me about the most impactful thing you built in the last year.",
-      "Describe a time you shipped something despite ambiguity or resistance.",
-      "What's a decision you made that turned out to be wrong? How did you notice?",
-      "Walk me through a weekend or side project that excited you.",
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+      "Tell me about a project you are proud of at OpenAI scale and the hardest tradeoff you made.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end.",
+      "Describe a time something you shipped failed or fell short. What did you change afterward?"
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design the infrastructure for serving ChatGPT to 100M users,.",
+      "Design a feedback collection pipeline for RLHF,.",
+      "Design a multi-tenant fine-tuning service."
+    ],
+    "values": [
+      "OpenAI's mission carries real responsibility. Describe a time you weighed capability against safety.",
+      "How do you evaluate an AI feature where a wrong answer has real consequences?",
+      "Tell me about a time you were rigorous about data quality or evaluation when it slowed you down."
+    ],
     "other": [
       "How does OpenAI's interview compare to Anthropic's?",
       "Do I need ML research experience to get hired as a non-research engineer?",
@@ -46,7 +57,7 @@
       "What should I build as a portfolio project before applying?"
     ]
   },
-  "difficulty": 8,
+  "difficulty": 9,
   "tips": [
     "Have a builder's story. Concrete projects, ideally recent, with numbers or screenshots.",
     "Go deep on one paper. For research-adjacent roles, this is non-negotiable.",

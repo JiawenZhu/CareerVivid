@@ -6,29 +6,52 @@
   "interviewStages": [
     "Behavioral: ownership, customer empathy, fast-moving AI startup"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Streaming audio buffer processing with fixed windows (stream, streams, realtime, sliding-window, time-series)",
+    "Ring buffer for real-time audio frames with O(1) ops (cache, data structure, memory, realtime)",
+    "Transcript merging from overlapping inference windows (merge, string, streams)",
+    "Beam-search decoding over model output probabilities (heap, search, string)",
+    "Latency-bounded pipeline stage scheduling (pipeline, systems, monitoring)"
+  ],
+  "systemDesignTopics": [
+    "Design a real-time streaming speech-to-text API delivering sub-300ms partial transcripts over websockets",
+    "Design the model-serving layer that batches concurrent audio streams onto GPUs without hurting tail latency",
+    "Design an audio ingestion pipeline that normalizes, chunks, and routes many codecs for transcription at scale",
+    "Design a transcript post-processing service for diarization, punctuation, and formatting"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Implement a fixed-size ring buffer for incoming audio frames supporting O(1) writes/reads with no allocation on the hot path. Discuss producer/consumer concurrency.",
+      "You receive overlapping transcript hypotheses from consecutive audio windows; merge them into one consistent stream without duplicating words at the boundaries.",
+      "Implement beam search over per-timestep character probabilities to produce the top decoded transcript. Bound the beam width and analyze complexity.",
+      "Process a streaming audio signal in fixed windows and emit a voice-activity flag per window with bounded memory.",
+      "Given per-stage latency budgets (decode, inference, format), schedule frames so end-to-end p99 stays under a threshold and degrades gracefully under load."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about optimizing a latency- or throughput-critical system. How did you measure and where did the wins come from?",
+      "Describe a hard performance bug in a real-time or ML system and how you tracked it down.",
+      "Tell me about taking a research idea and making it production-ready.",
+      "Describe owning an ambiguous problem in a small team and driving it end-to-end."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design Deepgram's real-time streaming STT service: websocket ingestion, GPU inference, and sub-300ms partial results.",
+      "Design GPU batching that packs many concurrent audio streams while protecting tail latency.",
+      "Design an audio ingestion pipeline handling many codecs and sample rates at scale.",
+      "Design a diarization and formatting post-processor over raw model output."
+    ],
+    "values": [
+      "Deepgram builds voice AI from the model up. What draws you to low-level, performance-heavy ML systems?",
+      "How do you balance model accuracy against latency and cost in a real-time product?",
+      "What excites you about voice as an interface versus text?"
+    ],
     "other": [
       "Is Deepgram remote-friendly?",
       "How does Deepgram compare to AssemblyAI or ElevenLabs?",
       "What is the engineering culture?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 7,
   "tips": [],
   "compensation": null,
   "rawSummary": "Deepgram Interview Guide (2026): Speech AI Platform\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 6, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 6, 2026 · techinterview.org\n\n⏱ 1 min read\n\nDeepgram\ndeepgram.com ↗\n\nDeepgram is a leading speech-AI platform — ASR, voice agents, and a real-time streaming API used by enterprises and developers. Series C in 2024. The interview emphasizes speech-recognition systems engineering, real-time streaming infrastructure, and the engineering of multi-tenant ML inference.\n\nProcess\n\nRecruiter screen → 60-minute coding (Python preferred for ML, Go for backend) → onsite virtual: 2 coding, 1 ML system design, 1 craft deep-dive, 1 behavioral. ML-research candidates get a research deep-dive. Cycle: 3–5 weeks.\n\nWhat they actually ask\n\n- Design a real-time ASR service with sub-300ms streaming latency\n\n- Design a multi-tenant inference platform with billing per audio second\n\n- Design a voice-agent platform combining ASR, LLM, TTS, and turn-taking\n\n- Coding: medium DSA, often with audio or pipeline framing\n\n- Behavioral: ownership, customer empathy, fast-moving AI startup\n\nLevels and comp (2026)\n\n- SE: $185K–$255K total (cash + meaningful equity)\n\n- Senior SE: $260K–$355K total\n\n- Staff: $360K–$510K total\n\n- ML Research: $400K–$700K+ total at top of band\n\nPrep priorities\n\n- Be fluent in Python (research/serving) and Go (backend/control plane)\n\n- Understand ASR architectures (CTC, RNN-T, attention) and streaming inference\n\n- Brush up on audio codecs, voice-activity detection, and barge-in handling\n\nFrequently Asked Questions\n\nIs Deepgram remote-friendly?\n\nDistributed since founding. Hub in San Francisco; engineers across US/EU.\n\nHow does Deepgram compare to AssemblyAI or ElevenLabs?\n\nDeepgram is ASR-first with strong real-time streaming. AssemblyAI is ASR-first with broader speech intelligence (sentiment, entities). ElevenLabs is TTS-first. Comp competitive at top of band; Deepgram pays well for ML systems.\n\nWhat is the engineering culture?\n\nTechnical, research-engineering blended. Strong customer focus on enterprise voice-AI deployments.\n\nSimilar company guides\n\nReka AIinterview guideSakana AIinterview guideBlack Forest Labsinterview guideHippocratic AIinterview guideRunwayinterview guidePika Labsinterview guide\n\nPrepping for Deepgram? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextLow-Level Design: Food Delivery System (OOP Interview)⏱ 9 min readLow Level Design: WebSocket Server at Scale⏱ 6 min readLow Level Design: Paxos Consensus Protocol⏱ 6 min read"

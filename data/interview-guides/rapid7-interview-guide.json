@@ -6,29 +6,50 @@
   "interviewStages": [
     "Behavioral: customer empathy, ownership, working with security domain"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Streaming detection: pattern matching over security events",
+    "Graph problems: relate entities into attack graphs",
+    "String and parsing: log parsing, signature matching",
+    "Data structures: tries, bloom filters, heaps",
+    "Time-series: anomaly detection over event streams"
+  ],
+  "systemDesignTopics": [
+    "Design a vulnerability scanner that handles millions of assets",
+    "Design a SIEM ingestion pipeline at hundreds of thousands of events/sec",
+    "Design cloud-posture monitoring across AWS/Azure/GCP"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "At Rapid7, given a stream of security events, flag sessions whose activity exceeds a risk threshold in a sliding window.",
+      "Build an attack graph relating entities and find the shortest path an attacker could take. Discuss the graph approach.",
+      "Match incoming logs against a set of signatures efficiently using a trie or Aho-Corasick. Discuss complexity.",
+      "Use a bloom filter to check entities against a large blocklist with bounded memory. Discuss false positives.",
+      "Detect anomalies in a time-series of security events using rolling statistics. Walk through the approach."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a project you are proud of at Rapid7 scale and the hardest tradeoff you made.",
+      "Give me an example that shows customer empathy, ownership, working with security domain.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a vulnerability scanner that handles millions of assets.",
+      "Design a SIEM ingestion pipeline at hundreds of thousands of events/sec.",
+      "Design cloud-posture monitoring across AWS/Azure/GCP."
+    ],
+    "values": [
+      "Rapid7 defends customers from real adversaries. Describe a time security outweighed convenience.",
+      "Tell me about a time you responded to a security incident or near-miss.",
+      "How do you balance strong protection against a usable product?"
+    ],
     "other": [
       "Is Rapid7 remote-friendly?",
       "How does Rapid7 compare to Tenable or Qualys?",
       "What is the engineering culture?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 7,
   "tips": [],
   "compensation": null,
   "rawSummary": "Rapid7 Interview Guide (2026): Cloud Security Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 6, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 6, 2026 · techinterview.org\n\n⏱ 1 min read\n\nRapid7\nrapid7.com ↗\n\nRapid7 is a public security company specializing in vulnerability management (InsightVM), SIEM (InsightIDR), and cloud-security posture (InsightCloudSec, formerly DivvyCloud). The interview emphasizes large-scale event processing, vulnerability data modeling, and the unique challenges of running detection across customer environments.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design a vulnerability scanner that handles millions of assets\n\n- Design a SIEM ingestion pipeline at hundreds of thousands of events/sec\n\n- Design cloud-posture monitoring across AWS/Azure/GCP\n\n- Coding: medium DSA, often with parsing or graph framing\n\n- Behavioral: customer empathy, ownership, working with security domain\n\nLevels and comp (2026)\n\n- SE II: $145K–$180K total\n\n- Senior SE: $205K–$270K\n\n- Staff: $290K–$385K\n\n- Principal: $410K–$550K\n\nPrep priorities\n\n- Be fluent in Java, Go, or Python (split across product lines)\n\n- Understand vulnerability data (CVE, CVSS, CPE) and detection rule engines\n\n- Brush up on cloud-native security and IaC scanning\n\nFrequently Asked Questions\n\nIs Rapid7 remote-friendly?\n\nHybrid in Boston (HQ), Belfast, Prague, Austin. Many engineering roles fully remote within US.\n\nHow does Rapid7 compare to Tenable or Qualys?\n\nTenable is the vuln-management leader, Qualys is the legacy enterprise tool, Rapid7 has the broadest product surface (vuln + SIEM + cloud). Comp is mid-tier security; below FAANG.\n\nWhat is the engineering culture?\n\nMature, customer-driven, calmer pace post-2023 reorgs. Strong work-life balance.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Rapid7? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextAI Agents in Production: Architecture and Failure Modes⏱ 3 min readData Quality Service Low-Level Design: Rule Validation, Anomaly Detection, and Lineage Tracking⏱ 5 min readGaming Leaderboard System Low-Level Design⏱ 8 min read"

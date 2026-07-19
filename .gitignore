@@ -110,6 +110,10 @@ data/quest-question-tracker.xlsx
 data/quest-tracker/
 data/interview-guides/_research-progress.json
 
+# Generated mobile (iOS) question catalog — contains full question content and
+# is rebuilt from source on every functions build (prebuild). Keep it private.
+functions/src/mobileInterviewGuideQuestions.generated.ts
+
 # Learning curriculum: raw third-party repos cloned by
 # scripts/sync-learning-sources.mjs. Never commit these — they're large,
 # have their own nested .git, and CareerVivid's own curriculum content lives

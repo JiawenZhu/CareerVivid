@@ -4,22 +4,44 @@
   "url": "https://www.techinterview.org/companies/tower-research-capital-interview-guide",
   "scrapedAt": "2026-07-02T07:18:44.589Z",
   "interviewStages": [],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Low-latency data structures: ring buffers, custom hash maps, memory pools",
+    "Streaming and time-series: rolling statistics over market-data ticks",
+    "Numerical and parsing: binary feed parsing, floating-point edge cases",
+    "Probability and expected-value problems",
+    "Heaps and top-K over trade streams"
+  ],
+  "systemDesignTopics": [
+    "Design a low-latency market-data feed handler that parses exchange packets in microseconds",
+    "Design an order-management system that guarantees no duplicate or lost orders under failover",
+    "Design a backtesting engine that replays years of tick data deterministically",
+    "Design a real-time risk and position-limit checker in the critical trading path"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "At Tower Research Capital, given a stream of market-data ticks, maintain a rolling VWAP or moving average over a sliding time window. Discuss complexity and eviction.",
+      "Implement a fixed-capacity ring buffer for a single-producer single-consumer market-data ticks queue with minimal latency. Discuss memory ordering.",
+      "Parse a binary exchange message into an order-book updates with zero allocations on the hot path. Discuss the approach.",
+      "Given a stream of order-book updates, maintain top-of-book (best bid and ask) with O(1) updates. Discuss the data structure.",
+      "Expected-value puzzle: in a multi-round game with conditional payoffs, compute the optimal stopping strategy. Walk through the probability."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a project you are proud of at Tower Research Capital scale and the hardest tradeoff you made.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end.",
+      "Describe a time something you shipped failed or fell short. What did you change afterward?"
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a low-latency market-data feed handler that parses exchange packets in microseconds.",
+      "Design an order-management system that guarantees no duplicate or lost orders under failover.",
+      "Design a backtesting engine that replays years of tick data deterministically."
+    ],
+    "values": [
+      "Tower Research Capital treats correctness under pressure as non-negotiable. Describe a time precision mattered more than speed.",
+      "How do you reason about risk and uncertainty when the cost of being wrong is high?",
+      "Tell me about a time intellectual honesty led you to abandon an approach you were invested in."
+    ],
     "other": [
       "How does Tower's team structure affect my career trajectory?",
       "What's the engineering platform like to work on?",
@@ -28,7 +50,7 @@
       "Where is Tower based and is the New York office the only meaningful one?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 9,
   "tips": [],
   "compensation": null,
   "rawSummary": "Tower Research Capital Interview Guide: Quantitative Trading, Team Autonomy, Engineering Platform\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 25, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Tower Research Capital Interview Guide: Quantitative Trading, Latimer Hot Seat, and Engineering Culture\n\n- What Tower Does\n\n- Roles Tower Hires For\n\n- Tower Interview Process\n\n- What Tower Tests For\n\n- Preparation Strategy\n\n- Tower vs Other Firms\n\n- Compensation\n\n- Frequently Asked Questions\n\nUpdated April 25, 2026 · techinterview.org\n\n⏱ 6 min read\n\nTower Research Capital\ntower-research.com ↗\n\nTower Research Capital Interview Guide: Quantitative Trading, Latimer Hot Seat, and Engineering Culture\n\nTower Research Capital is a New York-based proprietary quantitative trading firm founded in 1998 by Mark Gorton. Tower trades its own capital across global equities, futures, FX, and other asset classes, with a focus on quantitative strategies and electronic trading. The firm operates as a collection of semi-autonomous trading teams under a shared technology and infrastructure platform &mdash; a model closer to Citadel's pod structure than to a single integrated trading floor like Optiver. For quant-trading and engineering candidates, Tower is a serious target with high pay, technical depth, and a distinctive team-driven culture.\n\nWhat Tower Does\n\nTower runs proprietary trading strategies across global markets, primarily systematic and electronic. The firm's structure is unusual:\n\n- Semi-autonomous trading teams: each team (sometimes branded internally with a name) develops and runs its own strategies, with significant autonomy over what to trade and how. Teams share infrastructure but compete for capital allocation.\n\n- Shared technology platform: Tower invests heavily in centralized infrastructure: market data, exchange connectivity, low-latency systems, risk monitoring. Teams build on this platform.\n\n- Latimer Music: Tower famously owns Limewire's spiritual successor and a music-tech business; this is unrelated to trading but reflects founder Mark Gorton's diverse interests.\n\nTower has multiple offices globally: New York (HQ), Chicago, London, Amsterdam, Mumbai, and others.\n\nRoles Tower Hires For\n\nQuantitative Trader / Researcher\n\nDevelops trading strategies, signals, models. Tower's structure means quant-research roles have a lot of autonomy compared to firms with rigid centralized research; you're effectively contributing to a specific team's P&L. Strong quant-research backgrounds (PhDs in math, physics, stats) are common.\n\nSoftware Engineer\n\nBuilds Tower's centralized platform: market data, exchange connectivity, risk infrastructure, internal tooling. Also team-specific strategy infrastructure. Heavy on C++ for low-latency components, Python for research tooling. Tower's engineering bar is high but the work is varied.\n\nQuantitative Strategist (QS)\n\nHybrid trader-quant role on certain teams. Combines model development with strategy operation.\n\nInternships\n\nTrader, quant research, and SWE internships in major offices. Conversion to full-time strong for top performers.\n\nTower Interview Process\n\nRound 1: Online assessment\n\nFor SWE: a coding challenge in a language of your choice. For quant: probability and statistics, sometimes a take-home modeling exercise.\n\nRound 2: First-round interview\n\nPhone or video, 30&ndash;60 minutes. For SWE: data structures and algorithms, behavioral, motivation. For quant: probability brainteasers, project deep-dive, motivation.\n\nRound 3: Technical interview\n\nFor SWE: harder coding, some systems design, language-specific questions (C++ memory model, performance, etc.). For quant: deeper probability, statistics, time-series, regression. Sometimes a technical phone screen with the team you'd join.\n\nRound 4: Superday\n\nMultiple back-to-back interviews at Tower's New York office (or virtual on-site). For SWE: 4&ndash;6 interviews covering coding, systems design, behavioral, sometimes a take-home review. For quant: similar structure with research and modeling deep-dive. Lunch with the team, cultural fit conversations.\n\nRound 5: Final / decision\n\nSenior team review. Decision typically within 1&ndash;2 weeks.\n\nWhat Tower Tests For\n\nCoding (SWE)\n\nStandard algorithms and data structures. Tower's bar is high but not at the IOI/ACM level of HRT. Real-world systems concerns matter: latency, fault tolerance, debugging under production conditions.\n\nProbability and statistics (quant)\n\nExpected value, conditional probability, time-series analysis, regression, basic ML. Tower's quant interviews are more research-and-modeling-flavored than market-making-flavored.\n\nSystems design\n\nFor senior SWE candidates, expect realistic systems-design conversations: market data pipelines, order routing, risk infrastructure, low-latency execution. Tower's centralized-platform model means many SWE roles are platform-focused rather than strategy-specific.\n\nProject depth (quant)\n\nBe ready to discuss your most relevant resea"

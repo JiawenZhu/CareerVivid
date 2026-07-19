@@ -4,29 +4,50 @@
   "url": "https://www.techinterview.org/companies/resend-interview-guide",
   "scrapedAt": "2026-07-02T07:25:47.510Z",
   "interviewStages": [],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Practical systems coding: parsers, queues, small state machines",
+    "Streaming and time-series: windowed aggregation over log and metric events",
+    "String parsing: query languages, config formats",
+    "Data structures: ring buffers, LRU caches, tries",
+    "Graph and topological: build and dependency ordering"
+  ],
+  "systemDesignTopics": [
+    "Design an email delivery pipeline with high deliverability and per-domain reputation management",
+    "Design React Email",
+    "Design webhook delivery with retries and exactly-once guarantees"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "At Resend, parse a stream of log and metric events and aggregate by key over a sliding window. Discuss memory bounds.",
+      "Implement a rate-limited, back-pressured queue for ingestion. Discuss what happens when a downstream sink is slow.",
+      "Parse a config format into a typed structure with schema validation. Discuss error handling.",
+      "Given a dependency graph of build targets, compute a valid build order and detect cycles via topological sort.",
+      "Downsample a time-series into fixed buckets (min, max, avg) as data streams in. Walk through the approach."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a project you are proud of at Resend scale and the hardest tradeoff you made.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end.",
+      "Describe a time something you shipped failed or fell short. What did you change afterward?"
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design an email delivery pipeline with high deliverability and per-domain reputation management.",
+      "Design React Email.",
+      "Design webhook delivery with retries and exactly-once guarantees."
+    ],
+    "values": [
+      "Resend is trusted by the developers who depend on it. Describe a time you prioritized reliability and craft.",
+      "Tell me about an open-source contribution or public work you are proud of.",
+      "How do you weigh a breaking change against the migration cost for users?"
+    ],
     "other": [
       "Is Resend fully remote?",
       "How does Resend compare to SendGrid (Twilio) or Postmark?",
       "What is the engineering bar?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 7,
   "tips": [],
   "compensation": null,
   "rawSummary": "Resend Interview Guide (2026): Modern Email API Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nResend\nresend.com ↗\n\nResend is the modern email API for developers — clean DX, React Email components, fast onboarding, and a respected engineering team. Founded by ex-Vercel engineers. The interview is selective and reflects the high engineering standards of similar developer-tools companies.\n\nProcess\n\nRecruiter screen → take-home async work sample (paid, ~3–4 hours) → 60-minute pair-programming → 60-minute system design → 60-minute past-project deep dive → behavioral. Cycle: 3–5 weeks.\n\nWhat they actually ask\n\n- Design an email delivery pipeline with high deliverability and per-domain reputation management\n\n- Design React Email — server-side rendering of email-safe HTML/CSS\n\n- Design webhook delivery with retries and exactly-once guarantees\n\n- Coding: practical TypeScript/Node, often with concurrency or queue flavor\n\n- Past-project deep dive: must demonstrate genuine engineering depth\n\nLevels and comp (2026)\n\n- SE: $180K–$240K total\n\n- Senior SE: $260K–$340K\n\n- Staff: $370K–$480K\n\n- Principal: $500K–$650K\n\nPrep priorities\n\n- Be fluent in TypeScript and React; some Go for backend\n\n- Understand email protocols: SMTP, DKIM, SPF, DMARC, MIME\n\n- Read the Resend blog — they hire people who already engage with the work\n\nFrequently Asked Questions\n\nIs Resend fully remote?\n\nYes. Distributed across US, EU, Latin America. Small team (under 100 people in 2026).\n\nHow does Resend compare to SendGrid (Twilio) or Postmark?\n\nSendGrid is the volume incumbent. Postmark is reliability-focused for transactional. Resend wins on developer experience and modern stack. Comp is competitive at senior+.\n\nWhat is the engineering bar?\n\nVery high. The team is small and the standards are strong. Strong written communication and demonstrable craft are essential.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Resend? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextPrice History System Low-Level Design: Time-Series Storage, Change Detection, and Alert Notifications⏱ 7 min readSystem Design: Ad Server — Targeting, Real-Time Bidding, Impression Tracking, and Click Attribution⏱ 7 min readLow Level Design: CPU Cache Optimization⏱ 9 min read"

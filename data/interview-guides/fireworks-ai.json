@@ -15,15 +15,10 @@
     "Classic algorithm problems (priority queues, graphs) with ML-systems applied twists"
   ],
   "systemDesignTopics": [
-    "\"Design the serving path for a 70B model optimized for sub-200ms first-token latency on H100.\"",
-    "\"Design multi-tenant GPU allocation with strict per-customer latency SLAs.\"",
-    "\"Design the FireAttention kernel integration working across Llama, Mixtral, DeepSeek architectures.\"",
-    "\"Design the speculative-decoding pipeline with draft-model selection per request.\"",
-    "Walk through FlashAttention's algorithm and discuss the trade-offs of each version (1, 2, 3).",
-    "Discuss speculative decoding approaches and the accuracy-speed-cost trade-offs.",
-    "Reason about quantization choice (FP8 vs INT8 vs INT4) for a specific model and workload.",
-    "Describe how you'd profile and optimize a slow kernel from measurement through fix.",
-    "Discuss tensor parallelism for inference &mdash; where it helps, where it hurts."
+    "Design the serving path for a 70B model optimized for sub-200ms first-token latency on H100",
+    "Design multi-tenant GPU allocation with strict per-customer latency SLAs",
+    "Design the FireAttention kernel integration working across Llama, Mixtral, and DeepSeek architectures",
+    "Design the speculative-decoding pipeline with draft-model selection per request"
   ],
   "behavioralTopics": [
     "Performance obsession: \"Tell me about a time you obsessed over performance optimization.\"",
@@ -33,11 +28,11 @@
   ],
   "sampleQuestions": {
     "coding": [
-      "Implement a CUDA kernel for a specific operation (reduction, softmax, matrix operation). Talk through your approach, complexity, and edge cases.",
-      "Implement an LRU cache with O(1) get and put. Then explain how you would make it thread-safe without serializing all access.",
-      "Design a batching scheduler matching diverse requests to GPU capacity. Talk through your approach, complexity, and edge cases.",
-      "Implement a streaming feature aggregator: given a stream of events, maintain rolling counts and averages per key with bounded memory. Discuss complexity and eviction.",
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases."
+      "Implement a CUDA kernel for a specific operation (reduction, softmax, or a matrix operation). Talk through your approach, complexity, and edge cases.",
+      "Implement an LRU cache for a KV-cache manager with O(1) get and put. Then explain how you'd make it thread-safe without serializing all access.",
+      "Design a continuous-batching scheduler that matches diverse inference requests to GPU capacity. Talk through your approach, complexity, and edge cases.",
+      "Implement a streaming token aggregator: given a stream of generated tokens per request, maintain rolling throughput and latency per tenant with bounded memory. Discuss complexity and eviction.",
+      "Given per-request token budgets and a heap of pending requests, schedule the next batch to maximize GPU utilization under a latency SLA. Talk through complexity."
     ],
     "behavioral": [
       "Tell me about a time you obsessed over performance optimization.",
@@ -53,7 +48,11 @@
       "Design the speculative-decoding pipeline with draft-model selection per request. Cover the API, data model, and how it scales.",
       "Walk through FlashAttention's algorithm and discuss the trade-offs of each version (1, 2, 3)."
     ],
-    "values": [],
+    "values": [
+      "Fireworks is about making generative AI inference the fastest and most cost-efficient. Tell me about a time you obsessed over efficiency others considered good enough.",
+      "How do you balance cutting-edge research techniques against what's reliable enough to serve production customers?",
+      "Fireworks serves AI application developers. Tell me about a time you deeply engaged with a developer's real problem to shape what you built."
+    ],
     "other": [
       "Do I need CUDA experience?",
       "How does Fireworks compare to Together AI and Modal?",

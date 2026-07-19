@@ -15,28 +15,42 @@
     "Dynamic Programming: Optimization problems, memoization",
     "System Design: Real-time systems, geospatial indexing, matching algorithms, surge pricing systems"
   ],
-  "systemDesignTopics": [],
+  "systemDesignTopics": [
+    "Design a real-time matching and dispatch service at city scale",
+    "Design search and ranking over millions of listings",
+    "Design an inventory and catalog system with real-time updates",
+    "Design a fraud-detection pipeline with human-in-the-loop review"
+  ],
   "behavioralTopics": [
     "Grab &mdash; Southeast Asia super-app"
   ],
   "sampleQuestions": {
     "coding": [
-      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph.",
-      "Serialize and deserialize a binary tree. Walk through your encoding choices, complexity, and edge cases.",
-      "Given an array of integers, find the longest contiguous subarray whose sum equals a target. Discuss complexity and edge cases.",
-      "Given a set of coin denominations, compute the minimum number of coins needed to reach a target amount. Compare the recursive and bottom-up approaches.",
-      "Implement a fixed-size ring buffer for sensor readings with O(1) reads and writes and no dynamic allocation. Walk through the concurrency considerations."
+      "At Uber, given providers and pending orders streaming in, match them to minimize total wait time, allowing batching of nearby orders. Discuss the greedy heap approach.",
+      "Answer top-K nearest-provider queries for a user at high QPS. Discuss geohashing and a heap-based approach.",
+      "Maintain a real-time in-stock count per listings from an event stream with bounded memory.",
+      "Rank listings for a search query by relevance and availability using a heap. Discuss tie-breaking.",
+      "Given a stream of orders status events, detect any stuck longer than a threshold using a sliding window."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a project you are proud of at Uber scale and the hardest tradeoff you made.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end.",
+      "Describe a time something you shipped failed or fell short. What did you change afterward?"
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a real-time matching and dispatch service at city scale.",
+      "Design search and ranking over millions of listings.",
+      "Design an inventory and catalog system with real-time updates."
+    ],
+    "values": [
+      "Uber balances multiple sides of a marketplace. Describe a time you weighed one side against another.",
+      "Tell me about a time you built something that helped both supply and demand succeed.",
+      "How do you improve trust and safety in a two-sided marketplace?"
+    ],
     "other": []
   },
-  "difficulty": null,
+  "difficulty": 6,
   "tips": [
     "Study Graph Algorithms: Uber's core business involves routing and location. Master Dijkstra's, BFS, DFS, and graph representations.",
     "Focus on Scalability: Practice designing systems that handle millions of requests. Think about data partitioning and caching.",

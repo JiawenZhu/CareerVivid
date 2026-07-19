@@ -15,15 +15,10 @@
     "Classic algorithm problems (trees, graphs, DP) with infrastructure-applied twists"
   ],
   "systemDesignTopics": [
-    "\"Design the GPU allocator supporting 10K+ diverse models with minimal cold-start latency.\"",
-    "\"Design the prediction-queue system routing requests across heterogeneous GPU types and model types.\"",
-    "\"Design the Cog container distribution system ensuring fast image pulls for newly-requested community models.\"",
-    "\"Design the billing / metering system tracking per-prediction GPU usage with audit-grade correctness.\"",
-    "Walk through what happens from API call to model execution on GPU.",
-    "Discuss approaches for cold-start mitigation in serverless-GPU contexts.",
-    "Reason about warm-pool vs on-demand GPU allocation trade-offs.",
-    "Describe your approach to billing correctness across long-running predictions.",
-    "Explain how you'd handle a newly-uploaded model with unusual dependencies."
+    "Design the GPU allocator supporting 10K+ diverse models with minimal cold-start latency",
+    "Design the prediction-queue system routing requests across heterogeneous GPU types and model types",
+    "Design the Cog container distribution system ensuring fast image pulls for newly-requested community models",
+    "Design the billing / metering system tracking per-prediction GPU usage with audit-grade correctness"
   ],
   "behavioralTopics": [
     "Small-team comfort: \"How do you operate in an environment where you own broad scope with limited infrastructure?\"",
@@ -33,27 +28,28 @@
   ],
   "sampleQuestions": {
     "coding": [
-      "Implement a scheduler matching incoming requests to available GPU capacity with fairness. Talk through your approach, complexity, and edge cases.",
-      "Implement a warm-pool manager for frequently-accessed models. Talk through your approach, complexity, and edge cases.",
-      "Process a model's streaming output, format for API consumers, handle cancellation. Talk through your approach, complexity, and edge cases.",
-      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph.",
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases."
+      "At Replicate, given a stream of model inference requests, batch them to maximize GPU utilization while keeping per-request latency under a bound. Discuss the queue and complexity.",
+      "Chunk a long document into overlapping passages for retrieval, respecting sentence boundaries. Discuss the sliding-window approach.",
+      "Given a query and an inverted index over embeddings, return the top-K most similar items using a heap. Discuss ranking.",
+      "Deduplicate near-identical generated outputs using shingling and hashing. Walk through complexity.",
+      "Implement an LRU cache for expensive model inference requests keyed by a prompt hash with TTL eviction. Discuss the data structure."
     ],
     "behavioral": [
-      "How do you operate in an environment where you own broad scope with limited infrastructure?",
-      "Have you contributed to open-source projects? What's your take on open vs closed development?",
-      "Describe a time you engaged with a developer user's problem.",
-      "How do you work well in a fully-distributed team?",
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+      "Tell me about a project you are proud of at Replicate scale and the hardest tradeoff you made.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end.",
+      "Describe a time something you shipped failed or fell short. What did you change afterward?"
     ],
     "systemDesign": [
-      "Design the GPU allocator supporting 10K+ diverse models with minimal cold-start latency. Cover the API, data model, and how it scales.",
+      "Design the GPU allocator supporting 10K+ diverse models with minimal cold-start latency.",
       "Design the prediction-queue system routing requests across heterogeneous GPU types and model types.",
-      "Design the Cog container distribution system ensuring fast image pulls for newly-requested community models.",
-      "Design the billing / metering system tracking per-prediction GPU usage with audit-grade correctness.",
-      "Walk through what happens from API call to model execution on GPU."
+      "Design the Cog container distribution system ensuring fast image pulls for newly-requested community models."
     ],
-    "values": [],
+    "values": [
+      "Replicate's mission carries real responsibility. Describe a time you weighed capability against safety.",
+      "How do you evaluate an AI feature where a wrong answer has real consequences?",
+      "Tell me about a time you were rigorous about data quality or evaluation when it slowed you down."
+    ],
     "other": [
       "How does Replicate compare to Modal on interviews?",
       "Do I need ML background to get hired?",
@@ -62,7 +58,7 @@
       "Is remote work genuinely supported?"
     ]
   },
-  "difficulty": 7.5,
+  "difficulty": 7,
   "tips": [
     "Use Replicate actively. Run several different models via API. Form opinions about the developer experience.",
     "Read Cog docs and source. Understanding the model-packaging philosophy signals preparation.",

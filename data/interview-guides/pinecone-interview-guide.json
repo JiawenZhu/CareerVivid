@@ -19,33 +19,44 @@
     "Embedding model integration: how Pinecone integrates with OpenAI, Cohere, Voyage AI, etc.",
     "For platform roles: multi-tenant isolation, billing for vector operations, namespace design."
   ],
-  "codingTopics": [],
+  "codingTopics": [
+    "Practical systems coding: parsers, queues, small state machines",
+    "Streaming and time-series: windowed aggregation over log and metric events",
+    "String parsing: query languages, config formats",
+    "Data structures: ring buffers, LRU caches, tries",
+    "Graph and topological: build and dependency ordering"
+  ],
   "systemDesignTopics": [
-    "Design a vector database that handles billions of vectors with millisecond query latency.",
-    "Design a metadata-filtered search over a vector index.",
-    "Design a hybrid search that combines vector and keyword retrieval.",
-    "Design tiered storage that keeps hot vectors in memory and cold vectors on disk."
+    "Design a vector database that handles billions of vectors with millisecond query latency",
+    "Design a metadata-filtered search over a vector index",
+    "Design a hybrid search that combines vector and keyword retrieval",
+    "Design tiered storage that keeps hot vectors in memory and cold vectors on disk"
   ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "At Pinecone, parse a stream of log and metric events and aggregate by key over a sliding window. Discuss memory bounds.",
+      "Implement a rate-limited, back-pressured queue for ingestion. Discuss what happens when a downstream sink is slow.",
+      "Parse a config format into a typed structure with schema validation. Discuss error handling.",
+      "Given a dependency graph of build targets, compute a valid build order and detect cycles via topological sort.",
+      "Downsample a time-series into fixed buckets (min, max, avg) as data streams in. Walk through the approach."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a project you are proud of at Pinecone scale and the hardest tradeoff you made.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end.",
+      "Describe a time something you shipped failed or fell short. What did you change afterward?"
     ],
     "systemDesign": [
-      "Design a vector database that handles billions of vectors with millisecond query latency. Cover the API, data model, and how it scales.",
-      "Design a metadata-filtered search over a vector index. Cover the API, data model, and how it scales.",
-      "Design a hybrid search that combines vector and keyword retrieval. Cover the API, data model, and how it scales.",
-      "Design tiered storage that keeps hot vectors in memory and cold vectors on disk. Cover the API, data model, and how it scales.",
-      "Design a service at Pinecone scale that shortens URLs. Cover the API, storage, and hot-key handling."
+      "Design a vector database that handles billions of vectors with millisecond query latency.",
+      "Design a metadata-filtered search over a vector index.",
+      "Design a hybrid search that combines vector and keyword retrieval."
     ],
-    "values": [],
+    "values": [
+      "Pinecone is trusted by the developers who depend on it. Describe a time you prioritized reliability and craft.",
+      "Tell me about an open-source contribution or public work you are proud of.",
+      "How do you weigh a breaking change against the migration cost for users?"
+    ],
     "other": [
       "Do I need ANN background to interview?",
       "How does Pinecone compare to competitors?",
@@ -54,7 +65,7 @@
       "What's the largest interview gotcha?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 7,
   "tips": [],
   "compensation": [
     "Senior: $200-260K base + equity → $400-650K total",

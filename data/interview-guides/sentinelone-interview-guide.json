@@ -18,29 +18,50 @@
     "Standard LeetCode mediums for general engineering roles",
     "For security-research / detection-engineering roles: malware analysis, MITRE ATT&CK framework, common attack patterns"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Streaming detection: pattern matching over security events",
+    "Graph problems: relate entities into attack graphs",
+    "String and parsing: log parsing, signature matching",
+    "Data structures: tries, bloom filters, heaps",
+    "Time-series: anomaly detection over event streams"
+  ],
+  "systemDesignTopics": [
+    "Design a kernel-level event aggregator",
+    "Design a behavioral threat-detection pipeline",
+    "Design multi-tenant data isolation"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "At SentinelOne, given a stream of security events, flag sessions whose activity exceeds a risk threshold in a sliding window.",
+      "Build an attack graph relating entities and find the shortest path an attacker could take. Discuss the graph approach.",
+      "Match incoming logs against a set of signatures efficiently using a trie or Aho-Corasick. Discuss complexity.",
+      "Use a bloom filter to check entities against a large blocklist with bounded memory. Discuss false positives.",
+      "Detect anomalies in a time-series of security events using rolling statistics. Walk through the approach."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a project you are proud of at SentinelOne scale and the hardest tradeoff you made.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end.",
+      "Describe a time something you shipped failed or fell short. What did you change afterward?"
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a kernel-level event aggregator.",
+      "Design a behavioral threat-detection pipeline.",
+      "Design multi-tenant data isolation."
+    ],
+    "values": [
+      "SentinelOne defends customers from real adversaries. Describe a time security outweighed convenience.",
+      "Tell me about a time you responded to a security incident or near-miss.",
+      "How do you balance strong protection against a usable product?"
+    ],
     "other": [
       "Do I need security experience?",
       "How does SentinelOne compare to CrowdStrike?",
       "Is the work mostly in C/C++?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 7,
   "tips": [],
   "compensation": [
     "Mid: $150–200K base + $80–140K equity/year + bonus → $260–360K total",

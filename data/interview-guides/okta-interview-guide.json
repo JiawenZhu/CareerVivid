@@ -18,22 +18,44 @@
     "Identity-specific design: implement a session token store, design a multi-factor authentication system, design a rate-limited login flow with bot detection",
     "For senior+: zero-trust architecture, certificate-based authentication, federated identity, SCIM provisioning"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "OO design: model a business domain such as workflows with triggers and actions",
+    "Multi-tenant data structures: per-tenant rate limiting, isolation",
+    "Streaming: rolling aggregates over tenant events",
+    "Graph and DAG: workflow evaluation, dependency resolution",
+    "Search and filters: AND/OR queries over records"
+  ],
+  "systemDesignTopics": [
+    "Design a multi-tenant workflow and automation engine",
+    "Design search with complex filters over millions of records per tenant",
+    "Design an integration framework connecting hundreds of third-party tools",
+    "Design a per-tenant usage-metering and billing pipeline"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "At Okta, model a workflow engine with triggers, conditions, and actions. Evaluate a workflow DAG and detect cycles.",
+      "Implement a per-tenant rate limiter so one customer cannot exhaust shared capacity. Discuss the token-bucket design.",
+      "Given a stream of tenant events, maintain rolling per-entity scores with bounded memory.",
+      "Implement a filter query over records supporting AND/OR on custom fields. Discuss indexing for a multi-tenant store.",
+      "Deduplicate records via fuzzy clustering on name and email. Discuss the matching and complexity."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a project you are proud of at Okta scale and the hardest tradeoff you made.",
+      "Give me an example that shows prepare 3–4 stories about handling security-sensitive work, customer-impacting incidents, and cross-team collaboration.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a multi-tenant workflow and automation engine.",
+      "Design search with complex filters over millions of records per tenant.",
+      "Design an integration framework connecting hundreds of third-party tools."
+    ],
+    "values": [
+      "Okta succeeds when its customers do. Describe a time you solved for the customer even at a cost to the team.",
+      "Tell me about a time you handled a tricky multi-tenant isolation or permissions problem.",
+      "How do you balance enterprise customization against product simplicity?"
+    ],
     "other": [
       "Do I need a security background to interview at Okta?",
       "Is Auth0 (acquired) interviewed differently?",
@@ -42,7 +64,7 @@
       "How does Okta compare to other security firms?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 6,
   "tips": [
     "Technical: 6–8 weeks of LeetCode plus system design",
     "Security domain: read OWASP Top 10, the OAuth 2.0 RFCs (especially RFC 6749 and RFC 7519 for JWT), and a high-level overview of SAML",

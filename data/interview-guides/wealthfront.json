@@ -15,13 +15,10 @@
     "Classic algorithm problems (DP, graph algorithms) with financial twists (dynamic programming for optimal rebalancing, graph for asset-class routing)"
   ],
   "systemDesignTopics": [
-    "\"Design the daily rebalancing engine for 500K accounts, completing within a 4-hour batch window with correctness guarantees.\"",
-    "\"Design the order-routing system that places orders with multiple broker-dealer partners, respecting best-execution and wash-sale rules.\"",
-    "\"Design the tax-lot accounting system supporting FIFO, LIFO, specific-lot, and custom lot selection with audit-trail requirements.\"",
-    "\"Design real-time cash-account transaction processing with fraud detection and FDIC-insurance-aware routing.\"",
-    "Walk through Modern Portfolio Theory's key insights and critiques.",
-    "Explain tax-loss harvesting and why the 30-day wash-sale rule matters.",
-    "Explain direct indexing and why it's a structural improvement over ETF-based passive investing for certain clients."
+    "Design the daily rebalancing engine for 500K accounts, completing within a 4-hour batch window with correctness guarantees",
+    "Design the tax-lot accounting system supporting FIFO, LIFO, specific-lot, and custom lot selection with audit-trail requirements",
+    "Design real-time cash-account transaction processing with fraud detection and FDIC-insurance-aware routing",
+    "Design the daily rebalancing engine for 500K accounts with tax-loss harvesting"
   ],
   "behavioralTopics": [
     "Quantitative rigor: \"Tell me about a time you caught a subtle bug with significant financial impact.\"",
@@ -32,27 +29,28 @@
   ],
   "sampleQuestions": {
     "coding": [
-      "Given a sell order and a set of lots, select lots to minimize capital-gains impact. Talk through your approach, complexity, and edge cases.",
-      "Given target allocations and current portfolio, compute trades under constraints (tax, minimum trade size, wash-sale avoidance). Talk through your approach, complexity, and edge cases.",
-      "Implement rolling returns, drawdown, Sharpe ratio calculation from a daily-return stream. Talk through your approach, complexity, and edge cases.",
-      "Implement Monte Carlo simulation of portfolio outcomes with bounded memory. Talk through your approach, complexity, and edge cases.",
-      "Implement a double-entry ledger that processes a stream of transactions and detects imbalances. How do you guarantee idempotency when a transaction is delivered twice?"
+      "At Wealthfront, implement an idempotent handler for payments so retries never double-charge. Discuss the dedupe key and storage.",
+      "Compute balances from a stream of ledger entries with correct decimal and rounding rules so totals reconcile to the cent.",
+      "Given a stream of payments, detect suspected fraud when velocity exceeds a threshold in a sliding window.",
+      "Reconcile a stream of payments against returns and reversals. Discuss idempotency and the matching key.",
+      "Handle multi-currency balances with correct rounding across currencies. Walk through the edge cases."
     ],
     "behavioral": [
-      "Tell me about a time you caught a subtle bug with significant financial impact.",
-      "Describe a production incident you owned end-to-end.",
-      "Have you worked under compliance constraints? How did it affect your engineering?",
-      "Tell me about a time you engaged with a customer problem directly.",
-      "How do you think about working at a fintech that's navigating independent growth vs eventual acquisition?"
+      "Tell me about a project you are proud of at Wealthfront scale and the hardest tradeoff you made.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end.",
+      "Describe a time something you shipped failed or fell short. What did you change afterward?"
     ],
     "systemDesign": [
-      "How would you design tax-aware rebalancing that respects both target allocations and wash-sale avoidance?",
-      "Given this portfolio of returns, calculate Sharpe ratio. What assumptions are you making?",
       "Design the daily rebalancing engine for 500K accounts, completing within a 4-hour batch window with correctness guarantees.",
-      "Design the order-routing system that places orders with multiple broker-dealer partners, respecting best-execution and wash-sale rules.",
-      "Design the tax-lot accounting system supporting FIFO, LIFO, specific-lot, and custom lot selection with audit-trail requirements."
+      "Design the tax-lot accounting system supporting FIFO, LIFO, specific-lot, and custom lot selection with audit-trail requirements.",
+      "Design real-time cash-account transaction processing with fraud detection and FDIC-insurance-aware routing."
     ],
-    "values": [],
+    "values": [
+      "Wealthfront protects users' money. Describe a time you prevented a correctness or fraud problem.",
+      "Tell me about a time you balanced a growth feature against fraud or risk.",
+      "How do you earn and keep user trust in a financial product?"
+    ],
     "other": [
       "How algorithmically hard are the coding rounds really?",
       "Do I need a finance background?",
@@ -61,7 +59,7 @@
       "What's happening post-UBS-deal?"
     ]
   },
-  "difficulty": 8,
+  "difficulty": 6,
   "tips": [
     "Prep algorithms seriously. Wealthfront's coding bar is higher than many candidates expect from a 300-person fintech.",
     "Read Wealthfront's white papers. They explain the methodology well and signal you care about the domain.",

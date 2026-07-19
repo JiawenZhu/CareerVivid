@@ -9,27 +9,44 @@
     "System design (1 round) — varies substantially by role; gameplay-systems design or backend distributed systems design",
     "Behavioral / cross-functional (1 round)"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Grid and matrix traversal: spiral, flood fill, tile maps",
+    "Graph algorithms: A* pathfinding, navmesh, dependency graphs",
+    "Simulation and per-frame game-loop state updates",
+    "Memory-efficient data structures and object pooling",
+    "Spatial data structures: quadtrees and spatial hashing"
+  ],
+  "systemDesignTopics": [
+    "Design the matchmaking service for Fortnite that pairs players by skill and latency",
+    "Design the backend for a battle-royale session hosting 100 concurrent players",
+    "Design a real-time leaderboard and stats system for a live-service game",
+    "Design the content-delivery and patching pipeline for the Epic Games Store"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "A function intermittently fails in production. Walk me through how you would reproduce, isolate, and fix the bug.",
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Given a tile-based game map as a grid, implement A* pathfinding for an NPC that avoids blocked tiles. Talk through your approach, complexity, and edge cases.",
+      "Compute the tiles within a unit's line of sight on a 2D grid using ray casting or flood fill. Discuss complexity and edge cases.",
+      "Implement an object pool that spawns and recycles projectile entities without per-frame allocation. Discuss the data structure and trade-offs.",
+      "Given a dependency graph of asset-cook/build steps, produce a valid build order with topological sort and detect cycles. Talk through complexity.",
+      "Design a spatial hash to answer nearest-enemy queries for thousands of actors each frame. Talk through your approach and complexity."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a time you shipped a feature under a hard launch deadline (a game season or live event). What did you cut and why?",
+      "Describe a time you debugged a tough performance problem, a frame hitch, or a memory issue under time pressure.",
+      "Tell me about a disagreement with a designer or artist over a technical constraint. How did you resolve it?",
+      "Describe a time you owned a system end-to-end that millions of players depended on."
     ],
     "systemDesign": [
-      "Design Epic Games's varies substantially by role; gameplay-systems design or backend distributed systems design at production scale. Walk through the architecture, trade-offs, and failure modes.",
-      "Design a service at Epic Games scale that shortens URLs. Cover the API, storage, and hot-key handling.",
-      "Design a rate limiter for a public API. Discuss algorithms, distributed coordination, and failure modes."
+      "Design Fortnite's matchmaking service. Cover skill/latency pairing, queueing, and how it scales to millions of concurrent players.",
+      "Design dedicated game-server allocation for battle-royale sessions. Cover the API, session lifecycle, and regional scaling.",
+      "Design a real-time leaderboard for a live-service game. Cover storage, ranking updates, and hot-key handling."
     ],
-    "values": [],
+    "values": [
+      "Epic builds tools for creators as well as players. Tell me about a time you built something that empowered other people to create.",
+      "How do you balance shipping fast for a live game against long-term code health?",
+      "What draws you to games and interactive entertainment specifically, versus other software?"
+    ],
     "other": [
       "Do I need Unreal Engine experience to interview at Epic?",
       "What's working on Unreal Engine actually like?",
@@ -38,7 +55,7 @@
       "What's the equity story like at private Epic?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 7,
   "tips": [],
   "compensation": [
     "New-grad SWE: $160k–$240k total comp first year",

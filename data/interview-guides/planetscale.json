@@ -15,15 +15,10 @@
     "Classic algorithm problems (graphs, trees, intervals) with database-applied twists"
   ],
   "systemDesignTopics": [
-    "\"Design the sharding layer handling 1M QPS with correct routing across thousands of shards.\"",
-    "\"Design online schema change for a 10TB table with zero downtime on a high-write workload.\"",
-    "\"Design the query-cache invalidation system (PlanetScale Boost-style) with strong consistency guarantees.\"",
-    "\"Design multi-cloud failover with customer-visible cloud choice and bounded recovery time.\"",
-    "Walk through MySQL's InnoDB B-tree structure and how updates propagate through the buffer pool.",
-    "Discuss Vitess's VReplication for online schema change &mdash; the copy phase, cutover, and rollback.",
-    "Explain distributed-transaction trade-offs in Vitess (2PC vs application-level transactions).",
-    "Reason about hot-spot handling in a sharded workload.",
-    "Describe replication lag mitigation and its impact on read-after-write consistency."
+    "Design the sharding layer handling 1M QPS with correct routing across thousands of shards",
+    "Design online schema change for a 10TB table with zero downtime on a high-write workload",
+    "Design the query-cache invalidation system (PlanetScale Boost-style) with strong consistency guarantees",
+    "Design multi-cloud failover with customer-visible cloud choice and bounded recovery time"
   ],
   "behavioralTopics": [
     "Database-engineering ownership: \"Describe a database-related project you owned end-to-end.\"",
@@ -34,26 +29,27 @@
   "sampleQuestions": {
     "coding": [
       "Implement a simple query parser / evaluator for a structured expression language. Talk through your approach, complexity, and edge cases.",
-      "Given a query and shard configuration, determine target shard(s). Talk through your approach, complexity, and edge cases.",
-      "Design a connection pool with fair allocation and timeout handling. Talk through your approach, complexity, and edge cases.",
-      "Given two table definitions, produce minimal migration steps. Talk through your approach, complexity, and edge cases.",
-      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph."
+      "At PlanetScale, parse a stream of log and metric events and aggregate by key over a sliding window. Discuss memory bounds.",
+      "Implement a rate-limited, back-pressured queue for ingestion. Discuss what happens when a downstream sink is slow.",
+      "Parse a config format into a typed structure with schema validation. Discuss error handling.",
+      "Given a dependency graph of build targets, compute a valid build order and detect cycles via topological sort."
     ],
     "behavioral": [
-      "Describe a database-related project you owned end-to-end.",
-      "Tell me about supporting a customer with a database problem. What did you learn?",
-      "Describe your practices for remote / async work.",
-      "Walk me through the hardest database problem you've solved.",
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+      "Tell me about a project you are proud of at PlanetScale scale and the hardest tradeoff you made.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end.",
+      "Describe a time something you shipped failed or fell short. What did you change afterward?"
     ],
     "systemDesign": [
-      "Design the sharding layer handling 1M QPS with correct routing across thousands of shards. Cover the API, data model, and how it scales.",
-      "Design online schema change for a 10TB table with zero downtime on a high-write workload. Cover the API, data model, and how it scales.",
-      "Design the query-cache invalidation system (PlanetScale Boost-style) with strong consistency guarantees.",
-      "Design multi-cloud failover with customer-visible cloud choice and bounded recovery time. Cover the API, data model, and how it scales.",
-      "Walk through MySQL's InnoDB B-tree structure and how updates propagate through the buffer pool."
+      "Design the sharding layer handling 1M QPS with correct routing across thousands of shards.",
+      "Design online schema change for a 10TB table with zero downtime on a high-write workload.",
+      "Design the query-cache invalidation system (PlanetScale Boost-style) with strong consistency guarantees."
     ],
-    "values": [],
+    "values": [
+      "PlanetScale is trusted by the developers who depend on it. Describe a time you prioritized reliability and craft.",
+      "Tell me about an open-source contribution or public work you are proud of.",
+      "How do you weigh a breaking change against the migration cost for users?"
+    ],
     "other": [
       "Do I need MySQL / Vitess experience to get hired?",
       "How does PlanetScale compare to Supabase / Neon / Aurora?",
@@ -62,7 +58,7 @@
       "Is remote work supported?"
     ]
   },
-  "difficulty": 7.5,
+  "difficulty": 7,
   "tips": [
     "Use PlanetScale for a real project. Create a database, try branching / deploy-requests, observe Insights.",
     "Read Vitess documentation. Architecture, VReplication, and topology sections are directly relevant.",

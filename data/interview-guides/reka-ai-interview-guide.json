@@ -6,29 +6,51 @@
   "interviewStages": [
     "Behavioral: ownership, taste, fast-moving research-engineering culture"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "NLP and pipelines: tokenization, chunking, retrieval over documents",
+    "Streaming: token streams and batched inference",
+    "Search and ranking: vector plus keyword retrieval, top-K with heaps",
+    "Data structures: tries, inverted indexes, LRU caches",
+    "Evaluation harnesses: scoring model outputs"
+  ],
+  "systemDesignTopics": [
+    "Design a multimodal training pipeline (data ingestion, modality alignment)",
+    "Design an inference platform serving multimodal queries",
+    "Design a RAG pipeline over a large private document corpus",
+    "Design a real-time model-serving system with batching and autoscaling"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "At Reka AI, given a stream of model inference requests, batch them to maximize GPU utilization while keeping per-request latency under a bound. Discuss the queue and complexity.",
+      "Chunk a long document into overlapping passages for retrieval, respecting sentence boundaries. Discuss the sliding-window approach.",
+      "Given a query and an inverted index over embeddings, return the top-K most similar items using a heap. Discuss ranking.",
+      "Deduplicate near-identical generated outputs using shingling and hashing. Walk through complexity.",
+      "Implement an LRU cache for expensive model inference requests keyed by a prompt hash with TTL eviction. Discuss the data structure."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a project you are proud of at Reka AI scale and the hardest tradeoff you made.",
+      "Give me an example that shows ownership, taste, fast-moving research-engineering culture.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a multimodal training pipeline (data ingestion, modality alignment).",
+      "Design an inference platform serving multimodal queries.",
+      "Design a RAG pipeline over a large private document corpus."
+    ],
+    "values": [
+      "Reka AI's mission carries real responsibility. Describe a time you weighed capability against safety.",
+      "How do you evaluate an AI feature where a wrong answer has real consequences?",
+      "Tell me about a time you were rigorous about data quality or evaluation when it slowed you down."
+    ],
     "other": [
       "Is Reka remote-friendly?",
       "How does Reka compare to OpenAI or Google DeepMind on multimodal?",
       "What is the engineering culture?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 7,
   "tips": [],
   "compensation": null,
   "rawSummary": "Reka AI Interview Guide (2026): Multimodal AI Models\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 6, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 6, 2026 · techinterview.org\n\n⏱ 1 min read\n\nReka AI\nreka.ai ↗\n\nReka AI builds frontier multimodal models — combining text, image, audio, and video reasoning. Founded by ex-Google DeepMind, Meta, and Baidu researchers (Yi Tay and team). Series B in 2024. The interview emphasizes deep ML research engineering, multimodal architectures, and the unique tradeoffs of training cross-modal frontier systems.\n\nProcess\n\nRecruiter screen → 60-minute coding (Python with PyTorch fluency) → onsite virtual: 2 coding/ML, 1 ML system design, 1 research deep-dive, 1 behavioral. Research-track candidates get a paper-discussion round. Cycle: 4–6 weeks.\n\nWhat they actually ask\n\n- Design a multimodal training pipeline (data ingestion, modality alignment)\n\n- Design an inference platform serving multimodal queries\n\n- Discuss tradeoffs between encoder-only vs decoder-only multimodal architectures\n\n- Coding: medium-hard DSA, often ML-flavored\n\n- Behavioral: ownership, taste, fast-moving research-engineering culture\n\nLevels and comp (2026)\n\n- SE: $200K–$280K total (Singapore HQ; US offers higher)\n\n- Senior SE / Research Eng: $290K–$400K total\n\n- Staff / Senior Researcher: $410K–$600K+ total at top of band\n\nPrep priorities\n\n- Be fluent in Python and PyTorch deeply\n\n- Understand multimodal architectures (vision encoders, cross-attention, late fusion)\n\n- Brush up on distributed training, sequence parallelism, and inference optimization\n\nFrequently Asked Questions\n\nIs Reka remote-friendly?\n\nHubs in Singapore (HQ) and remote across US/EU/APAC. Many roles distributed.\n\nHow does Reka compare to OpenAI or Google DeepMind on multimodal?\n\nReka punches above its weight on multimodal, particularly for an independent lab. Comp below US-frontier-lab top of band but competitive for Singapore-based ML roles.\n\nWhat is the engineering culture?\n\nResearch-engineering blended; international team across multiple time zones. Strong async culture and high research bar.\n\nSimilar company guides\n\nSakana AIinterview guideBlack Forest Labsinterview guideHippocratic AIinterview guideRunwayinterview guidePika Labsinterview guideSunointerview guide\n\nPrepping for Reka AI? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextPackage Registry Low-Level Design: Artifact Storage, Version Resolution, and Dependency Graph⏱ 6 min readGitHub Profile Polish for Engineers: Pinned Repos, READMEs, What Recruiters Click On⏱ 6 min readAffirm Interview Guide 2026: BNPL, Underwriting, Levchin Culture, Post-CFPB Engineering⏱ 7 min read"

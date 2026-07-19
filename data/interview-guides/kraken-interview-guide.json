@@ -21,23 +21,37 @@
     "Cryptographic fundamentals: signing, hashing, hierarchical deterministic wallets, multi-signature schemes",
     "For institutional services: settlement workflows, custody architecture, audit logs"
   ],
-  "systemDesignTopics": [],
+  "systemDesignTopics": [
+    "Design a matching engine for a crypto exchange",
+    "Design a wallet service with secure key custody",
+    "Design an on-chain data indexing pipeline",
+    "Design a real-time fraud and AML monitoring system"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Implement a double-entry ledger that processes a stream of transactions and detects imbalances. How do you guarantee idempotency when a transaction is delivered twice?",
-      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph.",
-      "Find the k most frequent elements in a stream. Which data structure do you use and why?",
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution."
+      "At Kraken, implement a matching engine over mempool entries with price-time priority. Discuss the data structure and complexity.",
+      "Verify a Merkle proof that a transaction is included in a block. Walk through the hashing.",
+      "Given a stream of on-chain transactions, detect double-spend attempts using a sliding window. Discuss the approach.",
+      "Compute token balances with fixed-point math avoiding precision loss. Discuss edge cases.",
+      "Maintain top-K fee-paying mempool entries for block inclusion using a heap. Discuss eviction."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a project you are proud of at Kraken scale and the hardest tradeoff you made.",
+      "Give me an example that shows stories about high-stakes work, regulatory awareness, security-conscious engineering.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a matching engine for a crypto exchange.",
+      "Design a wallet service with secure key custody.",
+      "Design an on-chain data indexing pipeline."
+    ],
+    "values": [
+      "Kraken operates in a high-stakes, adversarial domain. Describe a time security outweighed speed.",
+      "Tell me about a time you handled custody of sensitive assets or keys carefully.",
+      "How do you build trust in a system where mistakes are irreversible?"
+    ],
     "other": [
       "Do I need to be a crypto enthusiast to work at Kraken?",
       "Is Kraken really fully remote?",
@@ -46,7 +60,7 @@
       "Can I work in crypto without security background?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 6,
   "tips": [
     "Technical: 6–8 weeks of LeetCode plus financial-systems-flavored system design",
     "Crypto domain: read the Bitcoin and Ethereum whitepapers, understand UTXO vs account models, hot vs cold wallets, common attack vectors",

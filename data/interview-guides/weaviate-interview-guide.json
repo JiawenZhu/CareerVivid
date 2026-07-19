@@ -15,22 +15,44 @@
     "Hybrid search (BM25 + vector) is a Weaviate strength; senior interviews probe the implementation.",
     "Multi-tenancy at scale — Weaviate Cloud supports many small tenants efficiently."
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Practical systems coding: parsers, queues, small state machines",
+    "Streaming and time-series: windowed aggregation over log and metric events",
+    "String parsing: query languages, config formats",
+    "Data structures: ring buffers, LRU caches, tries",
+    "Graph and topological: build and dependency ordering"
+  ],
+  "systemDesignTopics": [
+    "Design a time-series database with horizontal scaling and a strict query SLA",
+    "Design a distributed log aggregation system at high ingestion volume",
+    "Design a query engine with a domain-specific language and pushdown optimization",
+    "Design a multi-tenant control plane for provisioning and config"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "At Weaviate, parse a stream of log and metric events and aggregate by key over a sliding window. Discuss memory bounds.",
+      "Implement a rate-limited, back-pressured queue for ingestion. Discuss what happens when a downstream sink is slow.",
+      "Parse a config format into a typed structure with schema validation. Discuss error handling.",
+      "Given a dependency graph of build targets, compute a valid build order and detect cycles via topological sort.",
+      "Downsample a time-series into fixed buckets (min, max, avg) as data streams in. Walk through the approach."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a project you are proud of at Weaviate scale and the hardest tradeoff you made.",
+      "Describe a time you disagreed with a teammate or manager. How did it resolve?",
+      "Tell me about a time you took ownership of an ambiguous problem end to end.",
+      "Describe a time something you shipped failed or fell short. What did you change afterward?"
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a time-series database with horizontal scaling and a strict query SLA.",
+      "Design a distributed log aggregation system at high ingestion volume.",
+      "Design a query engine with a domain-specific language and pushdown optimization."
+    ],
+    "values": [
+      "Weaviate is trusted by the developers who depend on it. Describe a time you prioritized reliability and craft.",
+      "Tell me about an open-source contribution or public work you are proud of.",
+      "How do you weigh a breaking change against the migration cost for users?"
+    ],
     "other": [
       "How does Weaviate differ from Pinecone?",
       "Do I need Go background?",
@@ -39,7 +61,7 @@
       "Is the bar lower than Pinecone?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 7,
   "tips": [],
   "compensation": [
     "Senior (Amsterdam): €120-180K base + equity → €170-280K total",

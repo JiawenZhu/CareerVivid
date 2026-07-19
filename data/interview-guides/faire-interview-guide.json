@@ -6,29 +6,50 @@
   "interviewStages": [
     "Behavioral: customer focus, working with two-sided marketplace dynamics"
   ],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "Arrays, strings, and hashmaps for catalog and order operations",
+    "Graph and recommendation traversal for brand and retailer matching",
+    "Sorting and ranking of product feeds",
+    "Search and prefix matching over a wholesale catalog"
+  ],
+  "systemDesignTopics": [
+    "Design Faire's recommendation system matching independent retailers to wholesale brands",
+    "Design the order and fulfillment system between brands and retailers",
+    "Design search and ranking for a wholesale product catalog",
+    "Design a net-terms credit-risk scoring pipeline for retailers"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Given a retailer's past orders, recommend brands by traversing a retailer-brand bipartite graph. Talk through complexity and edge cases.",
+      "Given a wholesale catalog, build a typeahead that ranks brand and product prefix matches by relevance. Discuss your approach.",
+      "Given order line items across brands, compute per-brand minimum-order thresholds and flag carts below them. Talk through your approach.",
+      "Merge inventory feeds from multiple brands and reconcile conflicting stock counts. Discuss the data structure and trade-offs.",
+      "Given a stream of order events, detect brands whose sell-through rate is trending down in a rolling window. Discuss complexity."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Faire exists to empower independent retailers. Tell me about a time your work directly helped small businesses or underdog users.",
+      "Describe a time you made a decision with incomplete data and how you reduced the risk.",
+      "Tell me about the highest-quality-bar project you've shipped. What made it good?",
+      "Describe a time you took ownership of an ambiguous problem no one else owned."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design Faire's brand-recommendation system for independent retailers. Cover signals, the serving path, and cold-start.",
+      "Design the wholesale order and fulfillment flow between brands and retailers. Cover the data model and failure handling.",
+      "Design net-terms credit-risk scoring for retailers. Cover features, the pipeline, and how decisions are served."
+    ],
+    "values": [
+      "Faire runs a dedicated values interview. What values would you most want a company you join to share?",
+      "Tell me about a time you supported a small business or an underdog, in work or in life.",
+      "How do you think about building technology that levels the playing field for smaller players?"
+    ],
     "other": [
       "Is Faire remote-friendly?",
       "How does Faire compare to Shopify's Handshake?",
       "What is the engineering culture?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 6,
   "tips": [],
   "compensation": null,
   "rawSummary": "Faire Interview Guide (2026): Wholesale Marketplace Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nFaire\nfaire.com ↗\n\nFaire is the dominant online wholesale marketplace — connects independent retailers with brands, processing billions in GMV. The interview emphasizes marketplace dynamics, search relevance, payment risk, and supply-chain integrations.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design a marketplace search ranking system for highly variable inventory\n\n- Design a payment terms system (net-60 with credit risk modeling)\n\n- Design a recommendation engine for \"what other retailers like you bought\"\n\n- Coding: medium DSA, often with marketplace or graph framing\n\n- Behavioral: customer focus, working with two-sided marketplace dynamics\n\nLevels and comp (2026)\n\n- SE II: $170K–$210K total\n\n- Senior SE: $250K–$330K\n\n- Staff: $360K–$470K\n\n- Principal: $490K–$640K\n\nPrep priorities\n\n- Be fluent in TypeScript/Node.js (frontend + backend) or Python (ML)\n\n- Understand marketplace dynamics, GMV, take-rate, retention\n\n- Brush up on credit risk modeling and underwriting\n\nFrequently Asked Questions\n\nIs Faire remote-friendly?\n\nDistributed across San Francisco, NYC, Toronto, Kitchener-Waterloo. Most engineering roles fully remote within US/Canada.\n\nHow does Faire compare to Shopify's Handshake?\n\nFaire is the standalone leader. Shopify Handshake is a smaller offering. Faire pays competitively with later-stage startups.\n\nWhat is the engineering culture?\n\nPragmatic, customer-driven, fast-moving. Strong product-engineering partnership.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Faire? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextChaos Engineering Platform Low-Level Design: Fault Injection, Blast Radius Control, and Steady-State Hypothesis⏱ 6 min readLow Level Design: Paxos vs Raft Consensus Algorithms⏱ 3 min readLow Level Design: File System Design and Internals⏱ 4 min read"

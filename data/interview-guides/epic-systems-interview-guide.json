@@ -15,33 +15,40 @@
     "Knowledge of MUMPS is not required (you will learn it on the job)"
   ],
   "codingTopics": [
-    "Standard data-structure questions in any language. Epic does not require MUMPS knowledge in the interview; you will learn it on the job. Expect arrays, strings, hash maps, trees, and basic graph problems at LeetCode-medium difficulty.",
-    "SQL design for clinical data. Given a description of patient encounters, design tables that support fast retrieval of \"all encounters of type X for patient Y in the last 12 months.\" Discuss indexing, denormalization for read paths, and audit-log design.",
-    "Logic puzzles. Epic is one of the few large tech employers that still uses logic puzzles as a filter. The puzzles tend toward Bayesian conditioning, combinatorics, and algorithmic thinking rather than the dead Microsoft brainteaser tradition. Practice on a small set before the loop.",
-    "Why Epic dominates US hospital IT despite the technology stack being from the 1980s. Network effects, switching costs, regulatory requirements (Meaningful Use, MIPS), and the role of Epic's UserWeb community.",
-    "The MyChart consumer product: how patients access their records, the design decisions that make it usable across age groups, and the integration with Apple Health / Android Health.",
-    "Cosmos: Epic's clinical research data set built from de-identified EHR data across customer hospitals. Discuss the privacy architecture and how this differentiates Epic from Cerner / other competitors.",
-    "Cost of living: Verona-area housing is dramatically cheaper than coastal tech hubs. A senior engineer's cash comp goes much further locally than the same comp in San Francisco or Seattle.",
-    "Career portability: MUMPS / M skills are essentially non-portable. Engineers leaving Epic typically have to rebuild expertise in modern languages. Some roles (cloud infrastructure, mobile, web frontend) use modern stacks and are more portable.",
-    "Cultural fit: The Verona environment is famously distinctive (themed buildings, founder Judy Faulkner's strong personal stamp on the culture, a heavy mission orientation around healthcare). Some engineers love it; others find it isolating."
+    "Arrays and strings: parsing, transformation, two-pointer",
+    "Logic and math puzzles, custom-language interpretation",
+    "Sorting and searching over patient records",
+    "Dictionary and hashmap lookups for record matching"
   ],
-  "systemDesignTopics": [],
+  "systemDesignTopics": [
+    "Design a patient-record lookup and de-duplication system across hospitals",
+    "Design a scheduling system for appointments and provider availability",
+    "Design an alerting system for abnormal lab results in an EHR"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph.",
-      "You need to deduplicate a very large dataset that does not fit in memory. Walk me through your approach and how you would verify correctness.",
-      "Find the k most frequent elements in a stream. Which data structure do you use and why?",
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution."
+      "Given a stream of patient check-in records, merge duplicate patient identities that share name and date of birth. Talk through your approach and edge cases.",
+      "Parse a medication-order string in Epic's expression syntax that evaluates strictly left-to-right with custom operators. Discuss your approach.",
+      "Given a provider's booked appointment intervals, find the earliest open slot of a given length. Talk through complexity and edge cases.",
+      "Given sorted lab readings, find the two closest to a clinical threshold value using two pointers. Discuss complexity.",
+      "Implement a lookup that returns a patient's most recent encounter by department using a hashmap. Talk through trade-offs."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Epic's mission is improving healthcare. Tell me about a time your work had a direct impact on end users.",
+      "Describe a time you had to learn an unfamiliar domain quickly to solve a problem.",
+      "Tell me about a time you caught a subtle bug that could have had serious consequences."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a master patient index that de-duplicates identities across hospital systems. Cover matching rules, storage, and scale.",
+      "Design an appointment-scheduling system across providers and locations. Cover the data model and conflict handling.",
+      "Design an alerting service that flags abnormal lab results to clinicians in near real time. Cover ingestion and routing."
+    ],
+    "values": [
+      "Epic values doing right by patients over shipping fast. Describe a time you slowed down to get correctness right.",
+      "Why healthcare software? What about the mission resonates with you?",
+      "How do you feel about working on a large, long-lived proprietary codebase rather than trendy tech?"
+    ],
     "other": [
       "Do I have to live in Verona?",
       "What is MUMPS / M, and is it a career trap?",
@@ -49,7 +56,7 @@
       "How does Epic compare to other healthcare-tech firms?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 6,
   "tips": [],
   "compensation": [
     "New grad: $80–95K base + relocation + bonus → $95–110K total",

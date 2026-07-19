@@ -4,29 +4,52 @@
   "url": "https://www.techinterview.org/companies/datastax-interview-guide",
   "scrapedAt": "2026-07-02T07:21:51.523Z",
   "interviewStages": [],
-  "codingTopics": [],
-  "systemDesignTopics": [],
+  "codingTopics": [
+    "LSM-tree storage: memtable buffering with sorted flush to immutable SSTable segments (data structure, systems, infrastructure)",
+    "Consistent-hashing ring for partition placement across nodes (systems, infrastructure, dependency)",
+    "Merge sorted SSTable iterators during compaction with tombstone handling (merge, sort, streams)",
+    "Vector similarity top-K over embeddings with a bounded heap (heap, search)",
+    "Time-series wide-row range scan with TTL/tombstone skipping (time-series, logs, sliding-window)"
+  ],
+  "systemDesignTopics": [
+    "Design a distributed wide-column store like Cassandra with tunable consistency and multi-datacenter replication",
+    "Design Astra DB serverless vector search serving nearest-neighbor queries over billions of embeddings",
+    "Design the compaction and anti-entropy repair subsystem that keeps replicas consistent under continuous writes",
+    "Design a multi-tenant control plane that provisions isolated Cassandra clusters on demand"
+  ],
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
-      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
-      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+      "Implement a memtable for a Cassandra-style LSM engine: buffer writes in sorted order and flush to an immutable SSTable when a size threshold is hit. Discuss compaction and the read-path merge.",
+      "Given the token ranges owned by nodes on a consistent-hashing ring, route a partition key to its replica set and explain how ranges move when a node joins or leaves.",
+      "Merge K sorted SSTable iterators into one ordered stream, applying last-write-wins and dropping tombstoned rows. Analyze memory and complexity.",
+      "Given high-dimensional embeddings in Astra DB, return the top-K nearest neighbors for a query vector using a bounded heap. Discuss approximate vs exact trade-offs.",
+      "Implement a range scan over a time-series wide row that skips expired (TTL) cells and tombstones without loading the whole partition."
     ],
     "behavioral": [
-      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
-      "Describe a project that failed or fell short. What did you learn and change afterward?",
-      "Give me an example of when you took ownership of something outside your job description."
+      "Tell me about a time you debugged a data-consistency or replication issue in a distributed system. How did you isolate it?",
+      "Describe a time you contributed to or depended on an open-source project. How did you engage the community?",
+      "Tell me about balancing a customer's urgent production issue against planned roadmap work.",
+      "Describe taking ownership of an ambiguous, under-specified problem and driving it to done."
     ],
-    "systemDesign": [],
-    "values": [],
+    "systemDesign": [
+      "Design a distributed wide-column database like Cassandra: partitioning, replication, tunable consistency (quorum), and hinted handoff.",
+      "Design Astra DB vector search: ANN indexing, sharding embeddings, and serving sub-100ms nearest-neighbor queries.",
+      "Design the anti-entropy repair and compaction pipeline that reconciles divergent replicas.",
+      "Design a multi-tenant serverless control plane that autoscales Cassandra clusters per customer."
+    ],
+    "values": [
+      "DataStax's roots are in open-source Apache Cassandra. What does building in the open mean to you?",
+      "How do you weigh developer experience against raw performance when designing a database API?",
+      "Why work on data infrastructure specifically rather than product features?"
+    ],
     "other": [
       "Is DataStax fully remote?",
       "What is the AI angle?",
       "How does DataStax compensation compare to MongoDB?"
     ]
   },
-  "difficulty": null,
+  "difficulty": 7,
   "tips": [],
   "compensation": null,
   "rawSummary": "DataStax Interview Guide (2026): Cassandra and AI Data Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nDataStax\ndatastax.com ↗\n\nDataStax is the steward of Apache Cassandra and now ships Astra DB (managed Cassandra) plus generative AI tooling for RAG and vector search. The interview is database-internals heavy and rewards engineers with real distributed-systems chops.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Senior+ candidates get an additional distributed-systems round. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design a globally distributed key-value store with tunable consistency\n\n- Design a vector search engine that integrates with Cassandra\n\n- Implement consistent hashing with virtual nodes and rebalancing\n\n- Coding: graph/tree problems with distributed flavor\n\n- Distributed systems: gossip protocol, hinted handoff, read repair, anti-entropy\n\nLevels and comp (2026)\n\n- SE II: $160K–$200K total\n\n- Senior SE: $230K–$300K\n\n- Staff: $330K–$430K\n\n- Principal: $450K–$580K\n\nPrep priorities\n\n- Read the Cassandra paper (Lakshman/Malik) and Dynamo paper\n\n- Understand vector search basics: HNSW, IVF, ANN tradeoffs\n\n- Be fluent in Java — Cassandra is Java; tooling is Go and Python\n\nFrequently Asked Questions\n\nIs DataStax fully remote?\n\nDistributed-first with hubs in Santa Clara, London, and Sydney. Most engineering roles are remote-eligible.\n\nWhat is the AI angle?\n\nDataStax bought Langflow and shipped Astra Vector Search. Roles in AI/ML platform are growing fast.\n\nHow does DataStax compensation compare to MongoDB?\n\nMongoDB pays more on cash and equity. DataStax base is competitive but equity is private/late-stage and harder to value.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for DataStax? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextLargest Rectangle in Histogram: The Monotonic Stack Canon⏱ 7 min readHow Transformer Models Work: Attention Mechanism Explained⏱ 6 min readSystem Design: Real-time Chat and Messaging System (WhatsApp/Slack) — WebSockets, Pub/Sub, Scale⏱ 7 min read"
