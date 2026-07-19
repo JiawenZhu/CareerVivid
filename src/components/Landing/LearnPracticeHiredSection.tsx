@@ -1,5 +1,6 @@
 import React from 'react';
 import { ArrowRight, Briefcase, GraduationCap, Mic, ShieldCheck, Sparkles, Swords } from 'lucide-react';
+import { INTERVIEW_GUIDE_TOTALS } from '../../data/interviewGuideSummaries.generated';
 
 /**
  * The core landing narrative: Learn → Practice → Get hired.
@@ -23,10 +24,10 @@ const PILLARS = [
         step: '02',
         icon: Swords,
         title: 'Know exactly what to expect',
-        tagline: 'The real interview loop for 300+ companies — run by a voice AI',
+        tagline: `The real interview loop for ${INTERVIEW_GUIDE_TOTALS.companies} companies — run by a voice AI`,
         description:
             'Choose a company and step through its actual interview process — recruiter screen, live coding with real test execution, system design on a whiteboard, and behavioral rounds. A voice AI interviews and scores each attempt, so nothing catches you off guard.',
-        stats: ['300+ company guides', 'Voice AI interviewer', 'Coding + whiteboard rounds'],
+        stats: [`${INTERVIEW_GUIDE_TOTALS.companies} company guides`, 'Voice AI interviewer', 'Coding + whiteboard rounds'],
         href: '/interview-studio',
         cta: 'Start a mock interview',
     },

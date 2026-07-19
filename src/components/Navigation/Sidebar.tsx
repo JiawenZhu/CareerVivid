@@ -395,7 +395,7 @@ const Sidebar: React.FC = () => {
         <aside 
             style={{ width: `${activeSidebarWidth}px` }}
             data-sidebar-mode={sidebarMode}
-            className="fixed inset-y-0 left-0 z-30 hidden flex-col overflow-hidden border-r border-[var(--cv-border-subtle)] bg-[var(--cv-surface-warm-card)] text-[var(--cv-text-heading)] shadow-[4px_0_24px_rgba(55,38,18,0.06)] backdrop-blur-2xl transition-[width] duration-200 ease-in-out md:flex"
+            className="fixed inset-y-0 left-0 z-30 hidden flex-col overflow-y-auto overscroll-contain border-r border-[var(--cv-border-subtle)] bg-[var(--cv-surface-warm-card)] text-[var(--cv-text-heading)] shadow-[4px_0_24px_rgba(55,38,18,0.06)] backdrop-blur-2xl transition-[width] duration-200 ease-in-out [scrollbar-width:thin] md:flex"
         >
             {/* Header / Logo */}
             <div className={`relative flex h-16 shrink-0 items-center border-b border-[var(--cv-border-subtle)] sm:h-20 ${isCollapsed ? 'justify-center px-2' : 'justify-between px-4'}`}>
@@ -419,7 +419,7 @@ const Sidebar: React.FC = () => {
             </div>
 
             {/* Navigation main section */}
-            <nav className={`min-h-0 flex-1 select-none ${isCollapsed ? 'flex flex-col items-center gap-2 px-2 py-4' : 'px-3 py-3'}`}>
+            <nav className={`min-h-0 select-none ${isCollapsed ? 'flex flex-1 flex-col items-center gap-2 px-2 py-4' : 'flex-[0_0_570px] px-3 py-3'}`}>
                 {isCollapsed ? (
                     quickLinks.map(({ label, path, icon: Icon, tag }) => {
                         const isActive = isActivePath(path);

@@ -191,7 +191,7 @@ const CoursePage: React.FC = () => {
             <div className="cv-design-page cv-design-grid relative min-h-screen pb-16 text-left">
                 <div className="@container/course-page mx-auto max-w-screen-2xl px-4 py-6 text-left sm:px-6 lg:px-8 lg:py-8">
                     {!selectedCourseId ? (
-                        <div className="mx-auto max-w-6xl space-y-5">
+                        <div className="max-w-none space-y-5">
                             {/* Hero */}
                             <section className="cv-design-card p-4 sm:p-6">
                                 <div className="flex flex-wrap items-end justify-between gap-4">

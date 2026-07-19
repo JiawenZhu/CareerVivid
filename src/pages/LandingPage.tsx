@@ -6,6 +6,7 @@ import CommunityShowcaseHero from '../components/Landing/CommunityShowcaseHero';
 import LearnPracticeHiredSection from '../components/Landing/LearnPracticeHiredSection';
 import CourseShowcaseSection from '../components/Landing/CourseShowcaseSection';
 import InterviewShowcaseSection from '../components/Landing/InterviewShowcaseSection';
+import { INTERVIEW_GUIDE_TOTALS } from '../data/interviewGuideSummaries.generated';
 import {
     FAQSection,
     FinalCTA,
@@ -15,7 +16,8 @@ import {
 } from '../components/Landing/LandingTrustSections';
 
 const SEO_TITLE = 'CareerVivid | Learn the Skills. Practice the Interview. Land the Job.';
-const SEO_DESCRIPTION = 'Interactive AI courses, real company mock interview loops with a live voice AI, and a feed of verified apply-ready jobs. Practice Google, Amazon, Figma and 300+ company interviews free — then apply with a tailored resume from the same workspace.';
+const COMPANY_GUIDE_COUNT = INTERVIEW_GUIDE_TOTALS.companies;
+const SEO_DESCRIPTION = `Interactive AI courses, real company mock interview loops with a live voice AI, and a feed of verified apply-ready jobs. Practice Google, Amazon, Figma and ${COMPANY_GUIDE_COUNT} company interviews free — then apply with a tailored resume from the same workspace.`;
 const SEO_KEYWORDS = 'mock interview practice, AI interview practice, company interview questions, free AI courses, learn AI agents, LLM course, AI voice interviewer, coding interview practice, system design practice, verified job listings, AI resume builder, job tracker, interview coach';
 const SEO_IMAGE = 'https://firebasestorage.googleapis.com/v0/b/jastalk-firebase.firebasestorage.app/o/public%2Flogo_assets%2Fog_image.png?alt=media';
 const CHROME_EXTENSION_URL = 'https://chromewebstore.google.com/detail/dmigeakdfokehlhigkhadglgoabceoag?utm_source=item-share-cb';
@@ -53,7 +55,7 @@ const structuredData = {
             offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD', name: 'CareerVivid Free' },
             featureList: [
                 'Interactive AI courses with hands-on playgrounds, quizzes, and code labs',
-                'Company-specific mock interview loops for 300+ companies',
+                `Company-specific mock interview loops for ${COMPANY_GUIDE_COUNT} companies`,
                 'Realtime voice AI interviewer with scored feedback',
                 'In-browser coding rounds with real test execution',
                 'Whiteboard system-design rounds graded by AI',
@@ -99,7 +101,7 @@ const structuredData = {
                     name: 'What is CareerVivid?',
                     acceptedAnswer: {
                         '@type': 'Answer',
-                        text: 'CareerVivid is a career platform that takes you from learning to hired in one place: interactive AI courses that teach by doing, mock interview loops for 300+ real companies with a live voice AI interviewer, and a feed of verified apply-ready jobs — plus resume tailoring and application tracking.',
+                        text: `CareerVivid is a career platform that takes you from learning to hired in one place: interactive AI courses that teach by doing, mock interview loops for ${COMPANY_GUIDE_COUNT} real companies with a live voice AI interviewer, and a feed of verified apply-ready jobs — plus resume tailoring and application tracking.`,
                     },
                 },
                 {
@@ -107,7 +109,7 @@ const structuredData = {
                     name: 'Can I practice a Google or Amazon interview on CareerVivid?',
                     acceptedAnswer: {
                         '@type': 'Answer',
-                        text: 'Yes. CareerVivid has company-specific interview quests for 300+ companies including Google, Amazon, Meta, Apple, OpenAI, and Figma. Each quest mirrors the company\'s real loop — recruiter screen, live coding with test execution, whiteboard system design, and behavioral rounds — and a voice AI interviews and scores you. Every quest page is free to browse; running stages requires a free account.',
+                        text: `Yes. CareerVivid has company-specific interview quests for ${COMPANY_GUIDE_COUNT} companies including Google, Amazon, Meta, Apple, OpenAI, and Figma. Each quest mirrors the company's real loop — recruiter screen, live coding with test execution, whiteboard system design, and behavioral rounds — and a voice AI interviews and scores you. Every quest page is free to browse; running stages requires a free account.`,
                     },
                 },
                 {

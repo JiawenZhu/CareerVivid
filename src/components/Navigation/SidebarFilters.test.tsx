@@ -32,6 +32,7 @@ vi.mock('lucide-react', () => ({
     CreditCard: () => <div data-testid="icon-creditcard" />,
     Gift: () => <div data-testid="icon-gift" />,
     FileText: () => <div data-testid="icon-filetext" />,
+    GraduationCap: () => <div data-testid="icon-graduation-cap" />,
     LayoutDashboard: () => <div data-testid="icon-dashboard" />,
     MoreVertical: () => <div data-testid="icon-morevertical" />,
     Trash2: () => <div data-testid="icon-trash2" />,
@@ -94,6 +95,10 @@ vi.mock('../../hooks/useMyCommunityPosts', () => ({
     useMyCommunityPosts: () => ({
         deletePost: vi.fn()
     })
+}));
+
+vi.mock('../../hooks/useUserProgress', () => ({
+    useUserProgress: () => ({ isLoading: true })
 }));
 
 describe('Sidebar Component - Sorting and Filtering UX', () => {
