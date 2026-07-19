@@ -416,26 +416,27 @@ const SystemDesignBattle: React.FC<SystemDesignBattleProps> = ({
     }
 
     return (
-        <div className="fixed inset-0 z-50 flex flex-col bg-[#171411]/70 p-1.5 backdrop-blur-sm sm:p-3">
-            <div className="mx-auto flex h-full w-full max-w-[1800px] flex-col overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-[0_24px_70px_rgba(17,24,39,0.24)] dark:border-gray-700 dark:bg-gray-900">
+        <div className="fixed inset-0 z-50 flex flex-col bg-white p-0 sm:bg-[#171411]/70 sm:p-3 sm:backdrop-blur-sm dark:bg-gray-900 sm:dark:bg-[#171411]/70">
+            <div className="mx-auto flex h-[100dvh] w-full max-w-[1800px] flex-col overflow-hidden border-gray-200 bg-white sm:h-full sm:rounded-3xl sm:border sm:shadow-[0_24px_70px_rgba(17,24,39,0.24)] dark:border-gray-700 dark:bg-gray-900">
 
                 {/* Header */}
-                <header className="flex shrink-0 items-center justify-between gap-3 border-b border-gray-200 px-5 py-3.5 dark:border-gray-800">
+                <header className="flex shrink-0 flex-col gap-2 border-b border-gray-200 px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between sm:gap-3 sm:px-5 sm:py-3.5 dark:border-gray-800">
                     <div className="flex min-w-0 items-center gap-3">
-                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#625bd5] text-white shadow-[0_4px_12px_rgba(98,91,213,0.25)] dark:bg-[#7069dc]">
-                            <Swords size={18} />
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#625bd5] text-white shadow-[0_4px_12px_rgba(98,91,213,0.25)] sm:h-10 sm:w-10 sm:rounded-xl dark:bg-[#7069dc]">
+                            <Swords size={16} className="sm:hidden" />
+                            <Swords size={18} className="hidden sm:block" />
                         </span>
                         <div className="min-w-0">
-                            <h2 className="truncate text-base font-extrabold tracking-tight text-gray-900 dark:text-gray-100">{company} · {stageTitle}</h2>
-                            <p className="truncate text-xs font-medium text-gray-500 dark:text-gray-400">{isGuestPractice ? 'Draw and submit locally. Sign in for AI review and saved progress.' : 'Draw your architecture, then submit for AI review'}</p>
+                            <h2 className="truncate text-[15px] font-extrabold tracking-tight text-gray-900 sm:text-base dark:text-gray-100">{company} · {stageTitle}</h2>
+                            <p className="hidden truncate text-xs font-medium text-gray-500 sm:block dark:text-gray-400">{isGuestPractice ? 'Draw and submit locally. Sign in for AI review and saved progress.' : 'Draw your architecture, then submit for AI review'}</p>
                         </div>
                     </div>
 
-                    <div className="flex shrink-0 items-center gap-2">
+                    <div className="flex w-full shrink-0 items-center gap-2 overflow-x-auto pb-0.5 [scrollbar-width:none] sm:w-auto sm:overflow-visible sm:pb-0 [&::-webkit-scrollbar]:hidden">
 
                         {!isGuestPractice && (
                             /* Generate with AI + style picker */
-                            <div ref={stylePickerRef} className="relative">
+                            <div ref={stylePickerRef} className="relative shrink-0">
                             <div className="flex overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
                                 <button
                                     type="button"
@@ -446,7 +447,7 @@ const SystemDesignBattle: React.FC<SystemDesignBattleProps> = ({
                                     {isGenerating
                                         ? <Loader2 size={13} className="animate-spin" />
                                         : <StyleIcon style={selectedStyle} size={13} />}
-                                    {isGenerating ? 'Generating…' : 'Generate with AI'}
+                                    <span className="sm:hidden">Generate</span><span className="hidden sm:inline">{isGenerating ? 'Generating…' : 'Generate with AI'}</span>
                                 </button>
                                 <button
                                     type="button"
@@ -495,7 +496,7 @@ const SystemDesignBattle: React.FC<SystemDesignBattleProps> = ({
                             onClick={isListening || voiceTranscript.trim() ? stopListeningAndProcess : startListening}
                             disabled={isProcessingVoice || isSubmitting}
                             title={isListening || voiceTranscript.trim() ? 'Send this explanation to the AI coach' : 'Describe your architecture verbally'}
-                            className={`inline-flex h-9 items-center gap-1.5 rounded-lg border px-3.5 text-xs font-bold shadow-sm transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
+                            className={`inline-flex h-9 shrink-0 items-center gap-1.5 rounded-lg border px-3 text-xs font-bold shadow-sm transition-colors disabled:cursor-not-allowed disabled:opacity-60 sm:px-3.5 ${
                                 isListening
                                     ? 'animate-pulse border-[#625bd5]/40 bg-[#f3f2ff] text-[#625bd5] dark:border-[#7069dc]/40 dark:bg-[#312d6b]/50 dark:text-[#c8c5ff]'
                                     : voiceTranscript.trim()
@@ -506,7 +507,7 @@ const SystemDesignBattle: React.FC<SystemDesignBattleProps> = ({
                             {isProcessingVoice
                                 ? <Loader2 size={14} className="animate-spin" />
                                 : isListening || voiceTranscript.trim() ? <Send size={14} /> : <Mic size={14} />}
-                            {isProcessingVoice ? 'Preparing coaching…' : isListening || voiceTranscript.trim() ? 'Send to coach' : 'Talk to coach'}
+                            <span className="sm:hidden">{isListening || voiceTranscript.trim() ? 'Send' : 'Coach'}</span><span className="hidden sm:inline">{isProcessingVoice ? 'Preparing coaching…' : isListening || voiceTranscript.trim() ? 'Send to coach' : 'Talk to coach'}</span>
                             </button>
                         )}
 
@@ -526,20 +527,20 @@ const SystemDesignBattle: React.FC<SystemDesignBattleProps> = ({
                             type="button"
                             onClick={focusDiagram}
                             title="Center and zoom to the current diagram"
-                            className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 text-xs font-bold text-gray-700 shadow-sm transition-colors hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+                            className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 text-xs font-bold text-gray-700 shadow-sm transition-colors hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
                         >
                             <Maximize2 size={14} />
-                            Focus diagram
+                            <span className="sm:hidden">Focus</span><span className="hidden sm:inline">Focus diagram</span>
                         </button>
 
                         <button
                             type="button"
                             onClick={handleSubmit}
                             disabled={isSubmitting}
-                            className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-transparent bg-[#625bd5] px-3.5 text-xs font-bold text-white shadow-sm transition-colors hover:bg-[#514ac5] disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#7069dc] dark:hover:bg-[#8d88e6]"
+                            className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-lg border border-transparent bg-[#625bd5] px-3 text-xs font-bold text-white shadow-sm transition-colors hover:bg-[#514ac5] disabled:cursor-not-allowed disabled:opacity-60 sm:px-3.5 dark:bg-[#7069dc] dark:hover:bg-[#8d88e6]"
                         >
                             {isSubmitting ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
-                            {isSubmitting ? (isGuestPractice ? 'Submitting…' : 'Reviewing…') : isGuestPractice ? 'Submit design' : 'Submit for review'}
+                            <span className="sm:hidden">Submit</span><span className="hidden sm:inline">{isSubmitting ? (isGuestPractice ? 'Submitting…' : 'Reviewing…') : isGuestPractice ? 'Submit design' : 'Submit for review'}</span>
                         </button>
 
                         <button
@@ -607,10 +608,10 @@ const SystemDesignBattle: React.FC<SystemDesignBattleProps> = ({
                 )}
 
                 {/* Body: brief + canvas + coach panel */}
-                <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
+                <div className="flex min-h-0 flex-1 flex-col overflow-y-auto lg:flex-row lg:overflow-hidden">
 
                     {/* Brief panel */}
-                    <aside className="shrink-0 overflow-y-auto border-b border-[#ececf4] bg-[#fbfbfe] p-5 dark:border-gray-800 dark:bg-gray-900/60 lg:w-80 lg:border-b-0 lg:border-r xl:w-[360px]">
+                    <aside className="max-h-[42svh] shrink-0 overflow-y-auto border-b border-[#ececf4] bg-[#fbfbfe] p-4 dark:border-gray-800 dark:bg-gray-900/60 sm:p-5 lg:max-h-none lg:w-80 lg:border-b-0 lg:border-r xl:w-[360px]">
                         <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-[#625bd5] dark:text-[#9b96ef]">
                             <ClipboardList size={13} /> Design brief
                         </div>
@@ -651,14 +652,14 @@ const SystemDesignBattle: React.FC<SystemDesignBattleProps> = ({
                     </aside>
 
                     {/* Excalidraw canvas */}
-                    <div className="relative min-h-[480px] flex-1 bg-white dark:bg-gray-900">
+                    <div className="relative h-[58svh] min-h-[480px] flex-1 bg-white sm:min-h-[520px] lg:h-auto dark:bg-gray-900">
                         <Excalidraw
                             excalidrawAPI={(api: any) => { excalidrawAPIRef.current = api; }}
                             theme={resolvedTheme === 'dark' ? 'dark' : 'light'}
                             initialData={initialData}
                         />
                         {isCanvasGuideVisible && (
-                            <div className="absolute bottom-4 left-4 z-10 max-w-[320px] rounded-lg border border-[#dfe2ff] bg-white/95 px-3 py-2.5 shadow-sm backdrop-blur dark:border-[#484273] dark:bg-gray-900/95">
+                            <div className="absolute bottom-4 left-4 z-10 hidden max-w-[320px] rounded-lg border border-[#dfe2ff] bg-white/95 px-3 py-2.5 shadow-sm backdrop-blur sm:block dark:border-[#484273] dark:bg-gray-900/95">
                                 <div className="flex items-start justify-between gap-3">
                                     <p className="flex items-center gap-1.5 text-[11px] font-bold text-[#625bd5] dark:text-[#b8b4ff]">
                                         <MousePointer2 size={13} /> Canvas controls
@@ -682,7 +683,7 @@ const SystemDesignBattle: React.FC<SystemDesignBattleProps> = ({
 
                     {/* AI Coach panel */}
                     {!isGuestPractice && coachPanelOpen && (
-                        <aside className="flex w-80 shrink-0 flex-col border-l border-[#ececf4] bg-[#faf9ff] dark:border-gray-800 dark:bg-[#1a1730] xl:w-[320px]">
+                        <aside className="flex h-[44svh] w-full shrink-0 flex-col border-t border-[#ececf4] bg-[#faf9ff] lg:h-auto lg:w-80 lg:border-l lg:border-t-0 dark:border-gray-800 dark:bg-[#1a1730] xl:w-[320px]">
                             <div className="flex shrink-0 items-center justify-between border-b border-[#ececf4] px-4 py-3 dark:border-gray-800">
                                 <div className="flex items-center gap-2">
                                     <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#625bd5] text-white dark:bg-[#7069dc]">

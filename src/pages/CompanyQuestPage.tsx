@@ -170,6 +170,9 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
     const [error, setError] = useState('');
     const [showAuthGate, setShowAuthGate] = useState(false);
     const requestedPracticeRef = useRef<string | null>(null);
+    const requestedQuestStage = typeof window === 'undefined'
+        ? null
+        : new URLSearchParams(window.location.search).get('stage');
     const requestedSystemDesignChallenge = typeof window === 'undefined'
         ? null
         : new URLSearchParams(window.location.search).get('systemDesignChallenge');
@@ -428,6 +431,23 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
     // pool refresh is guarded by the ref above.
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [guide, requestedSystemDesignChallenge, stages, systemDesignPool]);
+
+    // Native clients can hand off coding and system-design stages to the full
+    // web workspace. Other stages intentionally keep their normal quest flow.
+    useEffect(() => {
+        const stageId = requestedQuestStage === 'coding' || requestedQuestStage === 'system_design'
+            ? requestedQuestStage
+            : null;
+        const requestKey = stageId ? `stage:${stageId}` : null;
+        if (!guide || !stageId || !requestKey || requestedPracticeRef.current === requestKey) return;
+        const stage = stages.find((candidate) => candidate.id === stageId);
+        if (!stage) return;
+        requestedPracticeRef.current = requestKey;
+        void handleStartStage(stage);
+    // The query stays stable for this mounted route; the ref prevents a
+    // second editor/whiteboard launch after a re-render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [guide, requestedQuestStage, stages]);
 
     const handleStageAnalysis = (stage: QuestStage, analysis: InterviewAnalysis) => {
         void recordStageAttempt(stage, stages, analysis)

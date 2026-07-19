@@ -68,24 +68,21 @@ const STAGE_BLUEPRINTS: Record<QuestStageKind, Omit<QuestStage, 'passThreshold'>
 };
 
 /**
- * Derive a quest line (ordered interview stages) from a company guide.
- * Every company gets screening, coding, behavioral, and final; system design
- * and values rounds appear when the guide shows evidence of them.
+ * Derive the canonical six-stage quest line for every company. Source guides
+ * vary in how much of their interview loop they document, but an incomplete
+ * guide must not make the product look like that company only has one or two
+ * rounds. The per-company pool leads when available and the category banks
+ * supply the remaining official practice prompts.
  */
-export const buildQuestLine = (guide: LocalInterviewGuide): QuestStage[] => {
-  const kinds: QuestStageKind[] = ['screening', 'coding'];
-
-  const mentionsSystemDesign = guide.systemDesignTopics.length > 0
-    || guide.interviewStages.some((s) => s.toLowerCase().includes('system design'));
-  if (mentionsSystemDesign) kinds.push('system_design');
-
-  kinds.push('behavioral');
-
-  const hasValuesRound = (guide.sampleQuestions?.values?.length ?? 0) > 0
-    || guide.interviewStages.some((s) => /values|safety|culture/i.test(s));
-  if (hasValuesRound) kinds.push('values');
-
-  kinds.push('final');
+export const buildQuestLine = (_guide: LocalInterviewGuide): QuestStage[] => {
+  const kinds: QuestStageKind[] = [
+    'screening',
+    'coding',
+    'system_design',
+    'behavioral',
+    'values',
+    'final',
+  ];
 
   return kinds.map((kind) => ({
     ...STAGE_BLUEPRINTS[kind],

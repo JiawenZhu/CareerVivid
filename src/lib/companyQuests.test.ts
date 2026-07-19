@@ -29,29 +29,9 @@ const makeGuide = (overrides: Partial<LocalInterviewGuide> = {}): LocalInterview
 });
 
 describe('buildQuestLine', () => {
-  it('always includes screening, coding, behavioral, and final in order', () => {
+  it('always includes all six canonical interview stages in order', () => {
     const ids = buildQuestLine(makeGuide()).map((s) => s.id);
-    expect(ids).toEqual(['screening', 'coding', 'behavioral', 'final']);
-  });
-
-  it('adds system design when the guide has system design topics', () => {
-    const ids = buildQuestLine(makeGuide({ systemDesignTopics: ['Design a URL shortener'] })).map((s) => s.id);
-    expect(ids).toContain('system_design');
-    expect(ids.indexOf('system_design')).toBeGreaterThan(ids.indexOf('coding'));
-    expect(ids.indexOf('system_design')).toBeLessThan(ids.indexOf('behavioral'));
-  });
-
-  it('detects system design from stage descriptions', () => {
-    const guide = makeGuide({ interviewStages: ['System Design (1 round): scalable systems'] });
-    expect(buildQuestLine(guide).map((s) => s.id)).toContain('system_design');
-  });
-
-  it('adds values round when the guide has values questions', () => {
-    const guide = makeGuide({
-      sampleQuestions: { coding: [], behavioral: [], systemDesign: [], values: ['Why us?'], other: [] },
-    });
-    const ids = buildQuestLine(guide).map((s) => s.id);
-    expect(ids).toContain('values');
+    expect(ids).toEqual(['screening', 'coding', 'system_design', 'behavioral', 'values', 'final']);
   });
 
   it('uses a 75-point clear threshold for every stage', () => {

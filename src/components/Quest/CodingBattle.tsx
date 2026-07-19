@@ -478,25 +478,26 @@ const CodingBattle: React.FC<CodingBattleProps> = ({
     }
 
     return (
-        <div className="fixed inset-0 z-50 flex flex-col bg-[#171411]/70 p-1.5 backdrop-blur-sm sm:p-3">
-            <div className="mx-auto flex h-full w-full max-w-[1800px] flex-col overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-[0_24px_70px_rgba(17,24,39,0.24)] dark:border-gray-700 dark:bg-gray-900">
+        <div className="fixed inset-0 z-50 flex flex-col bg-white p-0 sm:bg-[#171411]/70 sm:p-3 sm:backdrop-blur-sm dark:bg-gray-900 sm:dark:bg-[#171411]/70">
+            <div className="mx-auto flex h-[100dvh] w-full max-w-[1800px] flex-col overflow-hidden border-gray-200 bg-white sm:h-full sm:rounded-3xl sm:border sm:shadow-[0_24px_70px_rgba(17,24,39,0.24)] dark:border-gray-700 dark:bg-gray-900">
                 {/* Header */}
-                <header className="flex shrink-0 items-center justify-between gap-3 border-b border-gray-200 px-5 py-3.5 dark:border-gray-800">
+                <header className="flex shrink-0 flex-col gap-2 border-b border-gray-200 px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between sm:gap-3 sm:px-5 sm:py-3.5 dark:border-gray-800">
                     <div className="flex min-w-0 items-center gap-3">
-                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#625bd5] text-white shadow-[0_4px_12px_rgba(98,91,213,0.25)] dark:bg-[#7069dc]">
-                            <Code2 size={18} />
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#625bd5] text-white shadow-[0_4px_12px_rgba(98,91,213,0.25)] sm:h-10 sm:w-10 sm:rounded-xl dark:bg-[#7069dc]">
+                            <Code2 size={16} className="sm:hidden" />
+                            <Code2 size={18} className="hidden sm:block" />
                         </span>
                         <div className="min-w-0">
-                            <h2 className="truncate text-base font-extrabold tracking-tight text-gray-900 dark:text-gray-100">{company} · {stageTitle}</h2>
-                            <p className="truncate text-xs text-gray-500 dark:text-gray-400">
+                            <h2 className="truncate text-[15px] font-extrabold tracking-tight text-gray-900 sm:text-base dark:text-gray-100">{company} · {stageTitle}</h2>
+                            <p className="hidden truncate text-xs text-gray-500 sm:block dark:text-gray-400">
                                 {isGuestPractice
                                     ? 'Write and run your solution locally. Sign in for AI review and saved progress.'
                                     : canRunLocally ? 'Write and run your solution, then submit for AI review' : 'Write your solution, then submit for AI code review'}
                             </p>
                         </div>
                     </div>
-                    <div className="flex shrink-0 items-center gap-2">
-                        <div className="flex max-w-[23rem] flex-wrap overflow-hidden rounded-lg border border-gray-200 text-xs font-bold dark:border-gray-700">
+                    <div className="flex w-full shrink-0 items-center gap-2 overflow-x-auto pb-0.5 [scrollbar-width:none] sm:w-auto sm:overflow-visible sm:pb-0 [&::-webkit-scrollbar]:hidden">
+                        <div className="flex shrink-0 overflow-hidden rounded-lg border border-gray-200 text-xs font-bold dark:border-gray-700">
                             {CODING_LANGUAGES
                                 .filter((lang) => !isGuestPractice || isExecutableCodingLanguage(lang))
                                 .map((lang) => (
@@ -521,29 +522,29 @@ const CodingBattle: React.FC<CodingBattleProps> = ({
                             onClick={handleFormat}
                             disabled={isFormatting || isRunning || isSubmitting}
                             title={language === 'javascript' ? 'Auto-format with Prettier' : 'Format (JavaScript only)'}
-                            className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3.5 text-xs font-bold text-gray-700 shadow-sm transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+                            className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 text-xs font-bold text-gray-700 shadow-sm transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 sm:px-3.5 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
                         >
                             {isFormatting ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
-                            {isFormatting ? 'Formatting…' : 'Format'}
+                            <span className="sm:hidden">Format</span><span className="hidden sm:inline">{isFormatting ? 'Formatting…' : 'Format'}</span>
                         </button>
                         <button
                             type="button"
                             onClick={handleRun}
                             disabled={isRunning || isSubmitting || !canRunLocally}
                             title={canRunLocally ? undefined : 'Local test execution is available for JavaScript and Python.'}
-                            className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3.5 text-xs font-bold text-gray-700 shadow-sm transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+                            className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 text-xs font-bold text-gray-700 shadow-sm transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 sm:px-3.5 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
                         >
                             {isRunning ? <Loader2 size={14} className="animate-spin" /> : <Play size={14} />}
-                            {isRunning ? 'Running…' : 'Run tests'}
+                            <span className="sm:hidden">Tests</span><span className="hidden sm:inline">{isRunning ? 'Running…' : 'Run tests'}</span>
                         </button>
                         <button
                             type="button"
                             onClick={handleSubmit}
                             disabled={isSubmitting || isRunning}
-                            className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-transparent bg-[#625bd5] px-3.5 text-xs font-bold text-white shadow-sm transition-colors hover:bg-[#514ac5] disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#7069dc] dark:hover:bg-[#8d88e6]"
+                            className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-lg border border-transparent bg-[#625bd5] px-3 text-xs font-bold text-white shadow-sm transition-colors hover:bg-[#514ac5] disabled:cursor-not-allowed disabled:opacity-60 sm:px-3.5 dark:bg-[#7069dc] dark:hover:bg-[#8d88e6]"
                         >
                             {isSubmitting ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
-                            {isSubmitting ? (isGuestPractice ? 'Submitting…' : 'Reviewing…') : isGuestPractice ? 'Submit solution' : 'Submit for review'}
+                            <span className="sm:hidden">Submit</span><span className="hidden sm:inline">{isSubmitting ? (isGuestPractice ? 'Submitting…' : 'Reviewing…') : isGuestPractice ? 'Submit solution' : 'Submit for review'}</span>
                         </button>
                         {!isGuestPractice && (
                             /* Voice-to-code: record an explanation, then explicitly send it to the coach. */
@@ -552,7 +553,7 @@ const CodingBattle: React.FC<CodingBattleProps> = ({
                             onClick={isListening || voiceTranscript.trim() ? stopListeningAndProcess : startListening}
                             disabled={isProcessingVoice || isSubmitting}
                             title={isListening || voiceTranscript.trim() ? 'Send this explanation to the AI code coach' : 'Describe your solution verbally'}
-                            className={`inline-flex h-9 items-center gap-1.5 rounded-lg border px-3.5 text-xs font-bold shadow-sm transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
+                            className={`inline-flex h-9 shrink-0 items-center gap-1.5 rounded-lg border px-3 text-xs font-bold shadow-sm transition-colors disabled:cursor-not-allowed disabled:opacity-60 sm:px-3.5 ${
                                 isListening
                                     ? 'animate-pulse border-[#625bd5]/40 bg-[#f3f2ff] text-[#625bd5] dark:border-[#7069dc]/40 dark:bg-[#312d6b]/50 dark:text-[#c8c5ff]'
                                     : voiceTranscript.trim()
@@ -565,7 +566,7 @@ const CodingBattle: React.FC<CodingBattleProps> = ({
                                 : isListening || voiceTranscript.trim()
                                     ? <Send size={14} />
                                     : <Mic size={14} />}
-                            {isProcessingVoice ? 'Preparing code…' : isListening || voiceTranscript.trim() ? 'Send to code coach' : 'Talk to code coach'}
+                            <span className="sm:hidden">{isListening || voiceTranscript.trim() ? 'Send' : 'Coach'}</span><span className="hidden sm:inline">{isProcessingVoice ? 'Preparing code…' : isListening || voiceTranscript.trim() ? 'Send to code coach' : 'Talk to code coach'}</span>
                             </button>
                         )}
                         {/* Coach panel toggle */}
@@ -641,9 +642,9 @@ const CodingBattle: React.FC<CodingBattleProps> = ({
                 )}
 
                 {/* Body: brief + editor + results */}
-                <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
+                <div className="flex min-h-0 flex-1 flex-col overflow-y-auto lg:flex-row lg:overflow-hidden">
                     {/* Brief panel */}
-                    <aside className="shrink-0 overflow-y-auto border-b border-[#ececf4] bg-[#fbfbfe] p-5 dark:border-gray-800 dark:bg-gray-900/60 lg:w-80 lg:border-b-0 lg:border-r xl:w-[360px]">
+                    <aside className="max-h-[42svh] shrink-0 overflow-y-auto border-b border-[#ececf4] bg-[#fbfbfe] p-4 dark:border-gray-800 dark:bg-gray-900/60 sm:p-5 lg:max-h-none lg:w-80 lg:border-b-0 lg:border-r xl:w-[360px]">
                         <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-[#625bd5] dark:text-[#9b96ef]">
                             <ClipboardList size={13} /> Coding brief
                         </div>
@@ -684,8 +685,8 @@ const CodingBattle: React.FC<CodingBattleProps> = ({
                     </aside>
 
                     {/* Editor + results */}
-                    <div className="flex min-h-0 flex-1 flex-col">
-                        <div className="min-h-0 flex-1 overflow-auto">
+                    <div className="flex min-h-[52svh] flex-1 flex-col lg:min-h-0">
+                        <div className="h-[52svh] min-h-[52svh] flex-1 overflow-auto lg:h-auto lg:min-h-0">
                             <CodeMirror
                                 value={code}
                                 height="100%"
@@ -698,7 +699,7 @@ const CodingBattle: React.FC<CodingBattleProps> = ({
                         </div>
 
                         {/* Test results / console */}
-                        <div className="h-52 shrink-0 overflow-y-auto border-t border-gray-200 bg-[#fbfbfe] p-4 dark:border-gray-800 dark:bg-gray-900/60">
+                        <div className="h-44 shrink-0 overflow-y-auto border-t border-gray-200 bg-[#fbfbfe] p-3 sm:h-52 sm:p-4 dark:border-gray-800 dark:bg-gray-900/60">
                             <div className="flex items-center justify-between">
                                 <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wide text-gray-400 dark:text-gray-500">
                                     <Terminal size={12} /> Test results
@@ -742,7 +743,7 @@ const CodingBattle: React.FC<CodingBattleProps> = ({
 
                     {/* AI Coach panel — slides in when coachPanelOpen */}
                     {!isGuestPractice && coachPanelOpen && (
-                        <aside className="flex w-80 shrink-0 flex-col border-l border-[#ececf4] bg-[#faf9ff] dark:border-gray-800 dark:bg-[#1a1730] xl:w-[320px]">
+                        <aside className="flex h-[44svh] w-full shrink-0 flex-col border-t border-[#ececf4] bg-[#faf9ff] lg:h-auto lg:w-80 lg:border-l lg:border-t-0 dark:border-gray-800 dark:bg-[#1a1730] xl:w-[320px]">
                             <div className="flex shrink-0 items-center justify-between border-b border-[#ececf4] px-4 py-3 dark:border-gray-800">
                                 <div className="flex items-center gap-2">
                                     <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#625bd5] text-white dark:bg-[#7069dc]">
