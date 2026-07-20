@@ -35,8 +35,8 @@ const ScoreRing: React.FC<{ score: number }> = ({ score }) => {
     const circumference = 2 * Math.PI * radius;
     const offset = circumference - (validScore / 100) * circumference;
 
-    const scoreColor = validScore >= 75 ? 'text-emerald-600 dark:text-emerald-400' : validScore >= 50 ? 'text-amber-600 dark:text-amber-400' : 'text-rose-600 dark:text-rose-400';
-    const ringColor = validScore >= 75 ? 'stroke-emerald-500' : validScore >= 50 ? 'stroke-amber-500' : 'stroke-rose-500';
+    const scoreColor = validScore >= 70 ? 'text-emerald-600 dark:text-emerald-400' : validScore >= 45 ? 'text-amber-600 dark:text-amber-400' : 'text-rose-600 dark:text-rose-400';
+    const ringColor = validScore >= 70 ? 'stroke-emerald-500' : validScore >= 45 ? 'stroke-amber-500' : 'stroke-rose-500';
 
     return (
         <div className="relative shrink-0" style={{ width: size, height: size }}>
@@ -171,6 +171,23 @@ export const CoachingDashboard: React.FC<{ analysis: InterviewAnalysis }> = ({ a
                     </div>
                 </div>
             </section>
+
+            {/* NOTE: Demonstrated skills are currently displayed only on iOS, but the rendering markup is kept here for future web dashboard alignment. */}
+            {analysis.skills && analysis.skills.length > 0 && (
+                <section className="rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800">
+                    <h3 className="text-base font-bold text-gray-900 dark:text-white mb-3">Demonstrated skills</h3>
+                    <div className="flex flex-wrap gap-2">
+                        {analysis.skills.map(skill => (
+                            <span
+                                key={skill}
+                                className="rounded-full bg-primary-50 px-3 py-1.5 text-xs font-bold text-primary-700 dark:bg-primary-900/30 dark:text-primary-300 border border-primary-100 dark:border-primary-800/30"
+                            >
+                                {skill}
+                            </span>
+                        ))}
+                    </div>
+                </section>
+            )}
 
             <section>
                 <div className="mb-3 flex items-center gap-2">

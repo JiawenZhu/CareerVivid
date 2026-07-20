@@ -34,14 +34,14 @@ describe('buildQuestLine', () => {
     expect(ids).toEqual(['screening', 'coding', 'system_design', 'behavioral', 'values', 'final']);
   });
 
-  it('uses a 75-point clear threshold for every stage', () => {
+  it('uses a 70-point clear threshold for every stage', () => {
     const easy = buildQuestLine(makeGuide({ difficulty: 6 }));
     const hard = buildQuestLine(makeGuide({ difficulty: 8.5 }));
 
-    expect(easy.find((s) => s.id === 'coding')!.passThreshold).toBe(75);
-    expect(easy.find((s) => s.id === 'final')!.passThreshold).toBe(75);
-    expect(hard.find((s) => s.id === 'coding')!.passThreshold).toBe(75);
-    expect(hard.find((s) => s.id === 'final')!.passThreshold).toBe(75);
+    expect(easy.find((s) => s.id === 'coding')!.passThreshold).toBe(70);
+    expect(easy.find((s) => s.id === 'final')!.passThreshold).toBe(70);
+    expect(hard.find((s) => s.id === 'coding')!.passThreshold).toBe(70);
+    expect(hard.find((s) => s.id === 'final')!.passThreshold).toBe(70);
   });
 });
 

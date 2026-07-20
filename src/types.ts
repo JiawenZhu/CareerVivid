@@ -321,6 +321,11 @@ export interface InterviewAnalysis {
   communicationScore: number;
   confidenceScore: number;
   relevanceScore: number;
+  // New v2 scoring dimensions
+  problemSolvingScore?: number;
+  experienceScore?: number;
+  roleAlignmentScore?: number;
+  leadershipScore?: number | null;
   strengths: string;
   areasForImprovement: string;
   transcript: TranscriptEntry[];

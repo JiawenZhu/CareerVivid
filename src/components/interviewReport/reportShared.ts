@@ -47,9 +47,9 @@ export const clampScore = (score: number) => {
 
 export const scoreBand = (score: number) => {
     const validScore = clampScore(score);
-    if (validScore >= 80) return 'Strong';
-    if (validScore >= 65) return 'Developing well';
-    if (validScore >= 50) return 'Needs practice';
+    if (validScore >= 75) return 'Strong';
+    if (validScore >= 60) return 'Developing well';
+    if (validScore >= 40) return 'Needs practice';
     return 'Priority focus';
 };
 
@@ -65,11 +65,39 @@ export const deriveDashboardData = (analysis: InterviewAnalysis): DashboardData 
     const practiceNext = analysis.areasForImprovement || 'No practice recommendations were generated for this session.';
     const summarySource = firstSentence(strengths) || firstSentence(practiceNext);
 
-    return {
-        summary: summarySource || 'Review the score breakdown and transcript to identify your strongest answers and next practice focus.',
-        strengths,
-        practiceNext,
-        metrics: [
+    const hasV2 = analysis.problemSolvingScore != null && analysis.experienceScore != null && analysis.roleAlignmentScore != null;
+
+    const metrics: DashboardMetric[] = hasV2
+        ? [
+            {
+                label: 'Communication',
+                score: analysis.communicationScore,
+                helper: 'Clarity, structure, and ability to explain ideas effectively.',
+            },
+            {
+                label: 'Problem Solving',
+                score: analysis.problemSolvingScore!,
+                helper: 'Analytical thinking, structured reasoning, and decision quality.',
+            },
+            {
+                label: 'Experience & Impact',
+                score: analysis.experienceScore!,
+                helper: 'Relevant examples with concrete outcomes and learnings.',
+            },
+            {
+                label: 'Role Alignment',
+                score: analysis.roleAlignmentScore!,
+                helper: 'How well your answers connect to this specific role.',
+            },
+            ...(analysis.leadershipScore != null
+                ? [{
+                    label: 'Leadership',
+                    score: analysis.leadershipScore!,
+                    helper: 'People management, collaboration, and organizational decision-making.',
+                }]
+                : []),
+        ]
+        : [
             {
                 label: 'Communication',
                 score: analysis.communicationScore,
@@ -85,7 +113,13 @@ export const deriveDashboardData = (analysis: InterviewAnalysis): DashboardData 
                 score: analysis.relevanceScore,
                 helper: 'How directly your responses matched the prompt and role.',
             },
-        ],
+        ];
+
+    return {
+        summary: summarySource || 'Review the score breakdown and transcript to identify your strongest answers and next practice focus.',
+        strengths,
+        practiceNext,
+        metrics,
     };
 };
 

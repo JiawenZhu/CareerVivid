@@ -783,7 +783,14 @@ export const analyzeInterviewTranscript = async (userId: string, transcript: Tra
     try {
         const formattedTranscript = transcript.map(entry => `${entry.speaker === 'ai' ? 'Interviewer' : 'Candidate'}: ${entry.text}`).join('\n\n');
 
-        const fullPrompt = `You are an experienced interviewer writing an honest, calibrated feedback report after an interview. Judge the CANDIDATE only — the Interviewer lines are the questions asked. Base every judgment on what the candidate actually said in the transcript; never invent strengths or answers that are not there.
+        // Detect whether this is a management/leadership role
+        const isLeadershipRole = /\b(manager|director|vp|head of|lead|principal|staff|senior manager|engineering manager|product lead|team lead|people manager)\b/i.test(prompt);
+
+        const leadershipDimension = isLeadershipRole
+            ? `- leadershipScore: Did the candidate demonstrate people management, mentoring, team building, stakeholder alignment, or cross-functional collaboration? Score their ability to lead through others and make organizational decisions.`
+            : `- leadershipScore: set to null (this is an individual contributor role).`;
+
+        const fullPrompt = `You are an experienced interviewer writing an honest but encouraging feedback report after a practice interview. Judge the CANDIDATE only — the Interviewer lines are the questions asked. Base every judgment on what the candidate actually said in the transcript; never invent strengths or answers that are not there.
 
 Role / interview context:
 ${prompt}
@@ -792,28 +799,34 @@ ${prompt}
 Step 1 — TALLY: list every question the interviewer asked. For each, note in one line: answered fully / answered partially / dodged or no answer, plus the strongest specific detail the candidate gave (metric, name, example) or "no specifics".
 Step 2 — RUBRIC: score each dimension from the tally using the bands below. A dimension score must be explainable purely from your tally lines.
 Step 3 — Write feedback bullets; every bullet must reference a specific question or quote from the transcript.
+Step 4 — SKILLS: Identify 3 to 5 key professional, domain-specific, or soft skills demonstrated by the candidate (e.g. "React State Management", "Cross-functional Collaboration", "User Empathy", "API Design"). Let yourself choose freely based on the transcript answers.
 
-Scoring bands — all scores 0 to 100. Calibrate against a real hiring bar; typical decent candidates land 60-80:
-- 85-100: strong hire — specific, structured, correct, with depth. Reserve 95+ for at most 1 in 20 candidates; NEVER give 100 if you list any improvement for that dimension.
-- 70-84: hire — solid answers with minor gaps.
-- 50-69: mixed — partially answered, vague, or shallow in places.
-- 30-49: weak — mostly vague, off-target, or missing key substance.
-- 0-29: no signal — barely answered, evasive, or empty transcript.
+Scoring bands — all scores 0 to 100. A typical candidate giving reasonable answers should land 70-85. Be encouraging for practice:
+- 90-100: Exceptional — specific, well-structured, with depth and impact. Reserve for truly standout responses.
+- 75-89: Strong — solid answers that demonstrate competence and relevant experience.
+- 60-74: Developing — reasonable answers with room for more specificity, structure, or depth.
+- 40-59: Needs work — vague, off-target, or missing key substance.
+- 0-39: Minimal — barely answered, evasive, or empty transcript.
 
 Score each dimension:
-- communicationScore: structure, clarity, and concision. Did they organize answers (e.g. STAR) and stay easy to follow? Rambling or unstructured answers on 2+ questions caps this at 75.
-- confidenceScore: composure and conviction WITHOUT arrogance. Hedging, rambling, or "I don't know" with no attempt lowers this.
-- relevanceScore: did answers actually address the questions and the role, with concrete detail (metrics, examples, specifics) rather than generic filler? Any question fully dodged caps this at 70; two or more cap it at 55.
-- overallScore: your holistic hire/no-hire read, weighted toward relevance and substance — it may not exceed the highest dimension score.
+- communicationScore: How clearly and effectively did the candidate convey their ideas? Consider structure, clarity, and ability to explain complex concepts simply. Don't require a specific framework (like STAR) — any clear structure counts.
+- problemSolvingScore: Did the candidate demonstrate analytical thinking, structured reasoning, or good judgment? Consider how they approached problems, made decisions, or evaluated trade-offs.
+- experienceScore: Did the candidate share relevant experiences with concrete outcomes, learnings, or impact? Give credit for real examples even if they don't include exact metrics.
+- roleAlignmentScore: How well do the candidate's answers connect to the specific role, its requirements, and the company context? Consider domain knowledge and role fit.
+${leadershipDimension}
+- overallScore: Your holistic assessment — a weighted blend of all dimensions. This represents your overall impression of the candidate's readiness.
 
-Hard rules:
+Important rules:
+- Give credit for demonstrating understanding, even without perfect delivery.
+- Don't penalize informal or conversational answers if the substance is good.
 - Empty transcript or barely-responding candidate → everything below 30, say so plainly.
-- One-line or single-word answers are NOT specific: they cannot earn above 60 on relevance no matter how correct.
+- Focus on what the candidate DID say, not what they didn't say.
 - Never credit knowledge the candidate did not state. Judge the words in the transcript, not plausible intent.
 
 Feedback rules:
 - strengths: 2-4 markdown bullets, each citing something specific the candidate actually said (quote or close paraphrase). No generic praise.
-- areasForImprovement: 2-4 markdown bullets, each an actionable fix tied to a concrete moment ("When asked about X, you said Y — instead, quantify the impact and name the trade-off"). Be direct and useful, not soft.
+- areasForImprovement: 2-4 markdown bullets, each an actionable, encouraging fix tied to a concrete moment. Be direct and useful, not punishing.
+- skills: An array of 3 to 5 strings representing key skills demonstrated. Be specific and descriptive.
 
 **Transcript:**
 ---
@@ -822,30 +835,60 @@ ${formattedTranscript}
 
 Return ONLY a valid JSON object conforming to the schema.`;
 
+        const leadershipProp = isLeadershipRole
+            ? { leadershipScore: { type: "NUMBER", description: "Leadership and collaboration score 0-100" } }
+            : {};
+
         const config = {
             responseMimeType: "application/json",
             responseSchema: {
                 type: "OBJECT",
                 properties: {
-                    // Generated FIRST so the weak model tallies every question
-                    // before committing to scores (structured chain-of-thought).
                     rubricFindings: { type: "STRING", description: "Working notes: one tally line per interviewer question (answered fully/partially/dodged + strongest specific detail). Written before any score." },
-                    communicationScore: { type: "NUMBER", description: "A score from 0 to 100 for communication skills." },
-                    confidenceScore: { type: "NUMBER", description: "A score from 0 to 100 for confidence." },
-                    relevanceScore: { type: "NUMBER", description: "A score from 0 to 100 for answer relevance." },
-                    overallScore: { type: "NUMBER", description: "Holistic hire read; may not exceed the highest dimension score." },
+                    communicationScore: { type: "NUMBER", description: "Communication and clarity score 0-100." },
+                    problemSolvingScore: { type: "NUMBER", description: "Problem solving and analytical thinking score 0-100." },
+                    experienceScore: { type: "NUMBER", description: "Experience demonstration and impact score 0-100." },
+                    roleAlignmentScore: { type: "NUMBER", description: "Role alignment score 0-100." },
+                    ...leadershipProp,
+                    overallScore: { type: "NUMBER", description: "Holistic overall assessment score." },
+                    // Legacy fields — mapped from new dimensions for backward compatibility
+                    confidenceScore: { type: "NUMBER", description: "Mapped from problemSolvingScore for legacy compatibility." },
+                    relevanceScore: { type: "NUMBER", description: "Mapped from experienceScore for legacy compatibility." },
                     strengths: { type: "STRING", description: "A markdown-formatted string summarizing the candidate's strengths." },
-                    areasForImprovement: { type: "STRING", description: "A markdown-formatted string with actionable tips for improvement." }
+                    areasForImprovement: { type: "STRING", description: "A markdown-formatted string with actionable tips for improvement." },
+                    // NOTE: Demonstrated skills are currently displayed only on iOS, but the structure is kept/calculated here for parity and future use.
+                    skills: {
+                        type: "ARRAY",
+                        items: { type: "STRING" },
+                        description: "Array of 3 to 5 key skills demonstrated in the interview, decided freely by the LLM based on answers."
+                    }
                 },
-                propertyOrdering: ['rubricFindings', 'communicationScore', 'confidenceScore', 'relevanceScore', 'overallScore', 'strengths', 'areasForImprovement'],
+                propertyOrdering: [
+                    'rubricFindings',
+                    'communicationScore',
+                    'problemSolvingScore',
+                    'experienceScore',
+                    'roleAlignmentScore',
+                    ...(isLeadershipRole ? ['leadershipScore'] : []),
+                    'overallScore',
+                    'confidenceScore',
+                    'relevanceScore',
+                    'strengths',
+                    'areasForImprovement',
+                    'skills',
+                ],
                 required: [
                     'rubricFindings',
                     'overallScore',
                     'communicationScore',
+                    'problemSolvingScore',
+                    'experienceScore',
+                    'roleAlignmentScore',
                     'confidenceScore',
                     'relevanceScore',
                     'strengths',
-                    'areasForImprovement'
+                    'areasForImprovement',
+                    'skills'
                 ]
             },
         };
