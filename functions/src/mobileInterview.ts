@@ -5,7 +5,7 @@ import { GoogleAuth } from "google-auth-library";
 
 import { secureCorsHandler } from "./utils/corsUtils.js";
 import { resolveAuth } from "./utils/authUtils.js";
-import { getAIClient, getVertexLocationForModel } from "./utils/ai";
+import { getAIClient } from "./utils/ai";
 import { MOBILE_INTERVIEW_GUIDE_QUESTIONS } from "./mobileInterviewGuideQuestions.generated";
 
 if (!admin.apps.length) {
@@ -19,11 +19,6 @@ const MAX_TRANSCRIPT_CHARS = 28_000;
 // encoding. Keep the request comfortably below the HTTP payload limit while
 // allowing a little room for the WAV header and future timing metadata.
 const MAX_MOBILE_AUDIO_BYTES = 4 * 1024 * 1024;
-// Gemini 3.1 Flash-Lite is the shared multimodal model for the mobile
-// transcript and deep-report flows. The Cloud Functions remain deployed in
-// us-west1; Gemini 3.1 text/multimodal inference is routed through Vertex's
-// global endpoint by getVertexLocationForModel.
-const MOBILE_INTERVIEW_TEXT_MODEL = "gemini-3.1-flash-lite";
 // CompanyQuestPage starts every Web stage with getStageQuestionPool(...).slice(0, 5).
 // Keep this server-side cap as a guard for older Firestore documents that may
 // still contain the complete tiered pool instead of the Web session sequence.
@@ -412,13 +407,16 @@ ${leadershipBlock}
 - skills: An array of 3-5 strings representing key skills demonstrated. Be specific and descriptive.
 `;
 
-    const model = MOBILE_INTERVIEW_TEXT_MODEL;
-    const ai = getAIClient(undefined, getVertexLocationForModel(model));
+    // CareerVivid's interview-report workload stays in the same us-west1
+    // Vertex region as the deployed function and its existing data flow.
+    // Gemini 3.x is not enabled for this project in us-west1, while this
+    // structured-output model is available there and keeps reports reliable.
+    const model = "gemini-2.5-flash";
+    const ai = getAIClient(undefined, "us-west1");
 
     const leadershipProp = isLeadershipRole
         ? { leadershipScore: { type: "NUMBER" as const, description: "Leadership and collaboration score 0-100" } }
         : {};
-
     const result = await ai.models.generateContent({
         model,
         contents: fullPrompt,
@@ -481,8 +479,8 @@ async function transcribeMobileInterviewAudio(params: {
     company?: string;
     stage?: string;
 }): Promise<MobileInterviewTranscriptionPayload> {
-    const model = MOBILE_INTERVIEW_TEXT_MODEL;
-    const ai = getAIClient(undefined, getVertexLocationForModel(model));
+    const model = "gemini-2.5-flash";
+    const ai = getAIClient(undefined, "us-west1");
     const durationLine = params.durationInSeconds
         ? `The recording is about ${Math.max(1, Math.round(params.durationInSeconds))} seconds long.`
         : "The recording duration was not provided.";
@@ -758,9 +756,8 @@ export const mobileInterviewAnalyze = onRequestV2({
 
 /**
  * Converts the just-recorded short answer into editable text before analysis.
- * This endpoint and `mobileInterviewAnalyze` intentionally use the same
- * Gemini 3.1 Flash-Lite model so the editable transcript and deep report have
- * consistent language understanding.
+ * Both this endpoint and `mobileInterviewAnalyze` intentionally use the same
+ * stable Vertex model and region during the testing phase.
  */
 export const mobileInterviewTranscribe = onRequestV2({
     region: "us-west1",
@@ -816,8 +813,8 @@ export const mobileInterviewTranscribe = onRequestV2({
                 success: true,
                 transcript: transcription.transcript,
                 suggestions: transcription.suggestions,
-                model: MOBILE_INTERVIEW_TEXT_MODEL,
-                region: getVertexLocationForModel(MOBILE_INTERVIEW_TEXT_MODEL),
+                model: "gemini-2.5-flash",
+                region: "us-west1",
             });
         } catch (err: any) {
             console.error("[mobileInterviewTranscribe] Error:", err.message);
