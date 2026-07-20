@@ -86,7 +86,7 @@ export const buildQuestLine = (_guide: LocalInterviewGuide): QuestStage[] => {
 
   return kinds.map((kind) => ({
     ...STAGE_BLUEPRINTS[kind],
-    passThreshold: 75,
+    passThreshold: 70,
   }));
 };
 

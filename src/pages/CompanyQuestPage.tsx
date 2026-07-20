@@ -648,7 +648,7 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
                                             <h1 className="cv-design-title text-2xl sm:text-3xl">Beat the {guide.company} interview loop</h1>
                                         </div>
                                         <p className="cv-design-body mt-1.5 max-w-2xl text-sm">
-                                            Five real stages, playable in any order. Score {stages[0]?.passThreshold ?? 75}+ on each to clear it — clear all {stages.length} and the quest is yours.
+                                            Five real stages, playable in any order. Score {stages[0]?.passThreshold ?? 70}+ on each to clear it — clear all {stages.length} and the quest is yours.
                                         </p>
                                     </div>
                                     {!questComplete && currentStageIndex >= 0 && stages[currentStageIndex] && (

@@ -75,8 +75,14 @@ interface InterviewAnalysisPayload {
     communicationScore: number;
     confidenceScore: number;
     relevanceScore: number;
+    // New v2 scoring dimensions
+    problemSolvingScore: number;
+    experienceScore: number;
+    roleAlignmentScore: number;
+    leadershipScore: number | null;
     strengths: string;
     areasForImprovement: string;
+    skills: string[];
 }
 
 interface NormalizedTranscriptEntry {
@@ -312,13 +318,24 @@ function clampScore(value: unknown, fallback: number): number {
 
 function parseAnalysis(rawText: string): InterviewAnalysisPayload {
     const parsed = JSON.parse(rawText.trim()) as Partial<InterviewAnalysisPayload>;
+    const problemSolving = clampScore(parsed.problemSolvingScore, 70);
+    const experience = clampScore(parsed.experienceScore, 70);
+    const roleAlignment = clampScore(parsed.roleAlignmentScore, 70);
+    const leadership = parsed.leadershipScore != null ? clampScore(parsed.leadershipScore, 70) : null;
     return {
-        overallScore: clampScore(parsed.overallScore, 65),
-        communicationScore: clampScore(parsed.communicationScore, 65),
-        confidenceScore: clampScore(parsed.confidenceScore, 65),
-        relevanceScore: clampScore(parsed.relevanceScore, 65),
+        overallScore: clampScore(parsed.overallScore, 70),
+        // Map new dimensions back to legacy fields for older clients
+        communicationScore: clampScore(parsed.communicationScore, 70),
+        confidenceScore: problemSolving,
+        relevanceScore: experience,
+        // New v2 fields
+        problemSolvingScore: problemSolving,
+        experienceScore: experience,
+        roleAlignmentScore: roleAlignment,
+        leadershipScore: leadership,
         strengths: String(parsed.strengths || "The candidate gave relevant context and started connecting experience to the role."),
-        areasForImprovement: String(parsed.areasForImprovement || "Use tighter STAR structure, add measurable outcomes, and connect each answer back to the target role."),
+        areasForImprovement: String(parsed.areasForImprovement || "Add more specific examples, quantify your impact, and connect each answer back to the target role."),
+        skills: Array.isArray(parsed.skills) ? parsed.skills.map(String).filter(Boolean) : [],
     };
 }
 
@@ -333,8 +350,17 @@ async function createInterviewAnalysis(params: {
         ? `The session lasted about ${params.durationInSeconds} seconds.`
         : "The session duration was not provided.";
 
+    // Detect whether this is a management/leadership role from the prompt context
+    const isLeadershipRole =
+        params.category === "Leadership" ||
+        /\b(manager|director|vp|head of|lead|principal|staff|senior manager|engineering manager|product lead|team lead|people manager)\b/i.test(params.prompt);
+
+    const leadershipBlock = isLeadershipRole
+        ? `- leadershipScore: Did the candidate demonstrate people management, mentoring, team building, stakeholder alignment, or cross-functional collaboration? Score their ability to lead through others and make organizational decisions.`
+        : `- leadershipScore: set to null (this is an individual contributor role).`;
+
     const fullPrompt = `
-You are CareerVivid's senior interview coach. Analyze the candidate's mobile mock interview transcript.
+You are CareerVivid's senior interview coach — encouraging but honest. Analyze the candidate's mobile mock interview transcript and provide constructive, actionable feedback.
 
 Role context:
 ${params.prompt}
@@ -349,15 +375,36 @@ Transcript:
 ${formattedTranscript}
 ---
 
-Return a strict JSON object with:
-- overallScore: number from 0 to 100
-- communicationScore: number from 0 to 100
-- confidenceScore: number from 0 to 100
-- relevanceScore: number from 0 to 100
-- strengths: concise markdown string with 2-4 bullets
-- areasForImprovement: concise markdown string with 3-5 actionable bullets
+## PROCEDURE — follow in order
+Step 1 — TALLY: For each interviewer question, note whether the candidate answered it (fully, partially, or missed) and what specific detail they gave.
+Step 2 — SCORE each dimension using the bands below, based on your tally.
+Step 3 — Write feedback bullets referencing specific moments from the transcript.
+Step 4 — SKILLS: Identify 3 to 5 key professional, domain-specific, or soft skills demonstrated by the candidate (e.g. "React State Management", "Cross-functional Collaboration", "User Empathy", "API Design"). Let yourself choose freely based on the transcript answers.
 
-Be useful even if the interview is short. If the answer is sparse, score honestly and explain what to improve next. Do not mention that this is a JSON task.
+## SCORING BANDS — all scores 0 to 100
+A typical candidate giving reasonable answers should score 70-85. Be encouraging for practice.
+- 90-100: Exceptional — specific, well-structured, with depth and impact. Reserve for truly standout responses.
+- 75-89: Strong — solid answers that demonstrate competence and relevant experience.
+- 60-74: Developing — reasonable answers with room for more specificity, structure, or depth.
+- 40-59: Needs work — vague, off-target, or missing key substance.
+- 0-39: Minimal — barely answered or empty transcript.
+
+## DIMENSIONS TO SCORE
+- communicationScore: How clearly and effectively did the candidate convey their ideas? Consider structure, clarity, and ability to explain complex concepts simply. Don't require a specific framework (like STAR) — any clear structure counts.
+- problemSolvingScore: Did the candidate demonstrate analytical thinking, structured reasoning, or good judgment? Consider how they approached problems, made decisions, or evaluated trade-offs.
+- experienceScore: Did the candidate share relevant experiences with concrete outcomes, learnings, or impact? Give credit for real examples even if they don't include exact metrics.
+- roleAlignmentScore: How well do the candidate's answers connect to the specific role, its requirements, and the company context? Consider domain knowledge and role fit.
+${leadershipBlock}
+- overallScore: Your holistic assessment — a weighted blend of all dimensions. This represents your overall impression of the candidate's readiness.
+
+## IMPORTANT RULES
+- Give credit for demonstrating understanding, even without perfect delivery.
+- Don't penalize informal or conversational answers if the substance is good.
+- Short but substantive answers (30-90 seconds) are perfectly valid for practice.
+- Focus on what the candidate DID say, not what they didn't say.
+- strengths: 2-4 markdown bullets citing specific things the candidate said well.
+- areasForImprovement: 2-4 markdown bullets with actionable, encouraging tips tied to specific moments.
+- skills: An array of 3-5 strings representing key skills demonstrated. Be specific and descriptive.
 `;
 
     // CareerVivid's interview-report workload stays in the same us-west1
@@ -366,6 +413,10 @@ Be useful even if the interview is short. If the answer is sparse, score honestl
     // structured-output model is available there and keeps reports reliable.
     const model = "gemini-2.5-flash";
     const ai = getAIClient(undefined, "us-west1");
+
+    const leadershipProp = isLeadershipRole
+        ? { leadershipScore: { type: "NUMBER" as const, description: "Leadership and collaboration score 0-100" } }
+        : {};
     const result = await ai.models.generateContent({
         model,
         contents: fullPrompt,
@@ -374,20 +425,43 @@ Be useful even if the interview is short. If the answer is sparse, score honestl
             responseSchema: {
                 type: "OBJECT",
                 properties: {
-                    overallScore: { type: "NUMBER" },
-                    communicationScore: { type: "NUMBER" },
-                    confidenceScore: { type: "NUMBER" },
-                    relevanceScore: { type: "NUMBER" },
-                    strengths: { type: "STRING" },
-                    areasForImprovement: { type: "STRING" },
+                    rubricFindings: { type: "STRING" as const, description: "Working notes: tally of each question and how the candidate answered. Written before any score." },
+                    communicationScore: { type: "NUMBER" as const },
+                    problemSolvingScore: { type: "NUMBER" as const },
+                    experienceScore: { type: "NUMBER" as const },
+                    roleAlignmentScore: { type: "NUMBER" as const },
+                    ...leadershipProp,
+                    overallScore: { type: "NUMBER" as const },
+                    strengths: { type: "STRING" as const },
+                    areasForImprovement: { type: "STRING" as const },
+                    skills: {
+                        type: "ARRAY" as const,
+                        items: { type: "STRING" as const },
+                        description: "Array of 3 to 5 key skills demonstrated in the interview, decided freely by the LLM based on answers."
+                    }
                 },
-                required: [
-                    "overallScore",
+                propertyOrdering: [
+                    "rubricFindings",
                     "communicationScore",
-                    "confidenceScore",
-                    "relevanceScore",
+                    "problemSolvingScore",
+                    "experienceScore",
+                    "roleAlignmentScore",
+                    ...(isLeadershipRole ? ["leadershipScore"] : []),
+                    "overallScore",
                     "strengths",
                     "areasForImprovement",
+                    "skills",
+                ],
+                required: [
+                    "rubricFindings",
+                    "overallScore",
+                    "communicationScore",
+                    "problemSolvingScore",
+                    "experienceScore",
+                    "roleAlignmentScore",
+                    "strengths",
+                    "areasForImprovement",
+                    "skills",
                 ],
             },
         },
@@ -395,6 +469,7 @@ Be useful even if the interview is short. If the answer is sparse, score honestl
 
     return parseAnalysis(result.text || "{}");
 }
+
 
 async function transcribeMobileInterviewAudio(params: {
     audioBase64: string;
