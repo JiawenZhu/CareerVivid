@@ -23,6 +23,7 @@
 
 import fs from 'fs';
 import path from 'path';
+import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 import { initializeApp, cert } from 'firebase-admin/app';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
@@ -257,6 +258,31 @@ async function main() {
   const files = fs.readdirSync(DATA_DIR)
     .filter(f => f.endsWith('.json') && !f.startsWith('_'));
 
+  const force = args.includes('--force');
+
+  // Compute local hash if doing a full sync
+  let localHash = null;
+  if (!singleSlug) {
+    const hash = crypto.createHash('sha256');
+    if (fs.existsSync(BANKS_PATH)) {
+      hash.update(fs.readFileSync(BANKS_PATH));
+    }
+    const sortedFiles = [...files].sort();
+    for (const file of sortedFiles) {
+      hash.update(fs.readFileSync(path.join(DATA_DIR, file)));
+    }
+    localHash = hash.digest('hex');
+
+    if (!DRY_RUN && !force) {
+      const metaRef = db.collection('metadata').doc('questionsSync');
+      const metaDoc = await metaRef.get();
+      if (metaDoc.exists && metaDoc.data().hash === localHash) {
+        console.log('\n✓ Questions data is up to date (hash matches) — skipping Firestore sync.');
+        return;
+      }
+    }
+  }
+
   const toSeed = singleSlug
     ? files.filter(f => f === `${singleSlug}.json`)
     : files;
@@ -270,6 +296,15 @@ async function main() {
   }
 
   if (SYNC_BANKS || SKIP_GUIDES) await seedCategoryBanks();
+
+  // Write new hash back if full sync completed
+  if (localHash && !DRY_RUN) {
+    await db.collection('metadata').doc('questionsSync').set({
+      hash: localHash,
+      updatedAt: FieldValue.serverTimestamp()
+    });
+    console.log('\n✓ Updated sync hash in Firestore.');
+  }
 
   console.log('\n✅ Sync complete');
 }
