@@ -10,6 +10,13 @@
 
 ![CareerVivid company interview preparation page showing company-specific interview loops and a mock-interview action](docs/screenshots/company-quest-landing.png)
 
+## Test account (for reviewers)
+
+Sign in at [careervivid.app](https://careervivid.app) with this shared demo account to explore the full experience — no setup required:
+
+- **Email:** `evan@careervivid.app`
+- **Password:** `123456`
+
 ## Built around the candidate loop
 
 CareerVivid keeps the work that usually lives across a resume editor, job board,
